@@ -1,0 +1,30 @@
+module.exports = {
+  ROLES: {
+    SUPER_ADMIN: 'super_admin',
+    ADMIN: 'admin',
+    STUDENT: 'student'
+  },
+  
+  AUDIT_ACTIONS: {
+    CREDENTIAL_ISSUED: 'CREDENTIAL_ISSUED',
+    CREDENTIAL_REVOKED: 'CREDENTIAL_REVOKED',
+    CREDENTIAL_VERIFIED: 'CREDENTIAL_VERIFIED',
+    ADMIN_CREATED: 'ADMIN_CREATED',
+    ADMIN_DELETED: 'ADMIN_DELETED',
+    USER_LOGIN: 'USER_LOGIN',
+    USER_LOGOUT: 'USER_LOGOUT'
+  },
+
+  FILE_LIMITS: {
+    MAX_SIZE: 10 * 1024 * 1024, // 10MB
+    ALLOWED_TYPES: ['application/pdf']
+  },
+
+  JWT_EXPIRY: '7d',
+  
+  PAGINATION: {
+    DEFAULT_PAGE: 1,
+    DEFAULT_LIMIT: 20,
+    MAX_LIMIT: 100
+  }
+};
