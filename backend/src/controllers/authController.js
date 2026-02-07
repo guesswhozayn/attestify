@@ -2,6 +2,9 @@ const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const jwt = require('jsonwebtoken');
 const { AUDIT_ACTIONS, JWT_EXPIRY } = require('../config/constants');
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT token
 const generateToken = (userId, role) => {
@@ -238,5 +241,82 @@ exports.changePassword = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
+}
 
+// Google Login
+exports.googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    // Verify Google Token
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub: googleId } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // If user exists but no googleId (legacy email user), link it?
+      // For safety, we'll just update the googleId if it's missing
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.avatar = picture;
+        await user.save();
+      }
+    } else {
+      // Create new user
+      user = new User({
+        name,
+        email,
+        googleId,
+        avatar: picture,
+        role: 'student', // Default new google users to student
+        university: 'Not Specified', // Default to avoid validation error
+        isActive: true
+      });
+      await user.save();
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ error: 'Account is deactivated' });
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    // Generate token
+    const appToken = generateToken(user._id, user.role);
+
+    // Log action
+    await AuditLog.create({
+      action: AUDIT_ACTIONS.USER_LOGIN, // Use existing enum, or add GOOGLE_LOGIN if defined
+      performedBy: user._id,
+      ipAddress: req.ip,
+      userAgent: req.get('user-agent'),
+      details: { method: 'google' }
+    });
+
+    res.json({
+      success: true,
+      token: appToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        university: user.university,
+        walletAddress: user.walletAddress,
+        avatar: user.avatar
+      }
+    });
+
+  } catch (error) {
+    console.error('Google Login error:', error);
+    res.status(500).json({ error: 'Google login failed' });
+  }
+};

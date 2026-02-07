@@ -85,6 +85,11 @@ export const authAPI = {
     return api.post('/auth/login', credentials);
   },
 
+  // Google Login
+  googleLogin: async (token) => {
+    return api.post('/auth/google', { token });
+  },
+
   // Get current user
   getCurrentUser: async () => {
     return api.get('/auth/me');

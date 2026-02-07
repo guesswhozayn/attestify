@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function() { return !this.googleId; }, // Only required if not Google login
     minlength: [8, 'Password must be at least 8 characters'],
     select: false
   },
@@ -28,11 +28,21 @@ const userSchema = new mongoose.Schema({
   },
   university: {
     type: String,
-    required: [true, 'University is required']
+    default: 'Not Specified' // Default for OAuth users
   },
   title: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
+  },
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true,
+    select: false
+  },
+  avatar: {
+    type: String
   },
   walletAddress: {
     type: String,

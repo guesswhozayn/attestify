@@ -140,6 +140,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Google Login
+  const googleLogin = async (token) => {
+    try {
+      // We need to call the API manually as it might not be in authAPI yet, 
+      // OR we update api.js as well. Let's assume we update api.js first or use direct axios here.
+      // But to keep it consistent, let's use a direct axios call if authAPI isn't updated, 
+      // or update api.js. Updating api.js is better.
+      // I will assume authAPI.googleLogin exists (I will add it).
+      const response = await authAPI.googleLogin(token);
+      const { token: authToken, user: loggedInUser } = response.data;
+
+      // Save to localStorage
+      localStorage.setItem('token', authToken);
+      localStorage.setItem('user', JSON.stringify(loggedInUser));
+
+      // Set token in axios headers
+      setAuthToken(authToken);
+
+      // Update state
+      setUser(loggedInUser);
+      setIsAuthenticated(true);
+
+      return { success: true, user: loggedInUser };
+    } catch (error) {
+      console.error('Google Login error:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Google login failed.'
+      };
+    }
+  };
+
   // Handle logout cleanup
   const handleLogout = () => {
     // Clear localStorage
@@ -206,6 +238,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     register,
     login,
+    googleLogin,
     logout,
     updateUser,
     refreshUser,

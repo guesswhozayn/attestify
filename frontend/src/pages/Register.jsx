@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Shield, User, Mail, Lock, Building, AlertCircle } from 'lucide-react';
 import Input from '../components/shared/Input';
 import Button from '../components/shared/Button';
+import GoogleLoginButton from '../components/GoogleLoginButton';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -128,6 +129,17 @@ const Register = () => {
             >
               Create Account
             </Button>
+            
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-gray-800 text-gray-400">Or continue with</span>
+              </div>
+            </div>
+
+            <GoogleLoginButton text="signup_with" />
           </div>
 
           <div className="mt-6 text-center">

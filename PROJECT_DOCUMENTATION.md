@@ -145,15 +145,17 @@ The lifecycle includes: Requirement Gathering -> Smart Contract Design -> Backen
 **Prompt:**
 > Create an Entity Relationship Diagram (ERD) for a Credential Verification System.
 > Entities:
-> 1. **User** (UserID, Name, Email, PasswordHash, Role[Admin, Student], University, WalletAddress, StudentID)
-> 2. **Credential** (CredentialID, StudentID, StudentName, University, IssueDate, IPFS_CID, CertificateHash, TransactionHash, IsRevoked, RevocationReason, IssuedBy)
-> 3. **AuditLog** (LogID, Action, PerformedBy, TargetCredential, Details, Timestamp)
+> 1. **User** (UserID [PK], Name, Email, PasswordHash, Role[SuperAdmin, Admin, Student], University, Title, WalletAddress, StudentID, IsActive, LastLogin, CreatedBy [FK])
+> 2. **Credential** (CredentialID [PK], StudentID, StudentName, University, IssueDate, StudentImage, CertificateHash, IPFS_CID, TransactionHash, BlockNumber, IssuedBy [FK], IsRevoked, RevokedAt, RevokedBy [FK], RevocationReason, Metadata)
+> 3. **AuditLog** (LogID [PK], Action, PerformedBy [FK], TargetCredential [FK], TargetUser [FK], IPAddress, UserAgent, Details, Status, ErrorMessage, Timestamp)
 > Relationships:
-> - One User (Admin) issues many Credentials (via IssuedBy).
+> - One User (Admin) issues many Credentials (via IssuedBy [FK]).
 > - One User (Student) owns many Credentials (via StudentID).
-> - One User performs many AuditLogs.
-> - One Credential has many AuditLogs (related to issuance/revocation).
-> Show primary keys, foreign keys, and cardinality (1:N).
+> - One User creates other Users (via CreatedBy [FK]).
+> - One User performs many AuditLogs (via PerformedBy [FK]).
+> - One Credential has many AuditLogs (via TargetCredential [FK]).
+> - One User has many AuditLogs (via TargetUser [FK]).
+> Show primary keys (PK), foreign keys (FK), and cardinality (1:N).
 
 ### 4.2. Sequence Diagrams
 **Prompt:**
@@ -245,9 +247,9 @@ The lifecycle includes: Requirement Gathering -> Smart Contract Design -> Backen
 **Prompt:**
 > Create a Database Schema Diagram for a MongoDB setup.
 > Collections:
-> 1. **Users**: `_id`, `name`, `email`, `password`, `role`, `university`, `walletAddress`, `studentId`
-> 2. **Credentials**: `_id`, `studentId`, `studentName`, `university`, `issueDate`, `ipfsCID`, `certificateHash`, `transactionHash`, `issuedBy` (Ref User), `isRevoked`, `revocationReason`
-> 3. **AuditLogs**: `_id`, `action`, `performedBy` (Ref User), `targetCredential` (Ref Credential), `details`, `createdAt`
+> 1. **Users**: `_id` [PK], `name`, `email`, `password`, `role` (enum: super_admin, admin, student), `university`, `title`, `walletAddress`, `studentId`, `isActive`, `lastLogin`, `createdBy` (Ref User) [FK]
+> 2. **Credentials**: `_id` [PK], `studentId`, `studentName`, `university`, `issueDate`, `studentImage`, `certificateHash`, `ipfsCID`, `transactionHash`, `blockNumber`, `issuedBy` (Ref User) [FK], `isRevoked`, `revokedAt`, `revokedBy` (Ref User) [FK], `revocationReason`, `metadata` (Object)
+> 3. **AuditLogs**: `_id` [PK], `action`, `performedBy` (Ref User) [FK], `targetCredential` (Ref Credential) [FK], `targetUser` (Ref User) [FK], `ipAddress`, `userAgent`, `details` (Mixed), `status`, `errorMessage`, `createdAt`
 > Show the fields and types.
 
 ### 4.7. Smart Contract Design
