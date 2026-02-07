@@ -5,15 +5,18 @@ const ipfsService = require('../services/ipfsService');
 const hashService = require('../services/hashService');
 const fs = require('fs');
 const { AUDIT_ACTIONS } = require('../config/constants');
+const PDFDocument = require('pdfkit');
+const QRCode = require('qrcode');
+const path = require('path');
 
 // Issue new credential
 exports.issueCredential = async (req, res) => {
   let tempFilePath = null;
+  let tempImagePath = null;
 
   try {
     const { studentId, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
-    const certificateFile = req.files['certificate'] ? req.files['certificate'][0] : null;
-    const studentImageFile = req.files['studentImage'] ? req.files['studentImage'][0] : null;
+    const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
 
     // Parse JSON strings if they come from FormData
     let parsedTranscriptData = transcriptData;
@@ -26,12 +29,6 @@ exports.issueCredential = async (req, res) => {
       console.warn('Failed to parse JSON data', e);
     }
 
-    if (!certificateFile) {
-      return res.status(400).json({ error: 'Certificate file is required' });
-    }
-
-    tempFilePath = certificateFile.path;
-
     // Check if credential already exists
     const existing = await Credential.findOne({ studentId });
     if (existing) {
@@ -40,23 +37,164 @@ exports.issueCredential = async (req, res) => {
       });
     }
 
-    console.log('Processing certificate for student:', studentId);
+    // Generate PDF
+    console.log('Generating PDF for:', studentId, 'Type:', type);
+    
+    // Ensure uploads directory exists
+    const uploadsDir = path.join(__dirname, '../../uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
 
-    // 1. Generate SHA-256 hash
-    const certificateHash = await hashService.generateSHA256(certificateFile.path);
+    tempFilePath = path.join(uploadsDir, `cert_${studentId}_${Date.now()}.pdf`);
+    const doc = new PDFDocument({ layout: 'landscape', size: 'A4' });
+    const writeStream = fs.createWriteStream(tempFilePath);
+    doc.pipe(writeStream);
+
+    // Generate QR Code Data
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const verificationUrl = `${frontendUrl}/verify/${studentId}`;
+    const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
+
+    if (type === 'TRANSCRIPT') {
+      // --- TRANSCRIPT LAYOUT ---
+      // Header
+      doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+      
+      doc.fontSize(24).font('Helvetica-Bold').text(university || 'Attestify University', { align: 'center' });
+      doc.fontSize(16).text('OFFICIAL ACADEMIC TRANSCRIPT', { align: 'center' });
+      doc.moveDown();
+
+      // Student Details
+      doc.fontSize(12).font('Helvetica');
+      const startX = 50;
+      let currentY = doc.y;
+      
+      doc.text(`Student Name: ${studentName}`, startX, currentY);
+      doc.text(`Registration No: ${studentId}`, startX + 300, currentY);
+      currentY += 20;
+      doc.text(`Program: ${parsedTranscriptData?.program || 'N/A'}`, startX, currentY);
+      doc.text(`Department: ${parsedTranscriptData?.department || 'N/A'}`, startX + 300, currentY);
+      currentY += 20;
+      doc.text(`Admission Year: ${parsedTranscriptData?.admissionYear || 'N/A'}`, startX, currentY);
+      doc.text(`Graduation Year: ${parsedTranscriptData?.graduationYear || 'N/A'}`, startX + 300, currentY);
+      
+      doc.moveDown(2);
+
+      // Course Table Header
+      const tableTop = doc.y + 10;
+      const col1 = 50;  // Code
+      const col2 = 150; // Course Name
+      const col3 = 500; // Grade
+      const col4 = 600; // Credits
+
+      doc.font('Helvetica-Bold');
+      doc.text('Code', col1, tableTop);
+      doc.text('Course Title', col2, tableTop);
+      doc.text('Grade', col3, tableTop);
+      doc.text('Credits', col4, tableTop);
+      
+      doc.moveTo(40, tableTop + 15).lineTo(750, tableTop + 15).stroke();
+      
+      // Course List
+      doc.font('Helvetica');
+      let y = tableTop + 25;
+      
+      if (parsedTranscriptData?.courses && Array.isArray(parsedTranscriptData.courses)) {
+        parsedTranscriptData.courses.forEach(course => {
+          if (y > 500) { // New page if needed
+            doc.addPage({ layout: 'landscape', size: 'A4' });
+            doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+            y = 50;
+          }
+          doc.text(course.code || '', col1, y);
+          doc.text(course.name || '', col2, y);
+          doc.text(course.grade || '', col3, y);
+          doc.text(course.credits || '', col4, y);
+          y += 20;
+        });
+      }
+
+      doc.moveTo(40, y).lineTo(750, y).stroke();
+      y += 20;
+
+      // Summary
+      doc.font('Helvetica-Bold').fontSize(14);
+      doc.text(`CGPA / GPA: ${parsedTranscriptData?.cgpa || 'N/A'}`, col3 - 50, y);
+      
+      // Footer / Verification
+      y = doc.page.height - 120;
+      doc.fontSize(10).font('Helvetica');
+      doc.text(`Issue Date: ${new Date(issueDate).toLocaleDateString()}`, 50, y);
+      
+      doc.image(qrCodeDataUrl, doc.page.width - 120, y - 20, { width: 80 });
+      doc.text('Scan to Verify', doc.page.width - 120, y + 65, { width: 80, align: 'center' });
+
+    } else {
+      // --- CERTIFICATION LAYOUT ---
+      // 1. Background / Border (Simple rectangle)
+      doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+      
+      // 2. Header
+      doc.fontSize(30).text(university || 'Attestify University', { align: 'center', valign: 'center' });
+      doc.moveDown();
+      doc.fontSize(20).text('Certificate of Completion', { align: 'center' });
+      doc.moveDown();
+      
+      // 3. Body
+      doc.fontSize(15).text('This is to certify that', { align: 'center' });
+      doc.moveDown(0.5);
+      doc.fontSize(25).font('Helvetica-Bold').text(studentName, { align: 'center' });
+      doc.font('Helvetica').fontSize(15).moveDown(0.5);
+      doc.text(`Registration No: ${studentId}`, { align: 'center' });
+      doc.moveDown();
+      doc.text('Has successfully completed the requirements for', { align: 'center' });
+      doc.moveDown(0.5);
+
+      let title = parsedCertificationData?.title || 'Program Completion';
+      doc.fontSize(20).font('Helvetica-Bold').text(title, { align: 'center' });
+      
+      if (parsedCertificationData?.level) {
+         doc.moveDown(0.5);
+         doc.fontSize(14).font('Helvetica').text(`Level: ${parsedCertificationData.level}`, { align: 'center' });
+      }
+
+      doc.font('Helvetica').moveDown(2);
+      
+      doc.fontSize(12).text(`Issued on: ${new Date(issueDate).toLocaleDateString()}`, { align: 'center' });
+      doc.moveDown(2);
+
+      // 4. QR Code
+      doc.image(qrCodeDataUrl, doc.page.width / 2 - 50, doc.y, { width: 100 });
+      doc.fontSize(10).text('Scan to Verify', doc.page.width / 2 - 50, doc.y + 105, { width: 100, align: 'center' });
+    }
+
+    doc.end();
+
+    // Wait for PDF to be written
+    await new Promise((resolve, reject) => {
+      writeStream.on('finish', resolve);
+      writeStream.on('error', reject);
+    });
+
+    console.log('PDF generated at:', tempFilePath);
+
+    // --- Continuation of Issuance Process ---
+
+    // 1. Generate SHA-256 hash of the generated PDF
+    const certificateHash = await hashService.generateSHA256(tempFilePath);
     console.log('Generated hash:', certificateHash);
 
-    // 2. Upload to IPFS
+    // 2. Upload PDF to IPFS
     const ipfsResult = await ipfsService.uploadFile(
-      certificateFile.path,
-      `${studentId}_${certificateFile.originalname}`
+      tempFilePath,
+      `Certificate_${studentId}.pdf`
     );
     console.log('Uploaded to IPFS:', ipfsResult.ipfsHash);
 
     // 2.5 Upload Student Image to IPFS (if provided)
-    let studentImageUrl = req.body.studentImage; // Fallback to URL if string provided
-    let tempImagePath = null;
-
+    let studentImageUrl = req.body.studentImage; 
+    
     if (studentImageFile) {
       try {
         tempImagePath = studentImageFile.path;
@@ -68,7 +206,6 @@ exports.issueCredential = async (req, res) => {
         console.log('Uploaded student image to IPFS:', imageIpfsResult.ipfsHash);
       } catch (uploadError) {
         console.error('Failed to upload student image to IPFS:', uploadError);
-        // We continue even if image upload fails, or you could return error
       }
     }
 
@@ -99,9 +236,9 @@ exports.issueCredential = async (req, res) => {
       totalCost: blockchainResult.totalCost,
       issuedBy: req.user._id,
       metadata: {
-        fileSize: certificateFile.size,
-        fileType: certificateFile.mimetype,
-        originalFileName: certificateFile.originalname
+        fileSize: fs.statSync(tempFilePath).size,
+        fileType: 'application/pdf',
+        originalFileName: `Certificate_${studentId}.pdf`
       }
     });
 
@@ -128,9 +265,6 @@ exports.issueCredential = async (req, res) => {
     if (tempImagePath && fs.existsSync(tempImagePath)) {
       fs.unlinkSync(tempImagePath);
     }
-
-    // 7. Send email notification (optional)
-    // await emailService.sendCertificateIssued(studentEmail, credential);
 
     res.status(201).json({
       success: true,
@@ -165,9 +299,6 @@ exports.issueCredential = async (req, res) => {
     if (tempFilePath && fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
     }
-    // Note: tempImagePath is block-scoped above, so we can't access it here easily 
-    // without wider scope or checking req.files again. 
-    // Let's check req.files directly for cleanup safety.
     if (req.files && req.files['studentImage'] && req.files['studentImage'][0]) {
       const imgPath = req.files['studentImage'][0].path;
       if (fs.existsSync(imgPath)) {

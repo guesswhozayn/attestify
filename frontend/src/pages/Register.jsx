@@ -14,6 +14,10 @@ const Register = () => {
     confirmPassword: '',
     university: '',
     registrationNumber: '',
+    walletAddress: '', // Initialize for student
+    authorizedWalletAddress: '', // Initialize for institute
+    officialEmailDomain: '', // Initialize for institute
+    institutionName: '', // Initialize for institute
     role: 'INSTITUTE', // Default role
   });
   const [error, setError] = useState('');
@@ -148,7 +152,7 @@ const Register = () => {
                   value={formData.authorizedWalletAddress}
                   onChange={handleChange}
                   placeholder="0x..."
-                  icon={Lock} // Or a wallet icon if available
+                  icon={Lock}
                   required
                 />
                  <Input
@@ -179,6 +183,15 @@ const Register = () => {
                   onChange={handleChange}
                   placeholder="2024-CS-001"
                   icon={User}
+                  required
+                />
+                <Input
+                  label="Wallet Address"
+                  name="walletAddress"
+                  value={formData.walletAddress}
+                  onChange={handleChange}
+                  placeholder="0x..."
+                  icon={Lock}
                   required
                 />
               </>

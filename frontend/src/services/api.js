@@ -196,41 +196,6 @@ export const verifyAPI = {
 };
 
 // ============================================
-// Admin APIs
-// ============================================
-export const adminAPI = {
-  // Create new admin
-  create: async (adminData) => {
-    return api.post('/admin/create', adminData);
-  },
-
-  // Get all admins
-  getAll: async () => {
-    return api.get('/admin/list');
-  },
-
-  // Get admin by ID
-  getById: async (id) => {
-    return api.get(`/admin/${id}`);
-  },
-
-  // Update admin
-  update: async (id, data) => {
-    return api.put(`/admin/${id}`, data);
-  },
-
-  // Delete admin
-  delete: async (id) => {
-    return api.delete(`/admin/${id}`);
-  },
-
-  // Toggle admin status
-  toggleStatus: async (id) => {
-    return api.post(`/admin/${id}/toggle-status`);
-  }
-};
-
-// ============================================
 // Audit Log APIs
 // ============================================
 export const auditAPI = {

@@ -29,12 +29,17 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/credentials', require('./routes/credentials'));
-app.use('/api/verify', require('./routes/verify'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/audit', require('./routes/audit'));
-app.use('/api/user', require('./routes/user'));
+const authRoutes = require('./routes/auth');
+const credentialRoutes = require('./routes/credentials');
+const verifyRoutes = require('./routes/verify');
+const userRoutes = require('./routes/user');
+const auditRoutes = require('./routes/audit');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/credentials', credentialRoutes);
+app.use('/api/verify', verifyRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/audit', auditRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

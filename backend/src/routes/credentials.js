@@ -6,7 +6,6 @@ const { requireAdmin } = require('../middleware/roleCheck');
 const upload = require('../middleware/upload');
 
 router.post('/issue', authenticate, requireAdmin, upload.fields([
-  { name: 'certificate', maxCount: 1 },
   { name: 'studentImage', maxCount: 1 }
 ]), credentialController.issueCredential);
 

@@ -3,9 +3,10 @@ import Header from '../components/layout/Header';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
 import IPFSService from '../services/ipfs';
-import { Download, Share2, Award, Calendar, ExternalLink, ShieldAlert } from 'lucide-react';
+import { Download, Share2, Award, Calendar, ExternalLink, ShieldAlert, Wallet } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import { credentialAPI } from '../services/api';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -15,11 +16,20 @@ const StudentDashboard = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user?.studentId) {
-      fetchCredential();
-    } else {
-      setLoading(false);
-    }
+    const init = async () => {
+      if (user?.studentId) {
+        // Try to connect wallet automatically if possible, or at least check status
+        try {
+           await blockchainService.connectWallet(); 
+        } catch (e) {
+           console.log("Wallet not auto-connected", e);
+        }
+        fetchCredential();
+      } else {
+        setLoading(false);
+      }
+    };
+    init();
   }, [user]);
 
   const fetchCredential = async () => {
@@ -27,24 +37,59 @@ const StudentDashboard = () => {
       setLoading(true);
       setError('');
       
-      // 1. Get credential from blockchain
-      const cred = await blockchainService.getCredential(user.studentId);
-      
-      if (!cred || cred.certificateHash === '0x0000000000000000000000000000000000000000000000000000000000000000') {
-        // No credential found
-        setCredential(null);
-      } else {
-        setCredential(cred);
+      // 1. Check Wallet Connection
+      const connectedWallet = await blockchainService.getAccount();
+      if (!connectedWallet) {
+        setError('Please connect your wallet to view your credentials.');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Verify Wallet Match
+      if (user.walletAddress && connectedWallet.toLowerCase() !== user.walletAddress.toLowerCase()) {
+        setError(`Wallet mismatch! Your registered wallet is ${user.walletAddress}, but you are connected with ${connectedWallet}. Please switch accounts.`);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Get credential from Backend API (Source of Truth for Details)
+      // We assume the user might have multiple, but for now we fetch by StudentID which usually returns the latest or list.
+      // Based on API implementation: getByStudentId returns a single object or 404.
+      try {
+        const response = await credentialAPI.getByStudentId(user.studentId);
+        const cred = response.data.credential;
         
-        // 2. Fetch metadata from IPFS
-        if (cred.ipfsCID) {
-          const meta = await IPFSService.fetchJSON(cred.ipfsCID);
-          setMetadata(meta);
+        if (cred) {
+           // 4. Verify against Blockchain
+           const blockchainData = await blockchainService.getCredential(user.studentId);
+           
+           // Merge data
+           setCredential({
+             ...cred,
+             ...blockchainData, // Overlay blockchain status (isRevoked)
+             // Use IPFS CID from DB if blockchain one is missing or for consistency
+             ipfsCID: cred.ipfsCID || blockchainData.ipfsCID  
+           });
+           
+           // Metadata is now part of the credential object from DB (transcriptData/certificationData)
+           // We map it to the generic 'metadata' state for the UI
+           setMetadata(cred.type === 'TRANSCRIPT' ? cred.transcriptData : cred.certificationData);
+           
+        } else {
+             setCredential(null);
+        }
+
+      } catch (apiError) {
+        if (apiError.response && apiError.response.status === 404) {
+            setCredential(null);
+        } else {
+            throw apiError;
         }
       }
+
     } catch (err) {
       console.error('Error fetching credential:', err);
-      setError('Failed to load your credential. Please try again later.');
+      setError('Failed to load your credential. ' + (err.message || ''));
     } finally {
       setLoading(false);
     }
@@ -61,7 +106,21 @@ const StudentDashboard = () => {
 
   const openIPFSLink = () => {
     if (credential?.ipfsCID) {
+      // Use the utility to construct valid IPFS gateway URL
       window.open(IPFSService.getUrl(credential.ipfsCID), '_blank');
+    }
+  };
+
+  const handleConnect = async () => {
+    try {
+      setLoading(true);
+      await blockchainService.connectWallet();
+      // clear error and retry fetching
+      setError('');
+      fetchCredential();
+    } catch (err) {
+      console.error("Connection failed:", err);
+      setLoading(false);
     }
   };
 
@@ -89,9 +148,22 @@ const StudentDashboard = () => {
         </div>
 
         {error && (
-            <div className="mb-6 p-4 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg flex items-center space-x-2">
-              <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <span className="text-red-400">{error}</span>
+            <div className="mb-6 p-4 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg flex flex-col items-start space-y-3">
+              <div className="flex items-center space-x-2">
+                <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
+                <span className="text-red-400">{error}</span>
+              </div>
+              
+              {(error.includes('connect your wallet') || error.includes('Wallet mismatch')) && (
+                <Button 
+                  onClick={handleConnect}
+                  icon={Wallet}
+                  variant="primary"
+                  className="mt-2"
+                >
+                  {error.includes('mismatch') ? 'Switch Wallet' : 'Connect Wallet'}
+                </Button>
+              )}
             </div>
         )}
 

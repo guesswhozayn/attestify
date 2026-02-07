@@ -15,7 +15,6 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
     university: '',
     issueDate: '',
     studentImage: '',
-    certificateFile: null,
   });
 
   const handleChange = (e) => {
@@ -27,13 +26,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (type === 'certificate') {
-      if (file.type === 'application/pdf') {
-        setFormData(prev => ({ ...prev, certificateFile: file }));
-      } else {
-        showNotification('Please select a PDF file for the certificate', 'error');
-      }
-    } else if (type === 'studentImage') {
+    if (type === 'studentImage') {
       if (file.type.startsWith('image/')) {
         setFormData(prev => ({ ...prev, studentImage: file }));
       } else {
@@ -81,9 +74,9 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
     }));
   };
 
-  const handleSubmit = async () => {
+    const handleSubmit = async () => {
     if (!formData.studentName || !formData.studentId || !formData.university || 
-        !formData.issueDate || !formData.certificateFile) {
+        !formData.issueDate) {
       showNotification('Please fill in all required fields', 'error');
       return;
     }
@@ -102,7 +95,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
         formDataToSend.append('studentImage', formData.studentImage);
       }
       
-      formDataToSend.append('certificate', formData.certificateFile);
+      // Certificate is now generated on backend based on these details
 
       if (credentialType === 'TRANSCRIPT') {
         formDataToSend.append('transcriptData', JSON.stringify(transcriptData));
@@ -378,23 +371,9 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
         </div>
 
-        <div>
-          <label className="block text-gray-400 text-sm mb-2">
-            Evidence Document (PDF) <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => handleFileChange(e, 'certificate')}
-            className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-green-600 file:text-white hover:file:bg-green-700 cursor-pointer"
-          />
-          {formData.certificateFile && (
-            <p className="text-green-400 text-sm mt-2 flex items-center">
-              <Upload className="w-4 h-4 mr-2" />
-              {formData.certificateFile.name}
-            </p>
-          )}
-        </div>
+        {/* Detailed fields depending on type generated automatically on backend */}
+        
+        {/* Certificate File Upload Removed - Automated on Backend */}
 
         <div className="flex justify-center pt-4">
           <Button

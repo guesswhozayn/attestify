@@ -29,39 +29,47 @@ exports.register = async (req, res) => {
       institutionName,
       registrationNumber,
       authorizedWalletAddress,
-      officialEmailDomain
+      officialEmailDomain,
+      walletAddress // Add this to destructuring
     } = req.body;
 
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ error: 'User already exists' });
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Create user object
+    // Check wallet address if provided
+    if (walletAddress) {
+      const existingWallet = await User.findOne({ walletAddress });
+      if (existingWallet) {
+        return res.status(400).json({ error: 'Wallet address already registered' });
+      }
+    }
+
+    // Create user based on role
     const userData = {
       name,
       email,
       password,
       role: role || 'STUDENT',
-      university
+      university,
+      walletAddress
     };
 
-    if (role === 'STUDENT') {
-      userData.studentId = studentId || registrationNumber; // Use reg number as studentId if not provided separately
-      userData.registrationNumber = registrationNumber;
-    } else if (role === 'INSTITUTE') {
+    if (role === 'INSTITUTE') {
       userData.instituteDetails = {
-        institutionName: institutionName || university, // Fallback to university name
-        registrationNumber, // Institute-specific registration number
+        institutionName,
+        registrationNumber,
         authorizedWalletAddress,
         officialEmailDomain
       };
+    } else {
+      userData.studentId = studentId;
+      userData.registrationNumber = registrationNumber;
     }
 
-    user = new User(userData);
-
-    await user.save();
+    const user = await User.create(userData);
 
     // Generate token
     const token = generateToken(user._id, user.role);
@@ -70,9 +78,9 @@ exports.register = async (req, res) => {
     await AuditLog.create({
       action: AUDIT_ACTIONS.USER_CREATED,
       performedBy: user._id,
-      targetUser: user._id,
       ipAddress: req.ip,
-      userAgent: req.get('user-agent')
+      userAgent: req.get('user-agent'),
+      details: { role: user.role }
     });
 
     res.status(201).json({
@@ -83,12 +91,14 @@ exports.register = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        university: user.university
+        university: user.university,
+        walletAddress: user.walletAddress,
+        studentId: user.studentId
       }
     });
 
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('Registration error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -146,7 +156,8 @@ exports.login = async (req, res) => {
         email: user.email,
         role: user.role,
         university: user.university,
-        walletAddress: user.walletAddress
+        walletAddress: user.walletAddress,
+        studentId: user.studentId
       }
     });
 
@@ -174,6 +185,7 @@ exports.getCurrentUser = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
+        studentId: user.studentId,
         createdAt: user.createdAt
       }
     });
@@ -318,17 +330,11 @@ exports.googleLogin = async (req, res) => {
         await user.save();
       }
     } else {
-      // Create new user
-      user = new User({
-        name,
-        email,
-        googleId,
-        avatar: picture,
-        role: 'STUDENT', // Default new google users to student
-        university: 'Not Specified', // Default to avoid validation error
-        isActive: true
+      // User does not exist - Do NOT create automatically
+      // We require Wallet Address and Registration Number which Google doesn't provide
+      return res.status(404).json({ 
+        error: 'Account not found. Please register via the form to set up your Wallet Address and Profile.' 
       });
-      await user.save();
     }
 
     if (!user.isActive) {
@@ -361,12 +367,13 @@ exports.googleLogin = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
+        studentId: user.studentId,
         avatar: user.avatar
       }
     });
 
   } catch (error) {
-    console.error('Google Login error:', error);
-    res.status(500).json({ error: 'Google login failed' });
+    console.error('Google login error:', error);
+    res.status(500).json({ error: error.message });
   }
 };

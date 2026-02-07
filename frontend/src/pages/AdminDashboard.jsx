@@ -4,7 +4,6 @@ import Button from '../components/shared/Button';
 import CertificateGrid from '../components/certificate/CertificateGrid';
 import CertificateDetails from '../components/certificate/CertificateDetails';
 import UploadCertificateModal from '../components/certificate/UploadCertificateModal';
-import CreateAdminModal from '../components/admin/CreateAdminModal';
 import StatisticsCard from '../components/admin/StatisticsCard';
 import { FileText, Users, Shield, TrendingUp } from 'lucide-react';
 import { credentialAPI } from '../services/api';
@@ -15,7 +14,6 @@ const AdminDashboard = () => {
   const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showAdminModal, setShowAdminModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
@@ -84,12 +82,6 @@ const AdminDashboard = () => {
         {/* Action Buttons */}
         <div className="flex justify-end space-x-4 mb-8">
           <Button
-            onClick={() => setShowAdminModal(true)}
-            variant="secondary"
-          >
-            Assign an Admin
-          </Button>
-          <Button
             onClick={() => setShowUploadModal(true)}
             variant="primary"
           >
@@ -146,12 +138,6 @@ const AdminDashboard = () => {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onSuccess={handleCertificateUpload}
-      />
-
-      <CreateAdminModal
-        isOpen={showAdminModal}
-        onClose={() => setShowAdminModal(false)}
-        onSuccess={() => showNotification('Admin created successfully', 'success')}
       />
 
       {selectedCertificate && (

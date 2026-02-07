@@ -8,12 +8,10 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import VerificationPortal from './components/verification/VerificationPortal';
-import AdminManagement from './pages/AdminManagement';
 import AuditLogs from './pages/AuditLogs';
 import RevokedCertificates from './pages/RevokedCertificates';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
-import InstituteProfile from './pages/InstituteProfile';
 import VerifyPage from './pages/Verify';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
@@ -61,15 +59,6 @@ function App() {
         />
 
         <Route
-          path="/admin-management"
-          element={
-            <PrivateRoute allowedRoles={['INSTITUTE']}>
-              <AdminManagement />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
           path="/audit-logs"
           element={
             <PrivateRoute allowedRoles={['INSTITUTE']}>
@@ -103,15 +92,6 @@ function App() {
           element={
             <PrivateRoute>
               <Settings />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/institute-profile"
-          element={
-            <PrivateRoute allowedRoles={['INSTITUTE']}>
-              <InstituteProfile />
             </PrivateRoute>
           }
         />
