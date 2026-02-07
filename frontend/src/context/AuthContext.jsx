@@ -100,9 +100,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login user
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     try {
-      const response = await authAPI.login({ email, password });
+      const response = await authAPI.login({ email, password, selectedRole: role });
       const { token, user: loggedInUser } = response.data;
 
       // Save to localStorage
@@ -216,19 +216,14 @@ export const AuthProvider = ({ children }) => {
     return user.role === role;
   };
 
-  // Check if user is admin
+  // Check if user is institute (admin)
   const isAdmin = () => {
-    return hasRole(['admin', 'super_admin']);
-  };
-
-  // Check if user is super admin
-  const isSuperAdmin = () => {
-    return hasRole('super_admin');
+    return hasRole('INSTITUTE');
   };
 
   // Check if user is student
   const isStudent = () => {
-    return hasRole('student');
+    return hasRole('STUDENT');
   };
 
   // Context value
@@ -244,7 +239,6 @@ export const AuthProvider = ({ children }) => {
     refreshUser,
     hasRole,
     isAdmin,
-    isSuperAdmin,
     isStudent
   };
 

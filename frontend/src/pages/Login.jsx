@@ -9,6 +9,7 @@ import GoogleLoginButton from '../components/GoogleLoginButton';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState('INSTITUTE');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,10 +28,14 @@ const Login = () => {
 
     setLoading(true);
 
-    const result = await login(email, password);
+    const result = await login(email, password, selectedRole);
     
     if (result.success) {
-      navigate('/dashboard');
+      if (selectedRole === 'STUDENT') {
+        navigate('/student-dashboard');
+      } else {
+        navigate('/admin-dashboard');
+      }
     } else {
       setError(result.error);
     }
@@ -51,6 +56,32 @@ const Login = () => {
         </div>
 
         <div className="bg-gray-800 rounded-2xl shadow-xl p-8">
+            {/* Role Toggle */}
+            <div className="flex p-1 bg-gray-700 rounded-lg mb-6">
+              <button
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                  selectedRole === 'INSTITUTE'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                onClick={() => setSelectedRole('INSTITUTE')}
+                type="button"
+              >
+                Institute
+              </button>
+              <button
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                  selectedRole === 'STUDENT'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                onClick={() => setSelectedRole('STUDENT')}
+                type="button"
+              >
+                Student
+              </button>
+            </div>
+
           {error && (
             <div className="mb-6 p-4 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg flex items-center space-x-2 animate-shake">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
@@ -68,7 +99,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-gray-700 text-white pl-12 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-                  placeholder="admin@university.com"
+                  placeholder={selectedRole === 'INSTITUTE' ? "admin@university.com" : "student@university.com"}
                   required
                 />
               </div>

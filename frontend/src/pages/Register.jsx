@@ -13,6 +13,8 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     university: '',
+    registrationNumber: '',
+    role: 'INSTITUTE', // Default role
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +45,11 @@ const Register = () => {
     const result = await register(formData);
     
     if (result.success) {
-      navigate('/dashboard');
+      if (formData.role === 'STUDENT') {
+        navigate('/student-dashboard');
+      } else {
+        navigate('/admin-dashboard');
+      }
     } else {
       setError(result.error);
     }
@@ -63,6 +69,32 @@ const Register = () => {
         </div>
 
         <div className="bg-gray-800 rounded-2xl shadow-xl p-8">
+           {/* Role Toggle */}
+           <div className="flex p-1 bg-gray-700 rounded-lg mb-6">
+              <button
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                  formData.role === 'INSTITUTE'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                onClick={() => setFormData({ ...formData, role: 'INSTITUTE' })}
+                type="button"
+              >
+                Institute
+              </button>
+              <button
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                  formData.role === 'STUDENT'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                onClick={() => setFormData({ ...formData, role: 'STUDENT' })}
+                type="button"
+              >
+                Student
+              </button>
+           </div>
+
           {error && (
             <div className="mb-6 p-4 bg-red-500 bg-opacity-10 border border-red-500 rounded-lg flex items-center space-x-2">
               <AlertCircle className="w-5 h-5 text-red-500" />
@@ -86,19 +118,71 @@ const Register = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="john@university.com"
+              placeholder={formData.role === 'INSTITUTE' ? "admin@university.com" : "student@university.com"}
               icon={Mail}
               required
             />
-            <Input
-              label="University"
-              name="university"
-              value={formData.university}
-              onChange={handleChange}
-              placeholder="Your University"
-              icon={Building}
-              required
-            />
+            {formData.role === 'INSTITUTE' ? (
+              <>
+                <Input
+                  label="Institution Name"
+                  name="institutionName"
+                  value={formData.institutionName}
+                  onChange={handleChange}
+                  placeholder="University of Chakwal"
+                  icon={Building}
+                  required
+                />
+                <Input
+                  label="Registration / License Number"
+                  name="registrationNumber"
+                  value={formData.registrationNumber}
+                  onChange={handleChange}
+                  placeholder="REG-12345"
+                  icon={Shield}
+                  required
+                />
+                 <Input
+                  label="Authorized Wallet Address"
+                  name="authorizedWalletAddress"
+                  value={formData.authorizedWalletAddress}
+                  onChange={handleChange}
+                  placeholder="0x..."
+                  icon={Lock} // Or a wallet icon if available
+                  required
+                />
+                 <Input
+                  label="Official Email Domain"
+                  name="officialEmailDomain"
+                  value={formData.officialEmailDomain}
+                  onChange={handleChange}
+                  placeholder="@uoc.edu.pk"
+                  icon={Mail}
+                  required
+                />
+              </>
+            ) : (
+              <>
+                <Input
+                  label="University"
+                  name="university"
+                  value={formData.university}
+                  onChange={handleChange}
+                  placeholder="Your University"
+                  icon={Building}
+                  required
+                />
+                <Input
+                  label="Registration Number (Roll No)"
+                  name="registrationNumber"
+                  value={formData.registrationNumber}
+                  onChange={handleChange}
+                  placeholder="2024-CS-001"
+                  icon={User}
+                  required
+                />
+              </>
+            )}
             <Input
               label="Password"
               type="password"

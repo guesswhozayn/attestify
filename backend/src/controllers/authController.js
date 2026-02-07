@@ -18,24 +18,48 @@ const generateToken = (userId, role) => {
 // Register new user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, university, title, walletAddress } = req.body;
-
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already registered' });
-    }
-
-    // Create user
-    const user = new User({
+    const {
       name,
       email,
       password,
+      role,
       university,
-      title,
-      walletAddress,
-      role: 'admin' // Default role
-    });
+      studentId,
+      // Institute specific fields
+      institutionName,
+      registrationNumber,
+      authorizedWalletAddress,
+      officialEmailDomain
+    } = req.body;
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    // Create user object
+    const userData = {
+      name,
+      email,
+      password,
+      role: role || 'STUDENT',
+      university
+    };
+
+    if (role === 'STUDENT') {
+      userData.studentId = studentId || registrationNumber; // Use reg number as studentId if not provided separately
+      userData.registrationNumber = registrationNumber;
+    } else if (role === 'INSTITUTE') {
+      userData.instituteDetails = {
+        institutionName: institutionName || university, // Fallback to university name
+        registrationNumber, // Institute-specific registration number
+        authorizedWalletAddress,
+        officialEmailDomain
+      };
+    }
+
+    user = new User(userData);
 
     await user.save();
 
@@ -72,13 +96,18 @@ exports.register = async (req, res) => {
 // Login user
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, selectedRole } = req.body;
 
     // Find user and include password
     const user = await User.findOne({ email }).select('+password');
     
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Verify Role
+    if (selectedRole && user.role !== selectedRole) {
+      return res.status(403).json({ error: `Access denied. You are not registered as a ${selectedRole.toLowerCase()}.` });
     }
 
     // Check if account is active
@@ -188,6 +217,26 @@ exports.updateProfile = async (req, res) => {
     if (university) user.university = university;
     if (walletAddress) user.walletAddress = walletAddress;
 
+    // Update institute details if role is INSTITUTE
+    if (user.role === 'INSTITUTE' && req.body.instituteDetails) {
+      const { branding, authorizedWalletAddress } = req.body.instituteDetails;
+      
+      if (!user.instituteDetails) {
+        user.instituteDetails = {};
+      }
+
+      if (branding) {
+        user.instituteDetails.branding = {
+          ...user.instituteDetails.branding,
+          ...branding
+        };
+      }
+      
+      if (authorizedWalletAddress) {
+        user.instituteDetails.authorizedWalletAddress = authorizedWalletAddress;
+      }
+    }
+
     await user.save();
 
     res.json({
@@ -198,7 +247,8 @@ exports.updateProfile = async (req, res) => {
         email: user.email,
         role: user.role,
         university: user.university,
-        walletAddress: user.walletAddress
+        walletAddress: user.walletAddress,
+        instituteDetails: user.instituteDetails
       }
     });
 
@@ -274,7 +324,7 @@ exports.googleLogin = async (req, res) => {
         email,
         googleId,
         avatar: picture,
-        role: 'student', // Default new google users to student
+        role: 'STUDENT', // Default new google users to student
         university: 'Not Specified', // Default to avoid validation error
         isActive: true
       });

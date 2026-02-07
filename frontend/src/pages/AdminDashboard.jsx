@@ -37,12 +37,12 @@ const AdminDashboard = () => {
       
       // Calculate stats
       const total = response.data.credentials.length;
-      const revoked = response.data.certificates?.filter(c => c.isRevoked).length || 0;
+      const revoked = response.data.credentials?.filter(c => c.isRevoked).length || 0;
       const active = total - revoked;
       
       setStats({
         total,
-        thisMonth: response.data.certificates?.filter(c => {
+        thisMonth: response.data.credentials?.filter(c => {
           const date = new Date(c.createdAt);
           const now = new Date();
           return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();

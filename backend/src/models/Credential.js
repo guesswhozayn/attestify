@@ -21,6 +21,32 @@ const credentialSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Issue date is required']
   },
+  type: {
+    type: String,
+    enum: ['TRANSCRIPT', 'CERTIFICATION'],
+    default: 'CERTIFICATION'
+  },
+  transcriptData: {
+    program: String,
+    department: String,
+    admissionYear: String,
+    graduationYear: String,
+    cgpa: String,
+    courses: [{
+      code: String,
+      name: String,
+      grade: String,
+      credits: String
+    }]
+  },
+  certificationData: {
+    title: String,
+    description: String,
+    level: String,
+    duration: String,
+    expiryDate: Date,
+    score: String
+  },
   studentImage: {
     type: String,
     trim: true

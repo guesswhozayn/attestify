@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Grid, FileText, Users, Trash2, User, LogOut, Settings, ClipboardList } from 'lucide-react';
+import { Shield, Grid, FileText, Users, Trash2, User, LogOut, Settings, ClipboardList, Building } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
@@ -9,11 +9,12 @@ const Sidebar = () => {
   const { logout, user } = useAuth();
 
   const menuItems = [
-    { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['admin', 'super_admin'] },
-    { icon: Users, path: '/admin-management', label: 'Admins', roles: ['super_admin'] },
-    { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['admin', 'super_admin'] },
-    { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['admin', 'super_admin'] },
-    { icon: User, path: '/profile', label: 'Profile', roles: ['student', 'admin', 'super_admin'] },
+    { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['INSTITUTE', 'STUDENT'] },
+    { icon: Building, path: '/institute-profile', label: 'Institute', roles: ['INSTITUTE'] },
+    { icon: Users, path: '/admin-management', label: 'Admins', roles: ['INSTITUTE'] },
+    { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['INSTITUTE'] },
+    { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['INSTITUTE'] },
+    { icon: User, path: '/profile', label: 'Profile', roles: ['INSTITUTE', 'STUDENT'] },
   ];
 
   const isActive = (path) => location.pathname === path;

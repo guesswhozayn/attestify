@@ -23,8 +23,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['super_admin', 'admin', 'student'],
-    default: 'admin'
+    enum: ['INSTITUTE', 'STUDENT'],
+    default: 'STUDENT'
   },
   university: {
     type: String,
@@ -50,13 +50,33 @@ const userSchema = new mongoose.Schema({
     match: [/^0x[a-fA-F0-9]{40}$/, 'Invalid wallet address']
   },
   studentId: {
-    type: String,
+    type: String, // Kept for backward compatibility or internal ID
     sparse: true,
-    unique: true
+  },
+  registrationNumber: {
+    type: String, // Formal Registration Number (e.g., 2024-CS-001)
+    sparse: true,
+    unique: true,
+    trim: true
   },
   isActive: {
     type: Boolean,
     default: true
+  },
+  instituteDetails: {
+    institutionName: { type: String, trim: true },
+    registrationNumber: { type: String, trim: true, unique: true, sparse: true },
+    authorizedWalletAddress: { type: String, trim: true },
+    officialEmailDomain: { type: String, trim: true },
+    branding: {
+      logoCID: String,
+      sealCID: String,
+      signatureCID: String
+    },
+    operationalMetrics: {
+      lastActive: Date,
+      currentGasBalance: String
+    }
   },
   lastLogin: {
     type: Date

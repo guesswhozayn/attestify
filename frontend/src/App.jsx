@@ -13,6 +13,7 @@ import AuditLogs from './pages/AuditLogs';
 import RevokedCertificates from './pages/RevokedCertificates';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import InstituteProfile from './pages/InstituteProfile';
 import VerifyPage from './pages/Verify';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
@@ -36,17 +37,33 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              {user?.role === 'student' ? <StudentDashboard /> : <AdminDashboard />}
+              {user?.role === 'STUDENT' ? <Navigate to="/student-dashboard" /> : <Navigate to="/admin-dashboard" />}
             </PrivateRoute>
           }
         />
 
+        <Route
+          path="/student-dashboard"
+          element={
+            <PrivateRoute allowedRoles={['STUDENT']}>
+              <StudentDashboard />
+            </PrivateRoute>
+          }
+        />
 
+        <Route
+          path="/admin-dashboard"
+          element={
+            <PrivateRoute allowedRoles={['INSTITUTE']}>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
 
         <Route
           path="/admin-management"
           element={
-            <PrivateRoute allowedRoles={['super_admin']}>
+            <PrivateRoute allowedRoles={['INSTITUTE']}>
               <AdminManagement />
             </PrivateRoute>
           }
@@ -55,7 +72,7 @@ function App() {
         <Route
           path="/audit-logs"
           element={
-            <PrivateRoute allowedRoles={['admin', 'super_admin']}>
+            <PrivateRoute allowedRoles={['INSTITUTE']}>
               <AuditLogs />
             </PrivateRoute>
           }
@@ -64,7 +81,7 @@ function App() {
         <Route
           path="/revoked"
           element={
-            <PrivateRoute allowedRoles={['admin', 'super_admin']}>
+            <PrivateRoute allowedRoles={['INSTITUTE']}>
               <RevokedCertificates />
             </PrivateRoute>
           }
@@ -86,6 +103,15 @@ function App() {
           element={
             <PrivateRoute>
               <Settings />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/institute-profile"
+          element={
+            <PrivateRoute allowedRoles={['INSTITUTE']}>
+              <InstituteProfile />
             </PrivateRoute>
           }
         />

@@ -15,10 +15,12 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-  if (FILE_LIMITS.ALLOWED_TYPES.includes(file.mimetype)) {
+  const allowedTypes = [...FILE_LIMITS.ALLOWED_TYPES, 'image/jpeg', 'image/png', 'image/gif'];
+  
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only PDF files are allowed.'), false);
+    cb(new Error('Invalid file type. Only PDF and image files are allowed.'), false);
   }
 };
 

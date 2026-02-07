@@ -21,7 +21,7 @@ exports.createAdmin = async (req, res) => {
       university,
       title,
       walletAddress,
-      role: 'admin',
+      role: 'INSTITUTE',
       createdBy: req.user._id
     });
 
@@ -55,7 +55,7 @@ exports.createAdmin = async (req, res) => {
 exports.getAllAdmins = async (req, res) => {
   try {
     const admins = await User.find({ 
-      role: { $in: ['admin', 'super_admin'] } 
+      role: 'INSTITUTE'
     })
     .select('-password')
     .sort({ createdAt: -1 });
@@ -75,8 +75,8 @@ exports.deleteAdmin = async (req, res) => {
       return res.status(404).json({ error: 'Admin not found' });
     }
 
-    if (admin.role === 'super_admin') {
-      return res.status(403).json({ error: 'Cannot delete super admin' });
+    if (admin._id.toString() === req.user._id.toString()) {
+      return res.status(403).json({ error: 'Cannot delete yourself' });
     }
 
     await User.findByIdAndDelete(id);

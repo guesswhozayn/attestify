@@ -11,8 +11,20 @@ exports.issueCredential = async (req, res) => {
   let tempFilePath = null;
 
   try {
-    const { studentId, studentName, university, issueDate, studentImage } = req.body;
-    const certificateFile = req.file;
+    const { studentId, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
+    const certificateFile = req.files['certificate'] ? req.files['certificate'][0] : null;
+    const studentImageFile = req.files['studentImage'] ? req.files['studentImage'][0] : null;
+
+    // Parse JSON strings if they come from FormData
+    let parsedTranscriptData = transcriptData;
+    let parsedCertificationData = certificationData;
+
+    try {
+      if (typeof transcriptData === 'string') parsedTranscriptData = JSON.parse(transcriptData);
+      if (typeof certificationData === 'string') parsedCertificationData = JSON.parse(certificationData);
+    } catch (e) {
+      console.warn('Failed to parse JSON data', e);
+    }
 
     if (!certificateFile) {
       return res.status(400).json({ error: 'Certificate file is required' });
@@ -41,6 +53,25 @@ exports.issueCredential = async (req, res) => {
     );
     console.log('Uploaded to IPFS:', ipfsResult.ipfsHash);
 
+    // 2.5 Upload Student Image to IPFS (if provided)
+    let studentImageUrl = req.body.studentImage; // Fallback to URL if string provided
+    let tempImagePath = null;
+
+    if (studentImageFile) {
+      try {
+        tempImagePath = studentImageFile.path;
+        const imageIpfsResult = await ipfsService.uploadFile(
+          studentImageFile.path,
+          `${studentId}_image_${studentImageFile.originalname}`
+        );
+        studentImageUrl = ipfsService.getIPFSUrl(imageIpfsResult.ipfsHash);
+        console.log('Uploaded student image to IPFS:', imageIpfsResult.ipfsHash);
+      } catch (uploadError) {
+        console.error('Failed to upload student image to IPFS:', uploadError);
+        // We continue even if image upload fails, or you could return error
+      }
+    }
+
     // 3. Issue on blockchain
     const blockchainResult = await blockchainService.issueCertificate(
       studentId,
@@ -55,7 +86,10 @@ exports.issueCredential = async (req, res) => {
       studentName,
       university,
       issueDate: new Date(issueDate),
-      studentImage,
+      type,
+      transcriptData: parsedTranscriptData,
+      certificationData: parsedCertificationData,
+      studentImage: studentImageUrl,
       certificateHash,
       ipfsCID: ipfsResult.ipfsHash,
       transactionHash: blockchainResult.transactionHash,
@@ -87,9 +121,12 @@ exports.issueCredential = async (req, res) => {
       }
     });
 
-    // 6. Clean up temp file
+    // 6. Clean up temp files
     if (fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
+    }
+    if (tempImagePath && fs.existsSync(tempImagePath)) {
+      fs.unlinkSync(tempImagePath);
     }
 
     // 7. Send email notification (optional)
@@ -124,9 +161,18 @@ exports.issueCredential = async (req, res) => {
   } catch (error) {
     console.error('Issue credential error:', error);
 
-    // Clean up temp file on error
+    // Clean up temp files on error
     if (tempFilePath && fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
+    }
+    // Note: tempImagePath is block-scoped above, so we can't access it here easily 
+    // without wider scope or checking req.files again. 
+    // Let's check req.files directly for cleanup safety.
+    if (req.files && req.files['studentImage'] && req.files['studentImage'][0]) {
+      const imgPath = req.files['studentImage'][0].path;
+      if (fs.existsSync(imgPath)) {
+        fs.unlinkSync(imgPath);
+      }
     }
 
     // Log failed action

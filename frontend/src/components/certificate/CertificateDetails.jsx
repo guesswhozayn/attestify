@@ -108,6 +108,99 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
               </div>
             </div>
 
+            {/* Type Specific Details */}
+            {certificate.type === 'TRANSCRIPT' && certificate.transcriptData && (
+              <div>
+                <h3 className="text-white font-semibold mb-4">ACADEMIC RECORD</h3>
+                <div className="bg-gray-900 rounded-lg p-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-400 block">Program</span>
+                      <span className="text-white font-medium">{certificate.transcriptData.program}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block">Department</span>
+                      <span className="text-white font-medium">{certificate.transcriptData.department}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block">CGPA</span>
+                      <span className="text-white font-medium">{certificate.transcriptData.cgpa}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block">Year</span>
+                      <span className="text-white font-medium">
+                        {certificate.transcriptData.admissionYear} - {certificate.transcriptData.graduationYear}
+                      </span>
+                    </div>
+                  </div>
+
+                  {certificate.transcriptData.courses?.length > 0 && (
+                    <div className="border-t border-gray-800 pt-3">
+                      <span className="text-gray-400 text-sm block mb-2">Courses</span>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                          <thead className="text-gray-500 border-b border-gray-800">
+                            <tr>
+                              <th className="pb-2">Code</th>
+                              <th className="pb-2">Subject</th>
+                              <th className="pb-2">Grade</th>
+                            </tr>
+                          </thead>
+                          <tbody className="text-white">
+                            {certificate.transcriptData.courses.map((course, i) => (
+                              <tr key={i} className="border-b border-gray-800/50 last:border-0">
+                                <td className="py-2 text-gray-400">{course.code}</td>
+                                <td className="py-2">{course.name}</td>
+                                <td className="py-2 font-medium text-green-400">{course.grade}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {certificate.type === 'CERTIFICATION' && certificate.certificationData && (
+              <div>
+                <h3 className="text-white font-semibold mb-4">CERTIFICATION DETAILS</h3>
+                <div className="bg-gray-900 rounded-lg p-4 space-y-3">
+                  <div>
+                    <span className="text-gray-400 text-sm block">Title</span>
+                    <span className="text-white font-medium text-lg">{certificate.certificationData.title}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 text-sm block">Description</span>
+                    <p className="text-gray-300 text-sm mt-1">{certificate.certificationData.description}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm pt-2">
+                    <div>
+                      <span className="text-gray-400 block">Level</span>
+                      <span className="text-white">{certificate.certificationData.level || 'N/A'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block">Duration</span>
+                      <span className="text-white">{certificate.certificationData.duration || 'N/A'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block">Score</span>
+                      <span className="text-white">{certificate.certificationData.score || 'N/A'}</span>
+                    </div>
+                     <div>
+                      <span className="text-gray-400 block">Expiry</span>
+                      <span className="text-white">
+                        {certificate.certificationData.expiryDate 
+                          ? new Date(certificate.certificationData.expiryDate).toLocaleDateString() 
+                          : 'Valid Forever'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <QRCodeDisplay studentId={certificate.studentId} />
 
             <div>
@@ -119,7 +212,7 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                   className="w-full"
                   icon={Download}
                 >
-                  View / Download Certificate
+                  View / Download {certificate.type === 'TRANSCRIPT' ? 'Transcript' : 'Certificate'}
                 </Button>
                 <Button
                   onClick={viewOnEtherscan}
@@ -131,14 +224,14 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                 </Button>
                 
                 {/* Admin Actions */}
-                {['admin', 'super_admin'].includes(user?.role) && !certificate.isRevoked && (
+                {['INSTITUTE'].includes(user?.role) && !certificate.isRevoked && (
                   <Button
                     onClick={() => setShowRevokeModal(true)}
-                    variant="primary"
-                    className="w-full !bg-red-500/10 !text-red-400 hover:!bg-red-500/20 border border-red-500/20"
+                    variant="danger"
+                    className="w-full"
                     icon={ShieldAlert}
                   >
-                    Revoke Certificate
+                    Revoke Credential
                   </Button>
                 )}
               </div>

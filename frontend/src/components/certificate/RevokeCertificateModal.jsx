@@ -67,8 +67,8 @@ const RevokeCertificateModal = ({ isOpen, onClose, onSuccess, certificate }) => 
           </Button>
           <Button
             type="submit"
-            variant="primary" // Ideally danger variant if available, but primary is "green" usually. I'll stick to primary or customizable
-            className="w-full !bg-red-600 hover:!bg-red-700"
+            variant="danger"
+            className="w-full"
             disabled={loading}
             loading={loading}
             icon={ShieldAlert}

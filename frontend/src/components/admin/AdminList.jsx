@@ -52,13 +52,9 @@ const AdminList = ({ admins, onDelete }) => {
                 </div>
               </td>
               <td className="px-6 py-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  admin.role === 'super_admin' 
-                    ? 'bg-purple-500 bg-opacity-20 text-purple-400' 
-                    : 'bg-green-500 bg-opacity-20 text-green-400'
-                }`}>
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500 bg-opacity-20 text-green-400">
                   <Shield className="w-3 h-3 inline mr-1" />
-                  {admin.role.replace('_', ' ').toUpperCase()}
+                  {admin.role}
                 </span>
               </td>
               <td className="px-6 py-4">
