@@ -11,7 +11,7 @@ import VerificationPortal from './components/verification/VerificationPortal';
 import AuditLogs from './pages/AuditLogs';
 import RevokedCertificates from './pages/RevokedCertificates';
 import Settings from './pages/Settings';
-import Profile from './pages/Profile';
+import Profile from './pages/profile';
 import VerifyPage from './pages/Verify';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';

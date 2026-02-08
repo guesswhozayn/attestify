@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Search, CheckCircle, XCircle, AlertCircle, QrCode } from 'lucide-react';
+import { Upload, Search, CheckCircle, XCircle, QrCode, ShieldAlert, ExternalLink } from 'lucide-react';
 import Button from '../shared/Button';
-import Input from '../shared/Input';
 import { verifyAPI } from '../../services/api';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { generateFileHash } from '../../utils/hash';
@@ -116,146 +115,219 @@ const VerificationPortal = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-8">
-      <div className="max-w-4xl w-full">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">Verify Certificate</h1>
-          <p className="text-xl text-gray-400">
-            Select a certificate or scan QR code to verify its authenticity
+    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl translate-y-1/2"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+      </div>
+
+      <div className="max-w-3xl w-full relative z-10">
+        
+        {/* Header Section */}
+        <div className="text-center mb-10 space-y-4">
+          <div className="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl mb-4 ring-1 ring-indigo-500/20 shadow-lg shadow-indigo-500/10">
+            <CheckCircle className="w-8 h-8 text-indigo-400" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+            Verify Certificate
+          </h1>
+          <p className="text-lg text-gray-400 max-w-lg mx-auto leading-relaxed">
+            Instant, tamper-proof verification of academic credentials using blockchain technology.
           </p>
         </div>
 
-        <div className="bg-gray-900 rounded-xl shadow-xl p-8">
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            {/* Select Section */}
-            <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center hover:border-green-500 transition">
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Select Certificate</h3>
-              <p className="text-gray-400 mb-4">Select file to verify (processed locally)</p>
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="hidden"
-                id="file-upload"
-                ref={fileInputRef}
-              />
-              <Button 
-                variant="primary" 
-                size="md" 
+        {/* Main Card */}
+        <div className="bg-gray-900/60 backdrop-blur-xl border border-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+          
+          {/* Tabs / Input Selection */}
+          <div className="grid grid-cols-2 p-2 gap-2 bg-gray-900/50 border-b border-gray-800">
+            <button
+              onClick={() => setActiveTab('upload')}
+              className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'upload' 
+                  ? 'bg-gray-800 text-white shadow-sm ring-1 ring-gray-700' 
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+              }`}
+            >
+              <Upload className="w-4 h-4" />
+              Upload File
+            </button>
+            <button
+              onClick={() => setActiveTab('scan')}
+              className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'scan' 
+                  ? 'bg-gray-800 text-white shadow-sm ring-1 ring-gray-700' 
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+              }`}
+            >
+              <QrCode className="w-4 h-4" />
+              Scan QR Code
+            </button>
+          </div>
+
+          <div className="p-8">
+            {/* Upload Tab */}
+            {activeTab === 'upload' && (
+              <div 
+                className="border-2 border-dashed border-gray-700/50 hover:border-indigo-500/50 rounded-2xl p-8 text-center transition-colors cursor-pointer bg-gray-800/20 group"
                 onClick={() => fileInputRef.current?.click()}
               >
-                Choose File
-              </Button>
-              {file && (
-                <p className="text-green-400 text-sm mt-4">{file.name}</p>
-              )}
-            </div>
-
-            {/* QR Scan Section */}
-            <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center hover:border-purple-500 transition">
-              <QrCode className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Scan QR Code</h3>
-              <p className="text-gray-400 mb-4">Use your camera to scan</p>
-              <Button 
-                variant="secondary" 
-                size="md"
-                onClick={() => setShowScanner(true)}
-              >
-                Open Scanner
-              </Button>
-            </div>
-          </div>
-
-          {/* Student ID Search */}
-          <div className="mb-8">
-            <Input
-              placeholder="Enter Registration Number to verify..."
-              value={registrationNumber}
-              onChange={(e) => setRegistrationNumber(e.target.value)}
-              icon={Search}
-            />
-          </div>
-
-          <Button
-            onClick={handleVerify}
-            loading={verifying}
-            disabled={verifying || (!file && !registrationNumber)}
-            className="w-full"
-            size="lg"
-          >
-            Verify Certificate
-          </Button>
-
-          {/* Verification Result */}
-          {result && (
-            <div className={`mt-8 p-6 rounded-lg border-2 ${
-              result.valid 
-                ? 'bg-green-500 bg-opacity-10 border-green-500' 
-                : 'bg-red-500 bg-opacity-10 border-red-500'
-            }`}>
-              <div className="flex items-start space-x-3">
-                {result.valid ? (
-                  <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
-                ) : (
-                  <XCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
-                )}
-                <div className="flex-1">
-                  <h4 className={`font-semibold mb-2 ${
-                    result.valid ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {result.valid ? 'Certificate Verified ✓' : 'Verification Failed ✗'}
-                  </h4>
-                  <p className="text-gray-300 mb-4">{result.message}</p>
-                  
-                  {result.credential && (
-                    <div className="bg-gray-800 rounded-lg p-4 space-y-2 text-sm">
-                      <div>
-                        <span className="text-gray-400">Student Name: </span>
-                        <span className="text-white font-medium">{result.credential.studentName}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400">Registration Number: </span>
-                        <span className="text-white font-medium">{result.credential.registrationNumber}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400">University: </span>
-                        <span className="text-white font-medium">{result.credential.university}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400">Issue Date: </span>
-                        <span className="text-white font-medium">
-                          {new Date(result.credential.issueDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {result.credential.transactionHash && (
-                        <div>
-                          <span className="text-gray-400">Transaction: </span>
-                          <a
-                            href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 text-xs break-all"
-                          >
-                            {result.credential.transactionHash}
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="file-upload"
+                  ref={fileInputRef}
+                />
+                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors text-gray-400">
+                  <Upload className="w-8 h-8" />
                 </div>
+                <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-indigo-300 transition-colors">
+                  {file ? file.name : "Click to Upload Certificate"}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {file ? "File selected. Ready to verify." : "Supported format: PDF (Max 10MB)"}
+                </p>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="mt-6 p-4 bg-gray-800 rounded-lg flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-gray-400">
-              <p className="font-medium text-white mb-1">Note:</p>
-              <p>Verification process is free (no gas fees required). The certificate hash is compared with the blockchain record to ensure authenticity.</p>
+            {/* Scan Tab */}
+            {activeTab === 'scan' && (
+               <div className="text-center py-8">
+                 <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400 animate-pulse">
+                    <QrCode className="w-10 h-10" />
+                 </div>
+                 <h3 className="text-lg font-semibold text-white mb-2">Scan QR Code</h3>
+                  <p className="text-sm text-gray-400 mb-6 max-w-xs mx-auto">
+                    Use your device's camera to verify the physical copy of the certificate.
+                  </p>
+                  <Button 
+                    variant="primary" 
+                    onClick={() => setShowScanner(true)}
+                    className="mx-auto"
+                  >
+                    Open Camera
+                  </Button>
+               </div>
+            )}
+
+            {/* Registration Number Input */}
+            <div className="mt-8 relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-500" />
+              </div>
+              <input
+                type="text"
+                placeholder="Enter Registration Number (e.g., REG-2024-001)"
+                value={registrationNumber}
+                onChange={(e) => setRegistrationNumber(e.target.value)}
+                className="block w-full pl-11 pr-4 py-4 bg-gray-950/50 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Verify Action */}
+            <div className="mt-8">
+              <Button
+                onClick={handleVerify}
+                loading={verifying}
+                disabled={verifying || (!file && !registrationNumber)}
+                className="w-full justify-center py-4 text-base font-semibold shadow-lg shadow-indigo-500/25"
+                size="lg"
+                variant="primary"
+              >
+                {verifying ? 'Verifying on Blockchain...' : 'Verify Authenticity'}
+              </Button>
+            </div>
+            
+             {/* Security Note */}
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500">
+              <ShieldAlert className="w-4 h-4" />
+              <span>Verification is free and gas-less</span>
             </div>
           </div>
         </div>
+
+        {/* Results Section */}
+        {result && (
+          <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className={`rounded-3xl border overflow-hidden ${
+              result.valid 
+                ? 'bg-emerald-950/10 border-emerald-500/30' 
+                : 'bg-red-950/10 border-red-500/30'
+            }`}>
+              
+              {/* Result Header */}
+              <div className={`p-6 flex items-center gap-4 border-b ${
+                 result.valid ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'
+              }`}>
+                <div className={`p-3 rounded-full ${
+                  result.valid ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                }`}>
+                  {result.valid ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                </div>
+                <div>
+                  <h3 className={`text-xl font-bold ${result.valid ? 'text-white' : 'text-red-200'}`}>
+                    {result.valid ? 'Certificate Verified' : 'Verification Failed'}
+                  </h3>
+                  <p className={`text-sm ${result.valid ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {result.message}
+                  </p>
+                </div>
+              </div>
+
+              {/* Result Details */}
+              {result.valid && result.credential && (
+                <div className="p-6 md:p-8 bg-gray-900/40 backdrop-blur-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
+                     <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Recipient</label>
+                        <p className="text-lg text-white font-medium mt-1">{result.credential.studentName}</p>
+                     </div>
+                     <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Issued By</label>
+                        <p className="text-lg text-white font-medium mt-1">{result.credential.university}</p>
+                     </div>
+                     <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Registration No</label>
+                        <p className="text-base text-gray-300 font-mono mt-1 bg-gray-950/50 w-fit px-2 py-1 rounded border border-gray-800">
+                          {result.credential.registrationNumber}
+                        </p>
+                     </div>
+                     <div>
+                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Issue Date</label>
+                        <p className="text-base text-gray-300 mt-1">
+                          {new Date(result.credential.issueDate).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                     </div>
+                     <div className="md:col-span-2 pt-4 border-t border-gray-800">
+                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold flex items-center gap-2 mb-2">
+                           <CheckCircle className="w-3 h-3 text-emerald-500" />
+                           Blockchain Transaction Hash
+                        </label>
+                        <a 
+                          href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-xs text-indigo-400 hover:text-indigo-300 hover:underline break-all bg-indigo-950/30 p-3 rounded-lg border border-indigo-500/20 block transition-colors"
+                        >
+                          {result.credential.transactionHash}
+                          <ExternalLink className="w-3 h-3 inline ml-1.5 -mt-0.5" />
+                        </a>
+                     </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* QR Scanner Modal */}
@@ -265,10 +337,10 @@ const VerificationPortal = () => {
         title="Scan QR Code"
         size="md"
       >
-        <div className="flex flex-col items-center">
-          <div id="reader" width="100%"></div>
-          <p className="text-gray-400 mt-4 text-center text-sm">
-            Point your camera at the QR code on the certificate
+        <div className="flex flex-col items-center bg-gray-900 p-4 rounded-xl">
+          <div id="reader" className="w-full rounded-lg overflow-hidden border-2 border-indigo-500/50 shadow-2xl"></div>
+          <p className="text-gray-400 mt-6 text-center text-sm font-medium">
+            Align the QR code within the frame to scan
           </p>
         </div>
       </Modal>
