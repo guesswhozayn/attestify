@@ -74,21 +74,9 @@ export const AuthProvider = ({ children }) => {
   // Register new user
   const register = async (userData) => {
     try {
-      const response = await authAPI.register(userData);
-      const { token, user: newUser } = response.data;
-
-      // Save to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(newUser));
-
-      // Set token in axios headers
-      setAuthToken(token);
-
-      // Update state
-      setUser(newUser);
-      setIsAuthenticated(true);
-
-      return { success: true, user: newUser };
+      await authAPI.register(userData);
+      // Do not auto-login
+      return { success: true };
 
     } catch (error) {
       console.error('Registration error:', error);

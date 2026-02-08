@@ -12,20 +12,20 @@ class BlockchainService {
     );
   }
 
-  async issueCertificate(studentId, certificateHash, ipfsCID) {
+  async issueCertificate(registrationNumber, certificateHash, ipfsCID) {
     try {
-      console.log('Issuing certificate on blockchain:', { studentId, certificateHash, ipfsCID });
+      console.log('Issuing certificate on blockchain:', { registrationNumber, certificateHash, ipfsCID });
 
       // Estimate gas
       const gasEstimate = await this.contract.issueCertificate.estimateGas(
-        studentId,
+        registrationNumber,
         certificateHash,
         ipfsCID
       );
 
       // Send transaction with 20% buffer
       const tx = await this.contract.issueCertificate(
-        studentId,
+        registrationNumber,
         certificateHash,
         ipfsCID,
         {
@@ -55,11 +55,11 @@ class BlockchainService {
     }
   }
 
-  async revokeCertificate(studentId) {
+  async revokeCertificate(registrationNumber) {
     try {
-      const gasEstimate = await this.contract.revokeCertificate.estimateGas(studentId);
+      const gasEstimate = await this.contract.revokeCertificate.estimateGas(registrationNumber);
       
-      const tx = await this.contract.revokeCertificate(studentId, {
+      const tx = await this.contract.revokeCertificate(registrationNumber, {
         gasLimit: gasEstimate * 120n / 100n
       });
 
@@ -79,9 +79,9 @@ class BlockchainService {
     }
   }
 
-  async getCredential(studentId) {
+  async getCredential(registrationNumber) {
     try {
-      const result = await this.contract.getCredential(studentId);
+      const result = await this.contract.getCredential(registrationNumber);
       
       return {
         certificateHash: result[0],
@@ -98,9 +98,9 @@ class BlockchainService {
     }
   }
 
-  async verifyCredential(studentId, hash) {
+  async verifyCredential(registrationNumber, hash) {
     try {
-      return await this.contract.verifyCredential(studentId, hash);
+      return await this.contract.verifyCredential(registrationNumber, hash);
     } catch (error) {
       console.error('Blockchain verify error:', error);
       return false;

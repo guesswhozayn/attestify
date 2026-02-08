@@ -24,10 +24,9 @@ exports.register = async (req, res) => {
       password,
       role,
       university,
-      studentId,
+      registrationNumber,
       // Institute specific fields
       institutionName,
-      registrationNumber,
       authorizedWalletAddress,
       officialEmailDomain,
       walletAddress // Add this to destructuring
@@ -64,8 +63,10 @@ exports.register = async (req, res) => {
         authorizedWalletAddress,
         officialEmailDomain
       };
+      // Use Institution Name as the main Name for the user
+      userData.name = institutionName;
     } else {
-      userData.studentId = studentId;
+      // Use registrationNumber as studentId if studentId isn't explicitly provided
       userData.registrationNumber = registrationNumber;
     }
 
@@ -93,7 +94,8 @@ exports.register = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        studentId: user.studentId
+        registrationNumber: user.registrationNumber,
+        instituteDetails: user.instituteDetails
       }
     });
 
@@ -157,7 +159,8 @@ exports.login = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        studentId: user.studentId
+        studentId: user.studentId,
+        instituteDetails: user.instituteDetails
       }
     });
 
@@ -185,7 +188,9 @@ exports.getCurrentUser = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        studentId: user.studentId,
+        walletAddress: user.walletAddress,
+        registrationNumber: user.registrationNumber,
+        instituteDetails: user.instituteDetails,
         createdAt: user.createdAt
       }
     });
@@ -367,7 +372,9 @@ exports.googleLogin = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        studentId: user.studentId,
+        walletAddress: user.walletAddress,
+        registrationNumber: user.registrationNumber,
+        instituteDetails: user.instituteDetails,
         avatar: user.avatar
       }
     });

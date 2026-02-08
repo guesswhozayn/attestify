@@ -15,8 +15,8 @@ router.get('/stats', authenticate, requireAdmin, credentialController.getStats);
 
 router.get('/:id', authenticate, credentialController.getCredentialById);
 
-router.get('/student/:studentId', authenticate, 
-  credentialController.getCredentialByStudentId);
+router.get('/student/:registrationNumber', authenticate, 
+  credentialController.getCredentialByRegistrationNumber);
 
 router.post('/:id/revoke', authenticate, requireAdmin, 
   credentialController.revokeCredential);

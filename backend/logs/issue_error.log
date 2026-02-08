@@ -1,0 +1,9 @@
+2026-02-08T16:47:24.335Z - ReferenceError: y is not defined
+    at exports.issueCredential (/home/zayn/development/attestify/backend/src/controllers/credentialController.js:154:54)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+2026-02-08T16:49:18.300Z - Error: Blockchain transaction failed: execution reverted: "Credential already issued" (action="estimateGas", data="0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001943726564656e7469616c20616c72656164792069737375656400000000000000", reason="Credential already issued", transaction={ "data": "0x00235df10000000000000000000000000000000000000000000000000000000000000060fb7d0fb6792376f14b651a46b16ef1949a0f71d8293b3709209f0148f13bd6a000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000a323032322d43532d333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003b6261666b7265696833707568336d366a646f337975777a69326932797735346d75746968786477626a686d33717369653761666570636f367775610000000000", "from": "0x8c3D7485B0748cd5188117fa4556dbCeD36E6e7f", "to": "0xFD180F86c7C9F1C73196B1654265036353A394B7" }, invocation=null, revert={ "args": [ "Credential already issued" ], "name": "Error", "signature": "Error(string)" }, code=CALL_EXCEPTION, version=6.15.0)
+    at BlockchainService.issueCertificate (/home/zayn/development/attestify/backend/src/services/blockchainService.js:54:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.issueCredential (/home/zayn/development/attestify/backend/src/controllers/credentialController.js:373:30)
+

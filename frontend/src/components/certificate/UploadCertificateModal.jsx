@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
-import { Upload, Loader2, Calendar, User, Building, Image } from 'lucide-react';
+import { Upload, Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, CheckCircle } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -11,7 +11,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     studentName: '',
-    studentId: '',
+    registrationNumber: '',
     university: '',
     issueDate: '',
     studentImage: '',
@@ -74,8 +74,8 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
     }));
   };
 
-    const handleSubmit = async () => {
-    if (!formData.studentName || !formData.studentId || !formData.university || 
+  const handleSubmit = async () => {
+    if (!formData.studentName || !formData.registrationNumber || !formData.university || 
         !formData.issueDate) {
       showNotification('Please fill in all required fields', 'error');
       return;
@@ -86,7 +86,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('studentName', formData.studentName);
-      formDataToSend.append('studentId', formData.studentId);
+      formDataToSend.append('registrationNumber', formData.registrationNumber);
       formDataToSend.append('university', formData.university);
       formDataToSend.append('issueDate', formData.issueDate);
       formDataToSend.append('type', credentialType);
@@ -95,8 +95,6 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
         formDataToSend.append('studentImage', formData.studentImage);
       }
       
-      // Certificate is now generated on backend based on these details
-
       if (credentialType === 'TRANSCRIPT') {
         formDataToSend.append('transcriptData', JSON.stringify(transcriptData));
       } else {
@@ -112,11 +110,10 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
       // Reset form
       setFormData({
         studentName: '',
-        studentId: '',
+        registrationNumber: '',
         university: '',
         issueDate: '',
         studentImage: null,
-        certificateFile: null,
       });
       setCredentialType('CERTIFICATION');
       setTranscriptData({
@@ -137,6 +134,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
       });
 
     } catch (error) {
+       console.error(error);
       showNotification(error.response?.data?.error || 'Failed to issue credential', 'error');
     } finally {
       setLoading(false);
@@ -144,243 +142,291 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Issue Credential" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Issue New Credential" size="xl">
       {loading && (
-        <div className="absolute inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50 rounded-xl">
-          <div className="text-center">
-            <Loader2 className="w-12 h-12 text-green-500 animate-spin mx-auto mb-4" />
-            <p className="text-white text-lg font-semibold">Transaction in progress</p>
-            <p className="text-gray-400">Please wait...</p>
-          </div>
+        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-xl transition-all">
+            <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl flex flex-col items-center max-w-sm w-full">
+                <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                <h3 className="text-white text-lg font-bold mb-2">Processing Transaction</h3>
+                <p className="text-gray-400 text-center text-sm">
+                    Please wait while we mint the credential on the blockchain...
+                </p>
+            </div>
         </div>
       )}
 
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+      <div className="space-y-8">
         {/* Credential Type Selector */}
-        <div className="flex space-x-4 mb-4">
-          <button
-            onClick={() => setCredentialType('CERTIFICATION')}
-            className={`flex-1 py-3 rounded-lg border text-sm font-medium transition ${
-              credentialType === 'CERTIFICATION'
-                ? 'bg-green-500 border-green-500 text-white'
-                : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
-            }`}
-          >
-            Certification
-          </button>
-          <button
-            onClick={() => setCredentialType('TRANSCRIPT')}
-            className={`flex-1 py-3 rounded-lg border text-sm font-medium transition ${
-              credentialType === 'TRANSCRIPT'
-                ? 'bg-green-500 border-green-500 text-white'
-                : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
-            }`}
-          >
-            Transcript (Academic)
-          </button>
+        <div>
+           <label className="block text-gray-400 text-sm font-medium mb-3">Credential Type</label>
+           <div className="grid grid-cols-2 gap-4">
+             <button
+               onClick={() => setCredentialType('CERTIFICATION')}
+               className={`relative p-4 rounded-xl border-2 transition-all duration-200 text-left group ${
+                 credentialType === 'CERTIFICATION'
+                   ? 'bg-emerald-500/10 border-emerald-500'
+                   : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+               }`}
+             >
+               <div className="flex items-start justify-between mb-2">
+                  <div className={`p-2 rounded-lg ${credentialType === 'CERTIFICATION' ? 'bg-emerald-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                     <Award className="w-5 h-5" />
+                  </div>
+                  {credentialType === 'CERTIFICATION' && <CheckCircle className="w-5 h-5 text-emerald-500" />}
+               </div>
+               <h4 className={`font-semibold ${credentialType === 'CERTIFICATION' ? 'text-white' : 'text-gray-300'}`}>Certification</h4>
+               <p className="text-xs text-gray-500 mt-1">For courses, workshops, and skills.</p>
+             </button>
+             
+             <button
+               onClick={() => setCredentialType('TRANSCRIPT')}
+               className={`relative p-4 rounded-xl border-2 transition-all duration-200 text-left group ${
+                 credentialType === 'TRANSCRIPT'
+                   ? 'bg-blue-500/10 border-blue-500'
+                   : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+               }`}
+             >
+                <div className="flex items-start justify-between mb-2">
+                  <div className={`p-2 rounded-lg ${credentialType === 'TRANSCRIPT' ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                     <BookOpen className="w-5 h-5" />
+                  </div>
+                  {credentialType === 'TRANSCRIPT' && <CheckCircle className="w-5 h-5 text-blue-500" />}
+               </div>
+               <h4 className={`font-semibold ${credentialType === 'TRANSCRIPT' ? 'text-white' : 'text-gray-300'}`}>Academic Transcript</h4>
+               <p className="text-xs text-gray-500 mt-1">For degrees, diplomas, and detailed records.</p>
+             </button>
+           </div>
         </div>
 
         {/* Common Fields */}
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            label="Student Name"
-            name="studentName"
-            value={formData.studentName}
-            onChange={handleChange}
-            placeholder="John Doe"
-            icon={User}
-            required
-          />
-          <Input
-            label="Student Registration Number"
-            name="studentId"
-            value={formData.studentId}
-            onChange={handleChange}
-            placeholder="2024-CS-001"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            label="University / Institution"
-            name="university"
-            value={formData.university}
-            onChange={handleChange}
-            placeholder="Enter institution name"
-            icon={Building}
-            required
-          />
-          <Input
-            label="Issue Date"
-            type="date"
-            name="issueDate"
-            value={formData.issueDate}
-            onChange={handleChange}
-            icon={Calendar}
-            required
-          />
-        </div>
-
-        {/* Dynamic Fields based on Type */}
-        {credentialType === 'TRANSCRIPT' ? (
-          <div className="space-y-4 bg-gray-800 p-4 rounded-lg border border-gray-700">
-            <h3 className="text-white font-medium mb-2 border-b border-gray-700 pb-2">Academic Record Details</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Program / Course"
-                value={transcriptData.program}
-                onChange={(e) => setTranscriptData({...transcriptData, program: e.target.value})}
-                placeholder="B.Sc Computer Science"
-              />
-              <Input
-                label="Department"
-                value={transcriptData.department}
-                onChange={(e) => setTranscriptData({...transcriptData, department: e.target.value})}
-                placeholder="Faculty of Engineering"
-              />
-              <Input
-                label="Admission Year"
-                value={transcriptData.admissionYear}
-                onChange={(e) => setTranscriptData({...transcriptData, admissionYear: e.target.value})}
-                placeholder="2020"
-              />
-              <Input
-                label="Graduation Year"
-                value={transcriptData.graduationYear}
-                onChange={(e) => setTranscriptData({...transcriptData, graduationYear: e.target.value})}
-                placeholder="2024"
-              />
-              <Input
-                label="CGPA / GPA"
-                value={transcriptData.cgpa}
-                onChange={(e) => setTranscriptData({...transcriptData, cgpa: e.target.value})}
-                placeholder="3.8"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-400 text-sm mb-2">Courses / Subjects</label>
-              {transcriptData.courses.map((course, index) => (
-                <div key={index} className="flex gap-2 mb-2">
+        <div className="space-y-4">
+           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Recipient Details</h3>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+             <Input
+               label="Student Name"
+               name="studentName"
+               value={formData.studentName}
+               onChange={handleChange}
+               placeholder="e.g. Alex Johnson"
+               icon={User}
+               required
+               className="bg-gray-800/50 border-gray-700"
+             />
+             <Input
+               label="Registration Number"
+               name="registrationNumber"
+               value={formData.registrationNumber}
+               onChange={handleChange}
+               placeholder="e.g. 2024-CS-001"
+               icon={User} // Could use Hash
+               required
+               className="bg-gray-800/50 border-gray-700"
+             />
+             <Input
+               label="University / Organization"
+               name="university"
+               value={formData.university}
+               onChange={handleChange}
+               placeholder="e.g. Tech Institute"
+               icon={Building}
+               required
+               className="bg-gray-800/50 border-gray-700"
+             />
+             <Input
+               label="Issue Date"
+               type="date"
+               name="issueDate"
+               value={formData.issueDate}
+               onChange={handleChange}
+               icon={Calendar}
+               required
+               className="bg-gray-800/50 border-gray-700"
+             />
+           </div>
+           
+           <div>
+             <label className="block text-gray-400 text-sm font-medium mb-2">Profile Image</label>
+             <div className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl border-dashed">
+               <div className="flex-shrink-0">
+                  {formData.studentImage ? (
+                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-500">
+                        <img 
+                          src={URL.createObjectURL(formData.studentImage)} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                     </div>
+                  ) : (
+                     <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-gray-500">
+                        <Image className="w-6 h-6" />
+                     </div>
+                  )}
+               </div>
+               <div className="flex-1">
                   <input
-                    placeholder="Code"
-                    value={course.code}
-                    onChange={(e) => updateCourse(index, 'code', e.target.value)}
-                    className="w-1/4 bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'studentImage')}
+                    className="hidden"
+                    id="student-image-upload"
                   />
-                  <input
-                    placeholder="Course Name"
-                    value={course.name}
-                    onChange={(e) => updateCourse(index, 'name', e.target.value)}
-                    className="w-1/2 bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                  />
-                  <input
-                    placeholder="Grade"
-                    value={course.grade}
-                    onChange={(e) => updateCourse(index, 'grade', e.target.value)}
-                    className="w-1/6 bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                  />
-                  <button 
-                    onClick={() => removeCourse(index)}
-                    className="text-red-400 hover:text-red-300 px-2"
+                  <label 
+                    htmlFor="student-image-upload"
+                    className="cursor-pointer text-sm text-indigo-400 hover:text-indigo-300 font-medium"
                   >
-                    X
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={addCourse}
-                className="text-sm text-green-400 hover:text-green-300 mt-1"
-              >
-                + Add Course
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4 bg-gray-800 p-4 rounded-lg border border-gray-700">
-            <h3 className="text-white font-medium mb-2 border-b border-gray-700 pb-2">Certification Details</h3>
-            <Input
-              label="Certification Title"
-              value={certificationData.title}
-              onChange={(e) => setCertificationData({...certificationData, title: e.target.value})}
-              placeholder="Full Stack Web Development"
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Level"
-                value={certificationData.level}
-                onChange={(e) => setCertificationData({...certificationData, level: e.target.value})}
-                placeholder="Intermediate"
-              />
-              <Input
-                label="Duration"
-                value={certificationData.duration}
-                onChange={(e) => setCertificationData({...certificationData, duration: e.target.value})}
-                placeholder="6 Months"
-              />
-              <Input
-                label="Score / Grade"
-                value={certificationData.score}
-                onChange={(e) => setCertificationData({...certificationData, score: e.target.value})}
-                placeholder="A+ / 95%"
-              />
-              <Input
-                label="Expiry Date (Optional)"
-                type="date"
-                value={certificationData.expiryDate}
-                onChange={(e) => setCertificationData({...certificationData, expiryDate: e.target.value})}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
-              <textarea
-                value={certificationData.description}
-                onChange={(e) => setCertificationData({...certificationData, description: e.target.value})}
-                className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-24"
-                placeholder="Describe the achievement..."
-              />
-            </div>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-gray-400 text-sm mb-2">
-            Student Image (Optional)
-          </label>
-          <div className="flex items-center space-x-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, 'studentImage')}
-              className="hidden"
-              id="student-image-upload"
-            />
-            <label 
-              htmlFor="student-image-upload"
-              className="cursor-pointer bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-700 hover:bg-gray-700 transition flex items-center"
-            >
-              <Image className="w-4 h-4 mr-2" />
-              Choose Image
-            </label>
-            {formData.studentImage && (
-              <span className="text-gray-300 text-sm truncate max-w-[200px]">
-                {formData.studentImage.name}
-              </span>
-            )}
-          </div>
+                    Upload Photo
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">Recommended: Square JPG/PNG, max 2MB</p>
+               </div>
+             </div>
+           </div>
         </div>
 
-        {/* Detailed fields depending on type generated automatically on backend */}
-        
-        {/* Certificate File Upload Removed - Automated on Backend */}
+        {/* Dynamic Fields */}
+        <div className="space-y-4">
+           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+             {credentialType === 'TRANSCRIPT' ? 'Academic Records' : 'Certification Details'}
+           </h3>
+           
+           {credentialType === 'TRANSCRIPT' ? (
+             <div className="space-y-5 bg-gray-800/30 p-5 rounded-xl border border-gray-700/50">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                 <Input
+                   label="Program"
+                   value={transcriptData.program}
+                   onChange={(e) => setTranscriptData({...transcriptData, program: e.target.value})}
+                   placeholder="e.g. B.Sc Computer Science"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="Department"
+                   value={transcriptData.department}
+                   onChange={(e) => setTranscriptData({...transcriptData, department: e.target.value})}
+                   placeholder="e.g. Engineering"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="Admission Year"
+                   value={transcriptData.admissionYear}
+                   onChange={(e) => setTranscriptData({...transcriptData, admissionYear: e.target.value})}
+                   placeholder="Year"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="Graduation Year"
+                   value={transcriptData.graduationYear}
+                   onChange={(e) => setTranscriptData({...transcriptData, graduationYear: e.target.value})}
+                   placeholder="Year"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="CGPA / Grade"
+                   value={transcriptData.cgpa}
+                   onChange={(e) => setTranscriptData({...transcriptData, cgpa: e.target.value})}
+                   placeholder="e.g. 3.85"
+                   className="bg-gray-800 border-gray-700"
+                 />
+               </div>
+   
+               <div className="border-t border-gray-700/50 pt-4">
+                 <label className="block text-gray-300 text-sm font-medium mb-3">Courses</label>
+                 <div className="space-y-3">
+                   {transcriptData.courses.map((course, index) => (
+                     <div key={index} className="flex gap-3 items-center">
+                       <input
+                         placeholder="Code"
+                         value={course.code}
+                         onChange={(e) => updateCourse(index, 'code', e.target.value)}
+                         className="w-24 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                       />
+                       <input
+                         placeholder="Subject Name"
+                         value={course.name}
+                         onChange={(e) => updateCourse(index, 'name', e.target.value)}
+                         className="flex-1 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                       />
+                       <input
+                         placeholder="Grade"
+                         value={course.grade}
+                         onChange={(e) => updateCourse(index, 'grade', e.target.value)}
+                         className="w-20 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                       />
+                       <button 
+                         onClick={() => removeCourse(index)}
+                         className="p-2 text-gray-500 hover:text-red-400 transition-colors rounded-lg hover:bg-gray-700"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </button>
+                     </div>
+                   ))}
+                 </div>
+                 <button
+                   onClick={addCourse}
+                   className="mt-3 flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                 >
+                   <Plus className="w-4 h-4 mr-1" /> Add Course
+                 </button>
+               </div>
+             </div>
+           ) : (
+             <div className="space-y-5 bg-gray-800/30 p-5 rounded-xl border border-gray-700/50">
+               <Input
+                 label="Certification Title"
+                 value={certificationData.title}
+                 onChange={(e) => setCertificationData({...certificationData, title: e.target.value})}
+                 placeholder="e.g. Advanced React Patterns"
+                 className="bg-gray-800 border-gray-700 font-medium"
+               />
+               <div className="grid grid-cols-2 gap-5">
+                 <Input
+                   label="Level"
+                   value={certificationData.level}
+                   onChange={(e) => setCertificationData({...certificationData, level: e.target.value})}
+                   placeholder="e.g. Expert"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="Duration"
+                   value={certificationData.duration}
+                   onChange={(e) => setCertificationData({...certificationData, duration: e.target.value})}
+                   placeholder="e.g. 20 Hours"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="Score"
+                   value={certificationData.score}
+                   onChange={(e) => setCertificationData({...certificationData, score: e.target.value})}
+                   placeholder="e.g. 98/100"
+                   className="bg-gray-800 border-gray-700"
+                 />
+                 <Input
+                   label="Expiry Date"
+                   type="date"
+                   value={certificationData.expiryDate}
+                   onChange={(e) => setCertificationData({...certificationData, expiryDate: e.target.value})}
+                   className="bg-gray-800 border-gray-700"
+                 />
+               </div>
+               <div>
+                 <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                 <textarea
+                   value={certificationData.description}
+                   onChange={(e) => setCertificationData({...certificationData, description: e.target.value})}
+                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 h-28 resize-none text-sm placeholder-gray-500"
+                   placeholder="Briefly describe the skills validated by this certification..."
+                 />
+               </div>
+             </div>
+           )}
+        </div>
 
-        <div className="flex justify-center pt-4">
+        <div className="pt-4 border-t border-gray-800">
           <Button
             onClick={handleSubmit}
             loading={loading}
             disabled={loading}
             size="lg"
+            className="w-full justify-center text-lg font-semibold py-4 shadow-xl shadow-indigo-500/10"
           >
             Issue Credential
           </Button>

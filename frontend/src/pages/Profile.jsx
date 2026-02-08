@@ -3,8 +3,9 @@ import Header from '../components/layout/Header';
 import StudentProfile from '../components/student/StudentProfile';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { Building, Shield, Lock, Mail, Upload, Activity, Wallet, FileCheck, User } from 'lucide-react';
+import { Building, Shield, Lock, Mail, Upload, Activity, Wallet, FileCheck, User, Camera, Edit2 } from 'lucide-react';
 import api from '../services/api';
+import Button from '../components/shared/Button';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -20,7 +21,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user?.role === 'INSTITUTE' && user?.instituteDetails?.authorizedWalletAddress) {
-        setGasBalance('0.45'); // Mock for now
+        setGasBalance('0.45'); // Mock for now - replace with actual web3 call if available
     }
   }, [user]);
 
@@ -30,6 +31,7 @@ const Profile = () => {
 
     setLoading(true);
     try {
+      // In a real app, you'd upload to IPFS here
       const mockCID = `Qm${Math.random().toString(36).substring(7)}...`; 
       const updatedBranding = { ...branding, [type]: mockCID };
       setBranding(updatedBranding);
@@ -54,149 +56,226 @@ const Profile = () => {
 
   const isInstitute = user?.role === 'INSTITUTE';
 
+  if (!isInstitute) {
+      return (
+          <div className="min-h-screen bg-gray-950">
+              <Header title="My Profile" showSearch={false} />
+              <div className="p-6 lg:p-10 max-w-7xl mx-auto">
+                 <StudentProfile />
+              </div>
+          </div>
+      )
+  }
+
   return (
-    <div className="min-h-screen">
-      <Header title="My Profile" showSearch={false} />
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
-          {isInstitute ? (
-            <div className="space-y-6">
-              {/* Identity Details */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
-                  <Building className="w-5 h-5 mr-2 text-purple-500" />
-                  Institute Identity
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-gray-400 text-sm">Institution Name</label>
-                    <p className="text-white font-medium text-lg">{user.instituteDetails?.institutionName || user.university || user.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Registration Number</label>
-                    <p className="text-white font-medium text-lg">{user.instituteDetails?.registrationNumber || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Official Email</label>
-                    <p className="text-white font-medium text-lg flex items-center">
-                      <Mail className="w-4 h-4 mr-2 text-gray-500" />
-                      {user.email}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Authorized Wallet</label>
-                    <p className="text-white font-medium text-lg flex items-center font-mono">
-                      <Lock className="w-4 h-4 mr-2 text-gray-500" />
-                      {user.instituteDetails?.authorizedWalletAddress || user.walletAddress || 'N/A'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Operational Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-400 font-medium">Gas Balance</h3>
-                    <Wallet className="w-5 h-5 text-green-500" />
-                  </div>
-                  <p className="text-2xl font-bold text-white">{gasBalance} ETH</p>
-                  <p className="text-xs text-gray-500 mt-1">Sepolia Network</p>
-                </div>
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-400 font-medium">Last Active</h3>
-                    <Activity className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <p className="text-xl font-bold text-white">
-                    {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Just now'}
-                  </p>
-                </div>
-                 <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-400 font-medium">Total Issued</h3>
-                    <FileCheck className="w-5 h-5 text-purple-500" />
-                  </div>
-                  <p className="text-2xl font-bold text-white">
-                    142
-                  </p>
-                </div>
-              </div>
-
-              {/* Branding Assets */}
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
-                  <Shield className="w-5 h-5 mr-2 text-purple-500" />
-                  Official Branding Assets
-                </h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Logo */}
-                  <div className="text-center">
-                    <h3 className="text-white font-medium mb-3">Institute Logo</h3>
-                    <div className="bg-gray-900 h-40 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-700 hover:border-purple-500 transition-colors relative group cursor-pointer overflow-hidden">
-                        {branding.logoCID ? (
-                           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800">
-                              <span className="text-green-500 font-bold text-xl">CID Linked</span>
-                              <span className="text-xs text-gray-500 mt-2 truncate max-w-[80%]">{branding.logoCID}</span>
-                           </div>
-                        ) : (
-                            <div className="text-gray-500 flex flex-col items-center">
-                                <Upload className="w-8 h-8 mb-2" />
-                                <span className="text-sm">Upload Logo</span>
-                            </div>
-                        )}
-                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'logoCID')} />
-                    </div>
-                  </div>
-
-                  {/* Seal */}
-                  <div className="text-center">
-                    <h3 className="text-white font-medium mb-3">Digital Seal</h3>
-                     <div className="bg-gray-900 h-40 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-700 hover:border-purple-500 transition-colors relative group cursor-pointer overflow-hidden">
-                        {branding.sealCID ? (
-                           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800">
-                              <span className="text-green-500 font-bold text-xl">CID Linked</span>
-                              <span className="text-xs text-gray-500 mt-2 truncate max-w-[80%]">{branding.sealCID}</span>
-                           </div>
-                        ) : (
-                            <div className="text-gray-500 flex flex-col items-center">
-                                <Upload className="w-8 h-8 mb-2" />
-                                <span className="text-sm">Upload Seal</span>
-                            </div>
-                        )}
-                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'sealCID')} />
-                    </div>
-                  </div>
-
-                  {/* Signature */}
-                  <div className="text-center">
-                    <h3 className="text-white font-medium mb-3">Authorized Signature</h3>
-                     <div className="bg-gray-900 h-40 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-700 hover:border-purple-500 transition-colors relative group cursor-pointer overflow-hidden">
-                        {branding.signatureCID ? (
-                           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800">
-                              <span className="text-green-500 font-bold text-xl">CID Linked</span>
-                              <span className="text-xs text-gray-500 mt-2 truncate max-w-[80%]">{branding.signatureCID}</span>
-                           </div>
-                        ) : (
-                            <div className="text-gray-500 flex flex-col items-center">
-                                <Upload className="w-8 h-8 mb-2" />
-                                <span className="text-sm">Upload Signature</span>
-                            </div>
-                        )}
-                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'signatureCID')} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gray-950 text-gray-100 pb-12">
+      <Header title="Institute Profile" showSearch={false} />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Cover Image & Header */}
+        <div className="relative mb-24">
+            <div className="h-48 w-full rounded-2xl bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 overflow-hidden relative">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 to-transparent"></div>
             </div>
-          ) : (
-            <StudentProfile />
-          )}
+            
+            <div className="absolute -bottom-16 left-8 flex items-end space-x-6">
+                <div className="relative group">
+                    <div className="w-32 h-32 rounded-2xl bg-gray-900 border-4 border-gray-950 shadow-2xl flex items-center justify-center overflow-hidden">
+                        {branding.logoCID ? (
+                            <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-2xl font-bold text-white">
+                                {user.name?.charAt(0)}
+                            </div>
+                        ) : (
+                            <Building className="w-12 h-12 text-gray-600" />
+                        )}
+                    </div>
+                    <button className="absolute bottom-2 right-2 p-1.5 bg-indigo-500 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                        <Camera className="w-4 h-4" />
+                    </button>
+                </div>
+                
+                <div className="mb-4">
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        {user.instituteDetails?.institutionName || user.name}
+                        <Shield className="w-6 h-6 text-indigo-400 fill-indigo-400/20" />
+                    </h1>
+                    <p className="text-gray-400 flex items-center gap-2 mt-1">
+                        <span className="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded text-sm font-medium border border-indigo-500/20">
+                            Verified Institute
+                        </span>
+                        <span className="text-gray-600">•</span>
+                        <span>{user.email}</span>
+                    </p>
+                </div>
+            </div>
+
+            <div className="absolute -bottom-16 right-8 flex gap-3">
+                 <Button variant="outline" className="gap-2">
+                     <Edit2 className="w-4 h-4" /> Edit Profile
+                 </Button>
+            </div>
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Column: Identity & Info */}
+            <div className="space-y-6">
+                 {/* Quick Stats */}
+                 <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Overview</h3>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-green-500/10 rounded-lg text-green-400">
+                                    <Wallet className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-400">Gas Balance</p>
+                                    <p className="font-semibold text-white">{gasBalance} ETH</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                                    <FileCheck className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-400">Total Issued</p>
+                                    <p className="font-semibold text-white">142</p>
+                                </div>
+                            </div>
+                        </div>
+                         <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                    <Activity className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-400">Last Active</p>
+                                    <p className="font-semibold text-white">
+                                        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Just now'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Institute Details */}
+                <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Details</h3>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-xs text-gray-500 block mb-1">Registration Number</label>
+                            <div className="flex items-center gap-2 text-gray-200 bg-gray-800/50 p-2.5 rounded-lg border border-gray-800 font-mono text-sm">
+                                <Shield className="w-4 h-4 text-gray-500" />
+                                {user.instituteDetails?.registrationNumber || 'N/A'}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-xs text-gray-500 block mb-1">Authorized Wallet</label>
+                            <div className="flex items-center gap-2 text-gray-200 bg-gray-800/50 p-2.5 rounded-lg border border-gray-800 font-mono text-xs break-all">
+                                <Lock className="w-4 h-4 text-gray-500 shrink-0" />
+                                {user.instituteDetails?.authorizedWalletAddress || user.walletAddress || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Column: Branding Assets */}
+            <div className="lg:col-span-2 space-y-6">
+                <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+                     <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-xl font-bold text-white">Branding Assets</h2>
+                            <p className="text-gray-400 text-sm mt-1">Manage your institute's digital assets for certificates.</p>
+                        </div>
+                        <span className="bg-purple-500/10 text-purple-300 px-3 py-1 rounded-full text-xs font-medium border border-purple-500/20">
+                            3 Assets Required
+                        </span>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Logo Upload */}
+                        <AssetUploader 
+                            title="Institute Logo"
+                            description="Used on certificate header"
+                            type="logo"
+                            cid={branding.logoCID}
+                            onUpload={(e) => handleFileUpload(e, 'logoCID')}
+                        />
+
+                        {/* Seal Upload */}
+                        <AssetUploader 
+                            title="Official Seal"
+                            description="Watermark validation"
+                            type="seal"
+                            cid={branding.sealCID}
+                            onUpload={(e) => handleFileUpload(e, 'sealCID')}
+                        />
+
+                        {/* Signature Upload */}
+                        <AssetUploader 
+                            title="Authorized Signature"
+                            description="Signatory verification"
+                            type="signature"
+                            cid={branding.signatureCID}
+                            onUpload={(e) => handleFileUpload(e, 'signatureCID')}
+                            className="md:col-span-2"
+                        />
+                     </div>
+                </div>
+            </div>
+        </div>
+      </main>
     </div>
   );
 };
+
+const AssetUploader = ({ title, description, type, cid, onUpload, className = "" }) => {
+    return (
+        <div className={`bg-gray-800/30 border border-gray-700/50 rounded-xl p-5 hover:border-indigo-500/30 transition-all duration-300 group ${className}`}>
+            <div className="flex items-start justify-between mb-4">
+                <div>
+                   <h4 className="font-semibold text-white">{title}</h4>
+                   <p className="text-xs text-gray-400 mt-1">{description}</p>
+                </div>
+                {cid && <div className="p-1 bg-green-500/10 rounded-full text-green-400"><FileCheck className="w-4 h-4" /></div>}
+            </div>
+
+            <div className="relative overflow-hidden rounded-lg bg-gray-900/50 border-2 border-dashed border-gray-700 group-hover:border-indigo-500/50 transition-colors h-40 flex items-center justify-center">
+                {cid ? (
+                    <div className="text-center p-4 w-full">
+                        <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 text-indigo-400">
+                             <FileCheck className="w-6 h-6" />
+                        </div>
+                        <p className="text-xs font-mono text-gray-500 truncate max-w-[200px] mx-auto bg-gray-950 px-2 py-1 rounded">
+                            CID: {cid.substring(0, 10)}...
+                        </p>
+                        <p className="text-xs text-green-400 mt-2 font-medium">Asset Linked</p>
+                    </div>
+                ) : (
+                    <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-500 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-colors">
+                             <Upload className="w-6 h-6" />
+                        </div>
+                        <p className="text-sm text-gray-400 group-hover:text-indigo-300 transition-colors">Click to upload</p>
+                        <p className="text-xs text-gray-600 mt-1">SVG, PNG or JPG</p>
+                    </div>
+                )}
+                <input 
+                    type="file" 
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+                    onChange={onUpload}
+                    disabled={!!cid} // Optional: disable if already uploaded, or allow replace
+                />
+            </div>
+        </div>
+    )
+}
 
 export default Profile;

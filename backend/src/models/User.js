@@ -49,10 +49,6 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^0x[a-fA-F0-9]{40}$/, 'Invalid wallet address']
   },
-  studentId: {
-    type: String, // Kept for backward compatibility or internal ID
-    sparse: true,
-  },
   registrationNumber: {
     type: String, // Formal Registration Number (e.g., 2024-CS-001)
     sparse: true,

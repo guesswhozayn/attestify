@@ -130,9 +130,9 @@ export const credentialAPI = {
     return api.get(`/credentials/${id}`);
   },
 
-  // Get credential by student ID
-  getByStudentId: async (studentId) => {
-    return api.get(`/credentials/student/${studentId}`);
+  // Get credential by registration number
+  getByRegistrationNumber: async (registrationNumber) => {
+    return api.get(`/credentials/student/${registrationNumber}`);
   },
 
   // Revoke credential

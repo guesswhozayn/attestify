@@ -21,7 +21,7 @@ class EmailService {
         <p>Dear ${data.studentName},</p>
         <p>Your certificate has been issued and recorded on the blockchain.</p>
         <ul>
-          <li><strong>Student ID:</strong> ${data.studentId}</li>
+          <li><strong>Registration Number:</strong> ${data.registrationNumber}</li>
           <li><strong>University:</strong> ${data.university}</li>
           <li><strong>Issue Date:</strong> ${new Date(data.issueDate).toLocaleDateString()}</li>
           <li><strong>Transaction Hash:</strong> ${data.transactionHash}</li>

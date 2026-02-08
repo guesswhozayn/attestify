@@ -6,7 +6,14 @@ exports.getAuditLogs = async (req, res) => {
 
     const query = {};
     
-    if (action) query.action = action;
+    if (action) {
+      // Support filtering by multiple actions
+      if (Array.isArray(action)) {
+        query.action = { $in: action };
+      } else {
+        query.action = action;
+      }
+    }
     if (startDate || endDate) {
       query.createdAt = {};
       if (startDate) query.createdAt.$gte = new Date(startDate);
@@ -15,7 +22,7 @@ exports.getAuditLogs = async (req, res) => {
 
     const logs = await AuditLog.find(query)
       .populate('performedBy', 'name email')
-      .populate('targetCredential', 'studentId studentName')
+      .populate('targetCredential', 'registrationNumber studentName')
       .populate('targetUser', 'name email')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
@@ -69,7 +76,18 @@ exports.getDashboardStats = async (req, res) => {
     else if (period === 'year') startDate.setFullYear(now.getFullYear() - 1);
     else if (period === 'all') startDate.setFullYear(2000); // Beginning of time
 
-    // Aggregate issuance gas costs
+    // Get Total Certificates Issued in Period
+    const issuedCount = await Credential.countDocuments({
+      createdAt: { $gte: startDate }
+    });
+
+    // Get Total Revocations in Period
+    const revokedCount = await Credential.countDocuments({
+      revokedAt: { $gte: startDate },
+      isRevoked: true
+    });
+
+    // Aggregate issuance gas costs (only for existing costs)
     const issuanceStats = await Credential.aggregate([
       {
         $match: {
@@ -81,8 +99,7 @@ exports.getDashboardStats = async (req, res) => {
         $group: {
           _id: null,
           totalGasUsed: { $sum: { $toDecimal: "$gasUsed" } },
-          totalCost: { $sum: { $toDecimal: "$totalCost" } },
-          count: { $sum: 1 }
+          totalCost: { $sum: { $toDecimal: "$totalCost" } }
         }
       }
     ]);
@@ -99,17 +116,14 @@ exports.getDashboardStats = async (req, res) => {
         $group: {
           _id: null,
           totalGasUsed: { $sum: { $toDecimal: "$revocationGasUsed" } },
-          totalCost: { $sum: { $toDecimal: "$revocationTotalCost" } },
-          count: { $sum: 1 }
+          totalCost: { $sum: { $toDecimal: "$revocationTotalCost" } }
         }
       }
     ]);
 
-
-
     // Format results
-    const issuance = issuanceStats[0] || { totalGasUsed: 0, totalCost: 0, count: 0 };
-    const revocation = revocationStats[0] || { totalGasUsed: 0, totalCost: 0, count: 0 };
+    const issuance = issuanceStats[0] || { totalGasUsed: 0, totalCost: 0 };
+    const revocation = revocationStats[0] || { totalGasUsed: 0, totalCost: 0 };
 
     const totalGasUsed = (parseFloat(issuance.totalGasUsed) + parseFloat(revocation.totalGasUsed)).toString();
     const totalCostWei = (parseFloat(issuance.totalCost) + parseFloat(revocation.totalCost));
@@ -118,13 +132,12 @@ exports.getDashboardStats = async (req, res) => {
     res.json({
       success: true,
       stats: {
-        totalCertificates: issuance.count,
-        totalRevocations: revocation.count,
+        totalCertificates: issuedCount,
+        totalRevocations: revokedCount,
         totalGasUsed,
         totalCostEth: totalCostEth.toFixed(6),
         totalCostWei: totalCostWei.toString()
-      },
-
+      }
     });
 
   } catch (error) {

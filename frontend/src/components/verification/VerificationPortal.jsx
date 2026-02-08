@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 const VerificationPortal = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [file, setFile] = useState(null);
-  const [studentId, setStudentId] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
@@ -47,7 +47,7 @@ const VerificationPortal = () => {
   const onScanSuccess = (decodedText, decodedResult) => {
     // Handle the scanned code as you like, for example:
     if (decodedText) {
-      setStudentId(decodedText);
+      setRegistrationNumber(decodedText);
       setShowScanner(false);
     }
   };
@@ -69,7 +69,7 @@ const VerificationPortal = () => {
       try {
         const extractedId = await extractMetadata(selectedFile);
         if (extractedId) {
-          setStudentId(extractedId);
+          setRegistrationNumber(extractedId);
         }
       } catch (err) {
         console.warn('Could not extract metadata', err);
@@ -78,14 +78,14 @@ const VerificationPortal = () => {
   };
 
   const handleVerify = async () => {
-    if (!file && !studentId) {
+    if (!file && !registrationNumber) {
       return;
     }
 
-    if (file && !studentId) {
+    if (file && !registrationNumber) {
       setResult({
         valid: false,
-        message: 'Please enter the Student ID associated with this certificate.'
+        message: 'Please enter the Registration Number associated with this certificate.'
       });
       return;
     }
@@ -94,15 +94,15 @@ const VerificationPortal = () => {
     setResult(null);
 
     try {
-      if (file && studentId) {
+      if (file && registrationNumber) {
         // Generate hash locally
         const fileHash = await generateFileHash(file);
         
         // Verify by hash (no file upload)
-        const response = await verifyAPI.verifyByHash(studentId, fileHash);
+        const response = await verifyAPI.verifyByHash(registrationNumber, fileHash);
         setResult(response.data);
-      } else if (studentId) {
-        const response = await verifyAPI.checkExists(studentId);
+      } else if (registrationNumber) {
+        const response = await verifyAPI.checkExists(registrationNumber);
         setResult(response.data);
       }
     } catch (error) {
@@ -170,9 +170,9 @@ const VerificationPortal = () => {
           {/* Student ID Search */}
           <div className="mb-8">
             <Input
-              placeholder="Enter Student ID to verify..."
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
+              placeholder="Enter Registration Number to verify..."
+              value={registrationNumber}
+              onChange={(e) => setRegistrationNumber(e.target.value)}
               icon={Search}
             />
           </div>
@@ -180,7 +180,7 @@ const VerificationPortal = () => {
           <Button
             onClick={handleVerify}
             loading={verifying}
-            disabled={verifying || (!file && !studentId)}
+            disabled={verifying || (!file && !registrationNumber)}
             className="w-full"
             size="lg"
           >
@@ -215,8 +215,8 @@ const VerificationPortal = () => {
                         <span className="text-white font-medium">{result.credential.studentName}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Student ID: </span>
-                        <span className="text-white font-medium">{result.credential.studentId}</span>
+                        <span className="text-gray-400">Registration Number: </span>
+                        <span className="text-white font-medium">{result.credential.registrationNumber}</span>
                       </div>
                       <div>
                         <span className="text-gray-400">University: </span>

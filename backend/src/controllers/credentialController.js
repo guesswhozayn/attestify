@@ -15,7 +15,7 @@ exports.issueCredential = async (req, res) => {
   let tempImagePath = null;
 
   try {
-    const { studentId, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
+    const { registrationNumber, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
     const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
 
     // Parse JSON strings if they come from FormData
@@ -30,15 +30,49 @@ exports.issueCredential = async (req, res) => {
     }
 
     // Check if credential already exists
-    const existing = await Credential.findOne({ studentId });
+    const existing = await Credential.findOne({ registrationNumber });
     if (existing) {
       return res.status(400).json({ 
-        error: 'Credential already exists for this student ID' 
+        error: 'Credential already exists for this Registration Number' 
       });
     }
 
     // Generate PDF
-    console.log('Generating PDF for:', studentId, 'Type:', type);
+    // Fetch Branding Assets
+    const branding = req.user.instituteDetails?.branding || {};
+    const assets = {
+      logo: null,
+      seal: null,
+      signature: null
+    };
+
+    const axios = require('axios'); // Ensure axios is required
+
+    const fetchImage = async (cid) => {
+      if (!cid) return null;
+      try {
+        const url = ipfsService.getIPFSUrl(cid);
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        return response.data;
+      } catch (error) {
+        console.warn(`Failed to fetch asset ${cid}:`, error.message);
+        return null;
+      }
+    };
+
+    // Parallel fetch for speed
+    const [logoBuffer, sealBuffer, signatureBuffer] = await Promise.all([
+      fetchImage(branding.logoCID),
+      fetchImage(branding.sealCID),
+      fetchImage(branding.signatureCID)
+    ]);
+    
+    assets.logo = logoBuffer;
+    assets.seal = sealBuffer;
+    assets.signature = signatureBuffer;
+
+    // Generate PDF
+    console.log('Generating PDF for:', registrationNumber, 'Type:', type);
     
     // Ensure uploads directory exists
     const uploadsDir = path.join(__dirname, '../../uploads');
@@ -46,127 +80,252 @@ exports.issueCredential = async (req, res) => {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    tempFilePath = path.join(uploadsDir, `cert_${studentId}_${Date.now()}.pdf`);
-    const doc = new PDFDocument({ layout: 'landscape', size: 'A4' });
+    tempFilePath = path.join(uploadsDir, `cert_${registrationNumber}_${Date.now()}.pdf`);
+    const doc = new PDFDocument({ layout: 'landscape', size: 'A4', margin: 40 });
     const writeStream = fs.createWriteStream(tempFilePath);
     doc.pipe(writeStream);
 
     // Generate QR Code Data
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const verificationUrl = `${frontendUrl}/verify/${studentId}`;
+    const verificationUrl = `${frontendUrl}/verify/${registrationNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
+
+    const institutionName = req.user.instituteDetails?.institutionName || university || 'Attestify University';
 
     if (type === 'TRANSCRIPT') {
       // --- TRANSCRIPT LAYOUT ---
-      // Header
-      doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+      // Header Background
+      doc.rect(0, 0, doc.page.width, 100).fill('#f9fafb');
+      doc.fillColor('#000000'); // Reset fill
       
-      doc.fontSize(24).font('Helvetica-Bold').text(university || 'Attestify University', { align: 'center' });
-      doc.fontSize(16).text('OFFICIAL ACADEMIC TRANSCRIPT', { align: 'center' });
-      doc.moveDown();
+      // Branding Header
+      let headerY = 30;
+      let logoAdded = false;
+      if (assets.logo) {
+         try {
+           doc.image(assets.logo, 40, 20, { height: 60 });
+           logoAdded = true;
+         } catch (e) {
+           console.warn('Failed to embed logo:', e.message);
+         }
+      }
+      
+      if (logoAdded) {
+         doc.fontSize(24).font('Helvetica-Bold').text(institutionName, 120, headerY);
+      } else {
+         doc.fontSize(24).font('Helvetica-Bold').text(institutionName, 40, headerY);
+      }
+      
+      doc.fontSize(10).font('Helvetica').text('OFFICIAL ACADEMIC TRANSCRIPT', 40, 85, { 
+          width: doc.page.width - 80, 
+          align: 'right' 
+      });
 
-      // Student Details
-      doc.fontSize(12).font('Helvetica');
-      const startX = 50;
-      let currentY = doc.y;
+      // Watermark (Seal)
+      if (assets.seal) {
+         try {
+           doc.save();
+           doc.opacity(0.1);
+           doc.image(assets.seal, doc.page.width / 2 - 150, doc.page.height / 2 - 150, { width: 300 });
+           doc.restore();
+         } catch (e) {
+            console.warn('Failed to embed watermark seal:', e.message);
+            doc.restore();
+         }
+      }
+
+      doc.moveDown(4);
+
+      // Student Details Grid
+      doc.fontSize(10).font('Helvetica-Bold');
+      const leftCol = 40;
+      const rightCol = 400;
+      let infoY = 120;
       
-      doc.text(`Student Name: ${studentName}`, startX, currentY);
-      doc.text(`Registration No: ${studentId}`, startX + 300, currentY);
-      currentY += 20;
-      doc.text(`Program: ${parsedTranscriptData?.program || 'N/A'}`, startX, currentY);
-      doc.text(`Department: ${parsedTranscriptData?.department || 'N/A'}`, startX + 300, currentY);
-      currentY += 20;
-      doc.text(`Admission Year: ${parsedTranscriptData?.admissionYear || 'N/A'}`, startX, currentY);
-      doc.text(`Graduation Year: ${parsedTranscriptData?.graduationYear || 'N/A'}`, startX + 300, currentY);
+      doc.text('STUDENT DETAILS', leftCol, infoY);
+      doc.rect(leftCol, infoY + 15, doc.page.width - 80, 1).fill('#e5e7eb');
+      doc.fillColor('#000');
+      
+      infoY += 30;
+      doc.text(`Name:`, leftCol, infoY).font('Helvetica-Bold').text(studentName, leftCol + 60, infoY);
+      doc.font('Helvetica').text(`Reg No:`, rightCol, infoY).font('Helvetica-Bold').text(registrationNumber, rightCol + 60, infoY);
+      
+      infoY += 20;
+      doc.font('Helvetica').text(`Program:`, leftCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.program || 'N/A', leftCol + 60, infoY);
+      doc.font('Helvetica').text(`Dept:`, rightCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.department || 'N/A', rightCol + 60, infoY);
+
+      infoY += 20;
+      doc.font('Helvetica').text(`Admitted:`, leftCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.admissionYear || 'N/A', leftCol + 60, infoY);
+      doc.font('Helvetica').text(`Graduated:`, rightCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.graduationYear || 'N/A', rightCol + 60, infoY);
       
       doc.moveDown(2);
 
       // Course Table Header
-      const tableTop = doc.y + 10;
-      const col1 = 50;  // Code
-      const col2 = 150; // Course Name
-      const col3 = 500; // Grade
-      const col4 = 600; // Credits
+      let tableY = infoY + 40;
+      const colCode = 40;
+      const colTitle = 140;
+      const colGrade = 550;
+      const colCredit = 650;
+      const colPoints = 720;
 
-      doc.font('Helvetica-Bold');
-      doc.text('Code', col1, tableTop);
-      doc.text('Course Title', col2, tableTop);
-      doc.text('Grade', col3, tableTop);
-      doc.text('Credits', col4, tableTop);
-      
-      doc.moveTo(40, tableTop + 15).lineTo(750, tableTop + 15).stroke();
+      // Table Header Background
+      doc.rect(colCode - 10, tableY - 5, doc.page.width - 60, 25).fill('#f3f4f6');
+      doc.fillColor('#000');
+
+      doc.font('Helvetica-Bold').fontSize(10);
+      doc.text('CODE', colCode, tableY);
+      doc.text('COURSE TITLE', colTitle, tableY);
+      doc.text('GRADE', colGrade, tableY);
+      doc.text('CREDITS', colCredit, tableY);
       
       // Course List
       doc.font('Helvetica');
-      let y = tableTop + 25;
+      let y = tableY + 30;
       
       if (parsedTranscriptData?.courses && Array.isArray(parsedTranscriptData.courses)) {
-        parsedTranscriptData.courses.forEach(course => {
-          if (y > 500) { // New page if needed
-            doc.addPage({ layout: 'landscape', size: 'A4' });
-            doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+        parsedTranscriptData.courses.forEach((course, i) => {
+          if (y > doc.page.height - 100) { // New page if needed
+            doc.addPage({ layout: 'landscape', size: 'A4', margin: 40 });
             y = 50;
+            // Re-draw header if needed
           }
-          doc.text(course.code || '', col1, y);
-          doc.text(course.name || '', col2, y);
-          doc.text(course.grade || '', col3, y);
-          doc.text(course.credits || '', col4, y);
+          
+          // Row shading
+          if (i % 2 === 1) {
+              doc.rect(colCode - 10, y - 5, doc.page.width - 60, 20).fill('#fafafa');
+              doc.fillColor('#000');
+          }
+
+          doc.text(course.code || '', colCode, y);
+          doc.text(course.name || '', colTitle, y);
+          doc.text(course.grade || '', colGrade, y);
+          doc.text(course.credits || '', colCredit, y);
           y += 20;
         });
       }
 
-      doc.moveTo(40, y).lineTo(750, y).stroke();
       y += 20;
+      doc.moveTo(40, y).lineTo(doc.page.width - 40, y).strokeColor('#e5e7eb').stroke();
+      
+      // Summary & Footer
+      y += 20;
+      doc.font('Helvetica-Bold').fontSize(12);
+      doc.text(`Cumulative GPA: ${parsedTranscriptData?.cgpa || 'N/A'}`, 40, y, { align: 'right', width: doc.page.width - 80 });
+      
+      
+      // Footer Signatures
+      y = doc.page.height - 100;
+      
+      if (assets.signature) {
+          try {
+            doc.image(assets.signature, 50, y - 40, { width: 100 });
+          } catch (e) {
+            console.warn('Failed to embed signature:', e.message); 
+          }
+      }
+      doc.moveTo(50, y).lineTo(200, y).stroke();
+      doc.fontSize(8).font('Helvetica').text('Authorized Signature', 50, y + 5);
 
-      // Summary
-      doc.font('Helvetica-Bold').fontSize(14);
-      doc.text(`CGPA / GPA: ${parsedTranscriptData?.cgpa || 'N/A'}`, col3 - 50, y);
+      if (assets.seal) {
+          try {
+             doc.image(assets.seal, doc.page.width / 2 - 40, y - 30, { width: 80 });
+          } catch (e) {
+             console.warn('Failed to embed footer seal:', e.message); 
+          }
+      }
+
+      // QR Verification
+      doc.image(qrCodeDataUrl, doc.page.width - 120, y - 30, { width: 70 });
+      doc.text('Scan to Verify', doc.page.width - 120, y + 45, { width: 70, align: 'center' });
       
-      // Footer / Verification
-      y = doc.page.height - 120;
-      doc.fontSize(10).font('Helvetica');
-      doc.text(`Issue Date: ${new Date(issueDate).toLocaleDateString()}`, 50, y);
-      
-      doc.image(qrCodeDataUrl, doc.page.width - 120, y - 20, { width: 80 });
-      doc.text('Scan to Verify', doc.page.width - 120, y + 65, { width: 80, align: 'center' });
+      doc.text(`Generated on ${new Date().toLocaleDateString()}`, 50, doc.page.height - 30, { align: 'center', width: doc.page.width - 100, color: '#9ca3af' });
 
     } else {
       // --- CERTIFICATION LAYOUT ---
-      // 1. Background / Border (Simple rectangle)
-      doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
       
-      // 2. Header
-      doc.fontSize(30).text(university || 'Attestify University', { align: 'center', valign: 'center' });
-      doc.moveDown();
-      doc.fontSize(20).text('Certificate of Completion', { align: 'center' });
-      doc.moveDown();
+      // 1. Decorative Border
+      const borderWidth = 20;
+      doc.lineWidth(2).strokeColor('#c084fc').rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+      doc.lineWidth(1).strokeColor('#e9d5ff').rect(25, 25, doc.page.width - 50, doc.page.height - 50).stroke();
       
-      // 3. Body
-      doc.fontSize(15).text('This is to certify that', { align: 'center' });
-      doc.moveDown(0.5);
-      doc.fontSize(25).font('Helvetica-Bold').text(studentName, { align: 'center' });
-      doc.font('Helvetica').fontSize(15).moveDown(0.5);
-      doc.text(`Registration No: ${studentId}`, { align: 'center' });
-      doc.moveDown();
-      doc.text('Has successfully completed the requirements for', { align: 'center' });
-      doc.moveDown(0.5);
+      // 2. Corner Ornaments (Simple lines for now)
+      // Top Left
+      doc.lineWidth(3).strokeColor('#9333ea')
+         .moveTo(30, 60).lineTo(30, 30).lineTo(60, 30).stroke();
+      // Bottom Right
+      doc.moveTo(doc.page.width - 60, doc.page.height - 30).lineTo(doc.page.width - 30, doc.page.height - 30).lineTo(doc.page.width - 30, doc.page.height - 60).stroke();
 
+      // 3. Header & Logo
+      let logoY = 60;
+      if (assets.logo) {
+         try {
+           doc.image(assets.logo, doc.page.width / 2 - 40, logoY, { width: 80 });
+           logoY += 100;
+         } catch (e) {
+           console.warn('Failed to embed certificate logo:', e.message);
+           logoY += 40;
+         }
+      } else {
+         logoY += 40;
+      }
+      
+      doc.fillColor('#1f2937');
+      doc.fontSize(36).font('Helvetica-Bold').text(institutionName, 0, logoY, { align: 'center' });
+      
+      doc.moveDown(1);
+      doc.fontSize(12).font('Helvetica').text('CERTIFICATE OF COMPLETION', { align: 'center', characterSpacing: 2 });
+      
+      // 4. Body Content
+      doc.moveDown(2);
+      doc.fontSize(16).font('Helvetica-Oblique').text('This is to certify that', { align: 'center', color: '#4b5563' });
+      
+      doc.moveDown(1);
+      doc.fontSize(32).font('Helvetica-Bold').text(studentName, { align: 'center', color: '#111827' });
+      
+      doc.moveDown(0.5);
+      doc.fontSize(12).font('Helvetica').text(`Registration No: ${registrationNumber}`, { align: 'center', color: '#6b7280' });
+      
+      doc.moveDown(1.5);
+      doc.fontSize(16).text('Has successfully completed the requirements for', { align: 'center', color: '#4b5563' });
+      
+      doc.moveDown(1);
       let title = parsedCertificationData?.title || 'Program Completion';
-      doc.fontSize(20).font('Helvetica-Bold').text(title, { align: 'center' });
+      doc.fontSize(28).font('Helvetica-Bold').text(title, { align: 'center', color: '#bea0ff' }); // Purple accent
       
       if (parsedCertificationData?.level) {
          doc.moveDown(0.5);
-         doc.fontSize(14).font('Helvetica').text(`Level: ${parsedCertificationData.level}`, { align: 'center' });
+         doc.fontSize(16).font('Helvetica').text(`${parsedCertificationData.level}`, { align: 'center', color: '#4b5563' });
       }
 
-      doc.font('Helvetica').moveDown(2);
+      doc.moveDown(1);
+      doc.fontSize(14).text(`Issued on ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, { align: 'center', color: '#374151' });
       
-      doc.fontSize(12).text(`Issued on: ${new Date(issueDate).toLocaleDateString()}`, { align: 'center' });
-      doc.moveDown(2);
+      // 5. Footer & Signatures
+      const footerY = doc.page.height - 120;
+      
+      // Signature Line
+      if (assets.signature) {
+          try {
+             doc.image(assets.signature, 100, footerY - 50, { width: 120 });
+          } catch (e) {
+             console.warn('Failed to embed certificate signature:', e.message); 
+          }
+      }
+      doc.lineWidth(1).strokeColor('#9ca3af').moveTo(80, footerY).lineTo(280, footerY).stroke();
+      doc.fontSize(10).text('Authorized Signature', 80, footerY + 10, { width: 200, align: 'center' });
+      
+      // Seal
+      if (assets.seal) {
+          try {
+             doc.image(assets.seal, doc.page.width / 2 - 50, footerY - 40, { width: 100 });
+          } catch (e) {
+             console.warn('Failed to embed certificate seal:', e.message); 
+          }
+      }
 
-      // 4. QR Code
-      doc.image(qrCodeDataUrl, doc.page.width / 2 - 50, doc.y, { width: 100 });
-      doc.fontSize(10).text('Scan to Verify', doc.page.width / 2 - 50, doc.y + 105, { width: 100, align: 'center' });
+      // QR & Verification
+      doc.image(qrCodeDataUrl, doc.page.width - 200, footerY - 20, { width: 70 });
+      doc.text('Scan to Verify', doc.page.width - 200, footerY + 55, { width: 70, align: 'center' });
     }
 
     doc.end();
@@ -188,7 +347,7 @@ exports.issueCredential = async (req, res) => {
     // 2. Upload PDF to IPFS
     const ipfsResult = await ipfsService.uploadFile(
       tempFilePath,
-      `Certificate_${studentId}.pdf`
+      `Certificate_${registrationNumber}.pdf`
     );
     console.log('Uploaded to IPFS:', ipfsResult.ipfsHash);
 
@@ -200,7 +359,7 @@ exports.issueCredential = async (req, res) => {
         tempImagePath = studentImageFile.path;
         const imageIpfsResult = await ipfsService.uploadFile(
           studentImageFile.path,
-          `${studentId}_image_${studentImageFile.originalname}`
+          `${registrationNumber}_image_${studentImageFile.originalname}`
         );
         studentImageUrl = ipfsService.getIPFSUrl(imageIpfsResult.ipfsHash);
         console.log('Uploaded student image to IPFS:', imageIpfsResult.ipfsHash);
@@ -210,8 +369,9 @@ exports.issueCredential = async (req, res) => {
     }
 
     // 3. Issue on blockchain
+    // Note: Smart contract still uses 'studentId' parameter name, but we pass registrationNumber
     const blockchainResult = await blockchainService.issueCertificate(
-      studentId,
+      registrationNumber,
       certificateHash,
       ipfsResult.ipfsHash
     );
@@ -219,7 +379,7 @@ exports.issueCredential = async (req, res) => {
 
     // 4. Save to database
     const credential = new Credential({
-      studentId,
+      registrationNumber,
       studentName,
       university,
       issueDate: new Date(issueDate),
@@ -238,7 +398,7 @@ exports.issueCredential = async (req, res) => {
       metadata: {
         fileSize: fs.statSync(tempFilePath).size,
         fileType: 'application/pdf',
-        originalFileName: `Certificate_${studentId}.pdf`
+        originalFileName: `Certificate_${registrationNumber}.pdf`
       }
     });
 
@@ -252,7 +412,7 @@ exports.issueCredential = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
       details: {
-        studentId,
+        registrationNumber,
         transactionHash: blockchainResult.transactionHash,
         ipfsCID: ipfsResult.ipfsHash
       }
@@ -271,7 +431,7 @@ exports.issueCredential = async (req, res) => {
       message: 'Credential issued successfully',
       credential: {
         id: credential._id,
-        studentId: credential.studentId,
+        registrationNumber: credential.registrationNumber,
         studentName: credential.studentName,
         university: credential.university,
         issueDate: credential.issueDate,
@@ -294,6 +454,15 @@ exports.issueCredential = async (req, res) => {
 
   } catch (error) {
     console.error('Issue credential error:', error);
+    if (error.stack) console.error(error.stack);
+    
+    try {
+      const logPath = path.join(__dirname, '../../logs/issue_error.log');
+      fs.mkdirSync(path.dirname(logPath), { recursive: true });
+      fs.appendFileSync(logPath, `${new Date().toISOString()} - ${error.stack}\n\n`);
+    } catch (logErr) {
+      console.error('Failed to write to log file:', logErr);
+    }
 
     // Clean up temp files on error
     if (tempFilePath && fs.existsSync(tempFilePath)) {
@@ -341,7 +510,7 @@ exports.getCredentials = async (req, res) => {
     if (search) {
       query.$or = [
         { studentName: new RegExp(search, 'i') },
-        { studentId: new RegExp(search, 'i') },
+        { registrationNumber: new RegExp(search, 'i') },
         { university: new RegExp(search, 'i') }
       ];
     }
@@ -406,12 +575,12 @@ exports.getCredentialById = async (req, res) => {
   }
 };
 
-// Get credential by student ID
-exports.getCredentialByStudentId = async (req, res) => {
+// Get credential by Registration Number
+exports.getCredentialByRegistrationNumber = async (req, res) => {
   try {
-    const { studentId } = req.params;
+    const { registrationNumber } = req.params;
 
-    const credential = await Credential.findOne({ studentId })
+    const credential = await Credential.findOne({ registrationNumber })
       .populate('issuedBy', 'name email university');
 
     if (!credential) {
@@ -447,7 +616,7 @@ exports.revokeCredential = async (req, res) => {
 
     // Revoke on blockchain
     const blockchainResult = await blockchainService.revokeCertificate(
-      credential.studentId
+      credential.registrationNumber
     );
 
     // Update database
@@ -468,7 +637,7 @@ exports.revokeCredential = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
       details: {
-        studentId: credential.studentId,
+        registrationNumber: credential.registrationNumber,
         transactionHash: blockchainResult.transactionHash,
         reason
       }
@@ -516,7 +685,7 @@ exports.getStats = async (req, res) => {
     const recent = await Credential.find({ issuedBy: userId })
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('studentName studentId university createdAt')
+      .select('studentName registrationNumber university createdAt')
       .lean();
 
     res.json({

@@ -15,10 +15,12 @@ const Layout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex">
+    <div className="min-h-screen bg-gray-950 flex selection:bg-indigo-500/30 text-gray-100 font-sans">
       <Sidebar />
-      <div className="flex-1 ml-20">
-        {children}
+      <div className="flex-1 ml-20 transition-all duration-300 ease-in-out relative">
+        <div className="min-h-screen flex flex-col">
+           {children}
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const credentialSchema = new mongoose.Schema({
-  studentId: {
+  registrationNumber: {
     type: String,
-    required: [true, 'Student ID is required'],
+    required: [true, 'Registration Number is required'],
     unique: true,
     trim: true,
     index: true
@@ -125,7 +125,7 @@ const credentialSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-credentialSchema.index({ studentId: 1, isRevoked: 1 });
+credentialSchema.index({ registrationNumber: 1, isRevoked: 1 });
 credentialSchema.index({ issuedBy: 1, createdAt: -1 });
 credentialSchema.index({ createdAt: -1 });
 

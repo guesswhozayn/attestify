@@ -35,7 +35,7 @@ const CertificateCard = ({ certificate, onClick }) => {
         </h3>
         
         <p className="text-gray-400 text-sm mb-3">
-          ID: {certificate.studentId}
+          ID: {certificate.registrationNumber}
         </p>
         
         <div className="flex items-center justify-between">
