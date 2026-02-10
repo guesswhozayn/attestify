@@ -10,7 +10,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['INSTITUTE', 'STUDENT'] },
-    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['INSTITUTE'] }, // New Link
+    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['INSTITUTE'] },
     { icon: FileText, path: '/student/credentials', label: 'My Credentials', roles: ['STUDENT'] },
     { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['INSTITUTE'] },
     { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['INSTITUTE'] },
@@ -49,8 +49,8 @@ const Sidebar = () => {
               onClick={() => navigate(item.path)}
               className={`group relative p-3 rounded-xl transition-all duration-200 w-full flex justify-center ${
                 active 
-                  ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                  ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
+                  : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200 hover:shadow-inner'
               }`}
             >
               <Icon className={`w-6 h-6 ${active ? 'animate-in zoom-in-50 duration-200' : ''}`} />

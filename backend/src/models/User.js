@@ -35,6 +35,12 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  about: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'About must be less than 500 characters'],
+    default: ''
+  },
   googleId: {
     type: String,
     sparse: true,
@@ -49,12 +55,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^0x[a-fA-F0-9]{40}$/, 'Invalid wallet address']
   },
-  registrationNumber: {
-    type: String, // Formal Registration Number (e.g., 2024-CS-001)
-    sparse: true,
-    unique: true,
-    trim: true
-  },
+
   isActive: {
     type: Boolean,
     default: true

@@ -30,7 +30,7 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     university: '',
-    registrationNumber: '',
+    registrationNumber: '', // Required for Institute
     walletAddress: '', // Initialize for student
     authorizedWalletAddress: '', // Initialize for institute
     officialEmailDomain: '', // Initialize for institute
@@ -205,7 +205,6 @@ const Register = () => {
                      icon={Building}
                      required
                    />
-                   {/* Registration Number removed for students */}
                    <div className="md:col-span-2">
                      <FormInput
                        label="Wallet Address"

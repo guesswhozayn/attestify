@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
       password,
       role,
       university,
-      registrationNumber,
+
       // Institute specific fields
       institutionName,
       authorizedWalletAddress,
@@ -67,8 +67,6 @@ exports.register = async (req, res) => {
       // Use Institution Name as the main Name for the user
       userData.name = institutionName;
     } else {
-      // Use registrationNumber as studentId if studentId isn't explicitly provided
-      userData.registrationNumber = registrationNumber;
     }
 
     const user = await User.create(userData);
@@ -98,7 +96,11 @@ exports.register = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        registrationNumber: user.registrationNumber,
+        title: user.title,
+        walletAddress: user.walletAddress,
+        title: user.title,
+        about: user.about,
+        isActive: user.isActive,
         instituteDetails: user.instituteDetails
       }
     });
@@ -157,6 +159,11 @@ exports.login = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
+        university: user.university,
+        walletAddress: user.walletAddress,
+        title: user.title,
+        about: user.about,
+        isActive: user.isActive,
         studentId: user.studentId,
         instituteDetails: user.instituteDetails
       }
@@ -186,8 +193,9 @@ exports.getCurrentUser = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        walletAddress: user.walletAddress,
-        registrationNumber: user.registrationNumber,
+        title: user.title,
+        about: user.about,
+        isActive: user.isActive,
         instituteDetails: user.instituteDetails,
         createdAt: user.createdAt
       }
@@ -213,7 +221,7 @@ exports.logout = async (req, res) => {
 // Update profile
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, university, walletAddress } = req.body;
+    const { name, university, walletAddress, title, about } = req.body;
     
     // Find user
     const user = await User.findById(req.user._id);
@@ -225,6 +233,8 @@ exports.updateProfile = async (req, res) => {
     if (name) user.name = name;
     if (university) user.university = university;
     if (walletAddress) user.walletAddress = walletAddress;
+    if (title !== undefined) user.title = title;
+    if (about !== undefined) user.about = about;
 
     // Update institute details if role is INSTITUTE
     if (user.role === 'INSTITUTE' && req.body.instituteDetails) {
@@ -257,6 +267,8 @@ exports.updateProfile = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
+        title: user.title,
+        isActive: user.isActive,
         instituteDetails: user.instituteDetails
       }
     });
@@ -351,8 +363,9 @@ exports.googleLogin = async (req, res) => {
         role: user.role,
         university: user.university,
         walletAddress: user.walletAddress,
-        walletAddress: user.walletAddress,
-        registrationNumber: user.registrationNumber,
+        title: user.title,
+        about: user.about,
+        isActive: user.isActive,
         instituteDetails: user.instituteDetails,
         avatar: user.avatar
       }

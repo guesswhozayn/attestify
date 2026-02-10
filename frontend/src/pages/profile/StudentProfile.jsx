@@ -3,7 +3,7 @@ import Header from '../../components/layout/Header';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { userAPI } from '../../services/api';
-import { User, Mail, Building, Calendar, Wallet, Shield, Camera, Loader } from 'lucide-react';
+import { User, Mail, Building, Calendar, Wallet, Shield, Camera, Loader, BadgeCheck, Activity } from 'lucide-react';
 
 const StudentProfile = () => {
     const { user, updateUser } = useAuth();
@@ -108,6 +108,11 @@ const StudentProfile = () => {
                         <span className="px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                             {user?.role || 'Student'}
                         </span>
+                        {user?.title && (
+                             <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                {user.title}
+                            </span>
+                        )}
                         </div>
                     </div>
                     </div>
@@ -121,9 +126,9 @@ const StudentProfile = () => {
                     value={user?.university} 
                     />
                     <ProfileField 
-                    icon={User} 
-                    label="Registration Number" 
-                    value={user?.registrationNumber} 
+                    icon={BadgeCheck} 
+                    label="Title" 
+                    value={user?.title || 'No Title Set'} 
                     />
                     <ProfileField 
                     icon={Wallet} 
@@ -139,7 +144,20 @@ const StudentProfile = () => {
                         day: 'numeric'
                     }) : 'N/A'} 
                     />
+                    <ProfileField 
+                    icon={Activity} 
+                    label="Account Status" 
+                    value={user?.isActive ? 'Active' : 'Inactive'} 
+                    />
                 </div>
+
+                {/* About Section */}
+                {user?.about && (
+                    <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 shadow-lg">
+                        <h3 className="text-lg font-semibold text-white mb-3">About</h3>
+                        <p className="text-gray-300 leading-relaxed">{user.about}</p>
+                    </div>
+                )}
         
                 {/* Security/Trust Badge */}
                 <div className="bg-indigo-900/10 rounded-xl p-4 border border-indigo-500/20 flex items-center gap-4">

@@ -53,9 +53,15 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
 
           <div className="relative h-full flex flex-col justify-end p-8">
             <div className="flex items-end space-x-6">
-              {/* Avatar */}
-              <div className="w-24 h-24 rounded-full border-4 border-gray-800 bg-gray-700 shadow-xl overflow-hidden flex-shrink-0 -mb-4 z-10">
-                {certificate.studentImage ? (
+              {/* Avatar or Logo */}
+              <div className="w-24 h-24 rounded-full border-4 border-gray-800 bg-white shadow-xl overflow-hidden flex-shrink-0 -mb-4 z-10 flex items-center justify-center">
+                {certificate.issuedBy?.instituteDetails?.branding?.logoCID ? (
+                   <img 
+                     src={`https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.logoCID}`}
+                     alt="Institute Logo"
+                     className="w-full h-full object-contain p-1"
+                   />
+                ) : certificate.studentImage ? (
                   <img 
                     src={certificate.studentImage} 
                     alt={certificate.studentName} 
@@ -245,7 +251,19 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
              </div>
 
             {/* Actions */}
-            <div className="space-y-3 pt-2">
+              <div className="space-y-3 pt-2">
+                {/* Branding Assets Display */}
+                {certificate.issuedBy?.instituteDetails?.branding?.signatureCID && (
+                   <div className="text-center py-4 border-t border-b border-gray-100 mb-4">
+                      <img 
+                        src={`https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.signatureCID}`} 
+                        alt="Authorized Signature" 
+                        className="h-16 mx-auto mb-2 object-contain"
+                      />
+                      <p className="text-xs text-gray-500 font-medium">Authorized Signature</p>
+                   </div>
+                )}
+
               <Button
                 onClick={downloadCertificate}
                 variant="primary"

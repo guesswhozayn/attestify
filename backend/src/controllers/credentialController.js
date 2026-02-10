@@ -10,6 +10,7 @@ const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const path = require('path');
 const emailService = require('../services/emailService');
+const axios = require('axios');
 
 // Issue new credential
 exports.issueCredential = async (req, res) => {
@@ -61,25 +62,25 @@ exports.issueCredential = async (req, res) => {
       signature: null
     };
 
-    const axios = require('axios'); // Ensure axios is required
-
-    const fetchImage = async (cid) => {
+    const fetchImage = async (cid, type) => {
       if (!cid) return null;
       try {
+        console.log(`Fetching ${type} from IPFS: ${cid}`);
         const url = ipfsService.getIPFSUrl(cid);
         const response = await axios.get(url, { responseType: 'arraybuffer' });
+        console.log(`Successfully fetched ${type}`);
         return response.data;
       } catch (error) {
-        console.warn(`Failed to fetch asset ${cid}:`, error.message);
+        console.warn(`Failed to fetch ${type} asset ${cid}:`, error.message);
         return null;
       }
     };
 
     // Parallel fetch for speed
     const [logoBuffer, sealBuffer, signatureBuffer] = await Promise.all([
-      fetchImage(branding.logoCID),
-      fetchImage(branding.sealCID),
-      fetchImage(branding.signatureCID)
+      fetchImage(branding.logoCID, 'logo'),
+      fetchImage(branding.sealCID, 'seal'),
+      fetchImage(branding.signatureCID, 'signature')
     ]);
     
     assets.logo = logoBuffer;
@@ -233,16 +234,12 @@ exports.issueCredential = async (req, res) => {
       // Footer Signatures
       y = doc.page.height - 100;
       
-      if (assets.signature) {
-          try {
-            doc.image(assets.signature, 50, y - 40, { width: 100 });
-          } catch (e) {
-            console.warn('Failed to embed signature:', e.message); 
-          }
-      }
-      doc.moveTo(50, y).lineTo(200, y).stroke();
-      doc.fontSize(8).font('Helvetica').text('Authorized Signature', 50, y + 5);
+      // Date on Left
+      doc.fontSize(10).font('Helvetica').text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, 50, y + 10);
+      doc.fontSize(8).fillColor('#6b7280').text(`Generated: ${new Date().toLocaleDateString()}`, 50, y + 25);
+      doc.fillColor('#000');
 
+      // Seal in Center
       if (assets.seal) {
           try {
              doc.image(assets.seal, doc.page.width / 2 - 40, y - 30, { width: 80 });
@@ -251,11 +248,24 @@ exports.issueCredential = async (req, res) => {
           }
       }
 
-      // QR Verification
-      doc.image(qrCodeDataUrl, doc.page.width - 120, y - 30, { width: 70 });
-      doc.text('Scan to Verify', doc.page.width - 120, y + 45, { width: 70, align: 'center' });
-      
-      doc.text(`Generated on ${new Date().toLocaleDateString()}`, 50, doc.page.height - 30, { align: 'center', width: doc.page.width - 100, color: '#9ca3af' });
+      // Signature on Right
+      if (assets.signature) {
+          try {
+            // Align right
+            doc.image(assets.signature, doc.page.width - 160, y - 40, { width: 100 });
+          } catch (e) {
+            console.warn('Failed to embed signature:', e.message); 
+          }
+      }
+      doc.moveTo(doc.page.width - 200, y).lineTo(doc.page.width - 50, y).stroke();
+      doc.fontSize(10).font('Helvetica').text('Authorized Signature', doc.page.width - 200, y + 5, { width: 150, align: 'center' });
+
+      // QR Code Position (Bottom Left, below date?) OR Top Right Header?
+      // Let's put it in the header for Transcript as footer is crowded or Bottom Center below seal?
+      // Let's put it Bottom Right below Signature or Bottom Center.
+      // Current: Bottom Right.
+      // Let's move QR to Top Right of the page for Transcript to look like an official document code.
+      doc.image(qrCodeDataUrl, doc.page.width - 100, 30, { width: 60 });
 
     } else {
       // --- CERTIFICATION LAYOUT ---
@@ -276,8 +286,9 @@ exports.issueCredential = async (req, res) => {
       let logoY = 60;
       if (assets.logo) {
          try {
-           doc.image(assets.logo, doc.page.width / 2 - 40, logoY, { width: 80 });
-           logoY += 100;
+           // Increased logo size
+           doc.image(assets.logo, doc.page.width / 2 - 60, logoY, { width: 120 });
+           logoY += 140; // More space
          } catch (e) {
            console.warn('Failed to embed certificate logo:', e.message);
            logoY += 40;
@@ -314,35 +325,36 @@ exports.issueCredential = async (req, res) => {
          doc.fontSize(16).font('Helvetica').text(`${parsedCertificationData.level}`, { align: 'center', color: '#4b5563' });
       }
 
-      doc.moveDown(1);
-      doc.fontSize(14).text(`Issued on ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, { align: 'center', color: '#374151' });
+      // NO Date here - moved to footer
       
       // 5. Footer & Signatures
-      const footerY = doc.page.height - 120;
+      const footerY = doc.page.height - 100;
       
-      // Signature Line
-      if (assets.signature) {
-          try {
-             doc.image(assets.signature, 100, footerY - 50, { width: 120 });
-          } catch (e) {
-             console.warn('Failed to embed certificate signature:', e.message); 
-          }
-      }
-      doc.lineWidth(1).strokeColor('#9ca3af').moveTo(80, footerY).lineTo(280, footerY).stroke();
-      doc.fontSize(10).text('Authorized Signature', 80, footerY + 10, { width: 200, align: 'center' });
+      // Left: Date
+      doc.fontSize(12).font('Helvetica').fillColor('#374151');
+      doc.text(`Issued: ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, 60, footerY + 10);
       
-      // Seal
+      // Center: Seal & QR
       if (assets.seal) {
           try {
-             doc.image(assets.seal, doc.page.width / 2 - 50, footerY - 40, { width: 100 });
+             doc.image(assets.seal, doc.page.width / 2 - 40, footerY - 40, { width: 80 });
           } catch (e) {
              console.warn('Failed to embed certificate seal:', e.message); 
           }
       }
+      // Small QR below seal
+      doc.image(qrCodeDataUrl, doc.page.width / 2 - 25, footerY + 50, { width: 50 });
 
-      // QR & Verification
-      doc.image(qrCodeDataUrl, doc.page.width - 200, footerY - 20, { width: 70 });
-      doc.text('Scan to Verify', doc.page.width - 200, footerY + 55, { width: 70, align: 'center' });
+      // Right: Signature
+      if (assets.signature) {
+          try {
+             doc.image(assets.signature, doc.page.width - 220, footerY - 50, { width: 120 });
+          } catch (e) {
+             console.warn('Failed to embed certificate signature:', e.message); 
+          }
+      }
+      doc.lineWidth(1).strokeColor('#9ca3af').moveTo(doc.page.width - 240, footerY).lineTo(doc.page.width - 60, footerY).stroke();
+      doc.fontSize(10).text('Authorized Signature', doc.page.width - 240, footerY + 10, { width: 180, align: 'center' });
     }
 
     doc.end();
@@ -478,7 +490,6 @@ exports.issueCredential = async (req, res) => {
       message: 'Credential issued successfully',
       credential: {
         id: credential._id,
-        registrationNumber: credential.registrationNumber,
         studentName: credential.studentName,
         university: credential.university,
         issueDate: credential.issueDate,
@@ -576,7 +587,7 @@ exports.getCredentials = async (req, res) => {
       .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
-      .populate('issuedBy', 'name email university')
+      .populate('issuedBy', 'name email university instituteDetails')
       .lean();
 
     const count = await Credential.countDocuments(query);
@@ -604,7 +615,7 @@ exports.getCredentialById = async (req, res) => {
     const { id } = req.params;
 
     const credential = await Credential.findById(id)
-      .populate('issuedBy', 'name email university')
+      .populate('issuedBy', 'name email university instituteDetails')
       .populate('revokedBy', 'name email');
 
     if (!credential) {
@@ -633,7 +644,7 @@ exports.getCredentialsByStudentWallet = async (req, res) => {
     const { walletAddress } = req.params;
 
     const credentials = await Credential.find({ studentWalletAddress: walletAddress.toLowerCase() })
-      .populate('issuedBy', 'name email university')
+      .populate('issuedBy', 'name email university instituteDetails')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -665,7 +676,7 @@ exports.revokeCredential = async (req, res) => {
 
     // Revoke on blockchain
     const blockchainResult = await blockchainService.revokeCertificate(
-      credential.studentWalletAddress
+      credential._id.toString()
     );
 
     // Update database

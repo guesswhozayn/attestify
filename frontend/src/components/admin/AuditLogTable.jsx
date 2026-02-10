@@ -109,9 +109,9 @@ const AuditLogTable = ({ logs, loading }) => {
               <td className="px-6 py-4 text-right whitespace-nowrap">
                 <div className="flex items-center justify-end text-gray-400 group-hover:text-gray-300">
                    <Clock className="w-4 h-4 mr-2 opacity-50" />
-                   {new Date(log.timestamp).toLocaleDateString()}
+                   {new Date(log.createdAt).toLocaleDateString()}
                    <span className="mx-1.5 opacity-30">|</span>
-                   {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                   {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </td>
             </tr>

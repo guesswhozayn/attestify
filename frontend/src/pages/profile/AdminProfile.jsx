@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Edit2, Loader } from 'lucide-react';
+import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Edit2, Loader, Trash2 } from 'lucide-react';
 import api, { userAPI } from '../../services/api';
 import Button from '../../components/shared/Button';
 
@@ -57,21 +57,27 @@ const AdminProfile = () => {
       if (!file) return;
   
       setLoading(true);
+      const formData = new FormData();
+      // 'type' comes in as 'logoCID', 'sealCID', etc.
+      // The backend expects 'logo', 'seal', 'signature'.
+      const fieldName = type.replace('CID', '');
+      formData.append(fieldName, file);
+
       try {
-        // In a real app, you'd upload to IPFS here
-        const mockCID = `Qm${Math.random().toString(36).substring(7)}...`; 
-        const updatedBranding = { ...branding, [type]: mockCID };
-        setBranding(updatedBranding);
-  
-        const response = await api.put('/user/profile', {
-          instituteDetails: {
-            branding: { ...branding, [type]: mockCID }
-          }
+        const response = await api.post('/user/branding', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
         
         if (response.data.success) {
           updateUser(response.data.user);
-          showNotification(`${type} uploaded successfully`, 'success');
+          // Update local state to reflect new CIDs immediately
+          const newBranding = response.data.user.instituteDetails?.branding || {};
+          setBranding({
+              logoCID: newBranding.logoCID || '',
+              sealCID: newBranding.sealCID || '',
+              signatureCID: newBranding.signatureCID || ''
+          });
+          showNotification(`${fieldName} uploaded successfully`, 'success');
         }
       } catch (error) {
         console.error('Upload failed', error);
@@ -79,6 +85,34 @@ const AdminProfile = () => {
       } finally {
         setLoading(false);
       }
+    };
+
+    const handleFileRemove = async (type) => {
+        if (!window.confirm('Are you sure you want to remove this asset?')) return;
+
+        setLoading(true);
+        // type is 'logoCID', backend expects 'logo'
+        const fieldName = type.replace('CID', '');
+        
+        try {
+            const response = await api.delete(`/user/branding/${fieldName}`);
+            if (response.data.success) {
+                updateUser(response.data.user);
+                // Update local state
+                const newBranding = response.data.user.instituteDetails?.branding || {};
+                setBranding({
+                    logoCID: newBranding.logoCID || '',
+                    sealCID: newBranding.sealCID || '',
+                    signatureCID: newBranding.signatureCID || ''
+                });
+                showNotification(`${fieldName} removed successfully`, 'success');
+            }
+        } catch (error) {
+            console.error('Delete failed', error);
+            showNotification('Failed to remove file', 'error');
+        } finally {
+            setLoading(false);
+        }
     };
   
     return (
@@ -238,6 +272,7 @@ const AdminProfile = () => {
                               type="logo"
                               cid={branding.logoCID}
                               onUpload={(e) => handleFileUpload(e, 'logoCID')}
+                              onRemove={() => handleFileRemove('logoCID')}
                           />
   
                           {/* Seal Upload */}
@@ -247,6 +282,7 @@ const AdminProfile = () => {
                               type="seal"
                               cid={branding.sealCID}
                               onUpload={(e) => handleFileUpload(e, 'sealCID')}
+                              onRemove={() => handleFileRemove('sealCID')}
                           />
   
                           {/* Signature Upload */}
@@ -256,6 +292,7 @@ const AdminProfile = () => {
                               type="signature"
                               cid={branding.signatureCID}
                               onUpload={(e) => handleFileUpload(e, 'signatureCID')}
+                              onRemove={() => handleFileRemove('signatureCID')}
                               className="md:col-span-2"
                           />
                        </div>
@@ -267,7 +304,7 @@ const AdminProfile = () => {
     );
 };
 
-const AssetUploader = ({ title, description, type, cid, onUpload, className = "" }) => {
+const AssetUploader = ({ title, description, type, cid, onUpload, onRemove, className = "" }) => {
     return (
         <div className={`bg-gray-800/30 border border-gray-700/50 rounded-xl p-5 hover:border-indigo-500/30 transition-all duration-300 group ${className}`}>
             <div className="flex items-start justify-between mb-4">
@@ -275,19 +312,38 @@ const AssetUploader = ({ title, description, type, cid, onUpload, className = ""
                    <h4 className="font-semibold text-white">{title}</h4>
                    <p className="text-xs text-gray-400 mt-1">{description}</p>
                 </div>
-                {cid && <div className="p-1 bg-green-500/10 rounded-full text-green-400"><FileCheck className="w-4 h-4" /></div>}
+                {cid && (
+                    <div className="flex items-center gap-2">
+                         <div className="p-1 bg-green-500/10 rounded-full text-green-400">
+                            <FileCheck className="w-4 h-4" />
+                         </div>
+                         <button 
+                            onClick={onRemove}
+                            className="p-1 hover:bg-red-500/10 rounded-full text-gray-500 hover:text-red-400 transition-colors"
+                            title="Remove asset"
+                         >
+                            <Trash2 className="w-4 h-4" />
+                         </button>
+                    </div>
+                )}
             </div>
 
             <div className="relative overflow-hidden rounded-lg bg-gray-900/50 border-2 border-dashed border-gray-700 group-hover:border-indigo-500/50 transition-colors h-40 flex items-center justify-center">
                 {cid ? (
-                    <div className="text-center p-4 w-full">
-                        <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 text-indigo-400">
-                             <FileCheck className="w-6 h-6" />
+                    <div className="text-center p-4 w-full relative group/preview">
+                        <div className="w-full h-32 flex items-center justify-center mb-1">
+                             <img 
+                                src={`https://gateway.pinata.cloud/ipfs/${cid}`} 
+                                alt={title} 
+                                className="max-w-full max-h-full object-contain"
+                             />
                         </div>
-                        <p className="text-xs font-mono text-gray-500 truncate max-w-[200px] mx-auto bg-gray-950 px-2 py-1 rounded">
-                            CID: {cid.substring(0, 10)}...
-                        </p>
-                        <p className="text-xs text-green-400 mt-2 font-medium">Asset Linked</p>
+                         
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
+                             <p className="text-xs font-mono text-gray-300 bg-black/50 px-2 py-1 rounded">
+                                CID: {cid.substring(0, 8)}...
+                             </p>
+                        </div>
                     </div>
                 ) : (
                     <div className="text-center p-4">
@@ -302,7 +358,7 @@ const AssetUploader = ({ title, description, type, cid, onUpload, className = ""
                     type="file" 
                     className="absolute inset-0 opacity-0 cursor-pointer z-10" 
                     onChange={onUpload}
-                    disabled={!!cid} // Optional: disable if already uploaded, or allow replace
+                    disabled={!!cid} // Disable input if CID matches, user must remove first
                 />
             </div>
         </div>

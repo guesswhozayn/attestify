@@ -8,8 +8,11 @@ import { useNotification } from '../context/NotificationContext';
 import blockchainService from '../services/blockchain';
 import api from '../services/api';
 
+
+
+
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
@@ -19,6 +22,8 @@ const Settings = () => {
     email: user?.email || '',
     university: user?.university || '',
     walletAddress: user?.walletAddress || '',
+    title: user?.title || '',
+    about: user?.about || '',
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -35,7 +40,9 @@ const Settings = () => {
         name: user.name || prev.name,
         email: user.email || prev.email,
         university: user.university || prev.university, // This might be the user's organization
-        walletAddress: user.walletAddress || prev.walletAddress
+        walletAddress: user.walletAddress || prev.walletAddress,
+        title: user.title || prev.title,
+        about: user.about || prev.about
       }));
     }
   }, [user]);
@@ -54,8 +61,11 @@ const Settings = () => {
   const handleProfileUpdate = async () => {
     setLoading(true);
     try {
-      await api.put('/user/profile', profileData);
-      showNotification('Profile updated successfully', 'success');
+      const response = await api.put('/user/profile', profileData);
+      if (response.data.success) {
+        updateUser(response.data.user);
+        showNotification('Profile updated successfully', 'success');
+      }
     } catch (error) {
       showNotification(error.response?.data?.error || 'Failed to update profile', 'error');
     } finally {
@@ -129,42 +139,72 @@ const Settings = () => {
               
               {/* Personal Details Section */}
               <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Personal Information</h3>
+                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">
+                    {user?.role === 'INSTITUTE' ? 'Institution Details' : 'Personal Information'}
+                 </h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
-                      label="Full Name"
+                      label={user?.role === 'INSTITUTE' ? 'Institution Name' : 'Full Name'}
                       value={profileData.name}
                       onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                      icon={User}
-                      placeholder="e.g. John Doe"
+                      icon={user?.role === 'INSTITUTE' ? Building : User}
+                      placeholder={user?.role === 'INSTITUTE' ? "e.g. State University" : "e.g. John Doe"}
                     />
                     <Input
-                      label="Email Address"
+                      label={user?.role === 'INSTITUTE' ? 'Official Email Address' : 'Email Address'}
                       type="email"
                       value={profileData.email}
                       onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                       icon={Mail}
-                      placeholder="john@example.com"
-                      disabled // Email usually shouldn't be changed easily without verification
+                      placeholder="email@example.com"
+                      disabled
                       className="opacity-70 cursor-not-allowed"
                     />
                  </div>
               </section>
 
-              {/* Organization Section */}
+              {/* Professional / Organization Section */}
               <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Organization Details</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label="Institute / University Name"
-                      value={profileData.university}
-                      onChange={(e) => setProfileData({ ...profileData, university: e.target.value })}
-                      icon={Building}
-                      placeholder="e.g. State University of Technology"
-                    />
-                    {/* Placeholder for future org fields like Website/Address */}
-                 </div>
+                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">
+                    {user?.role === 'INSTITUTE' ? 'Organization Profile' : 'Organization Details'}
+                 </h3>
+                 
+                 {user?.role === 'STUDENT' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input
+                          label="University / Organization"
+                          value={profileData.university}
+                          onChange={(e) => setProfileData({ ...profileData, university: e.target.value })}
+                          icon={Building}
+                          placeholder="e.g. State University of Technology"
+                        />
+                        <Input
+                           label="Professional Title"
+                           value={profileData.title}
+                           onChange={(e) => setProfileData({ ...profileData, title: e.target.value })}
+                           icon={User}
+                           placeholder="e.g. Software Engineer"
+                         />
+                    </div>
+                 )}
+
+                  <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-300 mb-1.5 ml-1">
+                        {user?.role === 'INSTITUTE' ? 'About the Institute' : 'About / Bio'}
+                      </label>
+                      <textarea
+                        value={profileData.about}
+                        onChange={(e) => setProfileData({ ...profileData, about: e.target.value })}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[100px]"
+                        placeholder={user?.role === 'INSTITUTE' ? "Describe your institution..." : "Share a bit about yourself..."}
+                      />
+                  </div>
               </section>
+
+
+
+              {/* Branding Assets Section (Institute Only) */}
+
 
               {/* Blockchain Section */}
               <section className="space-y-4">

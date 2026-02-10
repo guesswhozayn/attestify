@@ -207,7 +207,9 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
           <div className="flex items-center space-x-3 pl-6 border-l border-gray-800">
             <div className="text-right hidden sm:block">
               <div className="text-white text-sm font-medium leading-none">{user?.name}</div>
-              <div className="text-gray-500 text-xs mt-1 leading-none">{user?.role === 'INSTITUTE' ? 'Administrator' : 'Student'}</div>
+              <div className="text-gray-500 text-xs mt-1 leading-none">
+                {user?.title || (user?.role === 'INSTITUTE' ? 'Administrator' : 'Student')}
+              </div>
             </div>
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] rounded-xl shadow-lg shadow-purple-900/20">
                <div className="w-full h-full bg-gray-900 rounded-[10px] flex items-center justify-center">
