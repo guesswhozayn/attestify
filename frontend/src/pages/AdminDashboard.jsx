@@ -3,156 +3,205 @@ import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
 import CertificateGrid from '../components/certificate/CertificateGrid';
 import CertificateDetails from '../components/certificate/CertificateDetails';
+import DetailedCertificateCard from '../components/certificate/DetailedCertificateCard';
 import UploadCertificateModal from '../components/certificate/UploadCertificateModal';
-import StatisticsCard from '../components/admin/StatisticsCard';
-import { FileText, Users, Shield, TrendingUp, Plus, LayoutGrid, Search } from 'lucide-react';
+import { Plus, LayoutGrid, Search, Shield, Filter, ArrowRight } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
     const [certificates, setCertificates] = useState([]);
-    const [filteredCertificates, setFilteredCertificates] = useState([]);
+    const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0 });
     const [selectedCertificate, setSelectedCertificate] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [stats, setStats] = useState({
-        total: 0,
-        thisMonth: 0,
-        active: 0,
-        revoked: 0,
-    });
     const { showNotification } = useNotification();
-    const { user } = useAuth(); // For personalization
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchCertificates();
+        fetchData();
     }, []);
 
-    const fetchCertificates = async () => {
+    const fetchData = async () => {
         try {
-            const response = await credentialAPI.getAll();
-            const docs = response.data.credentials || [];
-            setCertificates(docs);
-            setFilteredCertificates(docs);
+            setLoading(true);
+            // Fetch stats and recent 5
+            const [allResponse, recentResponse] = await Promise.all([
+                 credentialAPI.getAll({ limit: 1 }), // Just to get total count if API doesn't have stats endpoint
+                 credentialAPI.getAll({ limit: 3 })
+            ]);
 
-            // Calculate stats
-            const total = docs.length;
-            const revoked = docs.filter(c => c.isRevoked).length || 0;
-            const active = total - revoked;
+            // If we had a dedicated stats endpoint we would use it, but here we can calculate or use pagination data
+            const totalDocs = allResponse.data.pagination?.total || 0;
+            const recentDocs = recentResponse.data.credentials || [];
+            
+            // For active/revoked stats, ideally we have a specific endpoint. 
+            // Since we don't want to fetch ALL to count them on client side if there are thousands,
+            // we will use the stats endpoint if available or just rely on what we have.
+            // Let's use the stats endpoint we built earlier!
+            try {
+                const statsResponse = await credentialAPI.getStats();
+                setStats(statsResponse.data.stats);
+            } catch (e) {
+                // Fallback if stats fail
+                setStats({ 
+                    total: totalDocs, 
+                    active: totalDocs, // Approximation
+                    revoked: 0 
+                });
+            }
 
-            setStats({
-                total,
-                thisMonth: docs.filter(c => {
-                    const date = new Date(c.createdAt);
-                    const now = new Date();
-                    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-                }).length || 0,
-                active,
-                revoked,
-            });
+            setCertificates(recentDocs);
         } catch (error) {
-            showNotification('Failed to fetch certificates', 'error');
+            showNotification('Failed to fetch dashboard data', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSearch = (query) => {
-        const lower = query.toLowerCase();
-        const filtered = certificates.filter(cert =>
-            cert.studentName.toLowerCase().includes(lower) ||
-            cert.registrationNumber.toLowerCase().includes(lower) ||
-            cert.university.toLowerCase().includes(lower)
-        );
-        setFilteredCertificates(filtered);
-    };
-
     const handleCertificateUpload = (newCertificate) => {
-        setCertificates(prev => [newCertificate, ...prev]);
-        setFilteredCertificates(prev => [newCertificate, ...prev]);
-        fetchCertificates(); // Re-fetch to update stats correctly
+        fetchData(); // Refresh all
     };
 
     return (
-        <div className="min-h-screen bg-gray-950 text-gray-100">
+        <div className="min-h-screen bg-gray-950 text-gray-100 pb-20">
             <Header
-                title="Admin Dashboard"
-                showSearch={true}
-                onSearch={handleSearch}
-                searchPlaceholder="Search students, reg no..."
+                title="Institute Overview"
+                showSearch={false} 
+                className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50"
             />
 
-            <main className="p-6 lg:p-10 max-w-7xl mx-auto space-y-8">
+            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
                 
-                {/* Welcome & Actions */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                            Overview
-                        </h1>
-                        <p className="text-gray-400 mt-1">
-                            Manage issued credentials and view platform analytics.
-                        </p>
+                {/* Welcome Banner */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-gray-900 to-indigo-950 border border-gray-800 p-8 md:p-12 shadow-2xl">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                        <div className="space-y-4">
+                            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium uppercase tracking-wider">
+                                <Shield className="w-3 h-3" />
+                                <span>Admin Access</span>
+                            </div>
+                            <h1 className="text-4xl font-bold text-white tracking-tight">
+                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{user?.instituteDetails?.institutionName || user?.name || 'Administrator'}</span>
+                            </h1>
+                            <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
+                                Manage and issue secure blockchain credentials for your students.
+                            </p>
+                        </div>
+                        
+                        <Button
+                            onClick={() => setShowUploadModal(true)}
+                            variant="primary"
+                            icon={Plus}
+                            className="shadow-lg shadow-indigo-500/20 py-4 px-6 text-base"
+                        >
+                            Issue New Credential
+                        </Button>
                     </div>
-                     <Button
-                        onClick={() => setShowUploadModal(true)}
-                        variant="primary"
-                        icon={Plus}
-                        className="shadow-lg shadow-indigo-500/20"
-                    >
-                        Issue New
-                    </Button>
                 </div>
 
-                {/* Statistics Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatisticsCard
-                        title="Total Issued"
-                        value={stats.total}
-                        icon={FileText}
-                        trend={12}
-                        color="blue"
-                    />
-                    <StatisticsCard
-                        title="Issued This Month"
-                        value={stats.thisMonth}
-                        icon={TrendingUp}
-                        trend={8}
-                        color="green" 
-                    />
-                    <StatisticsCard
-                        title="Active Certificates"
-                        value={stats.active}
-                        icon={Shield}
-                        color="purple"
-                    />
-                    <StatisticsCard
-                        title="Revoked"
-                        value={stats.revoked}
-                        icon={Users} // Users icon might not be perfect, but keeping as requested or finding better
-                        color="orange" // Keeping distinct
-                    />
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-sm">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+                                <Shield className="w-6 h-6" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Issued</span>
+                        </div>
+                        <div className="text-3xl font-bold text-white mb-1">{stats.total}</div>
+                        <div className="text-sm text-gray-400">Credentials on blockchain</div>
+                    </div>
+
+                    <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-sm">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+                                <LayoutGrid className="w-6 h-6" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Active</span>
+                        </div>
+                        <div className="text-3xl font-bold text-white mb-1">
+                            {stats.active}
+                        </div>
+                        <div className="text-sm text-emerald-500/80 flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            Valid Credentials
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-sm">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 bg-red-500/10 rounded-xl text-red-400">
+                                <Filter className="w-6 h-6" />
+                            </div>
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Revoked</span>
+                        </div>
+                        <div className="text-3xl font-bold text-white mb-1">
+                            {stats.revoked}
+                        </div>
+                         <div className="text-sm text-red-500/80 flex items-center gap-1">
+                             <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                            Action Taken
+                        </div>
+                    </div>
                 </div>
 
-                {/* Content Section */}
+                {/* Recent Activity Section */}
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-gray-800 pb-4">
-                         <h2 className="text-xl font-semibold flex items-center">
-                            <LayoutGrid className="w-5 h-5 mr-2 text-indigo-400" />
-                            Recent Certificates
-                            <span className="ml-3 text-sm font-normal text-gray-500 bg-gray-900 px-2 py-0.5 rounded-full">
-                                {filteredCertificates.length}
-                            </span>
-                         </h2>
-                         {/* Could add filters here later */}
+                    {/* Toolbar */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                           Recent Activity
+                        </h2>
+
+                        <Button 
+                            variant="outline" 
+                            className="text-indigo-300 hover:text-indigo-200 border-gray-800 hover:border-gray-700"
+                            onClick={() => navigate('/credentials')}
+                        >
+                            View All <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
                     </div>
 
-                    <CertificateGrid
-                        certificates={filteredCertificates}
-                        onCertificateClick={setSelectedCertificate}
-                        loading={loading}
-                    />
+                    <div className="min-h-[200px]">
+                        {loading ? (
+                             <div className="flex justify-center p-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                             </div>
+                        ) : certificates.length > 0 ? (
+                            <div className="space-y-8">
+                                {/* Featured (Latest) Credential */}
+                                <div>
+                                    <h3 className="text-sm text-gray-500 uppercase tracking-widest font-semibold mb-4">Latest Issued</h3>
+                                    <DetailedCertificateCard 
+                                        credential={certificates[0]} 
+                                        onClick={() => setSelectedCertificate(certificates[0])} // Optional if we want detailed modal on click? But Detailed card already shows everything.
+                                    />
+                                </div>
+                                
+                                {/* List of others if any */}
+                                {certificates.length > 1 && (
+                                    <div>
+                                         <h3 className="text-sm text-gray-500 uppercase tracking-widest font-semibold mb-4">Other Recent</h3>
+                                         <CertificateGrid
+                                            certificates={certificates.slice(1)}
+                                            onCertificateClick={setSelectedCertificate}
+                                            loading={false}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-gray-900/50 rounded-2xl border border-gray-800">
+                                <p className="text-gray-400">No credentials issued yet.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
 
@@ -169,7 +218,7 @@ const AdminDashboard = () => {
                     onClose={() => setSelectedCertificate(null)}
                     certificate={selectedCertificate}
                     onUpdate={() => {
-                        fetchCertificates();
+                        fetchData();
                         setSelectedCertificate(null);
                     }}
                 />

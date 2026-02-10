@@ -6,7 +6,7 @@ const upload = require('../middleware/upload');
 router.post('/certificate', upload.single('certificate'), 
   verifyController.verifyWithFile);
 
-router.get('/:registrationNumber', verifyController.checkExists);
+router.get('/:walletAddress', verifyController.checkExists);
 
 router.post('/hash', verifyController.verifyByHash);
 

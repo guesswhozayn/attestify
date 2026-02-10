@@ -46,3 +46,5 @@ exports.authenticate = async (req, res, next) => {
     return res.status(500).json({ error: 'Server error during authentication.' });
   }
 };
+
+exports.protect = exports.authenticate;

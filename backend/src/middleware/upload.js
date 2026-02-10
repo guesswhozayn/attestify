@@ -1,36 +1,41 @@
 const multer = require('multer');
 const path = require('path');
-const { FILE_LIMITS } = require('../config/constants');
+const fs = require('fs');
+
+// Ensure uploads directory exists
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)){
+    fs.mkdirSync(uploadDir);
+}
 
 // Configure storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: function (req, file, cb) {
+    if (!fs.existsSync('uploads/')){
+      fs.mkdirSync('uploads/');
+    }
     cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
+  filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// File filter
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [...FILE_LIMITS.ALLOWED_TYPES, 'image/jpeg', 'image/png', 'image/gif'];
-  
-  if (allowedTypes.includes(file.mimetype)) {
+  if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only PDF and image files are allowed.'), false);
+    cb(new Error('Not an image! Please upload an image.'), false);
   }
 };
 
-// Upload middleware
-const upload = multer({
+const upload = multer({ 
   storage: storage,
+  fileFilter: fileFilter,
   limits: {
-    fileSize: FILE_LIMITS.MAX_SIZE
-  },
-  fileFilter: fileFilter
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
 });
 
 module.exports = upload;

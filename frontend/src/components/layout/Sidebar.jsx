@@ -10,6 +10,8 @@ const Sidebar = () => {
 
   const menuItems = [
     { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['INSTITUTE', 'STUDENT'] },
+    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['INSTITUTE'] }, // New Link
+    { icon: FileText, path: '/student/credentials', label: 'My Credentials', roles: ['STUDENT'] },
     { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['INSTITUTE'] },
     { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['INSTITUTE'] },
     { icon: User, path: '/profile', label: 'Profile', roles: ['INSTITUTE', 'STUDENT'] },

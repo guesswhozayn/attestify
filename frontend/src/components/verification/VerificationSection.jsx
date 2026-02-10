@@ -26,7 +26,8 @@ const VerificationSection = ({ certificate }) => {
     try {
       const formData = new FormData();
       formData.append('certificate', file);
-      formData.append('registrationNumber', certificate.registrationNumber);
+      // We now key by ID (which backend accepts as studentWalletAddress)
+      formData.append('studentWalletAddress', certificate._id);
 
       // Verify the file hash against the blockchain record
       const response = await verifyAPI.verifyWithFile(formData);

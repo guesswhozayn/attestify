@@ -10,6 +10,7 @@ const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('month');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -26,7 +27,8 @@ const AuditLogs = () => {
       const logsResponse = auditAPI.getLogs 
         ? await auditAPI.getLogs({ 
             limit: 50,
-            action: ['CREDENTIAL_ISSUED', 'CREDENTIAL_REVOKED']
+            action: ['CREDENTIAL_ISSUED', 'CREDENTIAL_REVOKED'],
+            search: searchQuery // Pass search query to API
           }) 
         : { data: { logs: [] } };
       setLogs(logsResponse.data.logs || []);
@@ -116,11 +118,17 @@ const AuditLogs = () => {
                     <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     <input 
                       type="text" 
-                      placeholder="Search by Reg. Number..." 
+                      placeholder="Search Wallet Address..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && fetchData()}
                       className="bg-gray-950 border border-gray-800 text-sm rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-indigo-500 w-full sm:w-64 transition-colors"
                     />
                  </div>
-                 <button className="p-2 bg-gray-950 border border-gray-800 rounded-lg text-gray-400 hover:text-white hover:border-gray-700 transition-colors">
+                 <button 
+                   onClick={fetchData}
+                   className="p-2 bg-gray-950 border border-gray-800 rounded-lg text-gray-400 hover:text-white hover:border-gray-700 transition-colors"
+                 >
                     <Filter className="w-4 h-4" />
                  </button>
               </div>

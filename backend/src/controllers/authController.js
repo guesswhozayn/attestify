@@ -1,8 +1,9 @@
 const User = require('../models/User');
-const AuditLog = require('../models/AuditLog');
+// const AuditLog = require('../models/AuditLog'); // Removed for Audit Log Refinement
 const jwt = require('jsonwebtoken');
 const { AUDIT_ACTIONS, JWT_EXPIRY } = require('../config/constants');
 const { OAuth2Client } = require('google-auth-library');
+const emailService = require('../services/emailService');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -75,14 +76,17 @@ exports.register = async (req, res) => {
     // Generate token
     const token = generateToken(user._id, user.role);
 
-    // Log action
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.USER_CREATED,
-      performedBy: user._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent'),
-      details: { role: user.role }
-    });
+    // Send Welcome Email
+    try {
+      if (email) {
+        // Run in background, don't await
+        emailService.sendWelcomeEmail(email, user.name).catch(err => 
+          console.error('Failed to send welcome email:', err)
+        );
+      }
+    } catch (emailError) {
+      console.error('Email service error:', emailError);
+    }
 
     res.status(201).json({
       success: true,
@@ -141,13 +145,7 @@ exports.login = async (req, res) => {
     // Generate token
     const token = generateToken(user._id, user.role);
 
-    // Log action
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.USER_LOGIN,
-      performedBy: user._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent')
-    });
+    // Log action removed (Audit Log Refinement)
 
     res.json({
       success: true,
@@ -203,13 +201,7 @@ exports.getCurrentUser = async (req, res) => {
 // Logout
 exports.logout = async (req, res) => {
   try {
-    // Log action
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.USER_LOGOUT,
-      performedBy: req.user._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent')
-    });
+    // Log action removed (Audit Log Refinement)
 
     res.json({ success: true, message: 'Logged out successfully' });
 
@@ -295,13 +287,7 @@ exports.changePassword = async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    // Log action
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.PASSWORD_CHANGED,
-      performedBy: user._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent')
-    });
+    // Log action removed (Audit Log Refinement)
 
     res.json({ success: true, message: 'Password updated successfully' });
 
@@ -353,14 +339,7 @@ exports.googleLogin = async (req, res) => {
     // Generate token
     const appToken = generateToken(user._id, user.role);
 
-    // Log action
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.USER_LOGIN, // Use existing enum, or add GOOGLE_LOGIN if defined
-      performedBy: user._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent'),
-      details: { method: 'google' }
-    });
+    // Log action removed (Audit Log Refinement)
 
     res.json({
       success: true,

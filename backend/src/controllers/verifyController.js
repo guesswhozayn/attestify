@@ -10,12 +10,13 @@ exports.verifyWithFile = async (req, res) => {
   let tempFilePath = null;
 
   try {
-    const { registrationNumber } = req.body;
+    // studentWalletAddress can now be Wallet Address OR Credential ID
+    const { studentWalletAddress } = req.body; 
     const file = req.file;
 
-    if (!file || !registrationNumber) {
+    if (!file || !studentWalletAddress) {
       return res.status(400).json({ 
-        error: 'Registration Number and certificate file are required' 
+        error: 'Credential ID/Wallet Address and certificate file are required' 
       });
     }
 
@@ -23,10 +24,29 @@ exports.verifyWithFile = async (req, res) => {
 
     // Generate hash from uploaded file
     const uploadedHash = await hashService.generateSHA256(file.path);
+    const mongoose = require('mongoose');
 
-    // Get credential from database
-    const credential = await Credential.findOne({ registrationNumber })
-      .populate('issuedBy', 'name university email');
+    let credential = null;
+    const isObjectId = mongoose.Types.ObjectId.isValid(studentWalletAddress);
+
+    // 1. Try to find by ID if valid ObjectId
+    if (isObjectId) {
+        credential = await Credential.findById(studentWalletAddress).populate('issuedBy', 'name university email');
+        // If found by ID, we must also check if the HASH matches, otherwise it's the wrong file for this ID
+        if (credential && credential.certificateHash !== uploadedHash) {
+             // Mismatch
+             // We can fall through to "not found" or specific mismatch error?
+             // Let's stick to standard flow: if hash doesn't match, verifyCredential below (or manual check) catches it.
+        }
+    }
+
+    // 2. If not found by ID (or not ID), try by Wallet Address + Hash
+    if (!credential) {
+        credential = await Credential.findOne({ 
+            studentWalletAddress: studentWalletAddress.toLowerCase(),
+            certificateHash: uploadedHash
+        }).populate('issuedBy', 'name university email');
+    }
 
     if (!credential) {
       // Clean up
@@ -37,15 +57,27 @@ exports.verifyWithFile = async (req, res) => {
       return res.json({
         valid: false,
         exists: false,
-        message: 'No credential found for this Registration Number'
+        message: 'No matching credential found for this ID/Wallet and File'
       });
     }
 
-    // Verify on blockchain
-    const isValidOnChain = await blockchainService.verifyCredential(
-      registrationNumber,
+    // Verify on blockchain (Use ID as key)
+    // We try validating with ID first (new standard)
+    let isValidOnChain = await blockchainService.verifyCredential(
+      credential._id.toString(),
       uploadedHash
     );
+
+    // Fallback: If failed, try legacy wallet address (only if it wasn't revoked/invalid due to other reasons)
+    if (!isValidOnChain) {
+        // Only try fallback if we suspect it might be old format
+        // Check if verifyCredential returned false or error? Logic says false.
+        const legacyValid = await blockchainService.verifyCredential(
+            credential.studentWalletAddress,
+            uploadedHash
+        );
+        if (legacyValid) isValidOnChain = true;
+    }
 
     // Update verification count
     credential.verificationCount += 1;
@@ -59,7 +91,7 @@ exports.verifyWithFile = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
       details: {
-        registrationNumber,
+        inputIdentifier: studentWalletAddress,
         hashMatch: uploadedHash === credential.certificateHash,
         blockchainValid: isValidOnChain,
         isRevoked: credential.isRevoked
@@ -80,7 +112,8 @@ exports.verifyWithFile = async (req, res) => {
         message: 'This certificate has been revoked',
         credential: {
           studentName: credential.studentName,
-          registrationNumber: credential.registrationNumber,
+          // registrationNumber removed
+          studentWalletAddress: credential.studentWalletAddress,
           university: credential.university,
           revokedAt: credential.revokedAt,
           revocationReason: credential.revocationReason
@@ -95,7 +128,8 @@ exports.verifyWithFile = async (req, res) => {
         message: 'Certificate is authentic and valid',
         credential: {
           studentName: credential.studentName,
-          registrationNumber: credential.registrationNumber,
+          // registrationNumber removed
+          studentWalletAddress: credential.studentWalletAddress,
           university: credential.university,
           issueDate: credential.issueDate,
           issuedBy: credential.issuedBy.name,
@@ -131,31 +165,34 @@ exports.verifyWithFile = async (req, res) => {
 // Check if credential exists (lightweight)
 exports.checkExists = async (req, res) => {
   try {
-    const { registrationNumber } = req.params;
+    const { walletAddress } = req.params;
 
-    const credential = await Credential.findOne({ registrationNumber })
+    // A wallet might have multiple credentials. This endpoint seems to be "check if ANY exist".
+    // Or maybe return the latest one?
+    // Let's return the list.
+    const credentials = await Credential.find({ studentWalletAddress: walletAddress })
       .populate('issuedBy', 'name university')
       .lean();
 
-    if (!credential) {
+    if (!credentials || credentials.length === 0) {
       return res.json({
         exists: false,
-        message: 'No credential found for this Registration Number'
+        message: 'No credentials found for this Wallet Address'
       });
     }
 
     res.json({
       exists: true,
-      credential: {
-        studentName: credential.studentName,
-        registrationNumber: credential.registrationNumber,
-        university: credential.university,
-        issueDate: credential.issueDate,
-        issuedBy: credential.issuedBy.name,
-        isRevoked: credential.isRevoked,
-        transactionHash: credential.transactionHash,
-        ipfsCID: credential.ipfsCID
-      }
+      credentials: credentials.map(c => ({
+        studentName: c.studentName,
+        studentWalletAddress: c.studentWalletAddress,
+        university: c.university,
+        issueDate: c.issueDate,
+        issuedBy: c.issuedBy.name,
+        isRevoked: c.isRevoked,
+        transactionHash: c.transactionHash,
+        ipfsCID: c.ipfsCID
+      }))
     });
 
   } catch (error) {
@@ -167,27 +204,48 @@ exports.checkExists = async (req, res) => {
 // Verify by hash only
 exports.verifyByHash = async (req, res) => {
   try {
-    const { registrationNumber, hash } = req.body;
+    // studentWalletAddress can now be Wallet Address OR Credential ID
+    const { studentWalletAddress, hash } = req.body;
 
-    if (!registrationNumber || !hash) {
+    if (!studentWalletAddress || !hash) {
       return res.status(400).json({ 
-        error: 'Registration Number and hash are required' 
+        error: 'Credential ID/Wallet Address and hash are required' 
       });
     }
 
-    // 1. Check if credential exists in DB
-    const credential = await Credential.findOne({ registrationNumber })
-      .populate('issuedBy', 'name university email');
+    const mongoose = require('mongoose');
+    let credential = null;
+    const isObjectId = mongoose.Types.ObjectId.isValid(studentWalletAddress);
+
+    // 1. Try to find by ID
+    if (isObjectId) {
+         credential = await Credential.findById(studentWalletAddress).populate('issuedBy', 'name university email');
+         // Verify hash matches
+         if (credential && credential.certificateHash !== hash) {
+             // Hash mismatch for this specific ID - strictly fail or let it flow to "Not found"?
+             // If we found the credential but hash is wrong, it's definitely invalid for this specific cert.
+             // But existing logic returns generic match/no-match at end.
+             // Let's rely on standard flow.
+         }
+    }
+
+    // 2. Fallback: Find by Wallet + Hash
+    if (!credential) {
+         credential = await Credential.findOne({ 
+           studentWalletAddress: studentWalletAddress.toLowerCase(),
+           certificateHash: hash
+         }).populate('issuedBy', 'name university email');
+    }
 
     if (!credential) {
       return res.json({
         valid: false,
         exists: false,
-        message: 'No credential found for this Registration Number'
+        message: 'No matching credential found for this ID/Wallet and Hash'
       });
     }
 
-    // 2. Check revocation status
+    // Check revocation status
     if (credential.isRevoked) {
       return res.json({
         valid: false,
@@ -196,7 +254,8 @@ exports.verifyByHash = async (req, res) => {
         message: 'This certificate has been revoked',
         credential: {
           studentName: credential.studentName,
-          registrationNumber: credential.registrationNumber,
+          // registrationNumber removed
+          studentWalletAddress: credential.studentWalletAddress,
           university: credential.university,
           revokedAt: credential.revokedAt,
           revocationReason: credential.revocationReason
@@ -204,11 +263,20 @@ exports.verifyByHash = async (req, res) => {
       });
     }
 
-    // 3. Verify on blockchain
-    const isValidOnChain = await blockchainService.verifyCredential(
-      registrationNumber,
+    // 3. Verify on blockchain (Use ID)
+    let isValidOnChain = await blockchainService.verifyCredential(
+      credential._id.toString(),
       hash
     );
+
+    // Fallback for legacy
+    if (!isValidOnChain) {
+        const legacyValid = await blockchainService.verifyCredential(
+            credential.studentWalletAddress,
+            hash
+        );
+        if (legacyValid) isValidOnChain = true;
+    }
 
     // 4. Update verification stats
     credential.verificationCount += 1;
@@ -222,7 +290,7 @@ exports.verifyByHash = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
       details: {
-        registrationNumber,
+        inputIdentifier: studentWalletAddress,
         hashMatch: hash === credential.certificateHash,
         blockchainValid: isValidOnChain
       }
@@ -236,7 +304,8 @@ exports.verifyByHash = async (req, res) => {
         message: 'Certificate is authentic and valid',
         credential: {
           studentName: credential.studentName,
-          registrationNumber: credential.registrationNumber,
+          // registrationNumber removed
+          studentWalletAddress: credential.studentWalletAddress,
           university: credential.university,
           issueDate: credential.issueDate,
           issuedBy: credential.issuedBy.name,

@@ -11,7 +11,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     studentName: '',
-    registrationNumber: '',
+    studentWalletAddress: '',
     university: '',
     issueDate: '',
     studentImage: '',
@@ -75,7 +75,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.studentName || !formData.registrationNumber || !formData.university || 
+    if (!formData.studentName || !formData.studentWalletAddress || !formData.university || 
         !formData.issueDate) {
       showNotification('Please fill in all required fields', 'error');
       return;
@@ -86,7 +86,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('studentName', formData.studentName);
-      formDataToSend.append('registrationNumber', formData.registrationNumber);
+      formDataToSend.append('studentWalletAddress', formData.studentWalletAddress);
       formDataToSend.append('university', formData.university);
       formDataToSend.append('issueDate', formData.issueDate);
       formDataToSend.append('type', credentialType);
@@ -110,7 +110,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
       // Reset form
       setFormData({
         studentName: '',
-        registrationNumber: '',
+        studentWalletAddress: '',
         university: '',
         issueDate: '',
         studentImage: null,
@@ -213,12 +213,12 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                className="bg-gray-800/50 border-gray-700"
              />
              <Input
-               label="Registration Number"
-               name="registrationNumber"
-               value={formData.registrationNumber}
+               label="Student Wallet Address"
+               name="studentWalletAddress"
+               value={formData.studentWalletAddress}
                onChange={handleChange}
-               placeholder="e.g. 2024-CS-001"
-               icon={User} // Could use Hash
+               placeholder="e.g. 0x..."
+               icon={User} 
                required
                className="bg-gray-800/50 border-gray-700"
              />
@@ -344,6 +344,12 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                          value={course.name}
                          onChange={(e) => updateCourse(index, 'name', e.target.value)}
                          className="flex-1 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                       />
+                       <input
+                         placeholder="Credits"
+                         value={course.credits}
+                         onChange={(e) => updateCourse(index, 'credits', e.target.value)}
+                         className="w-20 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                        />
                        <input
                          placeholder="Grade"

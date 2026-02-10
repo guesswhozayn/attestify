@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { authenticate } = require('../middleware/auth');
+const userController = require('../controllers/userController');
+const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
-router.put('/profile', authenticate, authController.updateProfile);
-router.put('/password', authenticate, authController.changePassword);
-// router.get('/notifications', authenticate, authController.getNotifications); // TODO: Implement notifications
+// Using 'protect' middleware consistent with other routes (auth.js uses protect, verify.js uses protect)
+// Correcting previous import which might have been 'authenticate'
+
+router.put('/profile', protect, userController.updateProfile);
+router.put('/password', protect, authController.changePassword); // Assuming this stays or moves to userController later
+router.post('/avatar', protect, upload.single('avatar'), userController.uploadAvatar);
 
 module.exports = router;

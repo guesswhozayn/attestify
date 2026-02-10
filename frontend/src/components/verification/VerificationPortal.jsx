@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Search, CheckCircle, XCircle, QrCode, ShieldAlert, ExternalLink } from 'lucide-react';
 import Button from '../shared/Button';
 import { verifyAPI } from '../../services/api';
@@ -6,17 +6,33 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { generateFileHash } from '../../utils/hash';
 import { extractMetadata } from '../../utils/pdf';
 import Modal from '../shared/Modal';
-import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const VerificationPortal = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [file, setFile] = useState(null);
-  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scanError, setScanError] = useState(null);
   const fileInputRef = useRef(null);
+  
+  const location = useLocation();
+
+  useEffect(() => {
+    // Parse query params for credentialId
+    if (location.search) {
+        const params = new URLSearchParams(location.search);
+        const credentialId = params.get('credentialId') || params.get('registrationNumber'); // Legacy support
+        if (credentialId) {
+            setWalletAddress(credentialId);
+            // Optional: Auto-verify? Better to let user click verify or just fill it.
+            // If it's a direct link, maybe we should auto verify?
+            // Let's just fill it for now to be safe.
+        }
+    }
+  }, [location.search]);
 
   useEffect(() => {
     let scanner = null;
@@ -46,7 +62,7 @@ const VerificationPortal = () => {
   const onScanSuccess = (decodedText, decodedResult) => {
     // Handle the scanned code as you like, for example:
     if (decodedText) {
-      setRegistrationNumber(decodedText);
+      setWalletAddress(decodedText);
       setShowScanner(false);
     }
   };
@@ -68,7 +84,7 @@ const VerificationPortal = () => {
       try {
         const extractedId = await extractMetadata(selectedFile);
         if (extractedId) {
-          setRegistrationNumber(extractedId);
+          setWalletAddress(extractedId);
         }
       } catch (err) {
         console.warn('Could not extract metadata', err);
@@ -77,14 +93,14 @@ const VerificationPortal = () => {
   };
 
   const handleVerify = async () => {
-    if (!file && !registrationNumber) {
+    if (!file && !walletAddress) {
       return;
     }
 
-    if (file && !registrationNumber) {
+    if (file && !walletAddress) {
       setResult({
         valid: false,
-        message: 'Please enter the Registration Number associated with this certificate.'
+        message: 'Please enter the Wallet Address associated with this certificate.'
       });
       return;
     }
@@ -93,15 +109,15 @@ const VerificationPortal = () => {
     setResult(null);
 
     try {
-      if (file && registrationNumber) {
+      if (file && walletAddress) {
         // Generate hash locally
         const fileHash = await generateFileHash(file);
         
         // Verify by hash (no file upload)
-        const response = await verifyAPI.verifyByHash(registrationNumber, fileHash);
+        const response = await verifyAPI.verifyByHash(walletAddress, fileHash);
         setResult(response.data);
-      } else if (registrationNumber) {
-        const response = await verifyAPI.checkExists(registrationNumber);
+      } else if (walletAddress) {
+        const response = await verifyAPI.checkExists(walletAddress);
         setResult(response.data);
       }
     } catch (error) {
@@ -214,16 +230,16 @@ const VerificationPortal = () => {
                </div>
             )}
 
-            {/* Registration Number Input */}
+            {/* Wallet Address Input */}
             <div className="mt-8 relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-500" />
               </div>
               <input
                 type="text"
-                placeholder="Enter Registration Number (e.g., REG-2024-001)"
-                value={registrationNumber}
-                onChange={(e) => setRegistrationNumber(e.target.value)}
+                placeholder="Enter Credential ID or Student Wallet Address"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
                 className="block w-full pl-11 pr-4 py-4 bg-gray-950/50 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all"
               />
             </div>
@@ -233,7 +249,7 @@ const VerificationPortal = () => {
               <Button
                 onClick={handleVerify}
                 loading={verifying}
-                disabled={verifying || (!file && !registrationNumber)}
+                disabled={verifying || (!file && !walletAddress)}
                 className="w-full justify-center py-4 text-base font-semibold shadow-lg shadow-indigo-500/25"
                 size="lg"
                 variant="primary"
@@ -291,9 +307,9 @@ const VerificationPortal = () => {
                         <p className="text-lg text-white font-medium mt-1">{result.credential.university}</p>
                      </div>
                      <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Registration No</label>
+                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Wallet Address</label>
                         <p className="text-base text-gray-300 font-mono mt-1 bg-gray-950/50 w-fit px-2 py-1 rounded border border-gray-800">
-                          {result.credential.registrationNumber}
+                          {result.credential.studentWalletAddress.substring(0, 10)}...
                         </p>
                      </div>
                      <div>

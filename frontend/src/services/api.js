@@ -130,9 +130,9 @@ export const credentialAPI = {
     return api.get(`/credentials/${id}`);
   },
 
-  // Get credential by registration number
-  getByRegistrationNumber: async (registrationNumber) => {
-    return api.get(`/credentials/student/${registrationNumber}`);
+  // Get credentials by wallet address
+  getByWalletAddress: async (walletAddress) => {
+    return api.get(`/credentials/student/${walletAddress}`);
   },
 
   // Revoke credential
@@ -180,13 +180,13 @@ export const verifyAPI = {
   },
 
   // Check if credential exists
-  checkExists: async (studentId) => {
-    return api.get(`/verify/${studentId}`);
+  checkExists: async (walletAddress) => {
+    return api.get(`/verify/${walletAddress}`);
   },
 
   // Verify by hash
-  verifyByHash: async (studentId, hash) => {
-    return api.post('/verify/hash', { studentId, hash });
+  verifyByHash: async (studentWalletAddress, hash) => {
+    return api.post('/verify/hash', { studentWalletAddress, hash });
   },
 
   // Get verification history
@@ -226,6 +226,26 @@ export const auditAPI = {
 };
 
 // ============================================
+// Notification APIs
+// ============================================
+export const notificationAPI = {
+  // Get all notifications
+  getAll: async (params = {}) => {
+    return api.get('/notifications', { params });
+  },
+
+  // Get unread count
+  getUnreadCount: async () => {
+    return api.get('/notifications/unread-count');
+  },
+
+  // Mark as read
+  markAsRead: async (ids = []) => {
+    return api.put('/notifications/read', { ids });
+  }
+};
+
+// ============================================
 // User APIs
 // ============================================
 export const userAPI = {
@@ -251,16 +271,6 @@ export const userAPI = {
         'Content-Type': 'multipart/form-data'
       }
     });
-  },
-
-  // Get notifications
-  getNotifications: async () => {
-    return api.get('/user/notifications');
-  },
-
-  // Mark notification as read
-  markNotificationRead: async (id) => {
-    return api.put(`/user/notifications/${id}/read`);
   }
 };
 

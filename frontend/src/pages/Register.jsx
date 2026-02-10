@@ -205,15 +205,7 @@ const Register = () => {
                      icon={Building}
                      required
                    />
-                   <FormInput
-                     label="Registration Number"
-                     name="registrationNumber"
-                     value={formData.registrationNumber}
-                     onChange={handleChange}
-                     placeholder="e.g. 2024-CS-001"
-                     icon={User}
-                     required
-                   />
+                   {/* Registration Number removed for students */}
                    <div className="md:col-span-2">
                      <FormInput
                        label="Wallet Address"

@@ -83,10 +83,12 @@ const AuditLogTable = ({ logs, loading }) => {
 
               <td className="px-6 py-4">
                 <div className="space-y-1.5">
-                    {log.details?.registrationNumber && (
+                    {log.targetCredential && (
                         <div className="flex items-center text-xs text-gray-400 bg-gray-900/50 px-2 py-1 rounded w-fit border border-gray-800">
-                            <User className="w-3 h-3 mr-1.5 opacity-70" />
-                            Reg: <span className="text-gray-300 ml-1 font-mono">{log.details.registrationNumber}</span>
+                            <FileText className="w-3 h-3 mr-1.5 opacity-70" />
+                            ID: <span className="text-gray-300 ml-1 font-mono">
+                                {typeof log.targetCredential === 'object' ? log.targetCredential._id.slice(-6) : log.targetCredential.slice(-6)}
+                            </span>
                         </div>
                     )}
                     {log.details?.transactionHash && (

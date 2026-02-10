@@ -1,5 +1,6 @@
 const Credential = require('../models/Credential');
 const AuditLog = require('../models/AuditLog');
+const Notification = require('../models/Notification'); // Import Notification model
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const hashService = require('../services/hashService');
@@ -8,6 +9,7 @@ const { AUDIT_ACTIONS } = require('../config/constants');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const path = require('path');
+const emailService = require('../services/emailService');
 
 // Issue new credential
 exports.issueCredential = async (req, res) => {
@@ -15,7 +17,7 @@ exports.issueCredential = async (req, res) => {
   let tempImagePath = null;
 
   try {
-    const { registrationNumber, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
+    const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
     const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
 
     // Parse JSON strings if they come from FormData
@@ -29,13 +31,26 @@ exports.issueCredential = async (req, res) => {
       console.warn('Failed to parse JSON data', e);
     }
 
-    // Check if credential already exists
-    const existing = await Credential.findOne({ registrationNumber });
-    if (existing) {
-      return res.status(400).json({ 
-        error: 'Credential already exists for this Registration Number' 
-      });
-    }
+    // Prepare Credential Object EARLY to get the ID
+    const credential = new Credential({
+      studentWalletAddress,
+      studentName,
+      university,
+      issueDate: new Date(issueDate),
+      type,
+      transcriptData: parsedTranscriptData,
+      certificationData: parsedCertificationData,
+      issuedBy: req.user._id,
+      // Metadata (will be updated after PDF gen)
+      metadata: {}
+    });
+
+    // Use credential._id as the unique identifier for blockchain and QR
+    const credentialId = credential._id.toString();
+
+    // Check if credential already exists (optional - maybe allow multiples?)
+    // For now, let's allow multiple credentials per wallet
+    // const existing = await Credential.findOne({ studentWalletAddress, type });
 
     // Generate PDF
     // Fetch Branding Assets
@@ -72,7 +87,7 @@ exports.issueCredential = async (req, res) => {
     assets.signature = signatureBuffer;
 
     // Generate PDF
-    console.log('Generating PDF for:', registrationNumber, 'Type:', type);
+    console.log('Generating PDF for:', studentWalletAddress, 'Type:', type, 'ID:', credentialId);
     
     // Ensure uploads directory exists
     const uploadsDir = path.join(__dirname, '../../uploads');
@@ -80,14 +95,16 @@ exports.issueCredential = async (req, res) => {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    tempFilePath = path.join(uploadsDir, `cert_${registrationNumber}_${Date.now()}.pdf`);
+    tempFilePath = path.join(uploadsDir, `cert_${credentialId}_${Date.now()}.pdf`);
     const doc = new PDFDocument({ layout: 'landscape', size: 'A4', margin: 40 });
     const writeStream = fs.createWriteStream(tempFilePath);
     doc.pipe(writeStream);
 
-    // Generate QR Code Data
+    // Generate QR Code Data (Point to specific credential verify)
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const verificationUrl = `${frontendUrl}/verify/${registrationNumber}`;
+    // Use credential ID in verification URL if supported, otherwise falling back to wallet logic for now
+    // But logically we want to verify THIS credential.
+    const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
 
     const institutionName = req.user.instituteDetails?.institutionName || university || 'Attestify University';
@@ -148,11 +165,11 @@ exports.issueCredential = async (req, res) => {
       
       infoY += 30;
       doc.text(`Name:`, leftCol, infoY).font('Helvetica-Bold').text(studentName, leftCol + 60, infoY);
-      doc.font('Helvetica').text(`Reg No:`, rightCol, infoY).font('Helvetica-Bold').text(registrationNumber, rightCol + 60, infoY);
+      doc.font('Helvetica').text(`Wallet:`, rightCol, infoY).font('Helvetica-Bold').text(studentWalletAddress.substring(0, 10) + '...', rightCol + 60, infoY);
       
       infoY += 20;
       doc.font('Helvetica').text(`Program:`, leftCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.program || 'N/A', leftCol + 60, infoY);
-      doc.font('Helvetica').text(`Dept:`, rightCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.department || 'N/A', rightCol + 60, infoY);
+      doc.font('Helvetica').text(`ID:`, rightCol, infoY).font('Helvetica-Bold').text(credentialId, rightCol + 60, infoY); // Use ID instead of Dept optional
 
       infoY += 20;
       doc.font('Helvetica').text(`Admitted:`, leftCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.admissionYear || 'N/A', leftCol + 60, infoY);
@@ -283,7 +300,7 @@ exports.issueCredential = async (req, res) => {
       doc.fontSize(32).font('Helvetica-Bold').text(studentName, { align: 'center', color: '#111827' });
       
       doc.moveDown(0.5);
-      doc.fontSize(12).font('Helvetica').text(`Registration No: ${registrationNumber}`, { align: 'center', color: '#6b7280' });
+      doc.fontSize(12).font('Helvetica').text(`Wallet: ${studentWalletAddress}`, { align: 'center', color: '#6b7280' });
       
       doc.moveDown(1.5);
       doc.fontSize(16).text('Has successfully completed the requirements for', { align: 'center', color: '#4b5563' });
@@ -347,7 +364,7 @@ exports.issueCredential = async (req, res) => {
     // 2. Upload PDF to IPFS
     const ipfsResult = await ipfsService.uploadFile(
       tempFilePath,
-      `Certificate_${registrationNumber}.pdf`
+      `Certificate_${credentialId}.pdf`
     );
     console.log('Uploaded to IPFS:', ipfsResult.ipfsHash);
 
@@ -359,7 +376,7 @@ exports.issueCredential = async (req, res) => {
         tempImagePath = studentImageFile.path;
         const imageIpfsResult = await ipfsService.uploadFile(
           studentImageFile.path,
-          `${registrationNumber}_image_${studentImageFile.originalname}`
+          `${credentialId}_image_${studentImageFile.originalname}`
         );
         studentImageUrl = ipfsService.getIPFSUrl(imageIpfsResult.ipfsHash);
         console.log('Uploaded student image to IPFS:', imageIpfsResult.ipfsHash);
@@ -369,42 +386,32 @@ exports.issueCredential = async (req, res) => {
     }
 
     // 3. Issue on blockchain
-    // Note: Smart contract still uses 'studentId' parameter name, but we pass registrationNumber
+    // USE CREDENTIAL ID as the "studentId" key
     const blockchainResult = await blockchainService.issueCertificate(
-      registrationNumber,
+      credentialId, // <--- Key Change
       certificateHash,
       ipfsResult.ipfsHash
     );
     console.log('Blockchain transaction:', blockchainResult.transactionHash);
 
-    // 4. Save to database
-    const credential = new Credential({
-      registrationNumber,
-      studentName,
-      university,
-      issueDate: new Date(issueDate),
-      type,
-      transcriptData: parsedTranscriptData,
-      certificationData: parsedCertificationData,
-      studentImage: studentImageUrl,
-      certificateHash,
-      ipfsCID: ipfsResult.ipfsHash,
-      transactionHash: blockchainResult.transactionHash,
-      blockNumber: blockchainResult.blockNumber,
-      gasUsed: blockchainResult.gasUsed,
-      gasPrice: blockchainResult.gasPrice,
-      totalCost: blockchainResult.totalCost,
-      issuedBy: req.user._id,
-      metadata: {
-        fileSize: fs.statSync(tempFilePath).size,
-        fileType: 'application/pdf',
-        originalFileName: `Certificate_${registrationNumber}.pdf`
-      }
-    });
+    // 4. Update and Save to database
+    credential.studentImage = studentImageUrl;
+    credential.certificateHash = certificateHash;
+    credential.ipfsCID = ipfsResult.ipfsHash;
+    credential.transactionHash = blockchainResult.transactionHash;
+    credential.blockNumber = blockchainResult.blockNumber;
+    credential.gasUsed = blockchainResult.gasUsed;
+    credential.gasPrice = blockchainResult.gasPrice;
+    credential.totalCost = blockchainResult.totalCost;
+    credential.metadata = {
+      fileSize: fs.statSync(tempFilePath).size,
+      fileType: 'application/pdf',
+      originalFileName: `Certificate_${credentialId}.pdf`
+    };
 
     await credential.save();
 
-    // 5. Log action
+    // 6. Log action
     await AuditLog.create({
       action: AUDIT_ACTIONS.CREDENTIAL_ISSUED,
       performedBy: req.user._id,
@@ -412,11 +419,51 @@ exports.issueCredential = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
       details: {
-        registrationNumber,
+        studentWalletAddress,
         transactionHash: blockchainResult.transactionHash,
         ipfsCID: ipfsResult.ipfsHash
       }
     });
+
+    // 7. Create Notification
+    await Notification.create({
+        recipient: req.user._id,
+        message: `Credential issued successfully to ${studentName} (${studentWalletAddress})`,
+        type: 'success',
+        relatedId: credential._id
+    });
+
+    // 8. Send Email Notification
+    try {
+        // Attempt to find student user by wallet address to get email
+        // We need to require User model if not already (it is NOT imported in credentialController yet)
+        // Ignoring User import for now to keep this atomic, assuming I'll add it or use a service.
+        // Actually, better to fetch the user here.
+        const User = require('../models/User'); // specific import to avoid circular dep issues if any
+        const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
+        
+        if (studentUser && studentUser.email) {
+             const emailData = {
+                studentName,
+                university: req.user.instituteDetails?.institutionName || university,
+                issueDate,
+                transactionHash: blockchainResult.transactionHash,
+                id: credential._id,
+                ipfsCID: ipfsResult.ipfsHash,
+                certificateLink: `${process.env.FRONTEND_URL}/certificate/${credential._id}`,
+                loginLink: `${process.env.FRONTEND_URL}/login`
+             };
+             
+             emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+                console.error('Failed to send issuance email:', err)
+             );
+        } else {
+            console.log('No registered user found for wallet ' + studentWalletAddress + ', skipping email.');
+        }
+
+    } catch (emailError) {
+        console.error('Email service error during issuance:', emailError);
+    }
 
     // 6. Clean up temp files
     if (fs.existsSync(tempFilePath)) {
@@ -500,6 +547,7 @@ exports.getCredentials = async (req, res) => {
       limit = 20, 
       search = '', 
       revoked = null,
+      type = null, // Add type parameter
       sortBy = 'createdAt',
       sortOrder = 'desc'
     } = req.query;
@@ -507,10 +555,14 @@ exports.getCredentials = async (req, res) => {
     // Build query
     const query = { issuedBy: req.user._id };
 
+    if (type) {
+        query.type = type;
+    }
+
     if (search) {
       query.$or = [
         { studentName: new RegExp(search, 'i') },
-        { registrationNumber: new RegExp(search, 'i') },
+        { studentWalletAddress: new RegExp(search, 'i') },
         { university: new RegExp(search, 'i') }
       ];
     }
@@ -575,25 +627,22 @@ exports.getCredentialById = async (req, res) => {
   }
 };
 
-// Get credential by Registration Number
-exports.getCredentialByRegistrationNumber = async (req, res) => {
+// Get credentials by Student Wallet Address
+exports.getCredentialsByStudentWallet = async (req, res) => {
   try {
-    const { registrationNumber } = req.params;
+    const { walletAddress } = req.params;
 
-    const credential = await Credential.findOne({ registrationNumber })
-      .populate('issuedBy', 'name email university');
-
-    if (!credential) {
-      return res.status(404).json({ error: 'Credential not found' });
-    }
+    const credentials = await Credential.find({ studentWalletAddress: walletAddress.toLowerCase() })
+      .populate('issuedBy', 'name email university')
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      credential
+      credentials
     });
 
   } catch (error) {
-    console.error('Get credential by student ID error:', error);
+    console.error('Get credentials by wallet error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -616,7 +665,7 @@ exports.revokeCredential = async (req, res) => {
 
     // Revoke on blockchain
     const blockchainResult = await blockchainService.revokeCertificate(
-      credential.registrationNumber
+      credential.studentWalletAddress
     );
 
     // Update database
@@ -637,10 +686,18 @@ exports.revokeCredential = async (req, res) => {
       ipAddress: req.ip,
       userAgent: req.get('user-agent'),
       details: {
-        registrationNumber: credential.registrationNumber,
+        studentWalletAddress: credential.studentWalletAddress,
         transactionHash: blockchainResult.transactionHash,
         reason
       }
+    });
+
+    // Create Notification
+    await Notification.create({
+        recipient: req.user._id,
+        message: `Credential revoked: ${credential.studentName} (${credential.studentWalletAddress})`,
+        type: 'warning',
+        relatedId: credential._id
     });
 
     res.json({
@@ -685,7 +742,7 @@ exports.getStats = async (req, res) => {
     const recent = await Credential.find({ issuedBy: userId })
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('studentName registrationNumber university createdAt')
+      .select('studentName university createdAt')
       .lean();
 
     res.json({

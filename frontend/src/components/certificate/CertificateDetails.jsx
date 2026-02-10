@@ -75,8 +75,8 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                     <h2 className="text-3xl font-bold text-white mb-1 drop-shadow-md">{certificate.studentName}</h2>
                     <div className="flex items-center space-x-2 text-white/90">
                       <Hash className="w-4 h-4 opacity-75" />
-                      <span className="font-mono bg-white/20 px-2 py-0.5 rounded text-sm backdrop-blur-sm">
-                        {certificate.registrationNumber}
+                      <span className="font-mono bg-white/20 px-2 py-0.5 rounded text-sm backdrop-blur-sm" title="Credential ID">
+                        {certificate._id}
                       </span>
                       <span className="text-white/60 mx-1">•</span>
                       <div className="flex items-center">
@@ -150,6 +150,7 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                             <tr>
                               <th className="px-4 py-3 font-medium">Code</th>
                               <th className="px-4 py-3 font-medium">Subject</th>
+                              <th className="px-4 py-3 font-medium text-center">Credits</th>
                               <th className="px-4 py-3 font-medium text-right">Grade</th>
                             </tr>
                           </thead>
@@ -158,6 +159,7 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                               <tr key={i} className="hover:bg-gray-700/30 transition-colors">
                                 <td className="px-4 py-3 text-gray-300 font-mono text-xs">{course.code}</td>
                                 <td className="px-4 py-3 text-white">{course.name}</td>
+                                <td className="px-4 py-3 text-gray-300 text-center">{course.credits}</td>
                                 <td className="px-4 py-3 text-emerald-400 font-bold text-right">{course.grade}</td>
                               </tr>
                             ))}
@@ -233,7 +235,7 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                  Scan to Verify
                </div>
                <div className="p-2 transition-transform duration-300 group-hover:scale-105">
-                 <QRCodeDisplay registrationNumber={certificate.registrationNumber} />
+                 <QRCodeDisplay credentialId={certificate._id} />
                </div>
             </div>
 

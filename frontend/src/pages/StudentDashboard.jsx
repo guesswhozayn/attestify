@@ -7,6 +7,7 @@ import { Download, Share2, Award, Calendar, ExternalLink, ShieldAlert, Wallet, C
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
+import DetailedCertificateCard from '../components/certificate/DetailedCertificateCard';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -18,51 +19,47 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (user?.registrationNumber) {
         try {
            const address = await blockchainService.connectWallet(); 
            setWalletAddress(address);
+           if (address) {
+             fetchCredential(address);
+           } else {
+             setLoading(false);
+           }
         } catch (e) {
            console.log("Wallet not auto-connected", e);
+           setLoading(false);
         }
-        fetchCredential();
-      } else {
-        setLoading(false);
-      }
     };
     init();
-  }, [user]);
+  }, []);
 
-  const fetchCredential = async () => {
+  const fetchCredential = async (address) => {
     try {
       setLoading(true);
       setError('');
       
-      const connectedWallet = await blockchainService.getAccount();
-      setWalletAddress(connectedWallet);
+      const targetAddress = address || walletAddress;
 
-      if (user.walletAddress && connectedWallet && connectedWallet.toLowerCase() !== user.walletAddress.toLowerCase()) {
-        setError(`Wallet mismatch! Your registered wallet is ${user.walletAddress.substring(0,6)}...${user.walletAddress.substring(38)}, but you are connected with ${connectedWallet.substring(0,6)}...${connectedWallet.substring(38)}.`);
+      if (!targetAddress) {
         setLoading(false);
         return;
       }
 
       // Get from Backend
       try {
-        const response = await credentialAPI.getByRegistrationNumber(user.registrationNumber);
-        const cred = response.data.credential;
+        const response = await credentialAPI.getByWalletAddress(targetAddress);
+        const credentials = response.data.credentials;
         
-        if (cred) {
-           // Verify against Blockchain
-           const blockchainData = await blockchainService.getCredential(user.registrationNumber);
-           
-           setCredential({
-             ...cred,
-             ...blockchainData,
-             ipfsCID: cred.ipfsCID || blockchainData.ipfsCID  
-           });
-           
-           setMetadata(cred.type === 'TRANSCRIPT' ? cred.transcriptData : cred.certificationData);
+        if (credentials && credentials.length > 0) {
+           // For now, just show the most recent one or allow selection. 
+           // Implementation Plan said: fetch multiple, but dashboard is designed for one.
+           // Let's pick the first one (sorted by createdAt desc in backend)
+           const latestCred = credentials[0];
+
+           setCredential(latestCred);
+           setMetadata(latestCred.type === 'TRANSCRIPT' ? latestCred.transcriptData : latestCred.certificationData);
            
         } else {
              setCredential(null);
@@ -85,8 +82,8 @@ const StudentDashboard = () => {
   };
 
   const handleShare = () => {
-    if (!credential || !user.registrationNumber) return;
-    const shareUrl = `${window.location.origin}/verify?registrationNumber=${user.registrationNumber}`;
+    if (!credential || !walletAddress) return;
+    const shareUrl = `${window.location.origin}/verify?walletAddress=${walletAddress}`;
     navigator.clipboard.writeText(shareUrl);
     // You might want to use a toast notification here instead of alert
     alert('Verification link copied to clipboard!');
@@ -104,7 +101,7 @@ const StudentDashboard = () => {
       const address = await blockchainService.connectWallet();
       setWalletAddress(address);
       setError('');
-      fetchCredential();
+      fetchCredential(address);
     } catch (err) {
       console.error("Connection failed:", err);
       setLoading(false);
@@ -174,11 +171,11 @@ const StudentDashboard = () => {
         )}
 
         {/* Content Area */}
-        {!user?.registrationNumber ? (
+        {!walletAddress ? (
            <EmptyState 
-             icon={Award} 
-             title="No Registration Number Linked" 
-             message="Your profile is not yet linked to a Registration Number. Please contact your institute administrator." 
+             icon={Wallet}
+             title="Wallet Not Connected" 
+             message="Please connect your wallet to view your credentials." 
            />
         ) : !credential ? (
            <EmptyState 
@@ -191,102 +188,7 @@ const StudentDashboard = () => {
             
             {/* Main Credential Card */}
             <div className="lg:col-span-8 space-y-6">
-               <div className="group relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800 hover:border-indigo-500/50 transition-all duration-500">
-                  
-                  {/* Card Header / Banner */}
-                  <div className="relative h-64 bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900 p-8 md:p-10 flex flex-col justify-between overflow-hidden">
-                     {/* Decorative Elements */}
-                     <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
-                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
-
-                     <div className="relative z-10 flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                           <div className="bg-white/20 backdrop-blur-md p-2 rounded-xl shadow-lg border border-white/10">
-                              {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-6 h-6 text-white" /> : <Award className="w-6 h-6 text-white" />}
-                           </div>
-                           <div className="bg-black/30 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/10 text-xs font-semibold text-white tracking-wider uppercase">
-                              {credential.type}
-                           </div>
-                        </div>
-                        
-                        <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-sm border ${
-                           credential.isRevoked 
-                             ? 'bg-red-500/20 border-red-500/50 text-red-200' 
-                             : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
-                        }`}>
-                           {credential.isRevoked ? (
-                              <><ShieldAlert className="w-3.5 h-3.5" /> REVOKED</>
-                           ) : (
-                              <><CheckCircle className="w-3.5 h-3.5" /> VERIFIED</>
-                           )}
-                        </div>
-                     </div>
-
-                     <div className="relative z-10 mt-auto">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
-                           {metadata?.degreeName || metadata?.title || 'Credential Title'}
-                        </h2>
-                        <div className="flex items-center text-indigo-200/80 text-sm font-medium">
-                           <Calendar className="w-4 h-4 mr-2" />
-                           Issued on {new Date(credential.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Card Body */}
-                  <div className="p-8 md:p-10 bg-gray-900">
-                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 pb-10 border-b border-gray-800">
-                        <div className="space-y-1">
-                           <label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Recipient</label>
-                           <p className="text-2xl text-white font-semibold tracking-tight">{metadata?.studentName || user?.name}</p>
-                           <p className="text-sm text-gray-400 font-mono">{user.registrationNumber}</p>
-                        </div>
-                        <div className="md:text-right space-y-1">
-                           <label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Issued By</label>
-                           <p className="text-xl text-white font-medium">{metadata?.university || credential.university}</p>
-                           <div className="flex md:justify-end">
-                              <span className="inline-flex items-center text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded border border-emerald-400/20">
-                                 <CheckCircle className="w-3 h-3 mr-1" /> trusted issuer
-                              </span>
-                           </div>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                        <div>
-                           <label className="text-xs text-gray-500 uppercase font-semibold mb-2 block">GPA/Score</label>
-                           <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                              {metadata?.gpa || metadata?.score || 'N/A'}
-                           </div>
-                        </div>
-                        <div className="col-span-2 md:col-span-1">
-                           <label className="text-xs text-gray-500 uppercase font-semibold mb-2 block">Major / Field</label>
-                           <p className="text-white font-medium text-lg leading-snug">{metadata?.major || metadata?.department || 'N/A'}</p>
-                        </div>
-                        {metadata?.admissionYear && (
-                           <div>
-                              <label className="text-xs text-gray-500 uppercase font-semibold mb-2 block">Class Of</label>
-                              <p className="text-white font-medium text-lg">{metadata?.graduationYear || 'N/A'}</p>
-                           </div>
-                        )}
-                     </div>
-
-                     {credential.isRevoked && (
-                        <div className="mt-8 p-6 bg-red-950/30 border border-red-500/20 rounded-2xl flex gap-4">
-                           <div className="p-3 bg-red-500/10 rounded-full h-fit">
-                              <ShieldAlert className="w-6 h-6 text-red-500" />
-                           </div>
-                           <div>
-                              <h4 className="text-red-400 font-bold mb-2">Revocation Notice</h4>
-                              <p className="text-sm text-red-300/80 leading-relaxed">
-                                 This credential has been officially revoked by the issuing authority. It is no longer considered valid proof of qualification. Please contact the institution for more details.
-                              </p>
-                           </div>
-                        </div>
-                     )}
-                  </div>
-               </div>
+               <DetailedCertificateCard credential={credential} metadata={metadata} />
             </div>
 
             {/* Sidebar Actions */}

@@ -13,6 +13,7 @@
     "@react-oauth/google": "^0.13.4",
     "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
     "ethers": "^6.7.0",
     "html5-qrcode": "^2.3.8",
     "js-sha256": "^0.11.1",

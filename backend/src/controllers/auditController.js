@@ -2,10 +2,15 @@ const AuditLog = require('../models/AuditLog');
 
 exports.getAuditLogs = async (req, res) => {
   try {
-    const { page = 1, limit = 50, action, startDate, endDate } = req.query;
+    const { page = 1, limit = 50, action, startDate, endDate, search } = req.query;
 
     const query = {};
     
+    if (search) {
+      // Search by wallet address in details
+      query['details.studentWalletAddress'] = { $regex: search, $options: 'i' };
+    }
+
     if (action) {
       // Support filtering by multiple actions
       if (Array.isArray(action)) {
@@ -15,7 +20,9 @@ exports.getAuditLogs = async (req, res) => {
       }
     }
     if (startDate || endDate) {
-      query.createdAt = {};
+      // Ensure we don't overwrite query if search set specific criteria, though here it's additive
+      if (!query.createdAt) query.createdAt = {};
+      
       if (startDate) query.createdAt.$gte = new Date(startDate);
       if (endDate) query.createdAt.$lte = new Date(endDate);
     }

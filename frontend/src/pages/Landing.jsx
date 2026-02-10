@@ -176,7 +176,7 @@ const Landing = () => {
              <div>
                 <h4 className="text-white font-semibold mb-6">Platform</h4>
                 <ul className="space-y-4 text-sm text-gray-500">
-                   <li><button onClick={() => navigate('/login')} className="hover:text-indigo-400 transition-colors">Institute Portral</button></li>
+                   <li><button onClick={() => navigate('/login')} className="hover:text-indigo-400 transition-colors">Portal</button></li>
                    <li><button onClick={() => navigate('/verify')} className="hover:text-indigo-400 transition-colors">Verification</button></li>
                    <li><button className="hover:text-indigo-400 transition-colors">Documentation</button></li>
                 </ul>
@@ -202,7 +202,7 @@ const Landing = () => {
           </div>
           
           <div className="border-t border-gray-800 pt-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-             <p>&copy; 2024 Attestify. All rights reserved.</p>
+             <p>&copy; 2026 Attestify. All rights reserved.</p>
              <p className="mt-4 md:mt-0 flex items-center gap-2">
                 Made with <span className="text-red-500">♥</span> for Web3
              </p>

@@ -74,7 +74,7 @@ const Login = () => {
                onClick={() => setSelectedRole('INSTITUTE')}
                type="button"
             >
-               Institute Admin
+               Institute
             </button>
             <button
                className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-lg transition-colors duration-300 ${selectedRole === 'STUDENT' ? 'text-white' : 'text-gray-400 hover:text-white'}`}

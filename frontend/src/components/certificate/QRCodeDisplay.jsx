@@ -3,8 +3,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import Button from '../shared/Button';
 import { Download } from 'lucide-react';
 
-const QRCodeDisplay = ({ registrationNumber }) => {
-  const qrValue = `${window.location.origin}/verify?registrationNumber=${registrationNumber}`;
+const QRCodeDisplay = ({ credentialId }) => {
+  const qrValue = `${window.location.origin}/verify?credentialId=${credentialId}`;
 
   const downloadQR = () => {
     const svg = document.getElementById('qr-code');
@@ -20,7 +20,7 @@ const QRCodeDisplay = ({ registrationNumber }) => {
       const pngFile = canvas.toDataURL('image/png');
       
       const downloadLink = document.createElement('a');
-      downloadLink.download = `certificate-qr-${registrationNumber}.png`;
+      downloadLink.download = `certificate-qr-${credentialId}.png`;
       downloadLink.href = pngFile;
       downloadLink.click();
     };

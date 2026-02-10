@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Edit2 } from 'lucide-react';
-import api from '../../services/api';
+import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Edit2, Loader } from 'lucide-react';
+import api, { userAPI } from '../../services/api';
 import Button from '../../components/shared/Button';
 
 const AdminProfile = () => {
     const { user, updateUser } = useAuth();
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [branding, setBranding] = useState({
       logoCID: user?.instituteDetails?.branding?.logoCID || '',
       sealCID: user?.instituteDetails?.branding?.sealCID || '',
@@ -18,6 +19,33 @@ const AdminProfile = () => {
   
     const [gasBalance, setGasBalance] = useState('0.00');
   
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('File size exceeds 5MB limit', 'error');
+            return;
+        }
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await userAPI.uploadAvatar(formData);
+            if (response.data.success) {
+                updateUser(response.data.user);
+                showNotification('Profile picture updated successfully', 'success');
+            }
+        } catch (error) {
+            console.error('Avatar upload failed', error);
+            showNotification('Failed to upload profile picture', 'error');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     useEffect(() => {
       if (user?.role === 'INSTITUTE' && user?.instituteDetails?.authorizedWalletAddress) {
           setGasBalance('0.45'); // Mock for now - replace with actual web3 call if available
@@ -68,18 +96,35 @@ const AdminProfile = () => {
               
               <div className="absolute -bottom-16 left-8 flex items-end space-x-6">
                   <div className="relative group">
-                      <div className="w-32 h-32 rounded-2xl bg-gray-900 border-4 border-gray-950 shadow-2xl flex items-center justify-center overflow-hidden">
-                          {branding.logoCID ? (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-2xl font-bold text-white">
-                                  {user.name?.charAt(0)}
-                              </div>
+                      <div className="w-32 h-32 rounded-2xl bg-gray-900 border-4 border-gray-950 shadow-2xl flex items-center justify-center overflow-hidden relative">
+                          {user.avatar ? (
+                               <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                           ) : (
-                              <Building className="w-12 h-12 text-gray-600" />
+                              branding.logoCID ? (
+                                  <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-2xl font-bold text-white">
+                                      {user.name?.charAt(0)}
+                                  </div>
+                              ) : (
+                                  <Building className="w-12 h-12 text-gray-600" />
+                              )
                           )}
+
+                           {/* Upload Overlay */}
+                           <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity z-10">
+                                {uploading ? (
+                                    <Loader className="w-8 h-8 text-white animate-spin" />
+                                ) : (
+                                    <Camera className="w-8 h-8 text-white" />
+                                )}
+                                <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    accept="image/*"
+                                    onChange={handleAvatarUpload}
+                                    disabled={uploading}
+                                />
+                            </label>
                       </div>
-                      <button className="absolute bottom-2 right-2 p-1.5 bg-indigo-500 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                          <Camera className="w-4 h-4" />
-                      </button>
                   </div>
                   
                   <div className="mb-4">

@@ -6,7 +6,9 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
+import Credentials from './pages/Credentials'; // Import Credentials page
 import StudentDashboard from './pages/StudentDashboard';
+import StudentCredentials from './pages/StudentCredentials';
 import VerificationPortal from './components/verification/VerificationPortal';
 import AuditLogs from './pages/AuditLogs';
 import RevokedCertificates from './pages/RevokedCertificates';
@@ -50,10 +52,28 @@ function App() {
         />
 
         <Route
+          path="/student/credentials"
+          element={
+            <PrivateRoute allowedRoles={['STUDENT']}>
+              <StudentCredentials />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/admin-dashboard"
           element={
             <PrivateRoute allowedRoles={['INSTITUTE']}>
               <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/credentials"
+          element={
+            <PrivateRoute allowedRoles={['INSTITUTE']}>
+              <Credentials />
             </PrivateRoute>
           }
         />
