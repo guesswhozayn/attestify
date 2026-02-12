@@ -213,9 +213,6 @@ const InstituteProfile = () => {
               </div>
   
               <div className="absolute -bottom-16 right-8 flex gap-3">
-                   <Button variant="outline" className="gap-2">
-                       <Edit2 className="w-4 h-4" /> Edit Profile
-                   </Button>
               </div>
           </div>
   

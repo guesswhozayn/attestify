@@ -152,36 +152,51 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         doc.font('Helvetica-Bold').fontSize(12);
         doc.text(`Cumulative GPA: ${transcriptData?.cgpa || 'N/A'}`, 40, y, { align: 'right', width: doc.page.width - 80 });
         
-        // Footer Signatures
-        y = doc.page.height - 100;
+        // Footer section alignment
+        const footerY = doc.page.height - 100;
         
-        // Date on Left
-        doc.fontSize(10).font('Helvetica').text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, 50, y + 10);
-        doc.fontSize(8).fillColor('#6b7280').text(`Generated: ${new Date().toLocaleDateString()}`, 50, y + 25);
+        // 1. LEFT: Issued Date & Info
+        doc.fontSize(10).font('Helvetica').fillColor('#1f2937')
+           .text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, 50, footerY);
+        doc.fontSize(8).fillColor('#64748b')
+           .text(`Credential ID: ${credentialId.substring(0, 16)}...`, 50, footerY + 15)
+           .text(`Generated: ${new Date().toLocaleDateString()}`, 50, footerY + 25);
         doc.fillColor('#000');
   
-        // Seal in Center
+        // 2. CENTER: QR Code (Verification)
+        doc.image(qrCodeDataUrl, doc.page.width / 2 - 30, footerY - 20, { width: 60 });
+        doc.fontSize(8).font('Helvetica').fillColor('#64748b')
+           .text('SCAN TO VERIFY', 0, footerY + 45, { align: 'center', width: doc.page.width });
+  
+        // 3. RIGHT: Seal & Signature
+        const rightEdge = doc.page.width - 50;
+        const signatureWidth = 140;
+        const signatureX = rightEdge - signatureWidth;
+
+        // Seal (overlapping signature for authenticity)
         if (seal) {
             try {
-               doc.image(seal, doc.page.width / 2 - 40, y - 30, { width: 80 });
+               doc.save();
+               doc.opacity(0.8);
+               doc.image(seal, signatureX - 40, footerY - 40, { width: 70 });
+               doc.restore();
             } catch (e) {
                console.warn('Failed to embed footer seal:', e.message); 
             }
         }
   
-        // Signature on Right
+        // Signature
         if (signature) {
             try {
-              doc.image(signature, doc.page.width - 160, y - 40, { width: 100 });
+              doc.image(signature, signatureX, footerY - 45, { width: signatureWidth, height: 40, fit: [signatureWidth, 40] });
             } catch (e) {
               console.warn('Failed to embed signature:', e.message); 
             }
         }
-        doc.moveTo(doc.page.width - 200, y).lineTo(doc.page.width - 50, y).stroke();
-        doc.fontSize(10).font('Helvetica').text('Authorized Signature', doc.page.width - 200, y + 5, { width: 150, align: 'center' });
-  
-        // QR Code Top Right
-        doc.image(qrCodeDataUrl, doc.page.width - 100, 30, { width: 60 });
+        
+        doc.lineWidth(1).strokeColor('#e2e8f0').moveTo(signatureX, footerY).lineTo(rightEdge, footerY).stroke();
+        doc.fontSize(10).font('Helvetica-Bold').fillColor('#1f2937')
+           .text('Authorized Signature', signatureX, footerY + 10, { width: signatureWidth, align: 'center' });
   
       } else {
         // --- CERTIFICATION LAYOUT ---
@@ -240,32 +255,42 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
   
         // 5. Footer & Signatures
         const footerY = doc.page.height - 100;
+        const sideMargin = 80;
         
-        // Left: Date
-        doc.fontSize(12).font('Helvetica').fillColor('#374151');
-        doc.text(`Issued: ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, 60, footerY + 10);
-        
-        // Center: Seal & QR
+        // --- ZONE 1: LEFT (Official Seal) ---
         if (seal) {
             try {
-               doc.image(seal, doc.page.width / 2 - 40, footerY - 40, { width: 80 });
+               doc.image(seal, sideMargin, footerY - 40, { width: 80 });
             } catch (e) {
                console.warn('Failed to embed certificate seal:', e.message); 
             }
         }
-        // Small QR below seal
-        doc.image(qrCodeDataUrl, doc.page.width / 2 - 25, footerY + 50, { width: 50 });
+        doc.fontSize(10).font('Helvetica').fillColor('#374151')
+           .text(`Issued: ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, sideMargin, footerY + 50);
+
+        // --- ZONE 2: CENTER (Verification QR) ---
+        doc.image(qrCodeDataUrl, doc.page.width / 2 - 30, footerY - 10, { width: 60 });
+        doc.fontSize(8).font('Helvetica').fillColor('#64748b')
+           .text('SCAN TO VERIFY', 0, footerY + 55, { align: 'center', width: doc.page.width });
   
-        // Right: Signature
+        // --- ZONE 3: RIGHT (Authorized Signature) ---
+        const sigWidth = 150;
+        const sigX = doc.page.width - sideMargin - sigWidth;
+
         if (signature) {
             try {
-               doc.image(signature, doc.page.width - 220, footerY - 50, { width: 120 });
+               doc.image(signature, sigX, footerY - 45, { width: sigWidth, height: 45, fit: [sigWidth, 45] });
             } catch (e) {
                console.warn('Failed to embed certificate signature:', e.message); 
             }
         }
-        doc.lineWidth(1).strokeColor('#9ca3af').moveTo(doc.page.width - 240, footerY).lineTo(doc.page.width - 60, footerY).stroke();
-        doc.fontSize(10).text('Authorized Signature', doc.page.width - 240, footerY + 10, { width: 180, align: 'center' });
+        
+        doc.lineWidth(1).strokeColor('#9ca3af').moveTo(sigX, footerY + 5).lineTo(sigX + sigWidth, footerY + 5).stroke();
+        doc.fontSize(11).font('Helvetica-Bold').fillColor('#1f2937')
+           .text('Authorized Signature', sigX, footerY + 15, { width: sigWidth, align: 'center' });
+           
+        doc.fontSize(8).font('Helvetica').fillColor('#9ca3af')
+           .text(`Credential ID: ${credentialId}`, sigX, footerY + 30, { width: sigWidth, align: 'center' });
       }
   
       doc.end();

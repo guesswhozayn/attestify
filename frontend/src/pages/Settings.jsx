@@ -8,9 +8,6 @@ import { useNotification } from '../context/NotificationContext';
 import blockchainService from '../services/blockchain';
 import api from '../services/api';
 
-
-
-
 const Settings = () => {
   const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
@@ -39,13 +36,30 @@ const Settings = () => {
         ...prev,
         name: user.name || prev.name,
         email: user.email || prev.email,
-        university: user.university || prev.university, // This might be the user's organization
+        university: user.university || prev.university,
         walletAddress: user.walletAddress || prev.walletAddress,
         title: user.title || prev.title,
         about: user.about || prev.about
       }));
     }
   }, [user]);
+
+  // Auto-detect connected wallet on mount
+  useEffect(() => {
+    const detectWallet = async () => {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0 && !profileData.walletAddress) {
+                    setProfileData(prev => ({ ...prev, walletAddress: accounts[0] }));
+                }
+            } catch (err) {
+                console.error('Error detecting wallet:', err);
+            }
+        }
+    };
+    detectWallet();
+  }, []);
 
   const handleConnectWallet = async () => {
     try {
@@ -200,11 +214,6 @@ const Settings = () => {
                       />
                   </div>
               </section>
-
-
-
-              {/* Branding Assets Section (Institute Only) */}
-
 
               {/* Blockchain Section */}
               <section className="space-y-4">
