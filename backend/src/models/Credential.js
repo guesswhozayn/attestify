@@ -70,6 +70,10 @@ const credentialSchema = new mongoose.Schema({
   blockNumber: {
     type: Number
   },
+  tokenId: {
+    type: String, // Store as string to handle large integers safely
+    index: true
+  },
   issuedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

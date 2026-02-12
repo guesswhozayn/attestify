@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Button from '../components/shared/Button';
-import GoogleLoginButton from '../components/GoogleLoginButton';
+import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 
 // Helper component for cleaner inputs
 const FormInput = ({ label, icon: Icon, type = "text", ...props }) => (
@@ -148,7 +148,7 @@ const Register = () => {
                  name="email"
                  value={formData.email}
                  onChange={handleChange}
-                 placeholder={formData.role === 'INSTITUTE' ? "admin@university.edu" : "student@university.edu"}
+                 placeholder={formData.role === 'INSTITUTE' ? "institute@university.edu" : "student@university.edu"}
                  icon={Mail}
                  required
                />

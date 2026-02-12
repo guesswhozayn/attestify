@@ -17,8 +17,12 @@ const Credentials = () => {
     const [loading, setLoading] = useState(true);
     const { showNotification } = useNotification();
 
+    const isMounted = React.useRef(true);
+
     useEffect(() => {
+        isMounted.current = true;
         fetchCertificates();
+        return () => { isMounted.current = false; };
     }, [activeTab]);
 
     const fetchCertificates = async () => {
@@ -26,13 +30,23 @@ const Credentials = () => {
             setLoading(true);
             const params = activeTab !== 'all' ? { type: activeTab } : {};
             const response = await credentialAPI.getAll(params);
-            const docs = response.data.credentials || [];
-            setCertificates(docs);
-            setFilteredCertificates(docs);
+            
+            if (isMounted.current) {
+                const docs = response.data.credentials || [];
+                setCertificates(docs);
+                setFilteredCertificates(docs);
+            }
         } catch (error) {
-            showNotification('Failed to fetch credentials', 'error');
+            if (isMounted.current) {
+                // Ignore 401 errors likely caused by logout
+               if (error.response?.status !== 401) {
+                   showNotification('Failed to fetch credentials', 'error');
+               }
+            }
         } finally {
-            setLoading(false);
+            if (isMounted.current) {
+                setLoading(false);
+            }
         }
     };
 

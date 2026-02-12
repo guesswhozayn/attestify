@@ -76,9 +76,16 @@ const CertificateCard = ({ certificate, onClick }) => {
         <div className="flex items-center justify-between">
            <div>
                <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold block mb-0.5">Type</label>
-               <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-800 text-gray-300 border border-gray-700">
-                  {certificate.type}
-               </span>
+               <div className="flex gap-2">
+                   <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-800 text-gray-300 border border-gray-700">
+                      {certificate.type}
+                   </span>
+                   {certificate.tokenId && (
+                       <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-900/50 text-purple-300 border border-purple-700/50" title="Soulbound Token">
+                          SBT
+                       </span>
+                   )}
+               </div>
            </div>
            
            {(displayMetadata?.cgpa || displayMetadata?.score) && (

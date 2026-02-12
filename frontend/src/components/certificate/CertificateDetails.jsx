@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 import QRCodeDisplay from './QRCodeDisplay';
-import { Download, ExternalLink, User, Calendar, Building, Hash, ShieldAlert, BadgeCheck, GraduationCap, Award } from 'lucide-react';
+import { Download, ExternalLink, User, Calendar, Building, Hash, ShieldAlert, BadgeCheck, GraduationCap, Award, Shield, ShieldCheck } from 'lucide-react';
 import VerificationSection from '../verification/VerificationSection';
 import RevokeCertificateModal from './RevokeCertificateModal';
+import SBTDetailsModal from './SBTDetailsModal';
 import { useAuth } from '../../context/AuthContext';
 
 const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
   const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [showSBTModal, setShowSBTModal] = useState(false);
   const { user } = useAuth(); // Assuming 'user' is the current logged-in user viewing the modal
 
   if (!certificate) return null;
@@ -55,9 +57,9 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
             <div className="flex items-end space-x-6">
               {/* Avatar or Logo */}
               <div className="w-24 h-24 rounded-full border-4 border-gray-800 bg-white shadow-xl overflow-hidden flex-shrink-0 -mb-4 z-10 flex items-center justify-center">
-                {certificate.issuedBy?.instituteDetails?.branding?.logoCID ? (
+                {certificate.issuedBy?.instituteDetails?.branding && (certificate.issuedBy.instituteDetails.branding.logo || certificate.issuedBy.instituteDetails.branding.logoCID) ? (
                    <img 
-                     src={`https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.logoCID}`}
+                     src={certificate.issuedBy.instituteDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.logoCID}`}
                      alt="Institute Logo"
                      className="w-full h-full object-contain p-1"
                    />
@@ -93,19 +95,31 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                   </div>
                   
                   {/* Status Badge */}
-                  <div className={`px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-sm ${
-                    certificate.isRevoked ? 'bg-red-500/20 text-red-100' : 'bg-white/20 text-white'
-                  }`}>
-                    <div className="flex items-center space-x-2">
-                       {certificate.isRevoked ? (
-                         <ShieldAlert className="w-5 h-5" />
-                       ) : (
-                         <BadgeCheck className="w-5 h-5" />
-                       )}
-                       <span className="font-semibold tracking-wide text-sm">
-                         {certificate.isRevoked ? 'REVOKED' : 'VERIFIED'}
-                       </span>
+                  <div className="flex flex-col gap-2 items-end">
+                    <div className={`px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-sm ${
+                      certificate.isRevoked ? 'bg-red-500/20 text-red-100' : 'bg-white/20 text-white'
+                    }`}>
+                      <div className="flex items-center space-x-2">
+                        {certificate.isRevoked ? (
+                          <ShieldAlert className="w-5 h-5" />
+                        ) : (
+                          <BadgeCheck className="w-5 h-5" />
+                        )}
+                        <span className="font-semibold tracking-wide text-sm">
+                          {certificate.isRevoked ? 'REVOKED' : 'VERIFIED'}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Soulbound Badge */}
+                    {certificate.tokenId && (
+                       <div className="px-3 py-1 rounded-full backdrop-blur-md border border-purple-500/30 bg-purple-500/20 text-purple-100 shadow-sm">
+                          <div className="flex items-center space-x-1.5">
+                             <Shield className="w-3 h-3 text-purple-300" />
+                             <span className="text-xs font-medium tracking-wide">SOULBOUND</span>
+                         </div>
+                       </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -210,7 +224,7 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
               )}
             </div>
             
-            {/* Metadata Footer */}
+             {/* Metadata Footer */}
             <div className="bg-gray-800/30 rounded-xl p-4 flex items-center justify-between text-sm text-gray-400 border border-gray-700/30">
                <div className="flex items-center space-x-6">
                  <div>
@@ -221,6 +235,12 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                    <span className="block text-xs uppercase tracking-wider text-gray-600 mb-0.5">Issuer</span>
                    <span className="text-gray-300 font-medium">{certificate.issuedBy?.name}</span>
                  </div>
+                 {certificate.tokenId && (
+                    <div>
+                        <span className="block text-xs uppercase tracking-wider text-gray-600 mb-0.5">Token ID</span>
+                        <span className="text-purple-400 font-mono font-medium">#{certificate.tokenId}</span>
+                    </div>
+                 )}
                </div>
                <div>
                   <div className="flex items-center space-x-2">
@@ -250,13 +270,33 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                <VerificationSection certificate={certificate} />
              </div>
 
+             {certificate.tokenId && (
+               <div className="pt-2">
+                 <button 
+                   onClick={() => setShowSBTModal(true)}
+                   className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-all group"
+                 >
+                   <div className="flex items-center gap-3">
+                     <div className="p-2 bg-blue-500/10 rounded-lg">
+                       <ShieldCheck className="w-5 h-5 text-blue-600" />
+                     </div>
+                     <div className="text-left">
+                       <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest leading-none mb-1 text-shadow-glow">Soulbound Token</p>
+                       <p className="text-xs font-semibold text-gray-700">Token ID: #{certificate.tokenId}</p>
+                     </div>
+                   </div>
+                   <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                 </button>
+               </div>
+             )}
+
             {/* Actions */}
               <div className="space-y-3 pt-2">
                 {/* Branding Assets Display */}
-                {certificate.issuedBy?.instituteDetails?.branding?.signatureCID && (
+                {(certificate.issuedBy?.instituteDetails?.branding?.signature || certificate.issuedBy?.instituteDetails?.branding?.signatureCID) && (
                    <div className="text-center py-4 border-t border-b border-gray-100 mb-4">
                       <img 
-                        src={`https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.signatureCID}`} 
+                        src={certificate.issuedBy.instituteDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.signatureCID}`} 
                         alt="Authorized Signature" 
                         className="h-16 mx-auto mb-2 object-contain"
                       />
@@ -307,6 +347,12 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
           if (onUpdate) onUpdate();
           onClose(); 
         }}
+      />
+
+      <SBTDetailsModal 
+        isOpen={showSBTModal}
+        onClose={() => setShowSBTModal(false)}
+        credential={certificate}
       />
     </Modal>
   );

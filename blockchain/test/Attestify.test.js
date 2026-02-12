@@ -125,4 +125,54 @@ describe("Attestify", function () {
       expect(await attestify.isAuthorizedIssuer(issuer.address)).to.be.false;
     });
   });
+
+  describe("Soulbound Token (ERC721)", function () {
+    const tokenURI = "ipfs://QmTest123";
+
+    it("Should mint SBT successfully", async function () {
+      await expect(attestify.safeMint(user.address, tokenURI))
+        .to.emit(attestify, "SoulboundMinted")
+        .withArgs(user.address, 0, tokenURI); // Token ID starts at 0
+
+      expect(await attestify.balanceOf(user.address)).to.equal(1);
+      expect(await attestify.ownerOf(0)).to.equal(user.address);
+      expect(await attestify.tokenURI(0)).to.equal(tokenURI);
+    });
+
+    it("Should prevent transfers (Soulbound)", async function () {
+      await attestify.safeMint(user.address, tokenURI);
+      
+      // User tries to transfer to issuer
+      await expect(
+        attestify.connect(user).transferFrom(user.address, issuer.address, 0)
+      ).to.be.revertedWith("Soulbound: Transfer not allowed");
+
+      await expect(
+        attestify.connect(user).safeTransferFrom(user.address, issuer.address, 0)
+      ).to.be.revertedWith("Soulbound: Transfer not allowed");
+    });
+
+    it("Should allow burning (revocation) by owner", async function () {
+      await attestify.safeMint(user.address, tokenURI);
+      
+      await expect(attestify.revokeToken(0))
+        .to.emit(attestify, "SoulboundRevoked")
+        .withArgs(0);
+      
+      await expect(attestify.ownerOf(0)).to.be.revertedWithCustomError(attestify, "ERC721NonexistentToken");
+    });
+
+    it("Should not allow non-authorized to mint", async function () {
+      await expect(
+        attestify.connect(user).safeMint(user.address, tokenURI)
+      ).to.be.revertedWith("Not authorized to issue credentials");
+    });
+    
+    it("Should allow authorized issuers to mint", async function () {
+        await attestify.authorizeIssuer(issuer.address);
+        
+        await expect(attestify.connect(issuer).safeMint(user.address, tokenURI))
+          .to.emit(attestify, "SoulboundMinted");
+    });
+  });
 });

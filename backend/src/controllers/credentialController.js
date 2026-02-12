@@ -11,6 +11,57 @@ const QRCode = require('qrcode');
 const path = require('path');
 const emailService = require('../services/emailService');
 const axios = require('axios');
+const csv = require('csv-parser');
+const pdfService = require('../services/pdfService');
+
+// Helper to ensure we have a CID for the institute logo
+async function ensureLogoCID(branding) {
+  if (branding?.logoCID) return branding.logoCID;
+  if (!branding?.logo) return null;
+
+  // If it's already an IPFS URL, extract CID
+  if (branding.logo.includes('gateway.pinata.cloud/ipfs/')) {
+    return branding.logo.split('/').pop();
+  }
+
+  // If it's a local URL, upload it
+  if (branding.logo.includes('/uploads/')) {
+    try {
+      const filename = branding.logo.split('/').pop();
+      const localPath = path.join(__dirname, '../../uploads', filename);
+      if (fs.existsSync(localPath)) {
+        const result = await ipfsService.uploadFile(localPath, filename);
+        return result.ipfsHash;
+      }
+    } catch (err) {
+      console.warn('Failed to upload local logo to IPFS for SBT:', err.message);
+    }
+  }
+  return null;
+}
+
+// Helper to prepare ERC-721 compliant metadata for SBT
+async function prepareSBTMetadata(user, credential, ipfsCID) {
+  const branding = user.instituteDetails?.branding || {};
+  const logoCID = await ensureLogoCID(branding);
+
+  const metadata = {
+    name: `${credential.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credential.studentName}`,
+    description: `A verifiable digital credential issued by ${credential.university} on ${new Date(credential.issueDate).toLocaleDateString()}. Secured by Attestify.`,
+    image: logoCID ? `ipfs://${logoCID}` : null,
+    external_url: `${process.env.FRONTEND_URL}/dashboard`, 
+    attributes: [
+      { trait_type: "Degree Type", value: credential.type },
+      { trait_type: "Issued By", value: credential.university },
+      { trait_type: "Issue Date", value: new Date(credential.issueDate).toISOString().split('T')[0] },
+      { trait_type: "PDF Proof", value: `ipfs://${ipfsCID}` },
+      { trait_type: "Status", value: "Verified" }
+    ]
+  };
+
+  const result = await ipfsService.uploadJSON(metadata, `SBT_Metadata_${credential._id}.json`);
+  return `ipfs://${result.ipfsHash}`;
+}
 
 // Issue new credential
 exports.issueCredential = async (req, res) => {
@@ -62,25 +113,49 @@ exports.issueCredential = async (req, res) => {
       signature: null
     };
 
-    const fetchImage = async (cid, type) => {
-      if (!cid) return null;
+    const fetchImage = async (source, type) => {
+      if (!source) return null;
+      
+      // Check if local file path physically exists (e.g. relative path stored)
+      if (fs.existsSync(source)) {
+          try {
+              return fs.readFileSync(source);
+          } catch (err) {
+              console.warn(`Failed to read local ${type}:`, err);
+          }
+      }
+
+      // Check if it's a full URL pointing to our uploads
+      if (source.includes('/uploads/')) {
+          try {
+              // Extract filename from URL
+              const filename = source.split('/uploads/')[1];
+              const localPath = path.join(__dirname, '../../uploads', filename);
+              if (fs.existsSync(localPath)) {
+                  return fs.readFileSync(localPath);
+              }
+          } catch (err) {
+              console.warn(`Failed to resolve local URL ${source}:`, err);
+          }
+      }
+
       try {
-        console.log(`Fetching ${type} from IPFS: ${cid}`);
-        const url = ipfsService.getIPFSUrl(cid);
+        // console.log(`Fetching ${type} from IPFS: ${source}`);
+        const url = ipfsService.getIPFSUrl(source);
         const response = await axios.get(url, { responseType: 'arraybuffer' });
-        console.log(`Successfully fetched ${type}`);
+        // console.log(`Successfully fetched ${type}`);
         return response.data;
       } catch (error) {
-        console.warn(`Failed to fetch ${type} asset ${cid}:`, error.message);
+        console.warn(`Failed to fetch ${type} asset ${source}:`, error.message);
         return null;
       }
     };
 
     // Parallel fetch for speed
     const [logoBuffer, sealBuffer, signatureBuffer] = await Promise.all([
-      fetchImage(branding.logoCID, 'logo'),
-      fetchImage(branding.sealCID, 'seal'),
-      fetchImage(branding.signatureCID, 'signature')
+      fetchImage(branding.logo || branding.logoCID, 'logo'),
+      fetchImage(branding.seal || branding.sealCID, 'seal'),
+      fetchImage(branding.signature || branding.signatureCID, 'signature')
     ]);
     
     assets.logo = logoBuffer;
@@ -397,16 +472,42 @@ exports.issueCredential = async (req, res) => {
       }
     }
 
-    // 3. Issue on blockchain
-    // USE CREDENTIAL ID as the "studentId" key
-    const blockchainResult = await blockchainService.issueCertificate(
-      credentialId, // <--- Key Change
+    // 3. Issue on blockchain (Parallel Execution)
+    const tokenURI = `ipfs://${ipfsResult.ipfsHash}`;
+    
+    // Define promises
+    const certificatePromise = blockchainService.issueCertificate(
+      credentialId, 
       certificateHash,
       ipfsResult.ipfsHash
     );
+
+    const sbtPromise = (async () => {
+        try {
+            // Generate rich metadata URI instead of pointing directly to PDF
+            const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
+            
+            const res = await blockchainService.issueSoulboundCredential(
+                studentWalletAddress,
+                metadataURI
+            );
+            console.log('SBT Minted with rich metadata:', res.tokenId);
+            return res;
+        } catch (sbtError) {
+            console.error('Failed to mint SBT:', sbtError);
+            return null;
+        }
+    })();
+
+    // Execute in parallel
+    const [blockchainResult, sbtResult] = await Promise.all([certificatePromise, sbtPromise]);
+    
     console.log('Blockchain transaction:', blockchainResult.transactionHash);
 
     // 4. Update and Save to database
+    if (sbtResult) {
+        credential.tokenId = sbtResult.tokenId;
+    }
     credential.studentImage = studentImageUrl;
     credential.certificateHash = certificateHash;
     credential.ipfsCID = ipfsResult.ipfsHash;
@@ -454,22 +555,27 @@ exports.issueCredential = async (req, res) => {
         const User = require('../models/User'); // specific import to avoid circular dep issues if any
         const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
         
-        if (studentUser && studentUser.email) {
-             const emailData = {
-                studentName,
-                university: req.user.instituteDetails?.institutionName || university,
-                issueDate,
-                transactionHash: blockchainResult.transactionHash,
-                id: credential._id,
-                ipfsCID: ipfsResult.ipfsHash,
-                certificateLink: `${process.env.FRONTEND_URL}/certificate/${credential._id}`,
-                loginLink: `${process.env.FRONTEND_URL}/login`
-             };
-             
-             emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
-                console.error('Failed to send issuance email:', err)
-             );
-        } else {
+         if (studentUser && studentUser.email) {
+              const instituteLogo = req.user.instituteDetails?.branding?.logo || 
+                                   (req.user.instituteDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.instituteDetails.branding.logoCID}` : null);
+
+              const emailData = {
+                 studentName,
+                 university: req.user.instituteDetails?.institutionName || university,
+                 issueDate,
+                 transactionHash: blockchainResult.transactionHash,
+                 id: credential._id,
+                 ipfsCID: ipfsResult.ipfsHash,
+                 certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
+                 loginLink: `${process.env.FRONTEND_URL}/login`,
+                 tokenId: credential.tokenId,
+                 instituteLogo: instituteLogo
+              };
+              
+              emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+                 console.error('Failed to send issuance email:', err)
+              );
+         } else {
             console.log('No registered user found for wallet ' + studentWalletAddress + ', skipping email.');
         }
 
@@ -548,6 +654,287 @@ exports.issueCredential = async (req, res) => {
       details: error.message 
     });
   }
+};
+
+// Helper: Fetch IPFS/Local Image (duplicated for safety/independence)
+const fetchImageFromSource = async (source, type) => {
+  if (!source) return null;
+  
+  // Check local
+  if (require('fs').existsSync(source)) {
+      try {
+          return require('fs').readFileSync(source);
+      } catch (e) {
+          console.warn(`Failed to read local batch ${type}:`, e);
+      }
+  }
+
+  // Check URL -> Local
+  if (source.includes('/uploads/')) {
+      try {
+          const filename = source.split('/uploads/')[1];
+          const localPath = path.join(__dirname, '../../uploads', filename);
+          if (require('fs').existsSync(localPath)) {
+              return require('fs').readFileSync(localPath);
+          }
+      } catch (err) {
+           console.warn(`Failed to resolve local URL batch ${source}:`, err);
+      }
+  }
+
+  try {
+    // console.log(`Fetching ${type} from IPFS: ${source}`);
+    const url = ipfsService.getIPFSUrl(source);
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    return response.data;
+  } catch (error) {
+    console.warn(`Failed to fetch ${type} asset ${source}:`, error.message);
+    return null;
+  }
+};
+
+// Batch issue credentials
+exports.batchIssueCredentials = async (req, res) => {
+  const file = req.files && req.files['file'] ? req.files['file'][0] : null; // Expecting field name 'file' for CSV
+  if (!file) {
+    return res.status(400).json({ error: 'No CSV file provided' });
+  }
+
+  const results = [];
+  
+  // Parse CSV
+  try {
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(file.path)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', resolve)
+        .on('error', reject);
+    });
+  } catch (parseError) {
+    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    return res.status(400).json({ error: 'Failed to parse CSV file', details: parseError.message });
+  }
+
+  // Fetch Branding Assets Once
+  const branding = req.user.instituteDetails?.branding || {};
+  const assets = { logo: null, seal: null, signature: null };
+
+  try {
+    const [logoBuffer, sealBuffer, signatureBuffer] = await Promise.all([
+      fetchImageFromSource(branding.logo || branding.logoCID, 'logo'),
+      fetchImageFromSource(branding.seal || branding.sealCID, 'seal'),
+      fetchImageFromSource(branding.signature || branding.signatureCID, 'signature')
+    ]);
+    assets.logo = logoBuffer;
+    assets.seal = sealBuffer;
+    assets.signature = signatureBuffer;
+  } catch (assetError) {
+    console.warn('Failed to fetch branding assets for batch:', assetError);
+  }
+
+  const summary = {
+    total: results.length,
+    success: 0,
+    failed: 0,
+    details: []
+  };
+
+  const processRow = async (row) => {
+    let tempFilePath = null;
+    try {
+      // Validate required fields
+      if (!row.studentName || !row.studentWalletAddress) {
+        throw new Error('Missing required fields: studentName or studentWalletAddress');
+      }
+
+      const type = row.type || 'CERTIFICATION';
+      const issueDate = row.issueDate ? new Date(row.issueDate) : new Date();
+
+      // Parse specific data based on type
+      let transcriptData = {};
+      let certificationData = {};
+
+      if (type === 'TRANSCRIPT') {
+         transcriptData = {
+           program: row.program,
+           department: row.department,
+           admissionYear: row.admissionYear,
+           graduationYear: row.graduationYear,
+           cgpa: row.cgpa,
+           courses: row.courses ? row.courses.split('|').map(c => {
+             const [code, name, grade, credits] = c.split(';');
+             return { code, name, grade, credits };
+           }) : []
+         };
+      } else {
+         certificationData = {
+           title: row.title || row.certificationTitle,
+           description: row.description,
+           level: row.level,
+           score: row.score,
+           duration: row.duration,
+           expiryDate: row.expiryDate
+         };
+      }
+
+      // Create Credential DB Object
+      const credential = new Credential({
+        studentWalletAddress: row.studentWalletAddress,
+        studentName: row.studentName,
+        university: req.user.instituteDetails?.institutionName || row.university || 'Attestify University', // Use logged in user's institute name preferably
+        issueDate: issueDate,
+        type,
+        transcriptData,
+        certificationData,
+        issuedBy: req.user._id,
+        metadata: {}
+      });
+
+      const credentialId = credential._id.toString();
+      
+      // Generate PDF
+      const uploadsDir = path.join(__dirname, '../../uploads');
+      if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+      tempFilePath = path.join(uploadsDir, `batch_cert_${credentialId}_${Date.now()}.pdf`);
+
+      const institutionName = req.user.instituteDetails?.institutionName || credential.university;
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
+
+      await pdfService.generateCredentialPDF({
+        type,
+        studentName: credential.studentName,
+        studentWalletAddress: credential.studentWalletAddress,
+        university: credential.university,
+        issueDate: credential.issueDate,
+        credentialId,
+        transcriptData,
+        certificationData,
+        verificationUrl,
+        institutionName
+      }, assets, tempFilePath);
+
+      // Hash & IPFS
+      const certificateHash = await hashService.generateSHA256(tempFilePath);
+      const ipfsResult = await ipfsService.uploadFile(tempFilePath, `Certificate_${credentialId}.pdf`);
+
+      // Blockchain Issue
+      // Blockchain Issue (Parallel Execution)
+      const tokenURI = `ipfs://${ipfsResult.ipfsHash}`;
+
+      const certificatePromise = blockchainService.issueCertificate(
+        credentialId,
+        certificateHash,
+        ipfsResult.ipfsHash
+      );
+
+      const sbtPromise = (async () => {
+          try {
+              // Generate rich metadata URI instead of pointing directly to PDF
+              const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
+
+              const res = await blockchainService.issueSoulboundCredential(
+                  row.studentWalletAddress,
+                  metadataURI
+              );
+              console.log('Batch SBT Minted with rich metadata:', res.tokenId);
+              return res;
+          } catch (sbtError) {
+              console.error('Failed to mint Batch SBT:', sbtError);
+              return null;
+          }
+      })();
+
+      const [blockchainResult, sbtResult] = await Promise.all([certificatePromise, sbtPromise]);
+
+      // Update Credential
+      if (sbtResult) {
+          credential.tokenId = sbtResult.tokenId;
+      }
+      credential.certificateHash = certificateHash;
+      credential.ipfsCID = ipfsResult.ipfsHash;
+      credential.transactionHash = blockchainResult.transactionHash;
+      credential.blockNumber = blockchainResult.blockNumber;
+      credential.gasUsed = blockchainResult.gasUsed;
+      credential.gasPrice = blockchainResult.gasPrice;
+      credential.totalCost = blockchainResult.totalCost;
+      credential.metadata = {
+        fileSize: fs.statSync(tempFilePath).size,
+        fileType: 'application/pdf',
+        originalFileName: `Certificate_${credentialId}.pdf`
+      };
+
+      await credential.save();
+
+      // Audit Log
+      await AuditLog.create({
+        action: AUDIT_ACTIONS.CREDENTIAL_ISSUED,
+        performedBy: req.user._id,
+        targetCredential: credential._id,
+        ipAddress: req.ip,
+        details: { batch: true, studentWalletAddress: row.studentWalletAddress }
+      });
+
+      // Cleanup
+      if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+
+      // 8. Send Email Notification
+      try {
+          const User = require('../models/User');
+          const studentUser = await User.findOne({ walletAddress: row.studentWalletAddress.toLowerCase() });
+          
+          if (studentUser && studentUser.email) {
+              const instituteLogo = req.user.instituteDetails?.branding?.logo || 
+                                   (req.user.instituteDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.instituteDetails.branding.logoCID}` : null);
+
+              const emailData = {
+                  studentName: row.studentName,
+                  university: req.user.instituteDetails?.institutionName || row.university || 'Attestify',
+                  issueDate: credential.issueDate,
+                  transactionHash: blockchainResult.transactionHash,
+                  id: credential._id,
+                  ipfsCID: ipfsResult.ipfsHash,
+                  certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
+                  loginLink: `${process.env.FRONTEND_URL}/login`,
+                  tokenId: credential.tokenId,
+                  instituteLogo: instituteLogo
+              };
+
+              emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+                  console.error(`Failed to send batch email to ${studentUser.email}:`, err)
+              );
+          }
+      } catch (emailErr) {
+          console.error('Batch email service error:', emailErr);
+      }
+ 
+      return { status: 'success', id: credentialId, tx: blockchainResult.transactionHash };
+
+    } catch (error) {
+       // Cleanup on error
+       if (tempFilePath && fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+       throw error;
+    }
+  };
+
+  // Process serially to manage nonce and memory
+  for (const row of results) {
+    try {
+      const res = await processRow(row);
+      summary.success++;
+      summary.details.push({ ...row, ...res });
+    } catch (err) {
+      summary.failed++;
+      summary.details.push({ ...row, status: 'failed', error: err.message });
+      console.error('Batch row failed:', err);
+    }
+  }
+
+  // Cleanup CSV
+  if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+
+  res.json({ success: true, summary });
 };
 
 // Get all credentials
@@ -679,6 +1066,17 @@ exports.revokeCredential = async (req, res) => {
       credential._id.toString()
     );
 
+    // Revoke SBT if exists
+    if (credential.tokenId) {
+        try {
+            await blockchainService.revokeSoulboundCredential(credential.tokenId);
+            console.log('SBT Revoked:', credential.tokenId);
+        } catch (sbtError) {
+            console.error('Failed to revoke SBT:', sbtError);
+            // Continue revocation flow as struct revocation succeeded
+        }
+    }
+
     // Update database
     credential.isRevoked = true;
     credential.revokedAt = new Date();
@@ -756,13 +1154,28 @@ exports.getStats = async (req, res) => {
       .select('studentName university createdAt')
       .lean();
 
+    // Get wallet balance
+    const walletAddress = req.user.instituteDetails?.authorizedWalletAddress || req.user.walletAddress;
+    let gasBalance = '0.00';
+    
+    if (walletAddress) {
+        try {
+            gasBalance = await blockchainService.getBalance(walletAddress);
+            // Format to 4 decimal places
+            gasBalance = parseFloat(gasBalance).toFixed(4);
+        } catch (e) {
+            console.warn('Failed to fetch balance:', e);
+        }
+    }
+
     res.json({
       success: true,
       stats: {
         total,
         active,
         revoked,
-        thisMonth
+        thisMonth,
+        gasBalance
       },
       recent
     });

@@ -5,7 +5,7 @@ import Layout from './components/layout/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import AdminDashboard from './pages/AdminDashboard';
+import InstituteDashboard from './pages/InstituteDashboard';
 import Credentials from './pages/Credentials'; // Import Credentials page
 import StudentDashboard from './pages/StudentDashboard';
 import StudentCredentials from './pages/StudentCredentials';
@@ -37,7 +37,7 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              {user?.role === 'STUDENT' ? <Navigate to="/student-dashboard" /> : <Navigate to="/admin-dashboard" />}
+              {user?.role === 'STUDENT' ? <Navigate to="/student-dashboard" /> : <Navigate to="/institute-dashboard" />}
             </PrivateRoute>
           }
         />
@@ -61,10 +61,10 @@ function App() {
         />
 
         <Route
-          path="/admin-dashboard"
+          path="/institute-dashboard"
           element={
             <PrivateRoute allowedRoles={['INSTITUTE']}>
-              <AdminDashboard />
+              <InstituteDashboard />
             </PrivateRoute>
           }
         />

@@ -9,6 +9,10 @@ router.post('/issue', authenticate, requireAdmin, upload.fields([
   { name: 'studentImage', maxCount: 1 }
 ]), credentialController.issueCredential);
 
+router.post('/batch-issue', authenticate, requireAdmin, upload.fields([
+  { name: 'file', maxCount: 1 }
+]), credentialController.batchIssueCredentials);
+
 router.get('/', authenticate, requireAdmin, credentialController.getCredentials);
 
 router.get('/stats', authenticate, requireAdmin, credentialController.getStats);

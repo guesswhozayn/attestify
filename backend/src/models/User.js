@@ -66,9 +66,12 @@ const userSchema = new mongoose.Schema({
     authorizedWalletAddress: { type: String, trim: true },
     officialEmailDomain: { type: String, trim: true },
     branding: {
-      logoCID: String,
-      sealCID: String,
-      signatureCID: String
+      logo: String,      // Local path or URL
+      seal: String,      // Local path or URL
+      signature: String, // Local path or URL
+      logoCID: String,   // Legacy IPFS CID
+      sealCID: String,   // Legacy IPFS CID
+      signatureCID: String // Legacy IPFS CID
     },
     operationalMetrics: {
       lastActive: Date,

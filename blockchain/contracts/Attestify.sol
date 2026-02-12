@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title Attestify
- * @dev Academic credential verification contract
+ * @dev Academic credential verification contract with Soulbound Token (SBT) functionality
  */
-contract Attestify is Ownable, ReentrancyGuard {
+contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
     
+    uint256 private _nextTokenId;
+
     struct Credential {
         string studentId;
         bytes32 certificateHash;
@@ -41,6 +44,10 @@ contract Attestify is Ownable, ReentrancyGuard {
     
     event IssuerAuthorized(address indexed issuer, uint256 timestamp);
     event IssuerRevoked(address indexed issuer, uint256 timestamp);
+
+    // Soulbound Events
+    event SoulboundMinted(address indexed to, uint256 indexed tokenId, string uri);
+    event SoulboundRevoked(uint256 indexed tokenId);
     
     // Modifiers
     modifier onlyAuthorized() {
@@ -56,12 +63,13 @@ contract Attestify is Ownable, ReentrancyGuard {
         _;
     }
     
-    constructor() Ownable(msg.sender) {
+    // Constructor initializes ERC721 with name and symbol
+    constructor() ERC721("Attestify Credential", "ATTEST") Ownable(msg.sender) {
         authorizedIssuers[msg.sender] = true;
     }
     
     /**
-     * @dev Issue a new credential
+     * @dev Issue a new credential (Legacy Structure)
      * @param _studentId Unique student identifier
      * @param _certificateHash SHA-256 hash of the certificate
      * @param _ipfsCID IPFS Content Identifier
@@ -96,7 +104,22 @@ contract Attestify is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Revoke a credential
+     * @dev Mint a Soulbound Token credential
+     * @param to Student wallet address
+     * @param uri IPFS metadata URI
+     * @return tokenId The ID of the minted token
+     */
+    function safeMint(address to, string memory uri) public onlyAuthorized returns (uint256) {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+        
+        emit SoulboundMinted(to, tokenId, uri);
+        return tokenId;
+    }
+
+    /**
+     * @dev Revoke a credential (Legacy Structure)
      * @param _studentId Student identifier
      */
     function revokeCertificate(string memory _studentId) 
@@ -111,7 +134,33 @@ contract Attestify is Ownable, ReentrancyGuard {
         
         emit CredentialRevoked(_studentId, block.timestamp, msg.sender);
     }
+
+    /**
+     * @dev Revoke (Burn) a Soulbound Token
+     * @param tokenId The ID of the token to burn
+     */
+    function revokeToken(uint256 tokenId) public onlyAuthorized {
+        _burn(tokenId);
+        emit SoulboundRevoked(tokenId);
+    }
     
+    /**
+     * @dev Override transfer functions to make token Soulbound (non-transferable)
+     * Only allow transfers if it's minting (from=0) or burning (to=0)
+     */
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        address from = _ownerOf(tokenId);
+        
+        // Allow minting (from == 0) and burning (to == 0)
+        // Disallow transfers between users
+        if (from != address(0) && to != address(0)) {
+            revert("Soulbound: Transfer not allowed");
+        }
+        
+        return super._update(to, tokenId, auth);
+    }
+
+
     /**
      * @dev Get credential details
      * @param _studentId Student identifier

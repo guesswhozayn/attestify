@@ -1,7 +1,7 @@
 export const ROLES = {
   SUPER_ADMIN: 'super_admin',
-  ADMIN: 'admin',
-  STUDENT: 'student',
+  INSTITUTE: 'INSTITUTE',
+  STUDENT: 'STUDENT',
 };
 
 export const NOTIFICATION_TYPES = {

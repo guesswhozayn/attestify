@@ -50,6 +50,39 @@ class IPFSService {
     }
   }
 
+  async uploadJSON(data, name) {
+    try {
+      const response = await axios.post('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+        pinataContent: data,
+        pinataMetadata: {
+          name: name || 'metadata.json',
+          keyvalues: {
+            uploadedBy: 'attestify',
+            timestamp: Date.now().toString()
+          }
+        },
+        pinataOptions: {
+          cidVersion: 1
+        }
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'pinata_api_key': this.pinataApiKey,
+          'pinata_secret_api_key': this.pinataSecretKey
+        }
+      });
+
+      return {
+        ipfsHash: response.data.IpfsHash,
+        pinSize: response.data.PinSize,
+        timestamp: response.data.Timestamp
+      };
+    } catch (error) {
+      console.error('IPFS JSON upload error:', error.response?.data || error.message);
+      throw new Error(`IPFS JSON upload failed: ${error.message}`);
+    }
+  }
+
   async unpinFile(ipfsHash) {
     try {
       await axios.delete(

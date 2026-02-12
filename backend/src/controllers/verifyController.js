@@ -220,16 +220,9 @@ exports.verifyByHash = async (req, res) => {
     // 1. Try to find by ID
     if (isObjectId) {
          credential = await Credential.findById(studentWalletAddress).populate('issuedBy', 'name university email');
-         // Verify hash matches
-         if (credential && credential.certificateHash !== hash) {
-             // Hash mismatch for this specific ID - strictly fail or let it flow to "Not found"?
-             // If we found the credential but hash is wrong, it's definitely invalid for this specific cert.
-             // But existing logic returns generic match/no-match at end.
-             // Let's rely on standard flow.
-         }
     }
 
-    // 2. Fallback: Find by Wallet + Hash
+    // 2. Fallback: Find by Wallet + Hash (only if not found by ID)
     if (!credential) {
          credential = await Credential.findOne({ 
            studentWalletAddress: studentWalletAddress.toLowerCase(),
@@ -243,6 +236,16 @@ exports.verifyByHash = async (req, res) => {
         exists: false,
         message: 'No matching credential found for this ID/Wallet and Hash'
       });
+    }
+
+    // CRITICAL FIX: Check Hash Mismatch BEFORE Revocation
+    // If the provided file hash does not match the stored credential hash, it is NOT this credential (or it is tampered).
+    if (credential.certificateHash !== hash) {
+        return res.json({
+            valid: false,
+            exists: true, // Credential exists, but file is wrong
+            message: 'Certificate hash does not match. The file provided does not correspond to this credential ID.'
+        });
     }
 
     // Check revocation status

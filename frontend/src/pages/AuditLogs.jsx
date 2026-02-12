@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import { FileText, Activity, Clock, Filter, Search, Zap, Coins } from 'lucide-react';
 import { auditAPI } from '../services/api';
-import AuditLogTable from '../components/admin/AuditLogTable';
+import InstituteLogTable from '../components/institute/InstituteLogTable';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const AuditLogs = () => {
@@ -12,8 +12,12 @@ const AuditLogs = () => {
   const [period, setPeriod] = useState('month');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isMounted = React.useRef(true);
+
   useEffect(() => {
+    isMounted.current = true;
     fetchData();
+    return () => { isMounted.current = false; };
   }, [period]);
 
   const fetchData = async () => {
@@ -21,7 +25,9 @@ const AuditLogs = () => {
       setLoading(true);
       // Get Stats
       const statsResponse = await auditAPI.getDashboardStats({ period });
-      setStats(statsResponse.data.stats);
+      if (isMounted.current) {
+         setStats(statsResponse.data.stats);
+      }
       
       // Get Recent Logs (Filter for only Issuance and Revocation events)
       const logsResponse = auditAPI.getLogs 
@@ -31,12 +37,19 @@ const AuditLogs = () => {
             search: searchQuery // Pass search query to API
           }) 
         : { data: { logs: [] } };
-      setLogs(logsResponse.data.logs || []);
+      
+      if (isMounted.current) {
+         setLogs(logsResponse.data.logs || []);
+      }
 
     } catch (error) {
-      console.error('Failed to fetch audit data', error);
+       if (isMounted.current) {
+           console.error('Failed to fetch audit data', error);
+       }
     } finally {
-      setLoading(false);
+       if (isMounted.current) {
+           setLoading(false);
+       }
     }
   };
 
@@ -135,7 +148,7 @@ const AuditLogs = () => {
            </div>
            
            <div className="p-0">
-              <AuditLogTable logs={logs} loading={loading} />
+              <InstituteLogTable logs={logs} loading={loading} />
            </div>
         </div>
       </main>

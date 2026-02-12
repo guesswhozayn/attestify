@@ -3,21 +3,57 @@ import Header from '../../components/layout/Header';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Edit2, Loader, Trash2 } from 'lucide-react';
-import api, { userAPI } from '../../services/api';
+import api, { userAPI, credentialAPI } from '../../services/api';
 import Button from '../../components/shared/Button';
 
-const AdminProfile = () => {
+const InstituteProfile = () => {
     const { user, updateUser } = useAuth();
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [branding, setBranding] = useState({
+      logo: user?.instituteDetails?.branding?.logo || '',
+      seal: user?.instituteDetails?.branding?.seal || '',
+      signature: user?.instituteDetails?.branding?.signature || '',
       logoCID: user?.instituteDetails?.branding?.logoCID || '',
       sealCID: user?.instituteDetails?.branding?.sealCID || '',
       signatureCID: user?.instituteDetails?.branding?.signatureCID || ''
     });
   
-    const [gasBalance, setGasBalance] = useState('0.00');
+    const [stats, setStats] = useState({
+        total: 0,
+        gasBalance: '0.00',
+        active: 0,
+        revoked: 0
+    });
+
+    const isMounted = React.useRef(true);
+
+    useEffect(() => {
+        isMounted.current = true;
+        const fetchStats = async () => {
+            try {
+                if (user?.role === 'INSTITUTE') {
+                   const response = await credentialAPI.getStats();
+                   if (isMounted.current && response.data.success) {
+                       setStats({
+                           total: response.data.stats.total,
+                           gasBalance: response.data.stats.gasBalance || '0.00',
+                           active: response.data.stats.active,
+                           revoked: response.data.stats.revoked
+                       });
+                   }
+                }
+            } catch (error) {
+                if (isMounted.current) {
+                    console.error('Failed to fetch dashboard stats:', error);
+                }
+            }
+        };
+
+        fetchStats();
+        return () => { isMounted.current = false; };
+    }, [user]);
   
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
@@ -45,12 +81,6 @@ const AdminProfile = () => {
             setUploading(false);
         }
     };
-
-    useEffect(() => {
-      if (user?.role === 'INSTITUTE' && user?.instituteDetails?.authorizedWalletAddress) {
-          setGasBalance('0.45'); // Mock for now - replace with actual web3 call if available
-      }
-    }, [user]);
   
     const handleFileUpload = async (e, type) => {
       const file = e.target.files[0];
@@ -70,9 +100,12 @@ const AdminProfile = () => {
         
         if (response.data.success) {
           updateUser(response.data.user);
-          // Update local state to reflect new CIDs immediately
+          // Update local state to reflect new assets immediately
           const newBranding = response.data.user.instituteDetails?.branding || {};
           setBranding({
+              logo: newBranding.logo || '',
+              seal: newBranding.seal || '',
+              signature: newBranding.signature || '',
               logoCID: newBranding.logoCID || '',
               sealCID: newBranding.sealCID || '',
               signatureCID: newBranding.signatureCID || ''
@@ -101,6 +134,9 @@ const AdminProfile = () => {
                 // Update local state
                 const newBranding = response.data.user.instituteDetails?.branding || {};
                 setBranding({
+                    logo: newBranding.logo || '',
+                    seal: newBranding.seal || '',
+                    signature: newBranding.signature || '',
                     logoCID: newBranding.logoCID || '',
                     sealCID: newBranding.sealCID || '',
                     signatureCID: newBranding.signatureCID || ''
@@ -198,7 +234,7 @@ const AdminProfile = () => {
                                   </div>
                                   <div>
                                       <p className="text-sm text-gray-400">Gas Balance</p>
-                                      <p className="font-semibold text-white">{gasBalance} ETH</p>
+                                      <p className="font-semibold text-white">{stats.gasBalance} ETH</p>
                                   </div>
                               </div>
                           </div>
@@ -209,7 +245,7 @@ const AdminProfile = () => {
                                   </div>
                                   <div>
                                       <p className="text-sm text-gray-400">Total Issued</p>
-                                      <p className="font-semibold text-white">142</p>
+                                      <p className="font-semibold text-white">{stats.total}</p>
                                   </div>
                               </div>
                           </div>
@@ -270,8 +306,8 @@ const AdminProfile = () => {
                               title="Institute Logo"
                               description="Used on certificate header"
                               type="logo"
-                              cid={branding.logoCID}
-                              onUpload={(e) => handleFileUpload(e, 'logoCID')}
+                              value={branding.logo || branding.logoCID}
+                              onUpload={(e) => handleFileUpload(e, 'logoCID')} 
                               onRemove={() => handleFileRemove('logoCID')}
                           />
   
@@ -280,7 +316,7 @@ const AdminProfile = () => {
                               title="Official Seal"
                               description="Watermark validation"
                               type="seal"
-                              cid={branding.sealCID}
+                              value={branding.seal || branding.sealCID}
                               onUpload={(e) => handleFileUpload(e, 'sealCID')}
                               onRemove={() => handleFileRemove('sealCID')}
                           />
@@ -290,7 +326,7 @@ const AdminProfile = () => {
                               title="Authorized Signature"
                               description="Signatory verification"
                               type="signature"
-                              cid={branding.signatureCID}
+                              value={branding.signature || branding.signatureCID}
                               onUpload={(e) => handleFileUpload(e, 'signatureCID')}
                               onRemove={() => handleFileRemove('signatureCID')}
                               className="md:col-span-2"
@@ -304,7 +340,21 @@ const AdminProfile = () => {
     );
 };
 
-const AssetUploader = ({ title, description, type, cid, onUpload, onRemove, className = "" }) => {
+const AssetUploader = ({ title, description, type, value, onUpload, onRemove, className = "" }) => {
+    // Determine image source
+    let imgSrc = null;
+    let isIPFS = false;
+    
+    if (value) {
+        if (value.startsWith('http')) {
+            imgSrc = value;
+        } else {
+            // Assume CID
+            imgSrc = `https://gateway.pinata.cloud/ipfs/${value}`;
+            isIPFS = true;
+        }
+    }
+
     return (
         <div className={`bg-gray-800/30 border border-gray-700/50 rounded-xl p-5 hover:border-indigo-500/30 transition-all duration-300 group ${className}`}>
             <div className="flex items-start justify-between mb-4">
@@ -312,7 +362,7 @@ const AssetUploader = ({ title, description, type, cid, onUpload, onRemove, clas
                    <h4 className="font-semibold text-white">{title}</h4>
                    <p className="text-xs text-gray-400 mt-1">{description}</p>
                 </div>
-                {cid && (
+                {value && (
                     <div className="flex items-center gap-2">
                          <div className="p-1 bg-green-500/10 rounded-full text-green-400">
                             <FileCheck className="w-4 h-4" />
@@ -329,21 +379,23 @@ const AssetUploader = ({ title, description, type, cid, onUpload, onRemove, clas
             </div>
 
             <div className="relative overflow-hidden rounded-lg bg-gray-900/50 border-2 border-dashed border-gray-700 group-hover:border-indigo-500/50 transition-colors h-40 flex items-center justify-center">
-                {cid ? (
+                {imgSrc ? (
                     <div className="text-center p-4 w-full relative group/preview">
                         <div className="w-full h-32 flex items-center justify-center mb-1">
                              <img 
-                                src={`https://gateway.pinata.cloud/ipfs/${cid}`} 
+                                src={imgSrc} 
                                 alt={title} 
                                 className="max-w-full max-h-full object-contain"
                              />
                         </div>
                          
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
-                             <p className="text-xs font-mono text-gray-300 bg-black/50 px-2 py-1 rounded">
-                                CID: {cid.substring(0, 8)}...
-                             </p>
-                        </div>
+                        {isIPFS && (
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
+                                <p className="text-xs font-mono text-gray-300 bg-black/50 px-2 py-1 rounded">
+                                    CID: {value.substring(0, 8)}...
+                                </p>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="text-center p-4">
@@ -358,11 +410,11 @@ const AssetUploader = ({ title, description, type, cid, onUpload, onRemove, clas
                     type="file" 
                     className="absolute inset-0 opacity-0 cursor-pointer z-10" 
                     onChange={onUpload}
-                    disabled={!!cid} // Disable input if CID matches, user must remove first
+                    disabled={!!value} // Disable input if value matches, user must remove first
                 />
             </div>
         </div>
     )
 }
 
-export default AdminProfile;
+export default InstituteProfile;

@@ -16,6 +16,7 @@ const VerificationPortal = () => {
   const [result, setResult] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scanError, setScanError] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
   const fileInputRef = useRef(null);
   
   const location = useLocation();
@@ -77,7 +78,7 @@ const VerificationPortal = () => {
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type === 'application/pdf') {
+    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.name.endsWith('.pdf'))) {
       setFile(selectedFile);
       
       // Auto-extract Student ID from metadata
@@ -102,6 +103,7 @@ const VerificationPortal = () => {
         valid: false,
         message: 'Please enter the Wallet Address associated with this certificate.'
       });
+      setShowResultModal(true);
       return;
     }
 
@@ -109,22 +111,26 @@ const VerificationPortal = () => {
     setResult(null);
 
     try {
+      let response;
       if (file && walletAddress) {
         // Generate hash locally
         const fileHash = await generateFileHash(file);
         
-        // Verify by hash (no file upload)
-        const response = await verifyAPI.verifyByHash(walletAddress, fileHash);
-        setResult(response.data);
+        // Verify by hash (no file upload) - Check if we should use verifyWithFile or verifyByHash
+        // Using verifyByHash saves bandwidth if we hash locally
+        response = await verifyAPI.verifyByHash(walletAddress, fileHash);
       } else if (walletAddress) {
-        const response = await verifyAPI.checkExists(walletAddress);
-        setResult(response.data);
+        response = await verifyAPI.checkExists(walletAddress);
       }
+      
+      setResult(response.data);
+      setShowResultModal(true);
     } catch (error) {
       setResult({
         valid: false,
         message: 'Verification failed. Please try again.',
       });
+      setShowResultModal(true);
     } finally {
       setVerifying(false);
     }
@@ -266,83 +272,132 @@ const VerificationPortal = () => {
           </div>
         </div>
 
-        {/* Results Section */}
-        {result && (
-          <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className={`rounded-3xl border overflow-hidden ${
-              result.valid 
-                ? 'bg-emerald-950/10 border-emerald-500/30' 
-                : 'bg-red-950/10 border-red-500/30'
-            }`}>
-              
-              {/* Result Header */}
-              <div className={`p-6 flex items-center gap-4 border-b ${
-                 result.valid ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'
-              }`}>
-                <div className={`p-3 rounded-full ${
-                  result.valid ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+        {/* Verification Result Modal */}
+        <Modal
+            isOpen={showResultModal}
+            onClose={() => setShowResultModal(false)}
+            title="Verification Result"
+            size="lg"
+        >
+            {result && (
+              <div className="space-y-6">
+                {/* Result Header */}
+                <div className={`p-6 rounded-2xl flex items-center gap-4 ${
+                   result.valid 
+                     ? 'bg-emerald-500/10 border border-emerald-500/20' 
+                     : result.revoked 
+                        ? 'bg-yellow-500/10 border border-yellow-500/20'
+                        : 'bg-red-500/10 border border-red-500/20'
                 }`}>
-                  {result.valid ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
-                </div>
-                <div>
-                  <h3 className={`text-xl font-bold ${result.valid ? 'text-white' : 'text-red-200'}`}>
-                    {result.valid ? 'Certificate Verified' : 'Verification Failed'}
-                  </h3>
-                  <p className={`text-sm ${result.valid ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {result.message}
-                  </p>
-                </div>
-              </div>
-
-              {/* Result Details */}
-              {result.valid && result.credential && (
-                <div className="p-6 md:p-8 bg-gray-900/40 backdrop-blur-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Recipient</label>
-                        <p className="text-lg text-white font-medium mt-1">{result.credential.studentName}</p>
-                     </div>
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Issued By</label>
-                        <p className="text-lg text-white font-medium mt-1">{result.credential.university}</p>
-                     </div>
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Wallet Address</label>
-                        <p className="text-base text-gray-300 font-mono mt-1 bg-gray-950/50 w-fit px-2 py-1 rounded border border-gray-800">
-                          {result.credential.studentWalletAddress.substring(0, 10)}...
-                        </p>
-                     </div>
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Issue Date</label>
-                        <p className="text-base text-gray-300 mt-1">
-                          {new Date(result.credential.issueDate).toLocaleDateString(undefined, {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
-                     </div>
-                     <div className="md:col-span-2 pt-4 border-t border-gray-800">
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold flex items-center gap-2 mb-2">
-                           <CheckCircle className="w-3 h-3 text-emerald-500" />
-                           Blockchain Transaction Hash
-                        </label>
-                        <a 
-                          href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-mono text-xs text-indigo-400 hover:text-indigo-300 hover:underline break-all bg-indigo-950/30 p-3 rounded-lg border border-indigo-500/20 block transition-colors"
-                        >
-                          {result.credential.transactionHash}
-                          <ExternalLink className="w-3 h-3 inline ml-1.5 -mt-0.5" />
-                        </a>
-                     </div>
+                  <div className={`p-3 rounded-full flex-shrink-0 ${
+                    result.valid 
+                      ? 'bg-emerald-500 text-white' 
+                      : result.revoked
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-red-500 text-white'
+                  }`}>
+                    {result.valid ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+                  </div>
+                  <div>
+                    <h3 className={`text-xl font-bold ${
+                        result.valid ? 'text-white' : result.revoked ? 'text-yellow-200' : 'text-red-200'
+                    }`}>
+                      {result.valid 
+                        ? 'Certificate Verified' 
+                        : result.revoked 
+                            ? 'Certificate Revoked' 
+                            : 'Verification Failed'}
+                    </h3>
+                    <p className={`text-sm ${
+                        result.valid ? 'text-emerald-400' : result.revoked ? 'text-yellow-400' : 'text-red-400'
+                    }`}>
+                      {result.message}
+                    </p>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
+
+                {/* Revocation Details */}
+                {result.revoked && result.credential && (
+                    <div className="p-4 bg-red-900/20 border border-red-900/50 rounded-xl space-y-2">
+                        <h4 className="text-red-400 font-semibold flex items-center gap-2">
+                             <ShieldAlert className="w-4 h-4" />
+                             Revocation Information
+                        </h4>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                             <div>
+                                 <span className="text-gray-500 block">Revoked On</span>
+                                 <span className="text-gray-300">
+                                     {result.credential.revokedAt ? new Date(result.credential.revokedAt).toLocaleDateString() : 'Unknown'}
+                                 </span>
+                             </div>
+                             <div>
+                                 <span className="text-gray-500 block">Reason</span>
+                                 <span className="text-gray-300">{result.credential.revocationReason || 'No reason provided'}</span>
+                             </div>
+                         </div>
+                    </div>
+                )}
+
+                {/* Credential Details */}
+                {result.credential && (
+                  <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                       <div>
+                          <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Recipient</label>
+                          <p className="text-lg text-white font-medium">{result.credential.studentName}</p>
+                       </div>
+                       <div>
+                          <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Issued By</label>
+                          <p className="text-lg text-white font-medium">{result.credential.university}</p>
+                       </div>
+                       <div>
+                          <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Wallet / ID</label>
+                          <p className="text-sm text-gray-300 font-mono break-all leading-tight">
+                            {result.credential.studentWalletAddress}
+                          </p>
+                       </div>
+                       <div>
+                          <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Issue Date</label>
+                          <p className="text-base text-gray-300">
+                            {result.credential.issueDate ? new Date(result.credential.issueDate).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            }) : 'N/A'}
+                          </p>
+                       </div>
+                    </div>
+                    
+                    {result.credential.transactionHash && (
+                        <div className="pt-4 border-t border-gray-600/50">
+                           <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold flex items-center gap-2 mb-2">
+                              Blockchain Record
+                           </label>
+                           <a 
+                             href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
+                             target="_blank"
+                             rel="noreferrer"
+                             className="flex items-center justify-between font-mono text-xs text-indigo-400 hover:text-indigo-300 hover:bg-gray-700/50 p-3 rounded-lg border border-gray-700 transition-colors group"
+                           >
+                             <span className="truncate mr-2">{result.credential.transactionHash}</span>
+                             <ExternalLink className="w-4 h-4 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
+                           </a>
+                        </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="flex justify-end pt-2">
+                    <button 
+                        onClick={() => setShowResultModal(false)}
+                        className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium border border-gray-700"
+                    >
+                        Close
+                    </button>
+                </div>
+              </div>
+            )}
+        </Modal>
 
       </div>
 

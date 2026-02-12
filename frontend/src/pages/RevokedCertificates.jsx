@@ -10,20 +10,30 @@ const RevokedCertificates = () => {
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const isMounted = React.useRef(true);
+
   useEffect(() => {
+    isMounted.current = true;
     fetchRevokedCertificates();
+    return () => { isMounted.current = false; };
   }, []);
 
   const fetchRevokedCertificates = async () => {
     try {
+      setLoading(true);
       const response = await credentialAPI.getAll({ revoked: true });
-      // Filter client-side just in case or use API filter if robust
-      const revoked = response.data.credentials?.filter(c => c.isRevoked) || [];
-      setCertificates(revoked);
+      if (isMounted.current) {
+          const revoked = response.data.credentials?.filter(c => c.isRevoked) || [];
+          setCertificates(revoked);
+      }
     } catch (error) {
-      console.error('Failed to fetch revoked certificates', error);
+      if (isMounted.current) {
+          console.error('Failed to fetch revoked certificates', error);
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+          setLoading(false);
+      }
     }
   };
 

@@ -1,23 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Search, Check, Info, AlertTriangle, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { notificationAPI } from '../../services/api';
 import { formatDistanceToNow } from 'date-fns';
 
 const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Search...", rightContent }) => {
   const { user } = useAuth();
+  const { unreadCount, refreshUnreadCount, setUnreadCount } = useNotification(); // Use context
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    fetchUnreadCount();
-    // Poll for notifications every minute
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Removed local polling useEffect
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -28,14 +24,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchUnreadCount = async () => {
-    try {
-      const res = await notificationAPI.getUnreadCount();
-      setUnreadCount(res.data.count);
-    } catch (error) {
-      console.error('Failed to fetch unread count', error);
-    }
-  };
+  // Removed fetchUnreadCount definition
 
   const fetchNotifications = async () => {
     try {
@@ -57,7 +46,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
     try {
       await notificationAPI.markAsRead([id]);
       setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      refreshUnreadCount();
     } catch (error) {
       console.error('Failed to mark as read', error);
     }
@@ -67,7 +56,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
     try {
       await notificationAPI.markAsRead(); // Empty array implies all
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      setUnreadCount(0);
+      refreshUnreadCount();
     } catch (error) {
       console.error('Failed to mark all as read', error);
     }
@@ -93,7 +82,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
           </h1>
           {user?.role === 'INSTITUTE' && (
              <p className="text-indigo-400/80 text-xs font-semibold tracking-wide uppercase mt-0.5">
-               {user?.instituteDetails?.institutionName || user?.name} Admin Portal
+               {user?.instituteDetails?.institutionName || user?.name} Institute Portal
              </p>
           )}
           {user?.role === 'STUDENT' && (
@@ -208,7 +197,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             <div className="text-right hidden sm:block">
               <div className="text-white text-sm font-medium leading-none">{user?.name}</div>
               <div className="text-gray-500 text-xs mt-1 leading-none">
-                {user?.title || (user?.role === 'INSTITUTE' ? 'Administrator' : 'Student')}
+                {user?.title || (user?.role === 'INSTITUTE' ? 'Institute' : 'Student')}
               </div>
             </div>
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] rounded-xl shadow-lg shadow-purple-900/20">

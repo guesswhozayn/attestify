@@ -23,10 +23,20 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
+  } else if (file.mimetype === 'text/csv' || 
+             file.mimetype === 'application/csv' || 
+             file.mimetype === 'text/x-csv' || 
+             file.mimetype === 'application/vnd.ms-excel' ||
+             ext === '.csv') {
+    cb(null, true);
+  } else if (file.mimetype === 'application/pdf' || ext === '.pdf') {
+    cb(null, true);
   } else {
-    cb(new Error('Not an image! Please upload an image.'), false);
+    cb(new Error('Invalid file type! Please upload an image, CSV or PDF file.'), false);
   }
 };
 

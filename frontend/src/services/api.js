@@ -152,7 +152,7 @@ export const credentialAPI = {
 
   // Batch upload
   batchUpload: async (formData) => {
-    return api.post('/credentials/batch', formData, {
+    return api.post('/credentials/batch-issue', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },

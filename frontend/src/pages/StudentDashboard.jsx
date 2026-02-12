@@ -17,22 +17,30 @@ const StudentDashboard = () => {
   const [error, setError] = useState('');
   const [walletAddress, setWalletAddress] = useState(null);
 
+  const isMounted = React.useRef(true);
+
   useEffect(() => {
+    isMounted.current = true;
     const init = async () => {
         try {
            const address = await blockchainService.connectWallet(); 
-           setWalletAddress(address);
-           if (address) {
-             fetchCredential(address);
-           } else {
-             setLoading(false);
+           if (isMounted.current) {
+               setWalletAddress(address);
+               if (address) {
+                 fetchCredential(address);
+               } else {
+                 setLoading(false);
+               }
            }
         } catch (e) {
            console.log("Wallet not auto-connected", e);
-           setLoading(false);
+           if (isMounted.current) {
+               setLoading(false);
+           }
         }
     };
     init();
+    return () => { isMounted.current = false; };
   }, []);
 
   const fetchCredential = async (address) => {
@@ -50,6 +58,8 @@ const StudentDashboard = () => {
       // Get from Backend
       try {
         const response = await credentialAPI.getByWalletAddress(targetAddress);
+        if (!isMounted.current) return;
+
         const credentials = response.data.credentials;
         
         if (credentials && credentials.length > 0) {
@@ -66,6 +76,7 @@ const StudentDashboard = () => {
         }
 
       } catch (apiError) {
+        if (!isMounted.current) return;
         if (apiError.response && apiError.response.status === 404) {
             setCredential(null);
         } else {
@@ -74,10 +85,14 @@ const StudentDashboard = () => {
       }
 
     } catch (err) {
-      console.error('Error fetching credential:', err);
-      setError('Failed to load your credential. ' + (err.message || ''));
+      if (isMounted.current) {
+          console.error('Error fetching credential:', err);
+          setError('Failed to load your credential. ' + (err.message || ''));
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+          setLoading(false);
+      }
     }
   };
 

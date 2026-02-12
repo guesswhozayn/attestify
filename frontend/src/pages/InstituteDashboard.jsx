@@ -11,7 +11,7 @@ import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const AdminDashboard = () => {
+const InstituteDashboard = () => {
     const [certificates, setCertificates] = useState([]);
     const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0 });
     const [selectedCertificate, setSelectedCertificate] = useState(null);
@@ -21,8 +21,14 @@ const AdminDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    const isMounted = React.useRef(true);
+    
     useEffect(() => {
+        isMounted.current = true;
         fetchData();
+        return () => {
+             isMounted.current = false;
+        };
     }, []);
 
     const fetchData = async () => {
@@ -34,6 +40,8 @@ const AdminDashboard = () => {
                  credentialAPI.getAll({ limit: 3 })
             ]);
 
+            if (!isMounted.current) return;
+
             // If we had a dedicated stats endpoint we would use it, but here we can calculate or use pagination data
             const totalDocs = allResponse.data.pagination?.total || 0;
             const recentDocs = recentResponse.data.credentials || [];
@@ -44,21 +52,34 @@ const AdminDashboard = () => {
             // Let's use the stats endpoint we built earlier!
             try {
                 const statsResponse = await credentialAPI.getStats();
-                setStats(statsResponse.data.stats);
+                if (isMounted.current) {
+                    setStats(statsResponse.data.stats);
+                }
             } catch (e) {
                 // Fallback if stats fail
-                setStats({ 
-                    total: totalDocs, 
-                    active: totalDocs, // Approximation
-                    revoked: 0 
-                });
+                if (isMounted.current) {
+                    setStats({ 
+                        total: totalDocs, 
+                        active: totalDocs, // Approximation
+                        revoked: 0 
+                    });
+                }
             }
 
-            setCertificates(recentDocs);
+            if (isMounted.current) {
+                setCertificates(recentDocs);
+            }
         } catch (error) {
-            showNotification('Failed to fetch dashboard data', 'error');
+            if (isMounted.current) {
+                // Don't show error if we are logging out (401 handled by interceptor essentially, but being explicit helps)
+                if (error.response?.status !== 401) {
+                    showNotification('Failed to fetch dashboard data', 'error');
+                }
+            }
         } finally {
-            setLoading(false);
+            if (isMounted.current) {
+                setLoading(false);
+            }
         }
     };
 
@@ -84,10 +105,10 @@ const AdminDashboard = () => {
                         <div className="space-y-4">
                             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium uppercase tracking-wider">
                                 <Shield className="w-3 h-3" />
-                                <span>Admin Access</span>
+                                <span>Institute Access</span>
                             </div>
                             <h1 className="text-4xl font-bold text-white tracking-tight">
-                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{user?.instituteDetails?.institutionName || user?.name || 'Administrator'}</span>
+                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{user?.instituteDetails?.institutionName || user?.name || 'Institute'}</span>
                             </h1>
                             <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
                                 Manage and issue secure blockchain credentials for your students.
@@ -161,7 +182,7 @@ const AdminDashboard = () => {
 
                         <Button 
                             variant="outline" 
-                            className="text-indigo-300 hover:text-indigo-200 border-gray-800 hover:border-gray-700"
+                            className="text-white-300 hover:text-indigo-200 border-gray-800 hover:border-gray-700"
                             onClick={() => navigate('/credentials')}
                         >
                             View All <ArrowRight className="w-4 h-4 ml-2" />
@@ -227,4 +248,4 @@ const AdminDashboard = () => {
     );
 };
 
-export default AdminDashboard;
+export default InstituteDashboard;

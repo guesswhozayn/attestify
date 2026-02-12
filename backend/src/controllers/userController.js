@@ -83,12 +83,16 @@ exports.updateBranding = async (req, res) => {
       if (files[fileKey] && files[fileKey][0]) {
         const file = files[fileKey][0];
         try {
-          // Upload to IPFS
-          const result = await ipfsService.uploadFile(file.path, file.originalname);
-          updateFields[`instituteDetails.branding.${brandingKey}CID`] = result.ipfsHash;
+          // Store local path
+          // const result = await ipfsService.uploadFile(file.path, file.originalname);
+          // updateFields[`instituteDetails.branding.${brandingKey}CID`] = result.ipfsHash;
           
-          // Clean up local file
-          fs.unlinkSync(file.path);
+          // Construct full URL
+          const fileUrl = `${req.protocol}://${req.get('host')}/${file.path}`;
+          updateFields[`instituteDetails.branding.${brandingKey}`] = fileUrl;
+          
+          // We no longer delete the file here since we are using it locally
+          // fs.unlinkSync(file.path);
         } catch (err) {
           console.error(`Failed to process ${fileKey}:`, err);
           // Try to clean up even if failed
@@ -144,22 +148,49 @@ exports.deleteBranding = async (req, res) => {
 
     const currentCID = user.instituteDetails?.branding?.[cidKey];
 
-    if (currentCID) {
+    const brandingPath = user.instituteDetails?.branding?.[brandingKey];
+    const brandingCID = user.instituteDetails?.branding?.[cidKey];
+
+    // Remove local file if exists
+    if (brandingPath) {
+        const fs = require('fs');
+        if (fs.existsSync(brandingPath)) {
+            try {
+                fs.unlinkSync(brandingPath);
+            } catch (err) {
+                console.error('Failed to delete local file:', err);
+            }
+        }
+    }
+
+    // Remove IPFS pin if exists (Legacy)
+    if (brandingCID) {
         const ipfsService = require('../services/ipfsService');
         // Unpin from IPFS
         try {
-            await ipfsService.unpinFile(currentCID);
+            await ipfsService.unpinFile(brandingCID);
         } catch (err) {
             console.error('Failed to unpin file from IPFS:', err);
             // Continue to remove link even if unpin fails
         }
     }
+    
+    // Remove both fields
+    const updatePathLocal = `instituteDetails.branding.${brandingKey}`;
+    const updatePathCID = `instituteDetails.branding.${cidKey}`;
+    
+    const updateQuery = { 
+        $unset: { 
+            [updatePathLocal]: "",
+            [updatePathCID]: "" 
+        } 
+    };
 
     // Remove link from user profile
-    const updatePath = `instituteDetails.branding.${cidKey}`;
+    // const updatePath = `instituteDetails.branding.${cidKey}`;
     const updatedUser = await User.findByIdAndUpdate(
         req.user._id,
-        { $unset: { [updatePath]: "" } },
+        updateQuery,
         { new: true }
     );
 

@@ -204,8 +204,8 @@ export const AuthProvider = ({ children }) => {
     return user.role === role;
   };
 
-  // Check if user is institute (admin)
-  const isAdmin = () => {
+  // Check if user is institute
+  const isInstitute = () => {
     return hasRole('INSTITUTE');
   };
 
@@ -226,7 +226,7 @@ export const AuthProvider = ({ children }) => {
     updateUser,
     refreshUser,
     hasRole,
-    isAdmin,
+    isInstitute,
     isStudent
   };
 

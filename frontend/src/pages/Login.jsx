@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Button from '../components/shared/Button';
-import GoogleLoginButton from '../components/GoogleLoginButton';
+import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -33,7 +33,7 @@ const Login = () => {
       if (selectedRole === 'STUDENT') {
         navigate('/student-dashboard');
       } else {
-        navigate('/admin-dashboard');
+        navigate('/institute-dashboard');
       }
     } else {
       setError(result.error);
@@ -104,7 +104,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-11 pr-4 py-3.5 bg-gray-800/50 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-200"
-                  placeholder={selectedRole === 'INSTITUTE' ? "admin@university.edu" : "student@university.edu"}
+                  placeholder={selectedRole === 'INSTITUTE' ? "institute@university.edu" : "student@university.edu"}
                   required
                 />
               </div>
