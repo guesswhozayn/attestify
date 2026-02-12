@@ -163,6 +163,8 @@ const Settings = () => {
                       onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                       icon={user?.role === 'INSTITUTE' ? Building : User}
                       placeholder={user?.role === 'INSTITUTE' ? "e.g. State University" : "e.g. John Doe"}
+                      readOnly={user?.role === 'INSTITUTE'}
+                      className={user?.role === 'INSTITUTE' ? "opacity-70 cursor-not-allowed" : ""}
                     />
                     <Input
                       label={user?.role === 'INSTITUTE' ? 'Official Email Address' : 'Email Address'}
@@ -177,43 +179,43 @@ const Settings = () => {
                  </div>
               </section>
 
-              {/* Professional / Organization Section */}
-              <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">
-                    {user?.role === 'INSTITUTE' ? 'Organization Profile' : 'Organization Details'}
-                 </h3>
-                 
-                 {user?.role === 'STUDENT' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Input
-                          label="University / Organization"
-                          value={profileData.university}
-                          onChange={(e) => setProfileData({ ...profileData, university: e.target.value })}
-                          icon={Building}
-                          placeholder="e.g. State University of Technology"
-                        />
-                        <Input
-                           label="Professional Title"
-                           value={profileData.title}
-                           onChange={(e) => setProfileData({ ...profileData, title: e.target.value })}
-                           icon={User}
-                           placeholder="e.g. Software Engineer"
-                         />
-                    </div>
-                 )}
+              {/* Professional / Organization Section (Only for Students) */}
+              {user?.role === 'STUDENT' && (
+                <section className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">
+                    Organization Details
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Input
+                      label="University / Organization"
+                      value={profileData.university}
+                      onChange={(e) => setProfileData({ ...profileData, university: e.target.value })}
+                      icon={Building}
+                      placeholder="e.g. State University of Technology"
+                    />
+                    <Input
+                      label="Professional Title"
+                      value={profileData.title}
+                      onChange={(e) => setProfileData({ ...profileData, title: e.target.value })}
+                      icon={User}
+                      placeholder="e.g. Software Engineer"
+                    />
+                  </div>
 
                   <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-1.5 ml-1">
-                        {user?.role === 'INSTITUTE' ? 'About the Institute' : 'About / Bio'}
-                      </label>
-                      <textarea
-                        value={profileData.about}
-                        onChange={(e) => setProfileData({ ...profileData, about: e.target.value })}
-                        className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[100px]"
-                        placeholder={user?.role === 'INSTITUTE' ? "Describe your institution..." : "Share a bit about yourself..."}
-                      />
+                    <label className="block text-sm font-medium text-gray-300 mb-1.5 ml-1">
+                      About / Bio
+                    </label>
+                    <textarea
+                      value={profileData.about}
+                      onChange={(e) => setProfileData({ ...profileData, about: e.target.value })}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[100px]"
+                      placeholder="Share a bit about yourself..."
+                    />
                   </div>
-              </section>
+                </section>
+              )}
 
               {/* Blockchain Section */}
               <section className="space-y-4">
@@ -232,32 +234,26 @@ const Settings = () => {
                               className="w-full bg-gray-900 text-gray-300 px-4 py-3 pl-11 rounded-lg border border-gray-700 font-mono text-sm focus:outline-none cursor-default"
                            />
                         </div>
-                        <Button
-                           onClick={handleConnectWallet}
-                           variant="secondary"
-                           icon={Wallet}
-                           className="whitespace-nowrap w-full md:w-auto justify-center"
-                        >
-                           {profileData.walletAddress ? 'Change Wallet' : 'Connect Wallet'}
-                        </Button>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                       This wallet will be used to sign transactions when issuing or revoking credentials.
+                       This wallet is permanently linked to your account for signing transactions on the blockchain.
                     </p>
                  </div>
               </section>
 
-              <div className="pt-4 flex justify-end">
-                <Button
-                  onClick={handleProfileUpdate}
-                  loading={loading}
-                  size="lg"
-                  icon={Save}
-                  className="w-full md:w-auto shadow-lg shadow-indigo-500/20"
-                >
-                  Save Changes
-                </Button>
-              </div>
+               {user?.role !== 'INSTITUTE' && (
+                <div className="pt-4 flex justify-end">
+                  <Button
+                    onClick={handleProfileUpdate}
+                    loading={loading}
+                    size="lg"
+                    icon={Save}
+                    className="w-full md:w-auto shadow-lg shadow-indigo-500/20"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

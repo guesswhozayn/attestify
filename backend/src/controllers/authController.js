@@ -229,10 +229,9 @@ exports.updateProfile = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Update fields
+    // Update fields (walletAddress is locked)
     if (name) user.name = name;
     if (university) user.university = university;
-    if (walletAddress) user.walletAddress = walletAddress;
     if (title !== undefined) user.title = title;
     if (about !== undefined) user.about = about;
 

@@ -3,12 +3,15 @@ const User = require('../models/User');
 // Update user profile
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, title, instituteDetails } = req.body;
+    const { name, title, university, about, walletAddress, instituteDetails } = req.body;
     
     // Build update object
     const updateFields = {};
     if (name) updateFields.name = name;
     if (title) updateFields.title = title;
+    if (university) updateFields.university = university;
+    if (about) updateFields.about = about;
+    if (walletAddress) updateFields.walletAddress = walletAddress;
     
     // Handle institute details deep merge if needed, or simple replace
     if (instituteDetails) {

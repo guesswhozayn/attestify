@@ -1,6 +1,6 @@
 const Credential = require('../models/Credential');
 const AuditLog = require('../models/AuditLog');
-const Notification = require('../models/Notification'); // Import Notification model
+
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const hashService = require('../services/hashService');
@@ -538,13 +538,7 @@ exports.issueCredential = async (req, res) => {
       }
     });
 
-    // 7. Create Notification
-    await Notification.create({
-        recipient: req.user._id,
-        message: `Credential issued successfully to ${studentName} (${studentWalletAddress})`,
-        type: 'success',
-        relatedId: credential._id
-    });
+
 
     // 8. Send Email Notification
     try {
@@ -1110,13 +1104,6 @@ exports.revokeCredential = async (req, res) => {
       }
     });
 
-    // Create Notification
-    await Notification.create({
-        recipient: req.user._id,
-        message: `Credential revoked: ${credential.studentName} (${credential.studentWalletAddress})`,
-        type: 'warning',
-        relatedId: credential._id
-    });
 
     res.json({
       success: true,

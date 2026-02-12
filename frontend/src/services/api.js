@@ -225,25 +225,6 @@ export const auditAPI = {
   }
 };
 
-// ============================================
-// Notification APIs
-// ============================================
-export const notificationAPI = {
-  // Get all notifications
-  getAll: async (params = {}) => {
-    return api.get('/notifications', { params });
-  },
-
-  // Get unread count
-  getUnreadCount: async () => {
-    return api.get('/notifications/unread-count');
-  },
-
-  // Mark as read
-  markAsRead: async (ids = []) => {
-    return api.put('/notifications/read', { ids });
-  }
-};
 
 // ============================================
 // User APIs

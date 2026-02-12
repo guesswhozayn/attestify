@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet } from 'lucide-react';
 import Button from '../components/shared/Button';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
+import blockchainService from '../services/blockchain';
 
 // Helper component for cleaner inputs
 const FormInput = ({ label, icon: Icon, type = "text", ...props }) => (
@@ -47,6 +48,17 @@ const Register = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleConnectWallet = async (field) => {
+    try {
+      const address = await blockchainService.connectWallet();
+      setFormData(prev => ({ ...prev, [field]: address }));
+      showNotification('Wallet connected successfully!', 'success');
+    } catch (error) {
+      console.error(error);
+      showNotification(error.message || 'Failed to connect wallet', 'error');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -175,15 +187,30 @@ const Register = () => {
                        required
                      />
                    </div>
-                   <FormInput
-                     label="Authorized Wallet Address"
-                     name="authorizedWalletAddress"
-                     value={formData.authorizedWalletAddress}
-                     onChange={handleChange}
-                     placeholder="0x..."
-                     icon={Lock}
-                     required
-                   />
+                   <div className="md:col-span-2 space-y-2">
+                     <div className="flex items-end gap-3">
+                        <div className="flex-1">
+                           <FormInput
+                             label="Authorized Wallet Address"
+                             name="authorizedWalletAddress"
+                             value={formData.authorizedWalletAddress}
+                             onChange={handleChange}
+                             placeholder="0x..."
+                             icon={Lock}
+                             required
+                           />
+                        </div>
+                        <Button
+                           type="button"
+                           variant="secondary"
+                           onClick={() => handleConnectWallet('authorizedWalletAddress')}
+                           icon={Wallet}
+                           className="mb-[1px] h-[50px] whitespace-nowrap"
+                        >
+                           Connect
+                        </Button>
+                     </div>
+                   </div>
                    <FormInput
                      label="Official Email Domain"
                      name="officialEmailDomain"
@@ -205,16 +232,29 @@ const Register = () => {
                      icon={Building}
                      required
                    />
-                   <div className="md:col-span-2">
-                     <FormInput
-                       label="Wallet Address"
-                       name="walletAddress"
-                       value={formData.walletAddress}
-                       onChange={handleChange}
-                       placeholder="0x..."
-                       icon={Lock}
-                       required
-                     />
+                   <div className="md:col-span-2 space-y-2">
+                     <div className="flex items-end gap-3">
+                        <div className="flex-1">
+                          <FormInput
+                            label="Wallet Address"
+                            name="walletAddress"
+                            value={formData.walletAddress}
+                            onChange={handleChange}
+                            placeholder="0x..."
+                            icon={Lock}
+                            required
+                          />
+                        </div>
+                        <Button
+                           type="button"
+                           variant="secondary"
+                           onClick={() => handleConnectWallet('walletAddress')}
+                           icon={Wallet}
+                           className="mb-[1px] h-[50px] whitespace-nowrap"
+                        >
+                           Connect
+                        </Button>
+                     </div>
                    </div>
                  </>
                )}
