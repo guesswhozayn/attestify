@@ -950,8 +950,17 @@ exports.getCredentials = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    // Build query
-    const query = { issuedBy: req.user._id };
+    // Build query based on role
+    const query = {};
+    if (req.user.role === 'INSTITUTE') {
+      query.issuedBy = req.user._id;
+    } else {
+      // For students, only show credentials issued to their wallet
+      if (!req.user.walletAddress) {
+        return res.status(400).json({ error: 'User wallet address not found' });
+      }
+      query.studentWalletAddress = req.user.walletAddress.toLowerCase();
+    }
 
     if (type) {
         query.type = type;
@@ -1126,14 +1135,26 @@ exports.revokeCredential = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const userId = req.user._id;
+    const isInstitute = req.user.role === 'INSTITUTE';
+    
+    // Build query based on role
+    const query = {};
+    if (isInstitute) {
+      query.issuedBy = userId;
+    } else {
+      if (!req.user.walletAddress) {
+        return res.status(400).json({ error: 'User wallet address not found' });
+      }
+      query.studentWalletAddress = req.user.walletAddress.toLowerCase();
+    }
 
-    const total = await Credential.countDocuments({ issuedBy: userId });
+    const total = await Credential.countDocuments(query);
     const active = await Credential.countDocuments({ 
-      issuedBy: userId, 
+      ...query, 
       isRevoked: false 
     });
     const revoked = await Credential.countDocuments({ 
-      issuedBy: userId, 
+      ...query, 
       isRevoked: true 
     });
 
@@ -1143,15 +1164,15 @@ exports.getStats = async (req, res) => {
     startOfMonth.setHours(0, 0, 0, 0);
 
     const thisMonth = await Credential.countDocuments({
-      issuedBy: userId,
+      ...query,
       createdAt: { $gte: startOfMonth }
     });
 
     // Get recent credentials
-    const recent = await Credential.find({ issuedBy: userId })
+    const recent = await Credential.find(query)
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('studentName university createdAt')
+      .select('studentName university createdAt type')
       .lean();
 
     // Get wallet balance
@@ -1183,5 +1204,46 @@ exports.getStats = async (req, res) => {
   } catch (error) {
     console.error('Get stats error:', error);
     res.status(500).json({ error: error.message });
+  }
+};
+// Public verification by ID (for QR scanner)
+exports.verifyCredential = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const credential = await Credential.findById(id)
+      .populate('issuedBy', 'name university email instituteDetails')
+      .lean();
+
+    if (!credential) {
+      return res.status(404).json({ error: 'Credential not found' });
+    }
+
+    // Double check on blockchain
+    let blockchainData = null;
+    try {
+        blockchainData = await blockchainService.getCredential(id);
+    } catch (blockchainError) {
+        console.warn('Failed to fetch from blockchain during verification:', blockchainError.message);
+    }
+
+    const result = {
+      ...credential,
+      institutionName: credential.issuedBy?.instituteDetails?.institutionName || credential.university || 'Attestify Institution',
+      blockchainProof: blockchainData ? {
+        hashMatch: blockchainData.certificateHash === credential.certificateHash,
+        onChain: true,
+        isRevokedOnChain: blockchainData.isRevoked
+      } : { onChain: false }
+    };
+
+    res.json({
+      success: true,
+      credential: result
+    });
+
+  } catch (error) {
+    console.error('Public verification error:', error);
+    res.status(500).json({ error: 'Verification failed', details: error.message });
   }
 };

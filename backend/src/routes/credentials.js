@@ -13,9 +13,12 @@ router.post('/batch-issue', authenticate, requireAdmin, upload.fields([
   { name: 'file', maxCount: 1 }
 ]), credentialController.batchIssueCredentials);
 
-router.get('/', authenticate, requireAdmin, credentialController.getCredentials);
+router.get('/', authenticate, credentialController.getCredentials);
 
-router.get('/stats', authenticate, requireAdmin, credentialController.getStats);
+router.get('/stats', authenticate, credentialController.getStats);
+
+// Public verification endpoint (called by QR scanner)
+router.get('/verify/:id', credentialController.verifyCredential);
 
 router.get('/:id', authenticate, credentialController.getCredentialById);
 
