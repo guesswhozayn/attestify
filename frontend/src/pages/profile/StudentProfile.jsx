@@ -3,7 +3,7 @@ import Header from '../../components/layout/Header';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { userAPI } from '../../services/api';
-import { User, Mail, Building, Calendar, Wallet, Shield, Camera, Loader, BadgeCheck, Activity } from 'lucide-react';
+import { User, Mail, Building, Calendar, Wallet, Shield, Camera, Loader, BadgeCheck, Activity, ExternalLink } from 'lucide-react';
 
 const StudentProfile = () => {
     const { user, updateUser } = useAuth();
@@ -99,20 +99,36 @@ const StudentProfile = () => {
             
                     {/* Name & Role */}
                     <div className="flex-1">
-                        <h1 className="text-2xl font-bold text-white mb-1">{user?.name}</h1>
-                        <div className="flex items-center gap-3 text-sm">
-                        <span className="text-gray-400 flex items-center gap-1">
-                            <Mail className="w-3.5 h-3.5" />
-                            {user?.email}
-                        </span>
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                            {user?.role || 'Student'}
-                        </span>
-                        {user?.title && (
-                             <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                                {user.title}
-                            </span>
-                        )}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h1 className="text-2xl font-bold text-white mb-1">{user?.name}</h1>
+                                <div className="flex items-center gap-3 text-sm">
+                                    <span className="text-gray-400 flex items-center gap-1">
+                                        <Mail className="w-3.5 h-3.5" />
+                                        {user?.email}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                        {user?.role || 'Student'}
+                                    </span>
+                                    {user?.title && (
+                                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                            {user.title}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {user?.walletAddress && (
+                                <a 
+                                    href={`/profile/${user.walletAddress}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20 w-fit"
+                                >
+                                    <ExternalLink className="w-4 h-4" />
+                                    View Public Profile
+                                </a>
+                            )}
                         </div>
                     </div>
                     </div>

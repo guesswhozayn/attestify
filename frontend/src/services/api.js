@@ -308,6 +308,16 @@ export const fileAPI = {
 };
 
 // ============================================
+// Public APIs
+// ============================================
+export const publicAPI = {
+  // Get public student profile
+  getStudentProfile: async (walletAddress) => {
+    return api.get(`/public/student/${walletAddress}`);
+  }
+};
+
+// ============================================
 // Export default api instance
 // ============================================
 export default api;

@@ -1,10 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, FileCheck, Users, CheckCircle, Upload } from 'lucide-react';
+import { Shield, Lock, FileCheck, Users, CheckCircle, Upload, Search, X } from 'lucide-react';
 import Button from '../components/shared/Button';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/profile/${searchQuery.trim()}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 text-white selection:bg-indigo-500/30 overflow-x-hidden">
@@ -24,6 +33,10 @@ const Landing = () => {
             <div className="flex space-x-4">
               <Button onClick={() => navigate('/docs')} variant="ghost" className="text-gray-300 hover:text-white">
                 Docs
+              </Button>
+              <Button onClick={() => setIsSearchOpen(true)} variant="ghost" className="text-gray-300 hover:text-white flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Find Student
               </Button>
               <Button onClick={() => navigate('/login')} variant="ghost" className="text-gray-300 hover:text-white">
                 Sign In
@@ -212,6 +225,45 @@ const Landing = () => {
           </div>
         </div>
       </footer>
+      {/* Search Modal */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSearchOpen(false)}></div>
+          <div className="relative w-full max-w-lg bg-gray-900 border border-gray-800 rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setIsSearchOpen(false)}
+              className="absolute top-4 right-4 p-2 text-gray-500 hover:text-white transition-colors rounded-full hover:bg-gray-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                <Search className="w-8 h-8 text-indigo-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Find a Student</h3>
+              <p className="text-gray-400">Enter a wallet address to view verified credentials and achievements.</p>
+            </div>
+
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="0x..."
+                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-4 pl-12 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all font-mono"
+                  autoFocus
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              </div>
+              <Button type="submit" variant="primary" className="w-full py-4 text-base shadow-lg shadow-indigo-500/20">
+                Search Profile
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

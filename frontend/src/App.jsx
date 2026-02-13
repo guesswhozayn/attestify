@@ -14,6 +14,7 @@ import AuditLogs from './pages/AuditLogs';
 import RevokedCertificates from './pages/RevokedCertificates';
 import Settings from './pages/Settings';
 import Profile from './pages/profile';
+import PublicProfile from './pages/profile/PublicProfile';
 import VerifyPage from './pages/Verify';
 import Documentation from './pages/Documentation';
 import PrivateRoute from './components/shared/PrivateRoute';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerificationPortal />} />
+        <Route path="/profile/:walletAddress" element={<PublicProfile />} />
         <Route path="/docs" element={<Documentation />} />
 
         {/* Protected Routes */}

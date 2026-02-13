@@ -1,0 +1,4 @@
+2026-02-13T15:02:55.854Z - ReferenceError: frontendUrl is not defined
+    at /home/zayn/development/attestify/backend/src/controllers/credentialController.js:167:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
