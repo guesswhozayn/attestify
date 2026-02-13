@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Shield, Wallet, ArrowRight, Globe, Star, Building, ChevronRight, Loader, Info, CheckCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
+import Navbar from '../components/shared/Navbar';
 import { publicAPI } from '../services/api';
 
 const PublicSearch = () => {
@@ -55,72 +57,35 @@ const PublicSearch = () => {
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             </div>
 
-            {/* Navbar*/}
-            <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-2 sm:px-4">
-                <div className="w-full max-w-5xl bg-[#030014]/60 backdrop-blur-2xl border border-white/10 rounded-full pl-6 pr-2 py-2 flex items-center justify-between shadow-[0_0_40px_-10px_rgba(99,102,241,0.3)] animate-in slide-in-from-top-4 duration-700 hover:border-indigo-500/30 transition-colors">
-                  
-                  {/* Left: Logo */}
-                  <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500"></div>
-                      <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300">
-                         <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                            <Shield className="w-5 h-5 text-indigo-400 group-hover:text-white transition-colors" />
-                         </div>
-                      </div>
-                    </div>
-                    <span className="text-lg font-bold tracking-tight text-white group-hover:text-indigo-200 transition-colors hidden sm:block">
-                      Attestify
-                    </span>
-                  </div>
-
-                  {/* Center: Navigation Links (Desktop) */}
-                  <div className="hidden md:flex items-center gap-1">
-                    <button onClick={() => navigate('/docs')} className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all hover:bg-white/5 rounded-full relative group">
-                       Documentation
-                    </button>
-                    <button onClick={() => navigate('/search')} className="px-5 py-2 text-sm font-medium text-white bg-white/10 rounded-full flex items-center gap-2 border border-white/5 shadow-inner">
-                       <Search className="w-3.5 h-3.5 text-indigo-400" />
-                       Public Explorer
-                    </button>
-                  </div>
-
-                  {/* Right: Actions */}
-                  <div className="flex items-center gap-2">
-                    <button 
-                        onClick={() => navigate('/login')} 
-                        className="hidden sm:block px-5 py-2.5 text-sm font-bold text-white hover:text-indigo-300 transition-colors"
-                    >
-                        Sign In
-                    </button>
-                    <Button 
-                        onClick={() => navigate('/register')} 
-                        className="bg-white text-black hover:bg-indigo-50 hover:text-indigo-950 border-0 rounded-full px-6 py-2.5 text-sm font-bold shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(99,102,241,0.6)] transition-all group overflow-hidden relative"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                        <span className="relative z-10">Get Started</span>
-                    </Button>
-                  </div>
-                </div>
-            </nav>
+            <Navbar />
 
             {/* Main Content */}
             <main className="flex-grow flex flex-col items-center justify-center relative z-10 px-4 pt-32 pb-20">
                 <div className={`w-full max-w-3xl flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-8 duration-700 ${results ? 'mt-8' : ''}`}>
                     
                     {/* Top Badge */}
-                    <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]"
+                    >
                         <Globe className="w-3.5 h-3.5 text-indigo-400" />
                         <span className="text-xs font-bold tracking-widest text-indigo-300 uppercase">Global Achievement Network</span>
-                    </div>
+                    </motion.div>
 
                     {/* Main Heading */}
-                    <h1 className="text-6xl md:text-8xl font-bold tracking-tighter mb-8 leading-[1.05]">
-                        Verify <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                    <motion.h1 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="text-6xl md:text-8xl font-bold tracking-tighter mb-8 leading-[1.05]"
+                    >
+                        Verify <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 bg-[length:200%_auto] animate-shimmer">
                             {searchType === 'student' ? 'Credentials' : 'Institutions'}
                         </span> <br />
                         On the Blockchain.
-                    </h1>
+                    </motion.h1>
 
                     {/* Subtext */}
                     <p className="text-gray-400 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
@@ -130,7 +95,12 @@ const PublicSearch = () => {
                     </p>
 
                     {/* Search Component - Premium Web3 Redesign */}
-                    <div className="w-full max-w-3xl relative z-20 mb-12 group">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="w-full max-w-3xl relative z-20 mb-12 group"
+                    >
                         {/* Ambient Glow */}
                         <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 rounded-full opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-700"></div>
 
@@ -187,7 +157,7 @@ const PublicSearch = () => {
                                 )}
                             </button>
                         </form>
-                    </div>
+                    </motion.div>
 
                     {/* Search Results (Institute Name Search) */}
                     {results && (

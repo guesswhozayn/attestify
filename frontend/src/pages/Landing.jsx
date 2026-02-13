@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Search, Globe, Zap, Building, Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
+import Navbar from '../components/shared/Navbar';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -10,54 +11,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans">
       
-      {/* Navbar - Cyberpunk Floating Island */}
-      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-2 sm:px-4">
-        <div className="w-full max-w-5xl bg-[#030014]/60 backdrop-blur-2xl border border-white/10 rounded-full pl-6 pr-2 py-2 flex items-center justify-between shadow-[0_0_40px_-10px_rgba(99,102,241,0.3)] animate-in slide-in-from-top-4 duration-700 hover:border-indigo-500/30 transition-colors">
-          
-          {/* Left: Logo */}
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-            <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500"></div>
-              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300">
-                 <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-indigo-400 group-hover:text-white transition-colors" />
-                 </div>
-              </div>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-white group-hover:text-indigo-200 transition-colors hidden sm:block">
-              Attestify
-            </span>
-          </div>
-
-          {/* Center: Navigation Links (Desktop) */}
-          <div className="hidden md:flex items-center gap-1">
-            <button onClick={() => navigate('/docs')} className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all hover:bg-white/5 rounded-full relative group">
-               Documentation
-            </button>
-            <button onClick={() => navigate('/search')} className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all hover:bg-white/5 rounded-full flex items-center gap-2 group">
-               <Search className="w-3.5 h-3.5 group-hover:text-indigo-400 transition-colors" />
-               Public Explorer
-            </button>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2">
-            <button 
-                onClick={() => navigate('/login')} 
-                className="hidden sm:block px-5 py-2.5 text-sm font-bold text-white hover:text-indigo-300 transition-colors"
-            >
-                Sign In
-            </button>
-            <Button 
-                onClick={() => navigate('/register')} 
-                className="bg-white text-black hover:bg-indigo-50 hover:text-indigo-950 border-0 rounded-full px-6 py-2.5 text-sm font-bold shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(99,102,241,0.6)] transition-all group overflow-hidden relative"
-            >
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                <span className="relative z-10">Get Started</span>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-40 overflow-hidden">
@@ -93,7 +47,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-7xl md:text-9xl font-bold text-white mb-8 tracking-tighter leading-[1.1]"
+            className="text-6xl md:text-8xl font-bold text-white mb-8 tracking-tighter leading-[1.1]"
           >
             Trust is <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
@@ -204,7 +158,7 @@ const Landing = () => {
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-20">
-                  <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tighter">
+                  <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
                       The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-emerald-300 to-indigo-400 bg-[length:200%_auto] animate-shimmer">Universal Standard</span>
                   </h2>
                   <p className="text-gray-400 max-w-2xl mx-auto text-xl">
@@ -369,7 +323,7 @@ const Landing = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
-             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+             <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
                 Why <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-400 to-white bg-[length:200%_auto] animate-shimmer">Attestify?</span>
              </h2>
              <p className="text-gray-400">The three pillars of the new standard.</p>
@@ -501,7 +455,7 @@ const Landing = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto px-4 text-center relative z-10"
            >
-               <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white bg-[length:200%_auto] animate-shimmer">Ready to secure the future?</h2>
+               <h2 className="text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white bg-[length:200%_auto] animate-shimmer">Ready to secure the future?</h2>
                <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Join the decentralized standard today. Issue, manage, and verify credentials with the power of Ethereum.</p>
                <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
                  <Button onClick={() => navigate('/register')} className="h-14 px-8 text-lg bg-white text-black hover:bg-gray-200 rounded-full font-bold transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)] hover:shadow-[0_0_60px_-10px_rgba(255,255,255,0.5)] hover:-translate-y-1">
