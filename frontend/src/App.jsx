@@ -14,11 +14,11 @@ import AuditLogs from './pages/AuditLogs';
 import RevokedCertificates from './pages/RevokedCertificates';
 import Settings from './pages/Settings';
 import Profile from './pages/profile';
-import PublicProfile from './pages/profile/PublicProfile';
+import StudentPublicProfile from './pages/StudentPublicProfile';
 import VerifyPage from './pages/Verify';
 import Documentation from './pages/Documentation';
 import PublicSearch from './pages/PublicSearch';
-import InstituteProfile from './pages/InstituteProfile';
+import InstitutePublicProfile from './pages/InstitutePublicProfile';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 
@@ -33,12 +33,13 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/search" element={<PublicSearch />} />
-        <Route path="/student/:walletAddress" element={<PublicProfile />} />
-        <Route path="/institute/:id" element={<InstituteProfile />} />
+        <Route path="/student/:walletAddress" element={<StudentPublicProfile />} />
+        <Route path="/institute/:id" element={<InstitutePublicProfile />} />
+        <Route path="/institute/wallet/:walletAddress" element={<InstitutePublicProfile />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerificationPortal />} />
-        <Route path="/profile/:walletAddress" element={<PublicProfile />} />
+        <Route path="/profile/:walletAddress" element={<StudentPublicProfile />} />
         <Route path="/docs" element={<Documentation />} />
 
         {/* Protected Routes */}

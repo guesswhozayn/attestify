@@ -263,3 +263,34 @@ exports.searchInstitutes = asyncHandler(async (req, res) => {
         }))
     });
 });
+
+exports.getPublicInstituteProfileByWallet = asyncHandler(async (req, res) => {
+    const { walletAddress } = req.params;
+
+    if (!walletAddress) {
+        return res.status(400).json({ error: 'Wallet address is required' });
+    }
+
+    const institute = await User.findOne({ 
+        walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
+        role: 'INSTITUTE'
+    }).select('name avatar instituteDetails university about email role createdAt');
+
+    if (!institute) {
+        return res.status(404).json({ error: 'Institute not found' });
+    }
+
+    res.json({
+        success: true,
+        institute: {
+            _id: institute._id,
+            name: institute.name,
+            avatar: institute.avatar,
+            university: institute.university,
+            about: institute.about,
+            email: institute.instituteDetails?.officialEmailDomain ? `contact@${institute.instituteDetails.officialEmailDomain}` : institute.email,
+            details: institute.instituteDetails,
+            createdAt: institute.createdAt
+        }
+    });
+});

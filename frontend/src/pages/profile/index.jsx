@@ -1,13 +1,13 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import InstituteProfile from './InstituteProfile';
-import StudentProfile from './StudentProfile';
+import InstituteProfileEditor from './InstituteProfileEditor';
+import StudentProfileEditor from './StudentProfileEditor';
 
 const Profile = () => {
   const { user } = useAuth();
   const isInstitute = user?.role === 'INSTITUTE';
 
-  return isInstitute ? <InstituteProfile /> : <StudentProfile />;
+  return isInstitute ? <InstituteProfileEditor /> : <StudentProfileEditor />;
 };
 
 export default Profile;

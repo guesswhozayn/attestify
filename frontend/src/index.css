@@ -5,8 +5,21 @@
     animation: scroll 40s linear infinite;
   }
   
+  .animate-shimmer {
+    animation: shimmer 5s linear infinite;
+  }
+  
   .pause {
     animation-play-state: paused;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
   }
 }
 

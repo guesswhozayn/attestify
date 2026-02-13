@@ -11,4 +11,7 @@ router.get('/institutes/search', userController.searchInstitutes);
 // Public institute profile by ID
 router.get('/institute/:id', userController.getPublicInstituteProfile);
 
+// Public institute profile by Wallet
+router.get('/institute/wallet/:walletAddress', userController.getPublicInstituteProfileByWallet);
+
 module.exports = router;

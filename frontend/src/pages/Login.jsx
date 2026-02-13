@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } from 'lucide-react';
+import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building, ArrowLeft } from 'lucide-react';
 import Button from '../components/shared/Button';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 
@@ -45,10 +45,19 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-6 md:p-12">
       
+      {/* Back to Home */}
+      <Link to="/" className="absolute top-6 left-6 sm:top-10 sm:left-10 z-50 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+        <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 backdrop-blur-md flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all">
+            <ArrowLeft className="w-5 h-5" />
+        </div>
+        <span className="font-bold text-sm hidden sm:block">Back</span>
+      </Link>
+      
       {/* Background Elements */}
       <div className="absolute inset-0 w-full h-full pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       </div>
 
@@ -60,23 +69,23 @@ const Login = () => {
              
              {/* Logo */}
              <div>
-                <Link to="/" className="inline-flex items-center gap-3 group">
-                   <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
-                      <Shield className="w-7 h-7 text-white" />
+                <Link to="/" className="inline-flex items-center gap-4 group">
+                   <div className="relative w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                      <Shield className="w-10 h-10 text-indigo-400" />
                    </div>
-                   <span className="text-3xl font-bold tracking-tight text-white">Attestify</span>
+                   <span className="text-4xl font-bold tracking-tight text-white">Attestify</span>
                 </Link>
              </div>
 
              {/* Slogan */}
-             <div className="max-w-lg">
-                <h1 className="text-5xl font-bold text-white tracking-tighter leading-[1.1] mb-6">
+             <div className="max-w-xl">
+                <h1 className="text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
                   Trust is <br/>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-purple-300 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                     Programmable.
                   </span>
                 </h1>
-                <p className="text-gray-400 text-xl leading-relaxed">
+                <p className="text-gray-400 text-2xl leading-relaxed">
                   Issue tamper-proof academic credentials on Ethereum. Verifiable instantly, owned forever.
                 </p>
              </div>
@@ -188,7 +197,7 @@ const Login = () => {
                    type="submit"
                    loading={loading}
                    disabled={loading}
-                   className="w-full justify-center py-3.5 text-base font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-300 rounded-xl"
+                   className="w-full justify-center py-3.5 text-base font-bold bg-white text-black hover:bg-gray-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300 rounded-xl"
                  >
                    {loading ? 'Signing in...' : 'Sign In'}
                    {!loading && <ArrowRight className="ml-2 w-5 h-5" />}

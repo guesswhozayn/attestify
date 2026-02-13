@@ -5,7 +5,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { userAPI } from '../../services/api';
 import { User, Mail, Building, Calendar, Wallet, Shield, Camera, Loader, BadgeCheck, Activity, ExternalLink } from 'lucide-react';
 
-const StudentProfile = () => {
+const StudentProfileEditor = () => {
     const { user, updateUser } = useAuth();
     const { showNotification } = useNotification();
     const [uploading, setUploading] = useState(false);
@@ -191,4 +191,4 @@ const StudentProfile = () => {
     );
 };
   
-export default StudentProfile;
+export default StudentProfileEditor;

@@ -6,7 +6,7 @@ import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Ed
 import api, { userAPI, credentialAPI } from '../../services/api';
 import Button from '../../components/shared/Button';
 
-const InstituteProfile = () => {
+const InstituteProfileEditor = () => {
     const { user, updateUser } = useAuth();
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
@@ -414,4 +414,4 @@ const AssetUploader = ({ title, description, type, value, onUpload, onRemove, cl
     )
 }
 
-export default InstituteProfile;
+export default InstituteProfileEditor;

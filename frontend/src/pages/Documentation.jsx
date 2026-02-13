@@ -100,7 +100,7 @@ const Documentation = () => {
             </button>
             <button onClick={() => navigate('/search')} className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all hover:bg-white/5 rounded-full flex items-center gap-2 group">
                <Search className="w-3.5 h-3.5 group-hover:text-indigo-400 transition-colors" />
-               Find Student
+               Public Explorer
             </button>
           </div>
 

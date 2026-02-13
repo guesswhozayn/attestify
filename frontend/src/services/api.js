@@ -314,6 +314,21 @@ export const publicAPI = {
   // Get public student profile
   getStudentProfile: async (walletAddress) => {
     return api.get(`/public/student/${walletAddress}`);
+  },
+
+  // Search institutes
+  searchInstitutes: async (query) => {
+    return api.get(`/public/institutes/search`, { params: { query } });
+  },
+
+  // Get institute profile by ID
+  getInstituteProfile: async (id) => {
+    return api.get(`/public/institute/${id}`);
+  },
+
+  // Get institute profile by Wallet
+  getInstituteProfileByWallet: async (walletAddress) => {
+    return api.get(`/public/institute/wallet/${walletAddress}`);
   }
 };
 
