@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   },
   university: {
     type: String,
-    default: 'Not Specified' // Default for OAuth users
+    default: 'Not Specified'
   },
   title: {
     type: String,
@@ -66,17 +66,22 @@ const userSchema = new mongoose.Schema({
     authorizedWalletAddress: { type: String, trim: true },
     officialEmailDomain: { type: String, trim: true },
     branding: {
-      logo: String,      // Local path or URL
-      seal: String,      // Local path or URL
-      signature: String, // Local path or URL
-      logoCID: String,   // Legacy IPFS CID
-      sealCID: String,   // Legacy IPFS CID
-      signatureCID: String // Legacy IPFS CID
+      logo: String,
+      seal: String,
+      signature: String,
+      logoCID: String,
+      sealCID: String,
+      signatureCID: String
     },
     operationalMetrics: {
       lastActive: Date,
       currentGasBalance: String
     }
+  },
+  preferences: {
+    notifications: { type: Boolean, default: true },
+    visibility: { type: Boolean, default: true },
+    tfa: { type: Boolean, default: false }
   },
   lastLogin: {
     type: Date
@@ -89,20 +94,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
-
-// userSchema.pre('save', async function(next) {
-//   if (!this.isModified('password')) return next();
-  
-//   try {
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 userSchema.pre('save', async function() {
   if (!this.isModified('password')) return;
   
@@ -110,12 +101,9 @@ userSchema.pre('save', async function() {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
-
-// Remove password from JSON response
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;

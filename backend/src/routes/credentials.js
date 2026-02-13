@@ -17,7 +17,6 @@ router.get('/', authenticate, credentialController.getCredentials);
 
 router.get('/stats', authenticate, credentialController.getStats);
 
-// Public verification endpoint (called by QR scanner)
 router.get('/verify/:id', credentialController.verifyCredential);
 
 router.get('/:id', authenticate, credentialController.getCredentialById);

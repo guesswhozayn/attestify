@@ -1,75 +1,64 @@
 const User = require('../models/User');
+const Credential = require('../models/Credential');
+const asyncHandler = require('../middleware/asyncHandler');
 
-// Update user profile
-exports.updateProfile = async (req, res) => {
-  try {
-    const { name, title, university, about, walletAddress, instituteDetails } = req.body;
-    
-    // Build update object
-    const updateFields = {};
-    if (name) updateFields.name = name;
-    if (title) updateFields.title = title;
-    if (university) updateFields.university = university;
-    if (about) updateFields.about = about;
-    if (walletAddress) updateFields.walletAddress = walletAddress;
-    
-    // Handle institute details deep merge if needed, or simple replace
-    if (instituteDetails) {
-        // For simplicity, we might need to be careful not to overwrite verify branding if not provided
-        // But typically the frontend sends the whole structure or we use $set with dot notation
-        
-        if (instituteDetails.branding) {
-            for (const [key, value] of Object.entries(instituteDetails.branding)) {
-                updateFields[`instituteDetails.branding.${key}`] = value;
-            }
-        }
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const { name, title, university, about, walletAddress, instituteDetails } = req.body;
+  
+  const updateFields = {};
+  if (name) updateFields.name = name;
+  if (title) updateFields.title = title;
+  if (university) updateFields.university = university;
+  if (about) updateFields.about = about;
+  if (walletAddress) updateFields.walletAddress = walletAddress;
+  if (req.body.preferences) {
+      updateFields.preferences = {
+          ...req.user.preferences?.toObject(),
+          ...req.body.preferences
+      };
+  }
+  
+  if (instituteDetails) {
+      if (instituteDetails.branding) {
+          for (const [key, value] of Object.entries(instituteDetails.branding)) {
+              updateFields[`instituteDetails.branding.${key}`] = value;
+          }
+      }
+  }
+
+  const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+  );
+
+  res.json({
+    success: true,
+    user
+  });
+});
+
+exports.uploadAvatar = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a file' });
     }
+
+    const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
 
     const user = await User.findByIdAndUpdate(
         req.user._id,
-        { $set: updateFields },
-        { new: true, runValidators: true }
+        { avatar: avatarUrl },
+        { new: true }
     );
 
     res.json({
-      success: true,
-      user
+        success: true,
+        avatar: avatarUrl,
+        user
     });
-  } catch (error) {
-    console.error('Update profile error:', error);
-    res.status(500).json({ error: 'Failed to update profile' });
-  }
-};
+});
 
-// Upload avatar
-exports.uploadAvatar = async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'Please upload a file' });
-        }
-
-        // Construct the URL (assuming static serve setup)
-        const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-
-        const user = await User.findByIdAndUpdate(
-            req.user._id,
-            { avatar: avatarUrl },
-            { new: true }
-        );
-
-        res.json({
-            success: true,
-            avatar: avatarUrl,
-            user
-        });
-    } catch (error) {
-        console.error('Upload avatar error:', error);
-        res.status(500).json({ error: 'Failed to upload avatar' });
-    }
-};
-
-// Update branding assets
-exports.updateBranding = async (req, res) => {
+exports.updateBranding = asyncHandler(async (req, res) => {
   try {
     const files = req.files;
     const updateFields = {};
@@ -81,24 +70,14 @@ exports.updateBranding = async (req, res) => {
     const ipfsService = require('../services/ipfsService');
     const fs = require('fs');
 
-    // Process each file type
     const processFile = async (fileKey, brandingKey) => {
       if (files[fileKey] && files[fileKey][0]) {
         const file = files[fileKey][0];
         try {
-          // Store local path
-          // const result = await ipfsService.uploadFile(file.path, file.originalname);
-          // updateFields[`instituteDetails.branding.${brandingKey}CID`] = result.ipfsHash;
-          
-          // Construct full URL
           const fileUrl = `${req.protocol}://${req.get('host')}/${file.path}`;
           updateFields[`instituteDetails.branding.${brandingKey}`] = fileUrl;
-          
-          // We no longer delete the file here since we are using it locally
-          // fs.unlinkSync(file.path);
         } catch (err) {
           console.error(`Failed to process ${fileKey}:`, err);
-          // Try to clean up even if failed
           if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
         }
       }
@@ -127,12 +106,11 @@ exports.updateBranding = async (req, res) => {
 
   } catch (error) {
     console.error('Update branding error:', error);
-    res.status(500).json({ error: 'Failed to update branding assets' });
+    throw error;
   }
-};
+});
 
-// Delete branding asset
-exports.deleteBranding = async (req, res) => {
+exports.deleteBranding = asyncHandler(async (req, res) => {
   try {
     const { type } = req.params;
     const allowedTypes = ['logo', 'seal', 'signature'];
@@ -146,15 +124,12 @@ exports.deleteBranding = async (req, res) => {
        return res.status(404).json({ error: 'User not found' });
     }
 
-    const brandingKey = type; // e.g., 'logo'
-    const cidKey = `${type}CID`; // e.g., 'logoCID'
-
-    const currentCID = user.instituteDetails?.branding?.[cidKey];
+    const brandingKey = type;
+    const cidKey = `${type}CID`;
 
     const brandingPath = user.instituteDetails?.branding?.[brandingKey];
     const brandingCID = user.instituteDetails?.branding?.[cidKey];
 
-    // Remove local file if exists
     if (brandingPath) {
         const fs = require('fs');
         if (fs.existsSync(brandingPath)) {
@@ -166,19 +141,15 @@ exports.deleteBranding = async (req, res) => {
         }
     }
 
-    // Remove IPFS pin if exists (Legacy)
     if (brandingCID) {
         const ipfsService = require('../services/ipfsService');
-        // Unpin from IPFS
         try {
             await ipfsService.unpinFile(brandingCID);
         } catch (err) {
             console.error('Failed to unpin file from IPFS:', err);
-            // Continue to remove link even if unpin fails
         }
     }
     
-    // Remove both fields
     const updatePathLocal = `instituteDetails.branding.${brandingKey}`;
     const updatePathCID = `instituteDetails.branding.${cidKey}`;
     
@@ -189,8 +160,6 @@ exports.deleteBranding = async (req, res) => {
         } 
     };
 
-    // Remove link from user profile
-    // const updatePath = `instituteDetails.branding.${cidKey}`;
     const updatedUser = await User.findByIdAndUpdate(
         req.user._id,
         updateQuery,
@@ -204,6 +173,44 @@ exports.deleteBranding = async (req, res) => {
 
   } catch (error) {
     console.error('Delete branding error:', error);
-    res.status(500).json({ error: 'Failed to delete branding asset' });
+    throw error;
   }
-};
+});
+
+exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
+    const { walletAddress } = req.params;
+
+    if (!walletAddress) {
+        return res.status(400).json({ error: 'Wallet address is required' });
+    }
+
+    const student = await User.findOne({ 
+        walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
+        role: 'STUDENT'
+    }).select('name avatar university preferences');
+
+    if (!student) {
+        return res.status(404).json({ error: 'Student not found' });
+    }
+
+    // Check visibility preference
+    if (student.preferences && student.preferences.visibility === false) {
+        return res.status(403).json({ error: 'This profile is private' });
+    }
+
+    const credentials = await Credential.find({
+        studentWalletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
+        status: 'issued'
+    }).select('studentName university issueDate type certificationData transcriptData ipfsCID certificateHash');
+
+    res.json({
+        success: true,
+        student: {
+            name: student.name,
+            avatar: student.avatar,
+            university: student.university,
+            walletAddress: walletAddress
+        },
+        credentials
+    });
+});

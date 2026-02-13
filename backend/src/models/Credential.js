@@ -71,7 +71,7 @@ const credentialSchema = new mongoose.Schema({
     type: Number
   },
   tokenId: {
-    type: String, // Store as string to handle large integers safely
+    type: String,
     index: true
   },
   issuedBy: {
@@ -128,7 +128,6 @@ const credentialSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes for better query performance
 credentialSchema.index({ studentWalletAddress: 1, isRevoked: 1 });
 credentialSchema.index({ issuedBy: 1, createdAt: -1 });
 credentialSchema.index({ createdAt: -1 });

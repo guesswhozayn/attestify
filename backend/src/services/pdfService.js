@@ -2,13 +2,7 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const QRCode = require('qrcode');
 
-/**
- * Generates a credential PDF (Certificate or Transcript)
- * @param {Object} data - Credential data
- * @param {Object} brandingAssets - Object with logo, seal, signature buffers
- * @param {string} outputPath - Path to save the PDF
- * @returns {Promise<void>}
- */
+
 exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
   const { 
     type, 
@@ -31,16 +25,14 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
       const writeStream = fs.createWriteStream(outputPath);
       doc.pipe(writeStream);
 
-      // QR Code
+
       const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
 
       if (type === 'TRANSCRIPT') {
-        // --- TRANSCRIPT LAYOUT ---
-        // Header Background
+
+
         doc.rect(0, 0, doc.page.width, 100).fill('#f9fafb');
-        doc.fillColor('#000000'); // Reset fill
-        
-        // Branding Header
+        doc.fillColor('#000000');
         let headerY = 30;
         let logoAdded = false;
         if (logo) {
@@ -63,7 +55,7 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
             align: 'right' 
         });
   
-        // Watermark (Seal)
+
         if (seal) {
            try {
              doc.save();
@@ -78,7 +70,7 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
   
         doc.moveDown(4);
   
-        // Student Details Grid
+
         doc.fontSize(10).font('Helvetica-Bold');
         const leftCol = 40;
         const rightCol = 400;
@@ -102,14 +94,14 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         
         doc.moveDown(2);
   
-        // Course Table Header
+
         let tableY = infoY + 40;
         const colCode = 40;
         const colTitle = 140;
         const colGrade = 550;
         const colCredit = 650;
   
-        // Table Header Background
+
         doc.rect(colCode - 10, tableY - 5, doc.page.width - 60, 25).fill('#f3f4f6');
         doc.fillColor('#000');
   
@@ -119,18 +111,18 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         doc.text('GRADE', colGrade, tableY);
         doc.text('CREDITS', colCredit, tableY);
         
-        // Course List
+      // Course List
         doc.font('Helvetica');
         let y = tableY + 30;
         
         if (transcriptData?.courses && Array.isArray(transcriptData.courses)) {
           transcriptData.courses.forEach((course, i) => {
-            if (y > doc.page.height - 100) { // New page if needed
+            if (y > doc.page.height - 100) {
               doc.addPage({ layout: 'landscape', size: 'A4', margin: 40 });
               y = 50;
             }
             
-            // Row shading
+
             if (i % 2 === 1) {
                 doc.rect(colCode - 10, y - 5, doc.page.width - 60, 20).fill('#fafafa');
                 doc.fillColor('#000');
@@ -163,7 +155,7 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
            .text(`Generated: ${new Date().toLocaleDateString()}`, 50, footerY + 25);
         doc.fillColor('#000');
   
-        // 2. CENTER: QR Code (Verification)
+
         doc.image(qrCodeDataUrl, doc.page.width / 2 - 30, footerY - 20, { width: 60 });
         doc.fontSize(8).font('Helvetica').fillColor('#64748b')
            .text('SCAN TO VERIFY', 0, footerY + 45, { align: 'center', width: doc.page.width });
@@ -173,7 +165,7 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         const signatureWidth = 140;
         const signatureX = rightEdge - signatureWidth;
 
-        // Seal (overlapping signature for authenticity)
+
         if (seal) {
             try {
                doc.save();
@@ -185,7 +177,7 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
             }
         }
   
-        // Signature
+
         if (signature) {
             try {
               doc.image(signature, signatureX, footerY - 45, { width: signatureWidth, height: 40, fit: [signatureWidth, 40] });
@@ -199,13 +191,13 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
            .text('Authorized Signature', signatureX, footerY + 10, { width: signatureWidth, align: 'center' });
   
       } else {
-        // --- CERTIFICATION LAYOUT ---
+
         
-        // 1. Decorative Border
+
         doc.lineWidth(2).strokeColor('#c084fc').rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
         doc.lineWidth(1).strokeColor('#e9d5ff').rect(25, 25, doc.page.width - 50, doc.page.height - 50).stroke();
         
-        // 2. Corner Ornaments
+
         doc.lineWidth(3).strokeColor('#9333ea')
            .moveTo(30, 60).lineTo(30, 30).lineTo(60, 30).stroke();
         
@@ -231,7 +223,7 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         doc.moveDown(1);
         doc.fontSize(12).font('Helvetica').text('CERTIFICATE OF COMPLETION', { align: 'center', characterSpacing: 2 });
         
-        // 4. Body Content
+
         doc.moveDown(2);
         doc.fontSize(16).font('Helvetica-Oblique').text('This is to certify that', { align: 'center', color: '#4b5563' });
         
@@ -256,8 +248,6 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         // 5. Footer & Signatures
         const footerY = doc.page.height - 100;
         const sideMargin = 80;
-        
-        // --- ZONE 1: LEFT (Official Seal) ---
         if (seal) {
             try {
                doc.image(seal, sideMargin, footerY - 40, { width: 80 });
@@ -268,12 +258,9 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         doc.fontSize(10).font('Helvetica').fillColor('#374151')
            .text(`Issued: ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, sideMargin, footerY + 50);
 
-        // --- ZONE 2: CENTER (Verification QR) ---
         doc.image(qrCodeDataUrl, doc.page.width / 2 - 30, footerY - 10, { width: 60 });
         doc.fontSize(8).font('Helvetica').fillColor('#64748b')
            .text('SCAN TO VERIFY', 0, footerY + 55, { align: 'center', width: doc.page.width });
-  
-        // --- ZONE 3: RIGHT (Authorized Signature) ---
         const sigWidth = 150;
         const sigX = doc.page.width - sideMargin - sigWidth;
 

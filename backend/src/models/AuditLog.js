@@ -50,7 +50,6 @@ const auditLogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for performance
 auditLogSchema.index({ action: 1, createdAt: -1 });
 auditLogSchema.index({ performedBy: 1, createdAt: -1 });
 auditLogSchema.index({ createdAt: -1 });
