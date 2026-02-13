@@ -1,21 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Search, CheckCircle, XCircle, QrCode, ShieldAlert, ExternalLink } from 'lucide-react';
+import { Upload, Search, CheckCircle, XCircle, ShieldAlert, ExternalLink } from 'lucide-react';
 import Button from '../shared/Button';
 import { verifyAPI } from '../../services/api';
-import { Html5QrcodeScanner } from 'html5-qrcode';
 import { generateFileHash } from '../../utils/hash';
 import { extractMetadata } from '../../utils/pdf';
 import Modal from '../shared/Modal';
 import { useLocation } from 'react-router-dom';
 
 const VerificationPortal = () => {
-  const [activeTab, setActiveTab] = useState('upload');
   const [file, setFile] = useState(null);
   const [walletAddress, setWalletAddress] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
-  const [showScanner, setShowScanner] = useState(false);
-  const [scanError, setScanError] = useState(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const fileInputRef = useRef(null);
   
@@ -35,44 +31,7 @@ const VerificationPortal = () => {
     }
   }, [location.search]);
 
-  useEffect(() => {
-    let scanner = null;
 
-    if (showScanner) {
-      // Small delay to ensure modal DOM is ready
-      setTimeout(() => {
-        scanner = new Html5QrcodeScanner(
-          "reader",
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          /* verbose= */ false
-        );
-        
-        scanner.render(onScanSuccess, onScanFailure);
-      }, 100);
-    }
-
-    return () => {
-      if (scanner) {
-        scanner.clear().catch(error => {
-          console.error("Failed to clear html5-qrcode scanner. ", error);
-        });
-      }
-    };
-  }, [showScanner]);
-
-  const onScanSuccess = (decodedText, decodedResult) => {
-    // Handle the scanned code as you like, for example:
-    if (decodedText) {
-      setWalletAddress(decodedText);
-      setShowScanner(false);
-    }
-  };
-
-  const onScanFailure = (error) => {
-    // handle scan failure, usually better to ignore and keep scanning.
-    // for example:
-    // console.warn(`Code scan error = ${error}`);
-  };
 
 
 
@@ -163,78 +122,30 @@ const VerificationPortal = () => {
         {/* Main Card */}
         <div className="bg-gray-900/60 backdrop-blur-xl border border-gray-800 rounded-3xl shadow-2xl overflow-hidden">
           
-          {/* Tabs / Input Selection */}
-          <div className="grid grid-cols-2 p-2 gap-2 bg-gray-900/50 border-b border-gray-800">
-            <button
-              onClick={() => setActiveTab('upload')}
-              className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeTab === 'upload' 
-                  ? 'bg-gray-800 text-white shadow-sm ring-1 ring-gray-700' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
-              }`}
-            >
-              <Upload className="w-4 h-4" />
-              Upload File
-            </button>
-            <button
-              onClick={() => setActiveTab('scan')}
-              className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeTab === 'scan' 
-                  ? 'bg-gray-800 text-white shadow-sm ring-1 ring-gray-700' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
-              }`}
-            >
-              <QrCode className="w-4 h-4" />
-              Scan QR Code
-            </button>
-          </div>
-
           <div className="p-8">
-            {/* Upload Tab */}
-            {activeTab === 'upload' && (
-              <div 
-                className="border-2 border-dashed border-gray-700/50 hover:border-indigo-500/50 rounded-2xl p-8 text-center transition-colors cursor-pointer bg-gray-800/20 group"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  id="file-upload"
-                  ref={fileInputRef}
-                />
-                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors text-gray-400">
-                  <Upload className="w-8 h-8" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-indigo-300 transition-colors">
-                  {file ? file.name : "Click to Upload Certificate"}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {file ? "File selected. Ready to verify." : "Supported format: PDF (Max 10MB)"}
-                </p>
+            {/* Upload Certificate */}
+            <div 
+              className="border-2 border-dashed border-gray-700/50 hover:border-indigo-500/50 rounded-2xl p-8 text-center transition-colors cursor-pointer bg-gray-800/20 group"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="hidden"
+                id="file-upload"
+                ref={fileInputRef}
+              />
+              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors text-gray-400">
+                <Upload className="w-8 h-8" />
               </div>
-            )}
-
-            {/* Scan Tab */}
-            {activeTab === 'scan' && (
-               <div className="text-center py-8">
-                 <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400 animate-pulse">
-                    <QrCode className="w-10 h-10" />
-                 </div>
-                 <h3 className="text-lg font-semibold text-white mb-2">Scan QR Code</h3>
-                  <p className="text-sm text-gray-400 mb-6 max-w-xs mx-auto">
-                    Use your device's camera to verify the physical copy of the certificate.
-                  </p>
-                  <Button 
-                    variant="primary" 
-                    onClick={() => setShowScanner(true)}
-                    className="mx-auto"
-                  >
-                    Open Camera
-                  </Button>
-               </div>
-            )}
+              <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-indigo-300 transition-colors">
+                {file ? file.name : "Click to Upload Certificate"}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {file ? "File selected. Ready to verify." : "Supported format: PDF (Max 10MB)"}
+              </p>
+            </div>
 
             {/* Wallet Address Input */}
             <div className="mt-8 relative">
@@ -401,20 +312,7 @@ const VerificationPortal = () => {
 
       </div>
 
-      {/* QR Scanner Modal */}
-      <Modal
-        isOpen={showScanner}
-        onClose={() => setShowScanner(false)}
-        title="Scan QR Code"
-        size="md"
-      >
-        <div className="flex flex-col items-center bg-gray-900 p-4 rounded-xl">
-          <div id="reader" className="w-full rounded-lg overflow-hidden border-2 border-indigo-500/50 shadow-2xl"></div>
-          <p className="text-gray-400 mt-6 text-center text-sm font-medium">
-            Align the QR code within the frame to scan
-          </p>
-        </div>
-      </Modal>
+
     </div>
   );
 };

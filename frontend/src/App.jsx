@@ -15,6 +15,7 @@ import RevokedCertificates from './pages/RevokedCertificates';
 import Settings from './pages/Settings';
 import Profile from './pages/profile';
 import VerifyPage from './pages/Verify';
+import Documentation from './pages/Documentation';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerificationPortal />} />
+        <Route path="/docs" element={<Documentation />} />
 
         {/* Protected Routes */}
         <Route

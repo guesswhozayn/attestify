@@ -22,6 +22,9 @@ const Landing = () => {
               </span>
             </div>
             <div className="flex space-x-4">
+              <Button onClick={() => navigate('/docs')} variant="ghost" className="text-gray-300 hover:text-white">
+                Docs
+              </Button>
               <Button onClick={() => navigate('/login')} variant="ghost" className="text-gray-300 hover:text-white">
                 Sign In
               </Button>
@@ -178,7 +181,7 @@ const Landing = () => {
                 <ul className="space-y-4 text-sm text-gray-500">
                    <li><button onClick={() => navigate('/login')} className="hover:text-indigo-400 transition-colors">Portal</button></li>
                    <li><button onClick={() => navigate('/verify')} className="hover:text-indigo-400 transition-colors">Verification</button></li>
-                   <li><button className="hover:text-indigo-400 transition-colors">Documentation</button></li>
+                   <li><button onClick={() => navigate('/docs')} className="hover:text-indigo-400 transition-colors">Documentation</button></li>
                 </ul>
              </div>
 
