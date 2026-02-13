@@ -10,22 +10,23 @@ const Button = ({
   disabled = false,
   className = '',
   icon: Icon,
+  glow = false,
   ...props 
 }) => {
-  const baseStyles = 'font-medium rounded-lg transition flex items-center justify-center space-x-2';
+  const baseStyles = 'font-bold rounded-full transition-all duration-300 flex items-center justify-center space-x-2 active:scale-95';
   
   const variants = {
-    primary: 'bg-green-500 text-white hover:bg-green-600 disabled:opacity-50',
-    secondary: 'bg-cyan-500 text-white hover:bg-cyan-600 disabled:opacity-50',
-    danger: 'bg-red-500 text-white hover:bg-red-600 disabled:opacity-50',
-    outline: 'border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white disabled:opacity-50',
-    ghost: 'text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-50',
+    primary: `bg-white text-black hover:bg-gray-200 border-0 shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)] disabled:opacity-50 disabled:shadow-none`,
+    secondary: 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 disabled:opacity-50',
+    danger: 'bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 disabled:opacity-50',
+    outline: 'bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/30 backdrop-blur-md disabled:opacity-50',
+    ghost: 'text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-50',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-6 py-3',
-    lg: 'px-8 py-4 text-lg',
+    sm: 'px-4 py-2 text-xs',
+    md: 'px-6 py-3 text-sm',
+    lg: 'px-8 py-4 text-base md:text-lg',
   };
 
   return (

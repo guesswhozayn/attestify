@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/shared/Button';
 import { 
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
   HardDrive, Lock, Server, ShieldCheck, HelpCircle,
-  Menu, X, ArrowLeft, ExternalLink
+  Menu, X, ArrowLeft, ExternalLink, Search
 } from 'lucide-react';
 
 const sections = [
@@ -22,9 +23,12 @@ const Documentation = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('introduction');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+
       const sectionElements = sections.map(s => ({
         id: s.id,
         el: document.getElementById(s.id),
@@ -57,34 +61,72 @@ const Documentation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white selection:bg-indigo-500/30">
-      {/* Navbar */}
-      <nav className="fixed w-full z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl">
-                <Shield className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative">
+      {/* Background Effects */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
+          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+      </div>
+
+      {/* Navbar - Floating Island Design */}
+      <nav className={`fixed left-0 right-0 z-50 flex justify-center transition-all duration-300 ${isScrolled ? 'top-0 px-0' : 'top-6 px-2 sm:px-4'}`}>
+        <div className={`w-full transition-all duration-300 flex items-center justify-between border-white/10 backdrop-blur-2xl ${
+          isScrolled 
+            ? 'max-w-full rounded-none border-b bg-black/80 px-6 py-3 shadow-lg' 
+            : 'max-w-5xl rounded-full border bg-[#030014]/60 pl-6 pr-2 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.3)] hover:border-indigo-500/30'
+        }`}>
+          
+          {/* Left: Logo */}
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+            <div className="relative">
+              <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500"></div>
+              <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300">
+                 <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-indigo-400 group-hover:text-white transition-colors" />
+                 </div>
               </div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                Attestify
-              </span>
             </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/')}
-                className="hidden sm:flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Home
-              </button>
-              <button
+            <span className="text-lg font-bold tracking-tight text-white group-hover:text-indigo-200 transition-colors hidden sm:block">
+              Attestify
+            </span>
+          </div>
+
+          {/* Center: Navigation Links (Desktop) */}
+          <div className="hidden md:flex items-center gap-1">
+            <button onClick={() => navigate('/')} className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all hover:bg-white/5 rounded-full relative group">
+               Home
+            </button>
+            <button onClick={() => navigate('/search')} className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white transition-all hover:bg-white/5 rounded-full flex items-center gap-2 group">
+               <Search className="w-3.5 h-3.5 group-hover:text-indigo-400 transition-colors" />
+               Find Student
+            </button>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2">
+            <button 
+                onClick={() => navigate('/login')} 
+                className="hidden sm:block px-5 py-2.5 text-sm font-bold text-white hover:text-indigo-300 transition-colors"
+            >
+                Sign In
+            </button>
+            <Button 
+                onClick={() => navigate('/register')} 
+                className="hidden sm:flex bg-white text-black hover:bg-indigo-50 hover:text-indigo-950 border-0 rounded-full px-6 py-2.5 text-sm font-bold shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(99,102,241,0.6)] transition-all group overflow-hidden relative"
+            >
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                <span className="relative z-10">Get Started</span>
+            </Button>
+            
+            {/* Mobile Menu Toggle */}
+             <button
                 onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors"
+                className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors ml-2"
               >
                 {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-            </div>
           </div>
         </div>
       </nav>
@@ -93,7 +135,7 @@ const Documentation = () => {
       {mobileNavOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileNavOpen(false)} />
-          <div className="absolute right-0 top-20 bottom-0 w-72 bg-gray-900 border-l border-gray-800 p-6 overflow-y-auto">
+          <div className="absolute right-0 top-20 bottom-0 w-72 bg-black border-l border-white/10 p-6 overflow-y-auto">
             <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-4">Sections</p>
             {sections.map(s => (
               <button
@@ -113,10 +155,10 @@ const Documentation = () => {
         </div>
       )}
 
-      <div className="pt-20 flex max-w-[1400px] mx-auto">
+      <div className="pt-20 flex max-w-[1400px] mx-auto relative z-10">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:block w-72 flex-shrink-0">
-          <div className="fixed w-72 top-20 bottom-0 overflow-y-auto border-r border-gray-800/50 p-6">
+          <div className="fixed w-72 top-20 bottom-0 overflow-y-auto border-r border-white/5 p-6">
             <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-6">Documentation</p>
             {sections.map(s => (
               <button
@@ -140,7 +182,7 @@ const Documentation = () => {
 
           {/* Hero */}
           <div className="mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900/50 border border-gray-800 backdrop-blur-sm mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
               <BookOpen className="w-4 h-4 text-indigo-400" />
               <span className="text-xs font-medium text-gray-300 uppercase tracking-wide">Theoretical Documentation</span>
             </div>
@@ -587,7 +629,7 @@ const Documentation = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 border-t border-gray-800 py-10">
+      <footer className="bg-black border-t border-white/10 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="w-5 h-5 text-indigo-500" />
@@ -617,7 +659,7 @@ const Section = ({ id, title, icon: Icon, children }) => (
 );
 
 const SectionCard = ({ title, children }) => (
-  <div className="rounded-2xl border border-gray-800 bg-gray-900/40 backdrop-blur-sm p-6 sm:p-8 hover:border-gray-700/80 transition-colors duration-300">
+  <div className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm p-6 sm:p-8 hover:border-white/10 transition-colors duration-300">
     {title && <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>}
     <div className="text-gray-400 leading-relaxed">{children}</div>
   </div>
@@ -638,8 +680,8 @@ const InfoItem = ({ label, text }) => (
 );
 
 const CodeBlock = ({ language, children }) => (
-  <div className="mt-4 rounded-xl bg-gray-950 border border-gray-800 overflow-hidden">
-    <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 border-b border-gray-800">
+  <div className="mt-4 rounded-xl bg-black border border-white/10 overflow-hidden">
+    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border-b border-white/5">
       <div className="w-2.5 h-2.5 rounded-full bg-red-500/30 border border-red-500/50" />
       <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
       <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
@@ -679,7 +721,7 @@ const FlowStep = ({ number, title, children }) => (
 );
 
 const ArchCard = ({ title, tech, description }) => (
-  <div className="rounded-xl border border-gray-800 bg-gray-950/80 p-5 hover:border-indigo-500/30 transition-colors duration-300">
+  <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5 hover:border-indigo-500/30 transition-colors duration-300">
     <h4 className="text-white font-semibold mb-1">{title}</h4>
     <p className="text-indigo-400 text-xs font-mono mb-2">{tech}</p>
     <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
@@ -687,7 +729,7 @@ const ArchCard = ({ title, tech, description }) => (
 );
 
 const FAQItem = ({ question, children }) => (
-  <div className="rounded-2xl border border-gray-800 bg-gray-900/40 backdrop-blur-sm p-6 sm:p-8 hover:border-gray-700/80 transition-colors duration-300">
+  <div className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm p-6 sm:p-8 hover:border-white/10 transition-colors duration-300">
     <h3 className="text-white font-semibold mb-3 flex items-start gap-3">
       <HelpCircle className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
       {question}

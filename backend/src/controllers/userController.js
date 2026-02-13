@@ -214,3 +214,52 @@ exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
         credentials
     });
 });
+
+exports.getPublicInstituteProfile = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const institute = await User.findById(id).select('name avatar instituteDetails university about email');
+
+    if (!institute || institute.role !== 'INSTITUTE') {
+        return res.status(404).json({ error: 'Institute not found' });
+    }
+
+    res.json({
+        success: true,
+        institute: {
+            _id: institute._id,
+            name: institute.name,
+            avatar: institute.avatar,
+            university: institute.university, // Fallback if name is different
+            about: institute.about,
+            email: institute.instituteDetails?.officialEmailDomain ? `contact@${institute.instituteDetails.officialEmailDomain}` : institute.email, // Construct email or use account email
+            details: institute.instituteDetails
+        }
+    });
+});
+
+exports.searchInstitutes = asyncHandler(async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        return res.status(400).json({ error: 'Search query is required' });
+    }
+
+    const institutes = await User.find({
+        role: 'INSTITUTE',
+        $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { 'instituteDetails.institutionName': { $regex: query, $options: 'i' } }
+        ]
+    }).select('name avatar instituteDetails.institutionName _id');
+
+    res.json({
+        success: true,
+        count: institutes.length,
+        institutes: institutes.map(inst => ({
+            _id: inst._id,
+            name: inst.instituteDetails?.institutionName || inst.name,
+            avatar: inst.avatar
+        }))
+    });
+});

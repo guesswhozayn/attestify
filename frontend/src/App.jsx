@@ -17,6 +17,8 @@ import Profile from './pages/profile';
 import PublicProfile from './pages/profile/PublicProfile';
 import VerifyPage from './pages/Verify';
 import Documentation from './pages/Documentation';
+import PublicSearch from './pages/PublicSearch';
+import InstituteProfile from './pages/InstituteProfile';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 
@@ -30,6 +32,9 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
+        <Route path="/search" element={<PublicSearch />} />
+        <Route path="/student/:walletAddress" element={<PublicProfile />} />
+        <Route path="/institute/:id" element={<InstituteProfile />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerificationPortal />} />
