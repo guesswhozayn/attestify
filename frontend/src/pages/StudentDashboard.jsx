@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/layout/Header';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
 import IPFSService from '../services/ipfs';
@@ -7,7 +7,7 @@ import { Download, Share2, Award, Calendar, ExternalLink, ShieldAlert, Wallet, C
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
-import DetailedCertificateCard from '../components/certificate/DetailedCertificateCard';
+import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -55,7 +55,6 @@ const StudentDashboard = () => {
         return;
       }
 
-      // Get from Backend
       try {
         const response = await credentialAPI.getByWalletAddress(targetAddress);
         if (!isMounted.current) return;
@@ -63,14 +62,9 @@ const StudentDashboard = () => {
         const credentials = response.data.credentials;
         
         if (credentials && credentials.length > 0) {
-           // For now, just show the most recent one or allow selection. 
-           // Implementation Plan said: fetch multiple, but dashboard is designed for one.
-           // Let's pick the first one (sorted by createdAt desc in backend)
            const latestCred = credentials[0];
-
            setCredential(latestCred);
            setMetadata(latestCred.type === 'TRANSCRIPT' ? latestCred.transcriptData : latestCred.certificationData);
-           
         } else {
              setCredential(null);
         }
@@ -100,7 +94,6 @@ const StudentDashboard = () => {
     if (!credential || !walletAddress) return;
     const shareUrl = `${window.location.origin}/verify?walletAddress=${walletAddress}`;
     navigator.clipboard.writeText(shareUrl);
-    // You might want to use a toast notification here instead of alert
     alert('Verification link copied to clipboard!');
   };
 
@@ -125,8 +118,8 @@ const StudentDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950">
-        <Header title="Student Dashboard" showSearch={false} />
+      <div className="min-h-screen bg-transparent">
+
         <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)]">
           <LoadingSpinner size="lg" text="Retrieving blockchain records..." />
         </div>
@@ -134,55 +127,56 @@ const StudentDashboard = () => {
     );
   }
 
-  // --- UI COMPONENTS ---
 
-  const WalletStatus = () => (
-    <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border backdrop-blur-md ${
-      walletAddress 
-        ? 'bg-green-500/10 border-green-500/30 text-green-400' 
-        : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400'
-    }`}>
-      <Wallet className="w-4 h-4" />
-      <span className="text-sm font-medium">
-        {walletAddress 
-          ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}` 
-          : 'Wallet Not Connected'}
-      </span>
-    </div>
-  );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white selection:bg-indigo-500/30 pb-20">
-      <Header title="My Credentials" showSearch={false} rightContent={<WalletStatus />} />
+    <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 pb-20">
+
 
       <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
         
         {/* Welcome Section */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-gray-900 to-indigo-950 border border-gray-800 p-8 md:p-12">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/[0.03] via-transparent to-white/[0.01] border border-white/[0.08] p-8 md:p-12 backdrop-blur-md"
+        >
+          {/* Decorative gradients inside the card */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
+          
           <div className="relative z-10">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Welcome back, {user?.name?.split(' ')[0] || 'Student'}
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tighter">
+              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.name?.split(' ')[0] || 'Student'}</span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-2xl">
-              Access your verified academic achievements securely on the blockchain. Your credentials are decentralized and tamper-proof.
+            <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
+              Your academic identity, secured on-chain. Access, manage, and share your verifiable credentials with absolute confidence.
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Error Alert */}
         {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-xl"
+            >
               <div className="flex items-center space-x-3">
-                <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
-                <span className="text-red-200">{error}</span>
+                <div className="p-2 bg-red-500/10 rounded-lg">
+                   <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
+                </div>
+                <span className="text-red-200 font-medium">{error}</span>
               </div>
               {(error.includes('connect your wallet') || error.includes('Wallet mismatch')) && (
-                <Button onClick={handleConnect} icon={Wallet} variant="primary" size="sm">
+                <Button onClick={handleConnect} icon={Wallet} variant="primary" size="sm" className="bg-red-500 hover:bg-red-600 border-none text-white shadow-lg shadow-red-500/20">
                   {error.includes('mismatch') ? 'Switch Wallet' : 'Connect Wallet'}
                 </Button>
               )}
-            </div>
+            </motion.div>
         )}
 
         {/* Content Area */}
@@ -190,80 +184,106 @@ const StudentDashboard = () => {
            <EmptyState 
              icon={Wallet}
              title="Wallet Not Connected" 
-             message="Please connect your wallet to view your credentials." 
+             message="Connect your Ethereum wallet to access your academic credential vault." 
            />
         ) : !credential ? (
            <EmptyState 
              icon={FileText} 
              title="No Credentials Found" 
-             message="You haven't been issued any blockchain credentials yet. Once issued, they will appear here." 
+             message="You haven't received any credentials yet. Once issued by an institute, they will appear here instantly." 
            />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+          >
             
-            {/* Main Credential Card */}
+            {/* Main Credential Card - Takes up majority of space */}
             <div className="lg:col-span-8 space-y-6">
-               <DetailedCertificateCard credential={credential} metadata={metadata} />
+               <div className="flex items-center justify-between px-1">
+                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                       <Award className="w-5 h-5 text-indigo-400" />
+                       Recent Credential
+                   </h2>
+                   <span className="text-xs font-medium text-gray-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md border border-white/5">Latest Issue</span>
+               </div>
+               <DetailedCredentialCard credential={credential} metadata={metadata} />
             </div>
 
-            {/* Sidebar Actions */}
+            {/* Sidebar Actions - Right Column */}
             <div className="lg:col-span-4 space-y-6">
                
                {/* Quick Actions Card */}
-               <div className="bg-gray-900 rounded-3xl p-6 border border-gray-800 shadow-xl">
-                  <h3 className="text-white font-bold mb-6 flex items-center gap-2">
-                     <Share2 className="w-5 h-5 text-indigo-500" />
+               <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+                 className="bg-gray-900/60 rounded-3xl p-6 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden group"
+               >
+                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  <h3 className="text-white font-bold mb-6 flex items-center gap-2 relative z-10">
+                     <Share2 className="w-5 h-5 text-indigo-400" />
                      Share & Verify
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3 relative z-10">
                      <Button 
                         onClick={handleShare}
                         icon={Share2}
-                        className="w-full justify-center py-4 bg-indigo-600 hover:bg-indigo-500 border-transparent shadow-lg shadow-indigo-500/20 text-white font-semibold"
+                        variant="primary"
+                        className="w-full justify-center py-4 shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02]"
                      >
                         Copy Verification Link
                      </Button>
                      <Button 
                         onClick={openIPFSLink}
                         icon={ExternalLink}
-                        className="w-full justify-center py-4 bg-gray-800 hover:bg-gray-700 border-gray-700 text-gray-300 font-medium"
+                        variant="outline"
+                        className="w-full justify-center py-4 backdrop-blur-md transition-all hover:scale-[1.02]"
                      >
                         View Original on IPFS
                      </Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-6 text-center leading-relaxed">
-                     Sharing the link allows 3rd parties to verify the authenticity of this credential directly against the blockchain.
+                  <p className="text-xs text-gray-500 mt-6 text-center leading-relaxed relative z-10">
+                     Provide this link to employers or institutions. They can instantly verify the authenticity of this credential on-chain.
                   </p>
-               </div>
+               </motion.div>
 
                {/* Blockchain Proof Card */}
-               <div className="bg-gray-900/80 rounded-3xl p-6 border border-gray-800 backdrop-blur-sm">
+               <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+                 className="bg-gray-900/60 rounded-3xl p-6 border border-white/[0.08] backdrop-blur-xl relative overflow-hidden"
+               >
                   <h3 className="text-white font-bold mb-6 flex items-center gap-2">
-                     <Hash className="w-5 h-5 text-gray-400" />
+                     <Hash className="w-5 h-5 text-emerald-500" />
                      On-Chain Proof
                   </h3>
                   
                   <div className="space-y-5">
                      <div className="space-y-2">
                         <div className="flex justify-between items-center text-xs">
-                           <span className="text-gray-500 font-semibold uppercase">Certificate Hash</span>
-                           <span className="text-emerald-500 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Valid</span>
+                           <span className="text-gray-500 font-semibold uppercase tracking-wider">Certificate Hash</span>
+                           <span className="text-emerald-400 flex items-center gap-1 bg-emerald-400/10 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-400/20"><CheckCircle className="w-3 h-3" /> VERIFIED</span>
                         </div>
-                        <div className="font-mono text-gray-400 text-xs bg-black/40 p-3 rounded-xl border border-gray-700/50 break-all hover:border-gray-600 transition-colors cursor-text selection:bg-indigo-500/30">
+                        <div className="font-mono text-gray-400 text-[10px] md:text-xs bg-black/40 p-3 rounded-xl border border-white/[0.06] break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-colors cursor-text selection:bg-indigo-500/30 shadow-inner">
                            {credential.certificateHash}
                         </div>
                      </div>
                      <div className="space-y-2">
-                        <span className="text-gray-500 text-xs font-semibold uppercase block">IPFS CID</span>
-                         <div className="font-mono text-gray-400 text-xs bg-black/40 p-3 rounded-xl border border-gray-700/50 break-all cursor-text selection:bg-indigo-500/30">
+                        <span className="text-gray-500 text-xs font-semibold uppercase tracking-wider block">IPFS CID</span>
+                         <div className="font-mono text-gray-400 text-[10px] md:text-xs bg-black/40 p-3 rounded-xl border border-white/[0.06] break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-colors shadow-inner">
                            {credential.ipfsCID}
                         </div>
                      </div>
                   </div>
-               </div>
+               </motion.div>
 
             </div>
-          </div>
+          </motion.div>
         )}
       </main>
     </div>
@@ -271,13 +291,18 @@ const StudentDashboard = () => {
 };
 
 const EmptyState = ({ icon: Icon, title, message }) => (
-   <div className="flex flex-col items-center justify-center py-20 px-4 bg-gray-900/50 border border-gray-800 border-dashed rounded-3xl text-center animate-in fade-in zoom-in-95 duration-500">
-      <div className="w-24 h-24 bg-gray-800/80 rounded-full flex items-center justify-center mb-8 shadow-xl ring-8 ring-gray-800/40">
+   <motion.div 
+     initial={{ opacity: 0, y: 20 }}
+     animate={{ opacity: 1, y: 0 }}
+     transition={{ duration: 0.5, ease: "easeOut" }}
+     className="flex flex-col items-center justify-center py-20 px-4 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center backdrop-blur-xl"
+   >
+      <div className="w-24 h-24 bg-white/[0.03] rounded-full flex items-center justify-center mb-8 shadow-xl ring-8 ring-white/[0.02]">
          <Icon className="w-10 h-10 text-gray-500" />
       </div>
       <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
       <p className="text-gray-400 max-w-md mx-auto leading-relaxed text-lg">{message}</p>
-   </div>
+   </motion.div>
 );
 
 export default StudentDashboard;

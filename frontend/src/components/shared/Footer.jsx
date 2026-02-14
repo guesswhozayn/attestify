@@ -59,7 +59,7 @@ const Footer = () => {
             <div>
               <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wide">Company</h4>
               <ul className="space-y-4 text-sm font-medium text-gray-500">
-                <li><button className="hover:text-indigo-400 transition-colors">About Us</button></li>
+                <li><button onClick={() => navigate('/about')} className="hover:text-indigo-400 transition-colors">About Us</button></li>
                 <li><button className="hover:text-indigo-400 transition-colors">Security</button></li>
                 <li><button className="hover:text-indigo-400 transition-colors">Blog</button></li>
                 <li><button className="hover:text-indigo-400 transition-colors">Contact</button></li>
@@ -69,8 +69,8 @@ const Footer = () => {
             <div className="col-span-2 sm:col-span-1">
               <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wide">Legal</h4>
               <ul className="space-y-4 text-sm font-medium text-gray-500">
-                <li><button className="hover:text-indigo-400 transition-colors">Privacy Policy</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors">Terms of Service</button></li>
+                <li><button onClick={() => navigate('/privacy')} className="hover:text-indigo-400 transition-colors">Privacy Policy</button></li>
+                <li><button onClick={() => navigate('/terms')} className="hover:text-indigo-400 transition-colors">Terms of Service</button></li>
                 <li><button className="hover:text-indigo-400 transition-colors">Cookie Policy</button></li>
                 <li><button className="hover:text-indigo-400 transition-colors">Security</button></li>
               </ul>

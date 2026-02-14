@@ -1,91 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../components/layout/Header';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import Input from '../components/shared/Input';
 import Button from '../components/shared/Button';
-import { User, Mail, Building, Lock, Wallet, Save, Shield } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import blockchainService from '../services/blockchain';
 import api from '../services/api';
 
 const Settings = () => {
-  const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
-  const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   
-  const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    university: user?.university || '',
-    walletAddress: user?.walletAddress || '',
-    title: user?.title || '',
-    about: user?.about || '',
-  });
-
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
-
-  // Sync state with user context if it updates
-  useEffect(() => {
-    if (user) {
-      setProfileData(prev => ({
-        ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
-        university: user.university || prev.university,
-        walletAddress: user.walletAddress || prev.walletAddress,
-        title: user.title || prev.title,
-        about: user.about || prev.about
-      }));
-    }
-  }, [user]);
-
-  // Auto-detect connected wallet on mount
-  useEffect(() => {
-    const detectWallet = async () => {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts.length > 0 && !profileData.walletAddress) {
-                    setProfileData(prev => ({ ...prev, walletAddress: accounts[0] }));
-                }
-            } catch (err) {
-                console.error('Error detecting wallet:', err);
-            }
-        }
-    };
-    detectWallet();
-  }, []);
-
-  const handleConnectWallet = async () => {
-    try {
-      const address = await blockchainService.connectWallet();
-      setProfileData(prev => ({ ...prev, walletAddress: address }));
-      showNotification('Wallet connected successfully!', 'success');
-    } catch (error) {
-      console.error(error);
-      showNotification('Failed to connect wallet. Please try again.', 'error');
-    }
-  };
-
-  const handleProfileUpdate = async () => {
-    setLoading(true);
-    try {
-      const response = await api.put('/user/profile', profileData);
-      if (response.data.success) {
-        updateUser(response.data.user);
-        showNotification('Profile updated successfully', 'success');
-      }
-    } catch (error) {
-      showNotification(error.response?.data?.error || 'Failed to update profile', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -100,169 +30,52 @@ const Settings = () => {
 
     setLoading(true);
     try {
-      await api.put('/user/password', {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      });
-      showNotification('Password changed successfully', 'success');
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        await api.put('/user/password', {
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+        });
+        showNotification('Password changed successfully', 'success');
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
-      showNotification(error.response?.data?.error || 'Failed to change password', 'error');
+        showNotification(error.response?.data?.error || 'Failed to change password', 'error');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <Header title="Account Settings" showSearch={false} />
-
-      <main className="p-6 lg:p-10 max-w-5xl mx-auto">
+    <div className="min-h-screen bg-transparent text-gray-100 pb-20">
+      <main className="p-6 lg:p-10 max-w-4xl mx-auto space-y-8">
         
-        {/* Tabs */}
-        <div className="flex space-x-1 mb-8 bg-gray-900/50 p-1 rounded-xl w-fit border border-gray-800">
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
-              activeTab === 'profile'
-                ? 'bg-gray-800 text-white shadow-sm border border-gray-700'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-            }`}
-          >
-            <User className="w-4 h-4 mr-2" />
-            Profile & Organization
-          </button>
-          <button
-            onClick={() => setActiveTab('security')}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
-              activeTab === 'security'
-                ? 'bg-gray-800 text-white shadow-sm border border-gray-700'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-            }`}
-          >
-            <Shield className="w-4 h-4 mr-2" />
-            Security
-          </button>
-        </div>
+        {/* Page Header */}
+         <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+         >
+            <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Security Settings</h1>
+            <p className="text-gray-400">Manage your password and account security.</p>
+         </motion.div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-xl">
-          
-          {/* Profile Tab */}
-          {activeTab === 'profile' && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              
-              {/* Personal Details Section */}
-              <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">
-                    {user?.role === 'INSTITUTE' ? 'Institution Details' : 'Personal Information'}
-                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label={user?.role === 'INSTITUTE' ? 'Institution Name' : 'Full Name'}
-                      value={profileData.name}
-                      onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                      icon={user?.role === 'INSTITUTE' ? Building : User}
-                      placeholder={user?.role === 'INSTITUTE' ? "e.g. State University" : "e.g. John Doe"}
-                      readOnly={user?.role === 'INSTITUTE'}
-                      className={user?.role === 'INSTITUTE' ? "opacity-70 cursor-not-allowed" : ""}
-                    />
-                    <Input
-                      label={user?.role === 'INSTITUTE' ? 'Official Email Address' : 'Email Address'}
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                      icon={Mail}
-                      placeholder="email@example.com"
-                      disabled
-                      className="opacity-70 cursor-not-allowed"
-                    />
-                 </div>
-              </section>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-8 md:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden"
+        >
+          {/* Background Decor */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/5 rounded-full blur-[80px] pointer-events-none -mr-20 -mt-20"></div>
 
-              {/* Professional / Organization Section (Only for Students) */}
-              {user?.role === 'STUDENT' && (
-                <section className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">
-                    Organization Details
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label="University / Organization"
-                      value={profileData.university}
-                      onChange={(e) => setProfileData({ ...profileData, university: e.target.value })}
-                      icon={Building}
-                      placeholder="e.g. State University of Technology"
-                    />
-                    <Input
-                      label="Professional Title"
-                      value={profileData.title}
-                      onChange={(e) => setProfileData({ ...profileData, title: e.target.value })}
-                      icon={User}
-                      placeholder="e.g. Software Engineer"
-                    />
-                  </div>
-
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-300 mb-1.5 ml-1">
-                      About / Bio
-                    </label>
-                    <textarea
-                      value={profileData.about}
-                      onChange={(e) => setProfileData({ ...profileData, about: e.target.value })}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[100px]"
-                      placeholder="Share a bit about yourself..."
-                    />
-                  </div>
-                </section>
-              )}
-
-              {/* Blockchain Section */}
-              <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2 flex items-center">
-                    Blockchain Connection
-                 </h3>
-                 <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700/50">
-                    <label className="block text-sm font-medium text-gray-400 mb-2">Connected Wallet Address</label>
-                    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                        <div className="relative flex-1 w-full">
-                           <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                           <input 
-                              value={profileData.walletAddress || ''}
-                              readOnly
-                              placeholder="Not connected"
-                              className="w-full bg-gray-900 text-gray-300 px-4 py-3 pl-11 rounded-lg border border-gray-700 font-mono text-sm focus:outline-none cursor-default"
-                           />
-                        </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                       This wallet is permanently linked to your account for signing transactions on the blockchain.
-                    </p>
-                 </div>
-              </section>
-
-               {user?.role !== 'INSTITUTE' && (
-                <div className="pt-4 flex justify-end">
-                  <Button
-                    onClick={handleProfileUpdate}
-                    loading={loading}
-                    size="lg"
-                    icon={Save}
-                    className="w-full md:w-auto shadow-lg shadow-indigo-500/20"
-                  >
-                    Save Changes
-                  </Button>
+          {/* Security Content */}
+          <div className="space-y-8 max-w-2xl relative z-10">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-red-500/10 rounded-lg">
+                    <Lock className="w-5 h-5 text-red-400" />
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* Security Tab */}
-          {activeTab === 'security' && (
-            <div className="space-y-6 max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Change Password</h3>
+                <h3 className="text-xl font-bold text-white">Change Password</h3>
+              </div>
               
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <Input
                   label="Current Password"
                   type="password"
@@ -271,7 +84,7 @@ const Settings = () => {
                   icon={Lock}
                   placeholder="••••••••"
                 />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
                       label="New Password"
                       type="password"
@@ -291,20 +104,19 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="pt-6">
+              <div className="pt-8">
                 <Button
                   onClick={handlePasswordChange}
                   loading={loading}
                   size="lg"
                   variant="primary"
-                  className="w-full md:w-auto"
+                  className="w-full md:w-auto shadow-lg shadow-indigo-500/20 px-8 py-3 rounded-full"
                 >
                   Update Password
                 </Button>
               </div>
             </div>
-          )}
-        </div>
+        </motion.div>
       </main>
     </div>
   );

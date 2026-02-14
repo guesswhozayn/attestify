@@ -25,18 +25,26 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-20 bg-gray-900/95 backdrop-blur-xl border-r border-gray-800 flex flex-col items-center py-6 fixed h-full z-40 transition-all duration-300">
+    <div className="w-20 bg-black/80 backdrop-blur-xl border-r border-white/[0.06] flex flex-col items-center py-6 fixed h-full z-40 transition-all duration-300">
       
+      {/* Noise Overlay */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none rounded-none"></div>
+
       {/* Brand / Logo */}
       <div 
-        className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center cursor-pointer shadow-lg shadow-purple-500/20 mb-8 hover:scale-105 transition-transform duration-200"
+        className="relative z-10 mb-8 cursor-pointer group"
         onClick={() => navigate('/dashboard')}
       >
-        <Shield className="w-6 h-6 text-white" />
+        <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover:opacity-50 transition-opacity duration-500"></div>
+        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-purple-500/20">
+            <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                <Shield className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors" />
+            </div>
+        </div>
       </div>
 
       {/* Navigation Items */}
-      <div className="flex-1 flex flex-col space-y-4 w-full px-3">
+      <div className="relative z-10 flex-1 flex flex-col space-y-4 w-full px-3">
         {menuItems.map((item) => {
           if (!item.roles.includes(user?.role)) return null;
           
@@ -50,41 +58,37 @@ const Sidebar = () => {
               className={`group relative p-3 rounded-xl transition-all duration-200 w-full flex justify-center ${
                 active 
                   ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200 hover:shadow-inner'
+                  : 'text-gray-400 hover:bg-white/[0.05] hover:text-gray-200'
               }`}
             >
               <Icon className={`w-6 h-6 ${active ? 'animate-in zoom-in-50 duration-200' : ''}`} />
               
               {/* Tooltip */}
-              <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 border border-gray-700 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl translate-x-2 group-hover:translate-x-0">
+              <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
                 {item.label}
-                {/* Arrow */}
-                <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-gray-900 border-l border-b border-gray-700 transform rotate-45"></div>
+                <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45"></div>
               </div>
-
-              {/* Active Indicator Dot (Optional style variant) */}
-              {/* {active && <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-1 h-8 bg-indigo-500 rounded-l-full"></div>} */}
             </button>
           );
         })}
       </div>
 
       {/* Bottom Actions */}
-      <div className="flex flex-col space-y-4 w-full px-3 mt-auto">
-        <div className="h-px bg-gray-800 w-full mx-auto"></div>
+      <div className="relative z-10 flex flex-col space-y-4 w-full px-3 mt-auto">
+        <div className="h-px bg-white/[0.06] w-full mx-auto"></div>
         
         <button
           onClick={() => navigate('/settings')}
           className={`group relative p-3 rounded-xl transition-all duration-200 w-full flex justify-center ${
             isActive('/settings') 
-              ? 'bg-gray-800 text-white border border-gray-700' 
-              : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+              ? 'bg-white/[0.05] text-white border border-white/[0.08]' 
+              : 'text-gray-400 hover:bg-white/[0.05] hover:text-gray-200'
           }`}
         >
           <Settings className={`w-6 h-6 ${isActive('/settings') ? 'animate-spin-slow' : ''}`} />
-          <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 border border-gray-700 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl translate-x-2 group-hover:translate-x-0">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
              Settings
-             <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-gray-900 border-l border-b border-gray-700 transform rotate-45"></div>
+             <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45"></div>
           </div>
         </button>
 
@@ -93,9 +97,9 @@ const Sidebar = () => {
           className="group relative p-3 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full flex justify-center"
         >
           <LogOut className="w-6 h-6" />
-          <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 border border-red-900/30 text-red-200 text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl translate-x-2 group-hover:translate-x-0">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-red-900/30 text-red-200 text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
              Logout
-             <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-gray-900 border-l border-b border-red-900/30 transform rotate-45"></div>
+             <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-red-900/30 transform rotate-45"></div>
           </div>
         </button>
       </div>

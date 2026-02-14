@@ -1,10 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../../components/layout/Header';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { Building, Shield, Lock, FileCheck, Upload, Activity, Wallet, Camera, Edit2, Loader, Trash2 } from 'lucide-react';
+import { 
+    Building, 
+    Upload, 
+    Trash2,
+    CheckCircle,
+    Copy,
+    Image as ImageIcon,
+    Shield,
+    FileCheck
+} from 'lucide-react';
 import api, { userAPI, credentialAPI } from '../../services/api';
-import Button from '../../components/shared/Button';
+import blockchainService from '../../services/blockchain';
+import Avatar from '../../components/shared/Avatar';
+
+const InputField = ({ label, value, readOnly, icon: Icon }) => (
+    <div className="flex flex-col gap-2">
+        <label className="text-sm font-semibold text-gray-300 tracking-wide ml-1">{label}</label>
+        <div className="relative group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-gray-400 transition-colors">
+                <Icon className="w-5 h-5" />
+            </div>
+            <input 
+                value={value || ''} 
+                readOnly={readOnly}
+                className={`w-full bg-white/[0.03] border border-white/[0.08] rounded-xl py-3 pl-12 pr-4 text-sm text-gray-200 outline-none transition-all duration-300 backdrop-blur-sm ${readOnly ? 'cursor-default text-gray-400' : 'focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20'}`}
+            />
+        </div>
+    </div>
+);
+
+const AssetUploader = ({ title, description, value, onUpload, onRemove, loading }) => {
+    let imgSrc = null;
+    let isIPFS = false;
+    
+    if (value) {
+        if (value.startsWith('http')) {
+            imgSrc = value;
+        } else {
+            imgSrc = `https://gateway.pinata.cloud/ipfs/${value}`;
+            isIPFS = true;
+        }
+    }
+
+    return (
+        <motion.div 
+            whileHover={{ y: -2 }}
+            className="p-5 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300 backdrop-blur-md group"
+        >
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <h4 className="text-sm font-bold text-gray-200 decoration-indigo-500/30 underline decoration-2 underline-offset-4">{title}</h4>
+                    <p className="text-xs text-gray-500 mt-1">{description}</p>
+                </div>
+                {value && (
+                    <button 
+                        onClick={onRemove}
+                        className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                        title="Remove"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
+
+            <div className="relative h-40 w-full border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center transition-all duration-300 hover:border-indigo-500/30 hover:bg-indigo-500/5 group/upload overflow-hidden">
+                {imgSrc ? (
+                    <div className="relative w-full h-full flex items-center justify-center p-4">
+                        <img 
+                            src={imgSrc} 
+                            alt={title} 
+                            className="max-w-full max-h-full object-contain drop-shadow-lg opacity-90 group-hover/upload:opacity-100 transition-opacity" 
+                        />
+                         {isIPFS && (
+                            <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-md text-[10px] text-indigo-300 font-mono border border-indigo-500/30 flex items-center gap-1">
+                                <Shield className="w-3 h-3" /> IPFS
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="p-3 bg-white/[0.05] rounded-full group-hover/upload:scale-110 transition-transform duration-300">
+                             <Upload className="w-5 h-5 text-gray-400 group-hover/upload:text-indigo-400 transition-colors" />
+                        </div>
+                        <span className="text-xs font-medium text-gray-500 group-hover/upload:text-gray-300 transition-colors">Click to upload asset</span>
+                    </div>
+                )}
+
+                <input 
+                    type="file" 
+                    className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed" 
+                    onChange={onUpload}
+                    disabled={!!value || loading}
+                />
+            </div>
+        </motion.div>
+    );
+};
 
 const InstituteProfileEditor = () => {
     const { user, updateUser } = useAuth();
@@ -19,41 +113,23 @@ const InstituteProfileEditor = () => {
       sealCID: user?.instituteDetails?.branding?.sealCID || '',
       signatureCID: user?.instituteDetails?.branding?.signatureCID || ''
     });
-  
-    const [stats, setStats] = useState({
-        total: 0,
-        gasBalance: '0.00',
-        active: 0,
-        revoked: 0
-    });
-
-    const isMounted = React.useRef(true);
+    const [connectedAddress, setConnectedAddress] = useState('');
 
     useEffect(() => {
-        isMounted.current = true;
-        const fetchStats = async () => {
-            try {
-                if (user?.role === 'INSTITUTE') {
-                   const response = await credentialAPI.getStats();
-                   if (isMounted.current && response.data.success) {
-                       setStats({
-                           total: response.data.stats.total,
-                           gasBalance: response.data.stats.gasBalance || '0.00',
-                           active: response.data.stats.active,
-                           revoked: response.data.stats.revoked
-                       });
-                   }
-                }
-            } catch (error) {
-                if (isMounted.current) {
-                    console.error('Failed to fetch dashboard stats:', error);
+        const detectWallet = async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        setConnectedAddress(accounts[0]);
+                    }
+                } catch (err) {
+                    console.error('Error detecting wallet:', err);
                 }
             }
         };
-
-        fetchStats();
-        return () => { isMounted.current = false; };
-    }, [user]);
+        detectWallet();
+    }, []);
   
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
@@ -88,8 +164,6 @@ const InstituteProfileEditor = () => {
   
       setLoading(true);
       const formData = new FormData();
-      // 'type' comes in as 'logoCID', 'sealCID', etc.
-      // The backend expects 'logo', 'seal', 'signature'.
       const fieldName = type.replace('CID', '');
       formData.append(fieldName, file);
 
@@ -100,7 +174,6 @@ const InstituteProfileEditor = () => {
         
         if (response.data.success) {
           updateUser(response.data.user);
-          // Update local state to reflect new assets immediately
           const newBranding = response.data.user.instituteDetails?.branding || {};
           setBranding({
               logo: newBranding.logo || '',
@@ -124,14 +197,12 @@ const InstituteProfileEditor = () => {
         if (!window.confirm('Are you sure you want to remove this asset?')) return;
 
         setLoading(true);
-        // type is 'logoCID', backend expects 'logo'
         const fieldName = type.replace('CID', '');
         
         try {
             const response = await api.delete(`/user/branding/${fieldName}`);
             if (response.data.success) {
                 updateUser(response.data.user);
-                // Update local state
                 const newBranding = response.data.user.instituteDetails?.branding || {};
                 setBranding({
                     logo: newBranding.logo || '',
@@ -152,266 +223,108 @@ const InstituteProfileEditor = () => {
     };
   
     return (
-      <div className="min-h-screen bg-gray-950 text-gray-100 pb-12">
-        <Header title="Institute Profile" showSearch={false} />
-        
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          
-          {/* Cover Image & Header */}
-          <div className="relative mb-24">
-              <div className="h-48 w-full rounded-2xl bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 to-transparent"></div>
-              </div>
-              
-              <div className="absolute -bottom-16 left-8 flex items-end space-x-6">
-                  <div className="relative group">
-                      <div className="w-32 h-32 rounded-2xl bg-gray-900 border-4 border-gray-950 shadow-2xl flex items-center justify-center overflow-hidden relative">
-                          {user.avatar ? (
-                               <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                          ) : (
-                              branding.logoCID ? (
-                                  <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-2xl font-bold text-white">
-                                      {user.name?.charAt(0)}
-                                  </div>
-                              ) : (
-                                  <Building className="w-12 h-12 text-gray-600" />
-                              )
-                          )}
+      <div className="min-h-screen bg-transparent text-gray-100 font-sans pb-20">
 
-                           {/* Upload Overlay */}
-                           <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity z-10">
-                                {uploading ? (
-                                    <Loader className="w-8 h-8 text-white animate-spin" />
-                                ) : (
-                                    <Camera className="w-8 h-8 text-white" />
-                                )}
-                                <input 
-                                    type="file" 
-                                    className="hidden" 
-                                    accept="image/*"
-                                    onChange={handleAvatarUpload}
-                                    disabled={uploading}
+        
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+            
+            {/* Header Section */}
+            <motion.div 
+               initial={{ opacity: 0, y: 15 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+                <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Institute Profile</h1>
+                <p className="text-gray-400 max-w-2xl">Manage public facing branding assets and verify institutional details. These assets will be used when issuing verifiable credentials.</p>
+            </motion.div>
+
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.98 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+               className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+            >
+                
+                {/* Left Column: Profile Info */}
+                <div className="lg:col-span-4 space-y-6">
+                     <div className="bg-white/[0.03] border border-white/[0.08] rounded-3xl p-6 backdrop-blur-xl shadow-lg">
+                        
+                        {/* Avatar */}
+                        <div className="mb-8 flex flex-col items-center text-center">
+                            <div className="mb-4">
+                                <Avatar 
+                                    src={user.avatar} 
+                                    initials={user.name} 
+                                    size="lg" 
+                                    editable={true} 
+                                    uploading={uploading} 
+                                    onUpload={handleAvatarUpload}
                                 />
-                            </label>
-                      </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                      <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                          {user.instituteDetails?.institutionName || user.name}
-                          <Shield className="w-6 h-6 text-indigo-400 fill-indigo-400/20" />
-                      </h1>
-                      <p className="text-gray-400 flex items-center gap-2 mt-1">
-                          <span className="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded text-sm font-medium border border-indigo-500/20">
-                              Verified Institute
-                          </span>
-                          <span className="text-gray-600">•</span>
-                          <span>{user.email}</span>
-                      </p>
-                  </div>
-              </div>
-  
-              <div className="absolute -bottom-16 right-8 flex gap-3">
-              </div>
-          </div>
-  
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
-              {/* Left Column: Identity & Info */}
-              <div className="space-y-6">
-                   {/* Quick Stats */}
-                   <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
-                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Overview</h3>
-                      <div className="space-y-4">
-                          <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
-                              <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-green-500/10 rounded-lg text-green-400">
-                                      <Wallet className="w-5 h-5" />
-                                  </div>
-                                  <div>
-                                      <p className="text-sm text-gray-400">Gas Balance</p>
-                                      <p className="font-semibold text-white">{stats.gasBalance} ETH</p>
-                                  </div>
-                              </div>
-                          </div>
-                          <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
-                              <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
-                                      <FileCheck className="w-5 h-5" />
-                                  </div>
-                                  <div>
-                                      <p className="text-sm text-gray-400">Total Issued</p>
-                                      <p className="font-semibold text-white">{stats.total}</p>
-                                  </div>
-                              </div>
-                          </div>
-                           <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
-                              <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
-                                      <Activity className="w-5 h-5" />
-                                  </div>
-                                  <div>
-                                      <p className="text-sm text-gray-400">Last Active</p>
-                                      <p className="font-semibold text-white">
-                                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Just now'}
-                                      </p>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-  
-                  {/* Institute Details */}
-                  <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
-                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">Details</h3>
-                      <div className="space-y-4">
-                          <div>
-                              <label className="text-xs text-gray-500 block mb-1">Registration Number</label>
-                              <div className="flex items-center gap-2 text-gray-200 bg-gray-800/50 p-2.5 rounded-lg border border-gray-800 font-mono text-sm">
-                                  <Shield className="w-4 h-4 text-gray-500" />
-                                  {user.instituteDetails?.registrationNumber || 'N/A'}
-                              </div>
-                          </div>
-                          <div>
-                              <label className="text-xs text-gray-500 block mb-1">Authorized Wallet</label>
-                              <div className="flex items-center gap-2 text-gray-200 bg-gray-800/50 p-2.5 rounded-lg border border-gray-800 font-mono text-xs break-all">
-                                  <Lock className="w-4 h-4 text-gray-500 shrink-0" />
-                                  {user.instituteDetails?.authorizedWalletAddress || user.walletAddress || 'N/A'}
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-  
-              {/* Right Column: Branding Assets */}
-              <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
-                       <div className="flex items-center justify-between mb-6">
-                          <div>
-                              <h2 className="text-xl font-bold text-white">Branding Assets</h2>
-                              <p className="text-gray-400 text-sm mt-1">Manage your institute's digital assets for certificates.</p>
-                          </div>
-                          <span className="bg-purple-500/10 text-purple-300 px-3 py-1 rounded-full text-xs font-medium border border-purple-500/20">
-                              3 Assets Required
-                          </span>
-                       </div>
-  
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Logo Upload */}
-                          <AssetUploader 
-                              title="Institute Logo"
-                              description="Used on certificate header"
-                              type="logo"
-                              value={branding.logo || branding.logoCID}
-                              onUpload={(e) => handleFileUpload(e, 'logoCID')} 
-                              onRemove={() => handleFileRemove('logoCID')}
-                          />
-  
-                          {/* Seal Upload */}
-                          <AssetUploader 
-                              title="Official Seal"
-                              description="Watermark validation"
-                              type="seal"
-                              value={branding.seal || branding.sealCID}
-                              onUpload={(e) => handleFileUpload(e, 'sealCID')}
-                              onRemove={() => handleFileRemove('sealCID')}
-                          />
-  
-                          {/* Signature Upload */}
-                          <AssetUploader 
-                              title="Authorized Signature"
-                              description="Signatory verification"
-                              type="signature"
-                              value={branding.signature || branding.signatureCID}
-                              onUpload={(e) => handleFileUpload(e, 'signatureCID')}
-                              onRemove={() => handleFileRemove('signatureCID')}
-                              className="md:col-span-2"
-                          />
-                       </div>
-                  </div>
-              </div>
-          </div>
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">{user.name}</h3>
+                            <p className="text-sm text-gray-500">Institution Administrator</p>
+                        </div>
+
+                        {/* Read-only Fields */}
+                        <div className="space-y-4">
+                            <div className="px-3 pb-2 border-b border-white/[0.05] text-xs font-semibold text-indigo-400 uppercase tracking-wider">Details</div>
+                            <InputField label="Institution Name" value={user.instituteDetails?.institutionName || user.name} readOnly icon={Building} />
+                            <InputField label="Registration ID" value={user.instituteDetails?.registrationNumber} readOnly icon={CheckCircle} />
+                            <InputField label="Wallet Address" value={user.walletAddress || connectedAddress} readOnly icon={Copy} />
+                        </div>
+                     </div>
+                </div>
+
+                {/* Right Column: Branding Assets */}
+                <div className="lg:col-span-8">
+                     <div className="bg-white/[0.03] border border-white/[0.08] rounded-3xl p-8 backdrop-blur-xl shadow-lg h-full">
+                        <div className="mb-8 flex items-start gap-4">
+                            <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                                <FileCheck className="w-6 h-6 text-indigo-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Branding Assets</h3>
+                                <p className="text-sm text-gray-400 mt-1 max-w-lg">
+                                    Upload your official assets. These are pinned to IPFS for immutable verification and will appear on all issued credentials.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <AssetUploader 
+                                title="Institution Logo" 
+                                description="Primary identifier on credentials"
+                                value={branding.logo || branding.logoCID}
+                                onUpload={(e) => handleFileUpload(e, 'logoCID')}
+                                onRemove={() => handleFileRemove('logoCID')}
+                                loading={loading}
+                            />
+                            <AssetUploader 
+                                title="Official Seal" 
+                                description="Watermark for authenticity"
+                                value={branding.seal || branding.sealCID}
+                                onUpload={(e) => handleFileUpload(e, 'sealCID')}
+                                onRemove={() => handleFileRemove('sealCID')}
+                                loading={loading}
+                            />
+                            <div className="sm:col-span-2">
+                                <AssetUploader 
+                                    title="Authorized Signature" 
+                                    description="Digital signature for issuer verification"
+                                    value={branding.signature || branding.signatureCID}
+                                    onUpload={(e) => handleFileUpload(e, 'signatureCID')}
+                                    onRemove={() => handleFileRemove('signatureCID')}
+                                    loading={loading}
+                                />
+                            </div>
+                        </div>
+                     </div>
+                </div>
+
+            </motion.div>
         </main>
       </div>
     );
 };
-
-const AssetUploader = ({ title, description, type, value, onUpload, onRemove, className = "" }) => {
-    // Determine image source
-    let imgSrc = null;
-    let isIPFS = false;
-    
-    if (value) {
-        if (value.startsWith('http')) {
-            imgSrc = value;
-        } else {
-            // Assume CID
-            imgSrc = `https://gateway.pinata.cloud/ipfs/${value}`;
-            isIPFS = true;
-        }
-    }
-
-    return (
-        <div className={`bg-gray-800/30 border border-gray-700/50 rounded-xl p-5 hover:border-indigo-500/30 transition-all duration-300 group ${className}`}>
-            <div className="flex items-start justify-between mb-4">
-                <div>
-                   <h4 className="font-semibold text-white">{title}</h4>
-                   <p className="text-xs text-gray-400 mt-1">{description}</p>
-                </div>
-                {value && (
-                    <div className="flex items-center gap-2">
-                         <div className="p-1 bg-green-500/10 rounded-full text-green-400">
-                            <FileCheck className="w-4 h-4" />
-                         </div>
-                         <button 
-                            onClick={onRemove}
-                            className="p-1 hover:bg-red-500/10 rounded-full text-gray-500 hover:text-red-400 transition-colors"
-                            title="Remove asset"
-                         >
-                            <Trash2 className="w-4 h-4" />
-                         </button>
-                    </div>
-                )}
-            </div>
-
-            <div className="relative overflow-hidden rounded-lg bg-gray-900/50 border-2 border-dashed border-gray-700 group-hover:border-indigo-500/50 transition-colors h-40 flex items-center justify-center">
-                {imgSrc ? (
-                    <div className="text-center p-4 w-full relative group/preview">
-                        <div className="w-full h-32 flex items-center justify-center mb-1">
-                             <img 
-                                src={imgSrc} 
-                                alt={title} 
-                                className="max-w-full max-h-full object-contain"
-                             />
-                        </div>
-                         
-                        {isIPFS && (
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 flex items-center justify-center transition-opacity">
-                                <p className="text-xs font-mono text-gray-300 bg-black/50 px-2 py-1 rounded">
-                                    CID: {value.substring(0, 8)}...
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="text-center p-4">
-                        <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-500 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-colors">
-                             <Upload className="w-6 h-6" />
-                        </div>
-                        <p className="text-sm text-gray-400 group-hover:text-indigo-300 transition-colors">Click to upload</p>
-                        <p className="text-xs text-gray-600 mt-1">SVG, PNG or JPG</p>
-                    </div>
-                )}
-                <input 
-                    type="file" 
-                    className="absolute inset-0 opacity-0 cursor-pointer z-10" 
-                    onChange={onUpload}
-                    disabled={!!value} // Disable input if value matches, user must remove first
-                />
-            </div>
-        </div>
-    )
-}
 
 export default InstituteProfileEditor;

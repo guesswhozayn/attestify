@@ -4,26 +4,25 @@ import Button from '../shared/Button';
 import QRCodeDisplay from './QRCodeDisplay';
 import { Download, ExternalLink, User, Calendar, Building, Hash, ShieldAlert, BadgeCheck, GraduationCap, Award, Shield, ShieldCheck } from 'lucide-react';
 import VerificationSection from '../verification/VerificationSection';
-import RevokeCertificateModal from './RevokeCertificateModal';
+import RevokeCredentialModal from './RevokeCredentialModal';
 import SBTDetailsModal from './SBTDetailsModal';
 import { useAuth } from '../../context/AuthContext';
 
-const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
+const CredentialDetails = ({ isOpen, onClose, credential, onUpdate }) => {
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const [showSBTModal, setShowSBTModal] = useState(false);
-  const { user } = useAuth(); // Assuming 'user' is the current logged-in user viewing the modal
+  const { user } = useAuth();
 
-  if (!certificate) return null;
+  if (!credential) return null;
 
-  const downloadCertificate = () => {
-    window.open(`https://gateway.pinata.cloud/ipfs/${certificate.ipfsCID}`, '_blank');
+  const downloadCredential = () => {
+    window.open(`https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`, '_blank');
   };
 
   const viewOnEtherscan = () => {
-    window.open(`https://sepolia.etherscan.io/tx/${certificate.transactionHash}`, '_blank');
+    window.open(`https://sepolia.etherscan.io/tx/${credential.transactionHash}`, '_blank');
   };
 
-  // Helper to format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -32,46 +31,46 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
     });
   };
 
-  // Determine gradient based on type
-  const headerGradient = certificate.type === 'TRANSCRIPT' 
-    ? 'from-blue-600 to-cyan-500' 
-    : 'from-emerald-500 to-teal-500';
+  const headerGradient = credential.type === 'TRANSCRIPT' 
+    ? 'from-indigo-900 via-purple-900 to-gray-900' 
+    : 'from-emerald-900 via-teal-900 to-gray-900';
 
-  const iconColor = certificate.type === 'TRANSCRIPT' 
-    ? 'text-cyan-400' 
+  const iconColor = credential.type === 'TRANSCRIPT' 
+    ? 'text-indigo-400' 
     : 'text-emerald-400';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Certificate Details" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Credential Details" size="xl">
       <div className="space-y-6">
         
         {/* Hero Section */}
-        <div className={`relative h-48 rounded-2xl bg-gradient-to-r ${headerGradient} overflow-hidden shadow-lg`}>
-          <div className="absolute inset-0 bg-black/10"></div>
+        <div className={`relative h-48 rounded-2xl bg-gradient-to-br ${headerGradient} overflow-hidden shadow-lg`}>
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
           
-          {/* Decorative Circles */}
-          <div className="absolute -right-10 -top-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-black/10 rounded-full blur-2xl"></div>
+          {/* Decorative Blobs */}
+          <div className="absolute -right-10 -top-10 w-64 h-64 bg-white/10 rounded-full blur-[80px]"></div>
+          <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-black/10 rounded-full blur-[60px]"></div>
 
           <div className="relative h-full flex flex-col justify-end p-8">
             <div className="flex items-end space-x-6">
               {/* Avatar or Logo */}
-              <div className="w-24 h-24 rounded-full border-4 border-gray-800 bg-white shadow-xl overflow-hidden flex-shrink-0 -mb-4 z-10 flex items-center justify-center">
-                {certificate.issuedBy?.instituteDetails?.branding && (certificate.issuedBy.instituteDetails.branding.logo || certificate.issuedBy.instituteDetails.branding.logoCID) ? (
+              <div className="w-24 h-24 rounded-2xl border-2 border-white/20 bg-black/30 backdrop-blur-md shadow-xl overflow-hidden flex-shrink-0 -mb-4 z-10 flex items-center justify-center">
+                {credential.issuedBy?.instituteDetails?.branding && (credential.issuedBy.instituteDetails.branding.logo || credential.issuedBy.instituteDetails.branding.logoCID) ? (
                    <img 
-                     src={certificate.issuedBy.instituteDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.logoCID}`}
+                     src={credential.issuedBy.instituteDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.instituteDetails.branding.logoCID}`}
                      alt="Institute Logo"
                      className="w-full h-full object-contain p-1"
                    />
-                ) : certificate.studentImage ? (
+                ) : credential.studentImage ? (
                   <img 
-                    src={certificate.studentImage} 
-                    alt={certificate.studentName} 
+                    src={credential.studentImage} 
+                    alt={credential.studentName} 
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                    <User className="w-10 h-10 text-gray-400" />
+                  <div className="w-full h-full flex items-center justify-center bg-white/10">
+                    <User className="w-10 h-10 text-white/60" />
                   </div>
                 )}
               </div>
@@ -80,40 +79,39 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
               <div className="flex-1 pb-1 z-0">
                 <div className="flex justify-between items-end">
                   <div>
-                    <h2 className="text-3xl font-bold text-white mb-1 drop-shadow-md">{certificate.studentName}</h2>
-                    <div className="flex items-center space-x-2 text-white/90">
-                      <Hash className="w-4 h-4 opacity-75" />
-                      <span className="font-mono bg-white/20 px-2 py-0.5 rounded text-sm backdrop-blur-sm" title="Credential ID">
-                        {certificate._id}
+                    <h2 className="text-3xl font-bold text-white mb-1 drop-shadow-md tracking-tight">{credential.studentName}</h2>
+                    <div className="flex items-center space-x-2 text-white/80">
+                      <Hash className="w-4 h-4 opacity-60" />
+                      <span className="font-mono bg-white/10 backdrop-blur-sm px-2 py-0.5 rounded text-sm border border-white/10" title="Credential ID">
+                        {credential._id}
                       </span>
-                      <span className="text-white/60 mx-1">•</span>
+                      <span className="text-white/40 mx-1">•</span>
                       <div className="flex items-center">
-                        <Building className="w-4 h-4 mr-1 opacity-75" />
-                        <span className="text-sm">{certificate.university}</span>
+                        <Building className="w-4 h-4 mr-1 opacity-60" />
+                        <span className="text-sm">{credential.university}</span>
                       </div>
                     </div>
                   </div>
                   
                   {/* Status Badge */}
                   <div className="flex flex-col gap-2 items-end">
-                    <div className={`px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-sm ${
-                      certificate.isRevoked ? 'bg-red-500/20 text-red-100' : 'bg-white/20 text-white'
+                    <div className={`px-4 py-2 rounded-full backdrop-blur-md border shadow-sm ${
+                      credential.isRevoked ? 'bg-red-500/20 border-red-500/30 text-red-200' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200'
                     }`}>
                       <div className="flex items-center space-x-2">
-                        {certificate.isRevoked ? (
+                        {credential.isRevoked ? (
                           <ShieldAlert className="w-5 h-5" />
                         ) : (
                           <BadgeCheck className="w-5 h-5" />
                         )}
                         <span className="font-semibold tracking-wide text-sm">
-                          {certificate.isRevoked ? 'REVOKED' : 'VERIFIED'}
+                          {credential.isRevoked ? 'REVOKED' : 'VERIFIED'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Soulbound Badge */}
-                    {certificate.tokenId && (
-                       <div className="px-3 py-1 rounded-full backdrop-blur-md border border-purple-500/30 bg-purple-500/20 text-purple-100 shadow-sm">
+                    {credential.tokenId && (
+                       <div className="px-3 py-1 rounded-full backdrop-blur-md border border-purple-500/30 bg-purple-500/20 text-purple-200 shadow-sm">
                           <div className="flex items-center space-x-1.5">
                              <Shield className="w-3 h-3 text-purple-300" />
                              <span className="text-xs font-medium tracking-wide">SOULBOUND</span>
@@ -134,39 +132,37 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Primary Details Card */}
-            <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 shadow-sm">
+            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 shadow-sm backdrop-blur-md">
               <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
-                {certificate.type === 'TRANSCRIPT' ? <GraduationCap className={`w-5 h-5 mr-3 ${iconColor}`} /> : <Award className={`w-5 h-5 mr-3 ${iconColor}`} />}
-                {certificate.type === 'TRANSCRIPT' ? 'Academic Record' : 'Certification Details'}
+                {credential.type === 'TRANSCRIPT' ? <GraduationCap className={`w-5 h-5 mr-3 ${iconColor}`} /> : <Award className={`w-5 h-5 mr-3 ${iconColor}`} />}
+                {credential.type === 'TRANSCRIPT' ? 'Academic Record' : 'Certification Details'}
               </h3>
               
-              {/* Dynamic Content based on Type */}
-              {certificate.type === 'TRANSCRIPT' && certificate.transcriptData ? (
+              {credential.type === 'TRANSCRIPT' && credential.transcriptData ? (
                  <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-gray-900/50 p-4 rounded-lg">
+                      <div className="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-1">Program</span>
-                        <span className="text-white font-medium">{certificate.transcriptData.program}</span>
+                        <span className="text-white font-medium">{credential.transcriptData.program}</span>
                       </div>
-                      <div className="bg-gray-900/50 p-4 rounded-lg">
+                      <div className="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-1">Department</span>
-                        <span className="text-white font-medium">{certificate.transcriptData.department}</span>
+                        <span className="text-white font-medium">{credential.transcriptData.department}</span>
                       </div>
-                      <div className="bg-gray-900/50 p-4 rounded-lg">
+                      <div className="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-1">CGPA</span>
-                        <span className="text-2xl font-bold text-emerald-400">{certificate.transcriptData.cgpa}</span>
+                        <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{credential.transcriptData.cgpa}</span>
                       </div>
-                      <div className="bg-gray-900/50 p-4 rounded-lg">
+                      <div className="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-1">Session</span>
-                        <span className="text-white">{certificate.transcriptData.admissionYear} - {certificate.transcriptData.graduationYear}</span>
+                        <span className="text-white">{credential.transcriptData.admissionYear} - {credential.transcriptData.graduationYear}</span>
                       </div>
                     </div>
 
-                    {/* Courses Table */}
-                    {certificate.transcriptData.courses?.length > 0 && (
-                      <div className="border border-gray-700/50 rounded-lg overflow-hidden">
+                    {credential.transcriptData.courses?.length > 0 && (
+                      <div className="border border-white/10 rounded-xl overflow-hidden">
                         <table className="w-full text-sm text-left">
-                          <thead className="bg-gray-900/50 text-gray-400 border-b border-gray-700/50">
+                          <thead className="bg-white/[0.03] text-gray-400 border-b border-white/10">
                             <tr>
                               <th className="px-4 py-3 font-medium">Code</th>
                               <th className="px-4 py-3 font-medium">Subject</th>
@@ -174,9 +170,9 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                               <th className="px-4 py-3 font-medium text-right">Grade</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-700/50">
-                            {certificate.transcriptData.courses.map((course, i) => (
-                              <tr key={i} className="hover:bg-gray-700/30 transition-colors">
+                          <tbody className="divide-y divide-white/[0.06]">
+                            {credential.transcriptData.courses.map((course, i) => (
+                              <tr key={i} className="hover:bg-white/[0.03] transition-colors">
                                 <td className="px-4 py-3 text-gray-300 font-mono text-xs">{course.code}</td>
                                 <td className="px-4 py-3 text-white">{course.name}</td>
                                 <td className="px-4 py-3 text-gray-300 text-center">{course.credits}</td>
@@ -188,32 +184,32 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                       </div>
                     )}
                  </div>
-              ) : certificate.certificationData ? (
+              ) : credential.certificationData ? (
                  <div className="space-y-6">
-                    <div className="bg-gray-900/50 p-5 rounded-lg border-l-4 border-emerald-500">
+                    <div className="bg-black/30 p-5 rounded-xl border-l-4 border-emerald-500 border-r border-t border-b border-r-white/5 border-t-white/5 border-b-white/5">
                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-1">Title</span>
-                       <span className="text-xl font-bold text-white">{certificate.certificationData.title}</span>
-                       <p className="text-gray-400 mt-2 text-sm leading-relaxed">{certificate.certificationData.description}</p>
+                       <span className="text-xl font-bold text-white">{credential.certificationData.title}</span>
+                       <p className="text-gray-400 mt-2 text-sm leading-relaxed">{credential.certificationData.description}</p>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div className="bg-gray-900/50 p-3 rounded-lg text-center">
+                        <div className="bg-black/30 p-3 rounded-xl text-center border border-white/5">
                           <span className="text-xs text-gray-500 block mb-1">Level</span>
-                          <span className="text-white font-medium">{certificate.certificationData.level || '-'}</span>
+                          <span className="text-white font-medium">{credential.certificationData.level || '-'}</span>
                         </div>
-                        <div className="bg-gray-900/50 p-3 rounded-lg text-center">
+                        <div className="bg-black/30 p-3 rounded-xl text-center border border-white/5">
                           <span className="text-xs text-gray-500 block mb-1">Duration</span>
-                          <span className="text-white font-medium">{certificate.certificationData.duration || '-'}</span>
+                          <span className="text-white font-medium">{credential.certificationData.duration || '-'}</span>
                         </div>
-                        <div className="bg-gray-900/50 p-3 rounded-lg text-center">
+                        <div className="bg-black/30 p-3 rounded-xl text-center border border-white/5">
                           <span className="text-xs text-gray-500 block mb-1">Score</span>
-                          <span className="text-emerald-400 font-bold">{certificate.certificationData.score || '-'}</span>
+                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-bold">{credential.certificationData.score || '-'}</span>
                         </div>
-                        <div className="bg-gray-900/50 p-3 rounded-lg text-center">
+                        <div className="bg-black/30 p-3 rounded-xl text-center border border-white/5">
                           <span className="text-xs text-gray-500 block mb-1">Expiry</span>
                           <span className="text-white font-medium">
-                            {certificate.certificationData.expiryDate 
-                              ? formatDate(certificate.certificationData.expiryDate)
+                            {credential.certificationData.expiryDate 
+                              ? formatDate(credential.certificationData.expiryDate)
                               : 'None'}
                           </span>
                         </div>
@@ -225,20 +221,20 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
             </div>
             
              {/* Metadata Footer */}
-            <div className="bg-gray-800/30 rounded-xl p-4 flex items-center justify-between text-sm text-gray-400 border border-gray-700/30">
+            <div className="bg-white/[0.03] rounded-xl p-4 flex items-center justify-between text-sm text-gray-400 border border-white/[0.08]">
                <div className="flex items-center space-x-6">
                  <div>
                    <span className="block text-xs uppercase tracking-wider text-gray-600 mb-0.5">Issued On</span>
-                   <span className="text-gray-300 font-medium">{formatDate(certificate.issueDate)}</span>
+                   <span className="text-gray-300 font-medium">{formatDate(credential.issueDate)}</span>
                  </div>
                  <div>
                    <span className="block text-xs uppercase tracking-wider text-gray-600 mb-0.5">Issuer</span>
-                   <span className="text-gray-300 font-medium">{certificate.issuedBy?.name}</span>
+                   <span className="text-gray-300 font-medium">{credential.issuedBy?.name}</span>
                  </div>
-                 {certificate.tokenId && (
+                 {credential.tokenId && (
                     <div>
                         <span className="block text-xs uppercase tracking-wider text-gray-600 mb-0.5">Token ID</span>
-                        <span className="text-purple-400 font-mono font-medium">#{certificate.tokenId}</span>
+                        <span className="text-purple-400 font-mono font-medium">#{credential.tokenId}</span>
                     </div>
                  )}
                </div>
@@ -261,31 +257,31 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                  Scan to Verify
                </div>
                <div className="p-2 transition-transform duration-300 group-hover:scale-105">
-                 <QRCodeDisplay credentialId={certificate._id} />
+                 <QRCodeDisplay credentialId={credential._id} />
                </div>
             </div>
 
              {/* Verification Section Component */}
              <div className="h-auto">
-               <VerificationSection certificate={certificate} />
+               <VerificationSection certificate={credential} />
              </div>
 
-             {certificate.tokenId && (
+             {credential.tokenId && (
                <div className="pt-2">
                  <button 
                    onClick={() => setShowSBTModal(true)}
-                   className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-all group"
+                   className="w-full flex items-center justify-between p-4 bg-purple-500/10 hover:bg-purple-500/15 border border-purple-500/20 hover:border-purple-500/30 rounded-xl transition-all group/sbt backdrop-blur-md"
                  >
                    <div className="flex items-center gap-3">
-                     <div className="p-2 bg-blue-500/10 rounded-lg">
-                       <ShieldCheck className="w-5 h-5 text-blue-600" />
+                     <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                       <ShieldCheck className="w-5 h-5 text-purple-400" />
                      </div>
                      <div className="text-left">
-                       <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest leading-none mb-1 text-shadow-glow">Soulbound Token</p>
-                       <p className="text-xs font-semibold text-gray-700">Token ID: #{certificate.tokenId}</p>
+                       <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest leading-none mb-1">Soulbound Token</p>
+                       <p className="text-xs font-semibold text-gray-300">Token ID: #{credential.tokenId}</p>
                      </div>
                    </div>
-                   <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                   <ExternalLink className="w-4 h-4 text-gray-500 group-hover/sbt:text-purple-400 transition-colors" />
                  </button>
                </div>
              )}
@@ -293,10 +289,10 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
             {/* Actions */}
               <div className="space-y-3 pt-2">
                 {/* Branding Assets Display */}
-                {(certificate.issuedBy?.instituteDetails?.branding?.signature || certificate.issuedBy?.instituteDetails?.branding?.signatureCID) && (
-                   <div className="text-center py-4 border-t border-b border-gray-100 mb-4">
+                {(credential.issuedBy?.instituteDetails?.branding?.signature || credential.issuedBy?.instituteDetails?.branding?.signatureCID) && (
+                   <div className="text-center py-4 border-t border-b border-white/10 mb-4">
                       <img 
-                        src={certificate.issuedBy.instituteDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${certificate.issuedBy.instituteDetails.branding.signatureCID}`} 
+                        src={credential.issuedBy.instituteDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.instituteDetails.branding.signatureCID}`} 
                         alt="Authorized Signature" 
                         className="h-16 mx-auto mb-2 object-contain"
                       />
@@ -305,9 +301,9 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
                 )}
 
               <Button
-                onClick={downloadCertificate}
+                onClick={downloadCredential}
                 variant="primary"
-                className="w-full justify-center py-3 text-base shadow-lg shadow-blue-500/20"
+                className="w-full justify-center py-3 text-base shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                 icon={Download}
               >
                 Download PDF
@@ -316,14 +312,13 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
               <Button
                 onClick={viewOnEtherscan}
                 variant="outline"
-                className="w-full justify-center py-3 border-gray-700 hover:bg-gray-800"
+                className="w-full justify-center py-3 border-white/10 hover:border-white/20"
                 icon={ExternalLink}
               >
                 View on Etherscan
               </Button>
               
-              {/* Revoke Button (Admin only) */}
-              {['INSTITUTE', 'ADMIN'].includes(user?.role) && !certificate.isRevoked && (
+              {['INSTITUTE', 'ADMIN'].includes(user?.role) && !credential.isRevoked && (
                 <Button
                   onClick={() => setShowRevokeModal(true)}
                   variant="danger"
@@ -339,10 +334,10 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
         </div>
       </div>
 
-      <RevokeCertificateModal
+      <RevokeCredentialModal
         isOpen={showRevokeModal}
         onClose={() => setShowRevokeModal(false)}
-        certificate={certificate}
+        credential={credential}
         onSuccess={() => {
           if (onUpdate) onUpdate();
           onClose(); 
@@ -352,10 +347,10 @@ const CertificateDetails = ({ isOpen, onClose, certificate, onUpdate }) => {
       <SBTDetailsModal 
         isOpen={showSBTModal}
         onClose={() => setShowSBTModal(false)}
-        credential={certificate}
+        credential={credential}
       />
     </Modal>
   );
 };
 
-export default CertificateDetails;
+export default CredentialDetails;

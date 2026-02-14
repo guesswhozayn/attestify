@@ -14,10 +14,11 @@ import {
     CheckCircle,
     Shield
 } from 'lucide-react';
-import DetailedCertificateCard from '../components/certificate/DetailedCertificateCard';
+import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
+import Avatar from '../components/shared/Avatar';
 
 const StudentPublicProfile = () => {
     const { walletAddress } = useParams();
@@ -111,18 +112,13 @@ const StudentPublicProfile = () => {
 
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
                             {/* Avatar */}
-                            <div className="relative shrink-0">
-                                <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-                                <div className="relative w-32 h-32 rounded-2xl bg-gray-900 border-2 border-white/10 overflow-hidden shadow-2xl">
-                                    {student?.avatar ? (
-                                        <img src={student.avatar} alt={student.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-gray-900 flex items-center justify-center text-4xl font-bold text-indigo-300">
-                                            {student?.name?.charAt(0)}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="absolute -bottom-3 -right-3 bg-gray-900 p-1.5 rounded-full border border-gray-800">
+                            <div className="relative shrink-0 group/avatar">
+                                <Avatar 
+                                    src={student?.avatar} 
+                                    initials={student?.name} 
+                                    size="lg" 
+                                />
+                                <div className="absolute -bottom-1 -right-1 bg-gray-900 p-1 rounded-full border border-gray-800 z-20">
                                     <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/50">
                                         <CheckCircle className="w-3.5 h-3.5 text-white" />
                                     </div>
@@ -185,7 +181,7 @@ const StudentPublicProfile = () => {
                     {credentials && credentials.length > 0 ? (
                         <div className="grid gap-6">
                             {credentials.map((cred) => (
-                                <DetailedCertificateCard 
+                                <DetailedCredentialCard 
                                     key={cred._id} 
                                     credential={cred} 
                                     metadata={cred.type === 'TRANSCRIPT' ? cred.transcriptData : cred.certificationData} 

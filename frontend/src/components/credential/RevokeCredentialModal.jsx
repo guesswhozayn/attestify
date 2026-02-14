@@ -5,7 +5,7 @@ import { ShieldAlert, AlertTriangle } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 
-const RevokeCertificateModal = ({ isOpen, onClose, onSuccess, certificate }) => {
+const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const { showNotification } = useNotification();
@@ -16,12 +16,12 @@ const RevokeCertificateModal = ({ isOpen, onClose, onSuccess, certificate }) => 
 
     setLoading(true);
     try {
-      await credentialAPI.revoke(certificate._id || certificate.id, reason);
-      showNotification('Certificate revoked successfully', 'success');
+      await credentialAPI.revoke(credential._id || credential.id, reason);
+      showNotification('Credential revoked successfully', 'success');
       onSuccess();
       onClose();
     } catch (error) {
-      showNotification(error.response?.data?.error || 'Failed to revoke certificate', 'error');
+      showNotification(error.response?.data?.error || 'Failed to revoke credential', 'error');
     } finally {
       setLoading(false);
     }
@@ -93,4 +93,4 @@ const RevokeCertificateModal = ({ isOpen, onClose, onSuccess, certificate }) => 
   );
 };
 
-export default RevokeCertificateModal;
+export default RevokeCredentialModal;

@@ -62,7 +62,7 @@ const BatchUploadModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Batch Certificate Upload" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Batch Credential Upload" size="lg">
       <div className="space-y-6">
         <div className="bg-blue-500 bg-opacity-10 border border-blue-500 rounded-lg p-4 flex items-start space-x-3">
           <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -71,7 +71,7 @@ const BatchUploadModal = ({ isOpen, onClose, onSuccess }) => {
             <ul className="list-disc list-inside space-y-1 text-blue-400">
               <li>Download and fill the CSV template</li>
               <li>Ensure all required fields are filled</li>
-              <li>Upload certificate PDFs separately or provide URLs</li>
+              <li>Upload credential PDFs separately or provide URLs</li>
             </ul>
           </div>
         </div>

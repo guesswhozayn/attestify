@@ -1,20 +1,51 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
-import CertificateGrid from '../components/certificate/CertificateGrid';
-import CertificateDetails from '../components/certificate/CertificateDetails';
-import DetailedCertificateCard from '../components/certificate/DetailedCertificateCard';
-import UploadCertificateModal from '../components/certificate/UploadCertificateModal';
-import { Plus, LayoutGrid, Search, Shield, Filter, ArrowRight } from 'lucide-react';
+import CredentialGrid from '../components/credential/CredentialGrid';
+import CredentialDetails from '../components/credential/CredentialDetails';
+import UploadCredentialModal from '../components/credential/UploadCredentialModal';
+import { Plus, Shield, Filter, ArrowRight, FileText, TrendingUp, Activity, Users, Award } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const StatCard = ({ label, value, icon: Icon, subtext, gradient, iconBg, delay }) => (
+    <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: delay, ease: "easeOut" }}
+        className="group relative overflow-hidden bg-gray-900/40 p-6 rounded-3xl border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.03] hover:border-white/[0.12] transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10"
+    >
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none group-hover:bg-white/10 transition-colors duration-500"></div>
+        
+        <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="flex justify-between items-start mb-6">
+                <div>
+                     <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</span>
+                     <div className="text-4xl font-bold text-white mt-2 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-300 transition-all duration-300">{value}</div>
+                </div>
+                <div className={`p-3.5 ${iconBg} rounded-2xl border border-white/5 backdrop-blur-sm group-hover:scale-110 transition-transform duration-500 shadow-lg`}>
+                    <Icon className="w-6 h-6 text-white" />
+                </div>
+            </div>
+            
+            {subtext && (
+                <div className="flex items-center text-xs text-gray-400 font-medium bg-white/5 w-fit px-2 py-1 rounded-lg border border-white/5">
+                    <TrendingUp className="w-3 h-3 mr-1.5 text-emerald-400" />
+                    {subtext}
+                </div>
+            )}
+        </div>
+    </motion.div>
+);
+
 const InstituteDashboard = () => {
-    const [certificates, setCertificates] = useState([]);
+    const [credentials, setCredentials] = useState([]);
     const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0 });
-    const [selectedCertificate, setSelectedCertificate] = useState(null);
+    const [selectedCredential, setSelectedCredential] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const { showNotification } = useNotification();
@@ -25,56 +56,33 @@ const InstituteDashboard = () => {
     
     useEffect(() => {
         isMounted.current = true;
-        fetchData();
+        fetchDashboardData();
         return () => {
              isMounted.current = false;
         };
     }, []);
 
-    const fetchData = async () => {
+    const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            // Fetch stats and recent 5
-            const [allResponse, recentResponse] = await Promise.all([
-                 credentialAPI.getAll({ limit: 1 }), // Just to get total count if API doesn't have stats endpoint
-                 credentialAPI.getAll({ limit: 3 })
+            
+            const [statsResponse, recentResponse] = await Promise.all([
+                 credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0 } } }),
+                 credentialAPI.getAll({ limit: 6 }) 
             ]);
 
             if (!isMounted.current) return;
 
-            // If we had a dedicated stats endpoint we would use it, but here we can calculate or use pagination data
-            const totalDocs = allResponse.data.pagination?.total || 0;
-            const recentDocs = recentResponse.data.credentials || [];
-            
-            // For active/revoked stats, ideally we have a specific endpoint. 
-            // Since we don't want to fetch ALL to count them on client side if there are thousands,
-            // we will use the stats endpoint if available or just rely on what we have.
-            // Let's use the stats endpoint we built earlier!
-            try {
-                const statsResponse = await credentialAPI.getStats();
-                if (isMounted.current) {
-                    setStats(statsResponse.data.stats);
-                }
-            } catch (e) {
-                // Fallback if stats fail
-                if (isMounted.current) {
-                    setStats({ 
-                        total: totalDocs, 
-                        active: totalDocs, // Approximation
-                        revoked: 0 
-                    });
-                }
-            }
+            if (statsResponse.data?.stats) {
+                setStats(statsResponse.data.stats);
+            } 
 
-            if (isMounted.current) {
-                setCertificates(recentDocs);
-            }
+            setCredentials(recentResponse.data?.credentials || []);
+
         } catch (error) {
+            console.error('Failed to fetch dashboard data:', error);
             if (isMounted.current) {
-                // Don't show error if we are logging out (401 handled by interceptor essentially, but being explicit helps)
-                if (error.response?.status !== 401) {
-                    showNotification('Failed to fetch dashboard data', 'error');
-                }
+                showNotification('Failed to load dashboard data', 'error');
             }
         } finally {
             if (isMounted.current) {
@@ -83,106 +91,117 @@ const InstituteDashboard = () => {
         }
     };
 
-    const handleCertificateUpload = (newCertificate) => {
-        fetchData(); // Refresh all
-    };
-
     return (
-        <div className="min-h-screen bg-gray-950 text-gray-100 pb-20">
-            <Header
-                title="Institute Overview"
-                showSearch={false} 
-                className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50"
-            />
+        <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
+            
 
-            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 space-y-12">
                 
-                {/* Welcome Banner */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-gray-900 to-indigo-950 border border-gray-800 p-8 md:p-12 shadow-2xl">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
-                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                {/* Welcome Section */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-white/[0.08] p-8 md:p-10 backdrop-blur-xl">
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay pointer-events-none"></div>
+
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
                         <div className="space-y-4">
-                            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium uppercase tracking-wider">
-                                <Shield className="w-3 h-3" />
-                                <span>Institute Access</span>
-                            </div>
-                            <h1 className="text-4xl font-bold text-white tracking-tight">
-                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{user?.instituteDetails?.institutionName || user?.name || 'Institute'}</span>
-                            </h1>
-                            <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
-                                Manage and issue secure blockchain credentials for your students.
-                            </p>
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6 }}
+                                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md cursor-default"
+                            >
+                                 <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                                 </span>
+                                 <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Issuer Nexus</span>
+                            </motion.div>
+                            
+                            <motion.h1 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+                                className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight"
+                            >
+                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.instituteDetails?.institutionName || user?.name || 'Institute'}</span>
+                            </motion.h1>
+                            
+                            <motion.p 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                                className="text-gray-400 max-w-xl text-lg leading-relaxed"
+                            >
+                                Manage your institute's on-chain credentials. Issue new certificates, verify student identities, and track issuance in real-time.
+                            </motion.p>
                         </div>
-                        
-                        <Button
-                            onClick={() => setShowUploadModal(true)}
-                            variant="primary"
-                            icon={Plus}
-                            className="shadow-lg shadow-indigo-500/20 py-4 px-6 text-base"
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: 0.3 }}
                         >
-                            Issue New Credential
-                        </Button>
+                            <Button
+                                onClick={() => setShowUploadModal(true)}
+                                variant="primary"
+                                icon={Plus}
+                                className="bg-white text-black hover:bg-zinc-200 border-none px-8 py-4 text-base font-bold shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.4)] transition-all hover:-translate-y-1 rounded-full"
+                            >
+                                Issue Credential
+                            </Button>
+                        </motion.div>
                     </div>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-sm">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
-                                <Shield className="w-6 h-6" />
-                            </div>
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Issued</span>
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">{stats.total}</div>
-                        <div className="text-sm text-gray-400">Credentials on blockchain</div>
-                    </div>
-
-                    <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-sm">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-                                <LayoutGrid className="w-6 h-6" />
-                            </div>
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Active</span>
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {stats.active}
-                        </div>
-                        <div className="text-sm text-emerald-500/80 flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                            Valid Credentials
-                        </div>
-                    </div>
-
-                    <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-sm">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-red-500/10 rounded-xl text-red-400">
-                                <Filter className="w-6 h-6" />
-                            </div>
-                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Revoked</span>
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {stats.revoked}
-                        </div>
-                         <div className="text-sm text-red-500/80 flex items-center gap-1">
-                             <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                            Action Taken
-                        </div>
-                    </div>
+                    <StatCard 
+                        label="Total Issued" 
+                        value={stats.total} 
+                        icon={Shield} 
+                        subtext="All time credentials"
+                        gradient="from-indigo-500/10 to-purple-500/5"
+                        iconBg="bg-indigo-500/20"
+                        delay={0.4}
+                    />
+                    <StatCard 
+                        label="Active Status" 
+                        value={stats.active} 
+                        icon={Activity} 
+                        subtext="Currently valid on-chain"
+                        gradient="from-emerald-500/10 to-teal-500/5"
+                        iconBg="bg-emerald-500/20"
+                        delay={0.5}
+                    />
+                    <StatCard 
+                        label="Revoked" 
+                        value={stats.revoked} 
+                        icon={Filter} 
+                        subtext="Withdrawn credentials"
+                        gradient="from-red-500/10 to-orange-500/5"
+                        iconBg="bg-red-500/20"
+                        delay={0.6}
+                    />
                 </div>
 
                 {/* Recent Activity Section */}
-                <div className="space-y-6">
-                    {/* Toolbar */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                           Recent Activity
-                        </h2>
-
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.7 }}
+                    className="space-y-6"
+                >
+                    <div className="flex items-center justify-between px-2">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                                <FileText className="w-5 h-5 text-indigo-400" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white tracking-tight">Recent Issuances</h2>
+                        </div>
                         <Button 
                             variant="outline" 
-                            className="text-white-300 hover:text-indigo-200 border-gray-800 hover:border-gray-700"
+                            className="text-zinc-400 hover:text-white border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-full px-6"
                             onClick={() => navigate('/credentials')}
                         >
                             View All <ArrowRight className="w-4 h-4 ml-2" />
@@ -191,59 +210,59 @@ const InstituteDashboard = () => {
 
                     <div className="min-h-[200px]">
                         {loading ? (
-                             <div className="flex justify-center p-12">
-                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                             <div className="flex flex-col items-center justify-center p-20 bg-white/[0.02] border border-dashed border-white/10 rounded-3xl">
+                                <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <div className="text-zinc-500 font-medium animate-pulse">Loading blockchain records...</div>
                              </div>
-                        ) : certificates.length > 0 ? (
-                            <div className="space-y-8">
-                                {/* Featured (Latest) Credential */}
-                                <div>
-                                    <h3 className="text-sm text-gray-500 uppercase tracking-widest font-semibold mb-4">Latest Issued</h3>
-                                    <DetailedCertificateCard 
-                                        credential={certificates[0]} 
-                                        onClick={() => setSelectedCertificate(certificates[0])} // Optional if we want detailed modal on click? But Detailed card already shows everything.
-                                    />
-                                </div>
+                        ) : credentials.length > 0 ? (
+                            <div className="relative">
+                                {/* Decor */}
+                                <div className="absolute -left-4 top-10 bottom-10 w-px bg-white/5 hidden xl:block"></div>
                                 
-                                {/* List of others if any */}
-                                {certificates.length > 1 && (
-                                    <div>
-                                         <h3 className="text-sm text-gray-500 uppercase tracking-widest font-semibold mb-4">Other Recent</h3>
-                                         <CertificateGrid
-                                            certificates={certificates.slice(1)}
-                                            onCertificateClick={setSelectedCertificate}
-                                            loading={false}
-                                        />
-                                    </div>
-                                )}
+                                <CredentialGrid 
+                                    credentials={credentials} 
+                                    onCredentialClick={setSelectedCredential}
+                                    loading={loading}
+                                />
                             </div>
                         ) : (
-                            <div className="text-center py-12 bg-gray-900/50 rounded-2xl border border-gray-800">
-                                <p className="text-gray-400">No credentials issued yet.</p>
+                            <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center backdrop-blur-sm group hover:bg-white/[0.03] transition-colors">
+                                <div className="w-20 h-20 bg-white/[0.03] rounded-full flex items-center justify-center mb-6 shadow-xl ring-8 ring-white/[0.02] group-hover:scale-110 transition-transform">
+                                    <Award className="w-10 h-10 text-zinc-600 group-hover:text-indigo-500 transition-colors" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">No Credentials Issued</h3>
+                                <p className="text-zinc-500 max-w-sm mx-auto text-base mb-8">
+                                    Start issuing blockchain-secured credentials to populate your dashboard.
+                                </p>
+                                <Button 
+                                    onClick={() => setShowUploadModal(true)}
+                                    variant="primary"
+                                    className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-full px-8 shadow-lg shadow-indigo-500/20"
+                                >
+                                    Issue First Credential
+                                </Button>
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
             </main>
 
             {/* Modals */}
-            <UploadCertificateModal
+            <UploadCredentialModal
                 isOpen={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
-                onSuccess={handleCertificateUpload}
+                onSuccess={() => {
+                    fetchDashboardData();
+                    showNotification('Credential issued successfully', 'success');
+                }}
             />
 
-            {selectedCertificate && (
-                <CertificateDetails
-                    isOpen={!!selectedCertificate}
-                    onClose={() => setSelectedCertificate(null)}
-                    certificate={selectedCertificate}
-                    onUpdate={() => {
-                        fetchData();
-                        setSelectedCertificate(null);
-                    }}
-                />
-            )}
+            <CredentialDetails
+                isOpen={!!selectedCredential}
+                onClose={() => setSelectedCredential(null)}
+                credential={selectedCredential}
+                onUpdate={fetchDashboardData}
+            />
         </div>
     );
 };

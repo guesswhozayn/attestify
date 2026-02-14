@@ -4,21 +4,57 @@ import {
     ShieldCheck, 
     Building2, 
     Globe, 
-    ArrowLeft, 
     Loader2,
-    Search,
     Share2,
     CheckCircle,
-    Shield,
     Mail,
     Calendar,
-    MapPin,
-    Award
+    Award,
+    Copy,
+    ExternalLink,
+    Hash,
+    Cpu,
+    Zap
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { publicAPI } from '../services/api';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
+
+const DataField = ({ label, value, mono = false, copyable = false }) => {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        if (value) {
+            navigator.clipboard.writeText(value);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    return (
+        <div className="group relative">
+            <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 group-hover:text-cyan-400 transition-colors">
+                {label}
+            </label>
+            <div className="flex items-center justify-between p-3 bg-black/40 border border-white/10 rounded-lg backdrop-blur-sm hover:border-cyan-500/30 transition-all duration-300">
+                <span className={`text-sm text-gray-300 truncate pr-4 ${mono ? 'font-mono' : 'font-sans'}`}>
+                    {value || 'N/A'}
+                </span>
+                {copyable && value && (
+                    <button 
+                        onClick={handleCopy}
+                        className="p-1.5 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                        title="Copy to clipboard"
+                    >
+                        {copied ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
 
 const InstitutePublicProfile = () => {
     const { id, walletAddress } = useParams();
@@ -58,35 +94,37 @@ const InstitutePublicProfile = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white relative overflow-hidden">
-                 {/* Background Elements */}
-                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-                
-                <div className="relative z-10 flex flex-col items-center">
-                    <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-6" />
-                    <p className="text-slate-400 animate-pulse font-medium tracking-wide uppercase text-sm">Verifying Institute Record...</p>
-                </div>
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white relative overflow-hidden font-mono">
+                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay"></div>
+                 <div className="w-64 h-1 bg-gray-800 rounded-full overflow-hidden">
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="h-full bg-cyan-500"
+                    />
+                 </div>
+                 <p className="mt-4 text-xs text-cyan-500 uppercase tracking-widest animate-pulse">Initializing Interface...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden font-sans">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay"></div>
                 
-                <div className="relative z-10 max-w-md w-full bg-gray-900/40 backdrop-blur-xl border border-white/10 p-12 rounded-3xl shadow-2xl">
-                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20 mx-auto">
-                        <ShieldCheck className="w-10 h-10 text-red-500" />
+                <div className="relative z-10 max-w-md w-full bg-zinc-900/50 backdrop-blur-xl border border-red-500/20 p-12 rounded-2xl shadow-2xl">
+                    <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20 mx-auto">
+                        <ShieldCheck className="w-8 h-8 text-red-500" />
                     </div>
-                    <h2 className="text-3xl font-bold mb-4">Institute Not Found</h2>
-                    <p className="text-slate-400 mb-8 leading-relaxed">{error}</p>
+                    <h2 className="text-2xl font-bold mb-2 font-mono uppercase tracking-tight text-red-500">Entity Not Found</h2>
+                    <p className="text-gray-400 mb-8 text-sm">{error}</p>
                     <Button 
                         onClick={() => navigate('/search')}
-                        className="w-full bg-white text-black hover:bg-gray-200"
+                        className="w-full bg-white text-black hover:bg-gray-200 font-mono text-xs uppercase tracking-widest"
                     >
-                        Back to Search
+                        Return to Search
                     </Button>
                 </div>
             </div>
@@ -96,160 +134,179 @@ const InstitutePublicProfile = () => {
     if (!data) return null;
 
     return (
-        <div className="min-h-screen bg-black text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
+        <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
             
-            {/* Background Elements */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+            {/* Global Background */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-screen"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+                
+                {/* Glowing Orbs - Subtle */}
+                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px]"></div>
             </div>
 
             <Navbar showBackSearch={true} />
 
-            <main className="relative z-10 pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <main className="relative z-10 pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                {/* Profile Header Card */}
-                <div className="relative mb-20">
-                     {/* Glow behind card */}
-                    <div className="absolute inset-0 bg-indigo-500/10 blur-[60px] -z-10 rounded-full"></div>
-
-                    <div className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
-                        
-                        {/* Shimmer effect */}
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-
-                        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
-                            {/* Logo */}
-                            <div className="relative shrink-0">
-                                <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-                                <div className="relative w-32 h-32 rounded-2xl bg-gray-900 border-2 border-white/10 overflow-hidden shadow-2xl flex items-center justify-center">
-                                    {data.details?.branding?.logo ? (
-                                        <img src={data.details.branding.logo} alt={data.name} className="w-full h-full object-contain p-2" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-gray-900 flex items-center justify-center text-4xl font-bold text-indigo-300">
-                                            <Building2 className="w-12 h-12" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="absolute -bottom-3 -right-3 bg-gray-900 p-1.5 rounded-full border border-gray-800">
-                                    <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/50">
-                                        <CheckCircle className="w-3.5 h-3.5 text-white" />
+                {/* Digital Passport Container */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="relative grid grid-cols-1 lg:grid-cols-12 gap-8"
+                >
+                    
+                    {/* Left Column: Entity Identity (The "Passport" Cover) */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 rounded-2xl overflow-hidden relative group">
+                            {/* Neural Network Abstract BG */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent opacity-50"></div>
+                            
+                            <div className="p-8 flex flex-col items-center text-center relative z-10">
+                                {/* Logo Container */}
+                                <div className="relative mb-8 group-hover:scale-105 transition-transform duration-500">
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
+                                    <div className="relative w-40 h-40 bg-[#0a0a0a] rounded-2xl border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl">
+                                         {data.details?.branding?.logo ? (
+                                            <img src={data.details.branding.logo} alt={data.name} className="w-full h-full object-contain p-4" />
+                                        ) : (
+                                            <Building2 className="w-16 h-16 text-zinc-700" />
+                                        )}
                                     </div>
+                                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-[#0a0a0a] border border-cyan-500/30 px-3 py-1 rounded-full flex items-center gap-2 shadow-lg shadow-cyan-900/20">
+                                        <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                                        <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Verified Entity</span>
+                                    </div>
+                                </div>
+
+                                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+                                    {data.details?.institutionName || data.name}
+                                </h1>
+                                <p className="text-zinc-500 text-sm mb-8 font-mono">
+                                    ID: {data.details?.registrationNumber || 'UNKNOWN_ID'}
+                                </p>
+
+                                <div className="w-full grid grid-cols-2 gap-3">
+                                    <Button className="w-full bg-white text-black hover:bg-zinc-200 font-mono text-[10px] uppercase tracking-widest h-10">
+                                        View Creds
+                                    </Button>
+                                    <button className="w-full bg-zinc-800 hover:bg-zinc-700 border border-white/5 text-white rounded-lg font-mono text-[10px] uppercase tracking-widest h-10 transition-colors flex items-center justify-center gap-2">
+                                        <Share2 className="w-3 h-3" /> Share
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Details */}
-                            <div className="flex-1 text-center md:text-left pt-1">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-4">
-                                    <ShieldCheck className="w-3 h-3" />
-                                    Authorized Issuer
-                                </div>
-                                
-                                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                                    {data.details?.institutionName || data.name}
-                                </h1>
+                            {/* Decorative Footer of Card */}
+                            <div className="bg-black/40 border-t border-white/5 p-4 flex justify-between items-center text-[10px] text-zinc-600 font-mono uppercase">
+                                <span>Attestify Protocol</span>
+                                <span className="flex items-center gap-1"><Cpu className="w-3 h-3" /> v2.4.0</span>
+                            </div>
+                        </div>
 
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-6">
-                                    {data.email && (
-                                        <div className="flex items-center px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-gray-300 text-sm hover:bg-white/10 transition-colors">
-                                            <Mail className="w-4 h-4 mr-2 text-purple-400" />
-                                            {data.email}
-                                        </div>
-                                    )}
-                                    {data.details?.registrationNumber && (
-                                        <div className="flex items-center px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-gray-300 text-sm hover:bg-white/10 transition-colors">
-                                            <span className="text-indigo-400 font-bold mr-2">REG:</span>
-                                            <span className="font-mono">{data.details.registrationNumber}</span>
-                                        </div>
-                                    )}
+                         {/* Quick Stats Mini-Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-zinc-900/30 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
+                                <div className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mb-1">Network</div>
+                                <div className="text-cyan-400 font-mono text-sm flex items-center gap-2">
+                                    <Globe className="w-3 h-3" /> Sepolia
                                 </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex items-center justify-center md:justify-start gap-3">
-                                    <Button className="h-10 px-6 bg-white text-black hover:bg-gray-200 rounded-full font-bold text-sm shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
-                                        View Credentials
-                                    </Button>
-                                    <button className="h-10 w-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors">
-                                        <Share2 className="w-4 h-4" />
-                                    </button>
+                            </div>
+                            <div className="bg-zinc-900/30 border border-white/5 p-4 rounded-xl backdrop-blur-sm">
+                                <div className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider mb-1">Since</div>
+                                <div className="text-white font-mono text-sm">
+                                     {data.createdAt ? new Date(data.createdAt).getFullYear() : '2024'}
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-                    {/* About Section */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <section className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 relative group overflow-hidden">
-                             <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity">
-                                <Building2 className="w-24 h-24 text-white" />
-                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-6 relative z-10">About Institute</h2>
-                            <p className="text-gray-400 leading-relaxed text-lg relative z-10">
-                                {data.about || "This institute has not provided a public description yet."}
-                            </p>
-                        </section>
-
-                       {/* Official Seal Display (if available) */}
-                        {data.details?.branding?.seal && (
-                             <section className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                
-                                <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center p-4 border border-white/10 relative z-10 shrink-0">
-                                    <img src={data.details.branding.seal} alt="Official Seal" className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
+                    {/* Right Column: Data & Verification (The "Passport" Pages) */}
+                    <div className="lg:col-span-8 space-y-6">
+                        
+                        {/* Status Bar */}
+                        <div className="bg-zinc-900/30 border border-white/5 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 backdrop-blur-md">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center border border-emerald-500/20">
+                                    <ShieldCheck className="w-5 h-5 text-emerald-500" />
                                 </div>
-                                <div className="text-center sm:text-left relative z-10">
-                                    <h3 className="text-xl font-bold text-white mb-2">Official Digital Seal</h3>
-                                    <p className="text-gray-400 text-sm">
-                                        This cryptographic seal is included in all verifiable credentials issued by this institute, ensuring authenticity and provenance on the Attestify Protocol.
+                                <div>
+                                    <div className="text-white font-bold text-sm">Issuer Authorization</div>
+                                    <div className="text-emerald-500 text-xs font-mono">0x...ACTIVE</div>
+                                </div>
+                            </div>
+                            <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
+                            <div className="flex items-center gap-6">
+                                <div className="text-right">
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Trust Score</div>
+                                    <div className="text-white font-mono font-bold">100/100</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Valid Until</div>
+                                    <div className="text-white font-mono font-bold">PERMANENT</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Main Content Tabs (Visual only for now) */}
+                        <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 rounded-2xl min-h-[500px] flex flex-col relative overflow-hidden">
+                            {/* Header Line */}
+                            <div className="h-1 w-full bg-gradient-to-r from-cyan-500 via-purple-500 to-transparent"></div>
+                            
+                            <div className="p-8">
+                                <div className="mb-8">
+                                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                        <Hash className="w-4 h-4 text-cyan-500" />
+                                        Entity Profile Data
+                                    </h3>
+                                    <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
+                                         {data.about || "No public description available for this entity. All on-chain actions are verifiable through the Attestify Registry contract."}
                                     </p>
                                 </div>
-                             </section>
-                        )}
-                    </div>
 
-                    {/* Sidebar / Metrics */}
-                    <div className="space-y-6">
-                         <div className="bg-gradient-to-br from-indigo-900/20 to-gray-900/40 border border-indigo-500/20 rounded-3xl p-6 backdrop-blur-sm">
-                            <h3 className="text-indigo-400 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                                <ShieldCheck className="w-4 h-4" />
-                                Verification Status
-                            </h3>
-                            <div className="flex items-center gap-3 text-white font-bold text-lg mb-2">
-                                <CheckCircle className="w-6 h-6 text-emerald-400" />
-                                Fully Authorized
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <DataField label="Official Email" value={data.email} copyable />
+                                    <DataField label="Wallet Address" value={walletAddress || data.walletAddress || "0x0000...0000"} mono copyable />
+                                    <DataField label="Registry ID" value={data._id} mono copyable />
+                                    <DataField label="Contract Version" value="v1.0.2 (Beta)" mono />
+                                </div>
+
+                                {/* Official Seal Section */}
+                                {data.details?.branding?.seal && (
+                                    <div className="border-t border-white/5 pt-8">
+                                        <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                            <Award className="w-4 h-4 text-purple-500" />
+                                            Cryptographic Seal
+                                        </h3>
+                                        <div className="flex items-center gap-8 bg-black/20 p-6 rounded-xl border border-white/5 border-dashed">
+                                            <div className="w-24 h-24 shrink-0 relative">
+                                                <img src={data.details.branding.seal} alt="Seal" className="w-full h-full object-contain opacity-80 hover:opacity-100 transition-opacity" />
+                                                <div className="absolute inset-0 bg-purple-500/20 blur-xl opacity-0 hover:opacity-50 transition-opacity"></div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-zinc-500 font-mono mb-2">SEAL FINGERPRINT</div>
+                                                <div className="text-sm text-purple-300 font-mono break-all">
+                                                    0x8f2d...9a1b
+                                                </div>
+                                                <p className="text-zinc-600 text-[10px] mt-2 max-w-sm">
+                                                    This seal is automatically embedded into every credential issued by this address.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            <p className="text-gray-400 text-sm">
-                                This institute is fully authorized to issue Soulbound Credentials on the Attestify Protocol.
-                            </p>
-                         </div>
 
-                         {data.createdAt && (
-                             <div className="bg-gray-900/40 border border-white/10 rounded-3xl p-6 flex items-center gap-4 backdrop-blur-sm hover:border-white/20 transition-colors">
-                                 <div className="p-3 bg-white/5 rounded-xl">
-                                     <Calendar className="w-6 h-6 text-indigo-400" />
-                                 </div>
-                                 <div>
-                                     <p className="text-gray-500 text-xs font-bold uppercase">Member Since</p>
-                                     <p className="text-white font-bold">{new Date(data.createdAt).getFullYear()}</p>
-                                 </div>
-                             </div>
-                         )}
+                            {/* Background Watermark */}
+                            <div className="absolute bottom-0 right-0 p-12 opacity-[0.02] pointer-events-none">
+                                <Building2 className="w-64 h-64" />
+                            </div>
+                        </div>
 
-                         <div className="bg-gray-900/40 border border-white/10 rounded-3xl p-6 flex items-center gap-4 backdrop-blur-sm hover:border-white/20 transition-colors">
-                             <div className="p-3 bg-white/5 rounded-xl">
-                                 <Globe className="w-6 h-6 text-purple-400" />
-                             </div>
-                             <div>
-                                 <p className="text-gray-500 text-xs font-bold uppercase">Network</p>
-                                 <p className="text-white font-bold">Ethereum Sepolia</p>
-                             </div>
-                         </div>
                     </div>
-                </div>
+                </motion.div>
+
             </main>
             <Footer />
         </div>

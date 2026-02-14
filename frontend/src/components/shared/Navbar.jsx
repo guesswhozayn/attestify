@@ -22,8 +22,8 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
 
     const navLinks = [
         { name: 'Public Explorer', path: '/search', icon: Search },
-        { name: 'Documentation', path: '/docs', icon: BookOpen },
-        { name: 'Verification', path: '/verify', icon: CheckCircle },
+        { name: 'Docs', path: '/docs', icon: BookOpen },
+        { name: 'Verify', path: '/verify', icon: CheckCircle },
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -103,7 +103,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             className="hidden sm:flex bg-white/5 hover:bg-white/10 text-white border-0 rounded-full px-4 py-2 text-xs font-black items-center gap-2 group/back"
                         >
                             <ArrowLeft className="w-3.5 h-3.5 group-hover/back:-translate-x-1 transition-transform" />
-                            BACK TO SEARCH
+                            Back
                         </Button>
                     )}
 
@@ -123,7 +123,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             className="bg-white text-black hover:bg-gray-200 border-0 rounded-full px-6 py-2 text-sm font-black flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                         >
                             <LogIn className="w-4 h-4" />
-                            SIGN IN
+                            Sign In
                         </Button>
                     )}
 

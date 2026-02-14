@@ -28,7 +28,7 @@ const InstituteLogTable = ({ logs, loading }) => {
   if (loading) {
     return (
       <div className="p-12 text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
         <p className="text-gray-500 mt-4 text-sm">Loading activity logs...</p>
       </div>
     );
@@ -37,8 +37,8 @@ const InstituteLogTable = ({ logs, loading }) => {
   if (logs.length === 0) {
     return (
       <div className="p-12 text-center">
-        <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-           <Activity className="w-6 h-6 text-gray-700" />
+        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+           <Activity className="w-6 h-6 text-gray-600" />
         </div>
         <p className="text-gray-400 font-medium">No activity recorded yet</p>
       </div>
@@ -48,7 +48,7 @@ const InstituteLogTable = ({ logs, loading }) => {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
-        <thead className="bg-gray-900/50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800">
+        <thead className="bg-white/[0.03] text-gray-500 text-xs uppercase tracking-wider border-b border-white/10">
           <tr>
             <th className="px-6 py-4 font-medium">Event</th>
             <th className="px-6 py-4 font-medium">Performed By</th>
@@ -56,12 +56,12 @@ const InstituteLogTable = ({ logs, loading }) => {
             <th className="px-6 py-4 font-medium text-right">Time</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800 text-sm">
+        <tbody className="divide-y divide-white/[0.06] text-sm">
           {logs.map((log) => (
-            <tr key={log._id} className="hover:bg-gray-800/30 transition-colors group">
+            <tr key={log._id} className="hover:bg-white/[0.03] transition-colors group">
               <td className="px-6 py-4">
                 <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg bg-gray-800 border border-gray-700 group-hover:border-gray-600 transition-colors`}>
+                  <div className="p-2 rounded-lg bg-white/5 border border-white/10 group-hover:border-white/20 transition-colors">
                     {getActionIcon(log.action)}
                   </div>
                   <div>
@@ -85,7 +85,7 @@ const InstituteLogTable = ({ logs, loading }) => {
               <td className="px-6 py-4">
                 <div className="space-y-1.5">
                     {log.targetCredential && (
-                        <div className="flex items-center text-xs text-gray-400 bg-gray-900/50 px-2 py-1 rounded w-fit border border-gray-800">
+                        <div className="flex items-center text-xs text-gray-400 bg-white/[0.03] px-2 py-1 rounded w-fit border border-white/[0.06]">
                             <FileText className="w-3 h-3 mr-1.5 opacity-70" />
                             ID: <span className="text-gray-300 ml-1 font-mono">
                                 {typeof log.targetCredential === 'object' ? log.targetCredential._id.slice(-6) : log.targetCredential.slice(-6)}
@@ -97,7 +97,7 @@ const InstituteLogTable = ({ logs, loading }) => {
                             href={`https://sepolia.etherscan.io/tx/${log.details.transactionHash}`}
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="flex items-center text-xs text-blue-400/80 hover:text-blue-300 hover:underline decoration-blue-500/30 w-fit"
+                            className="flex items-center text-xs text-indigo-400/80 hover:text-indigo-300 hover:underline decoration-indigo-500/30 w-fit"
                         >
                             <Hash className="w-3 h-3 mr-1" />
                             Transaction

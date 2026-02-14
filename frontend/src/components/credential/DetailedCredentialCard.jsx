@@ -1,15 +1,51 @@
 import React from 'react';
-import { Award, Calendar, ShieldAlert, CheckCircle, GraduationCap } from 'lucide-react';
+import { Award, Calendar, ShieldAlert, CheckCircle, GraduationCap, ChevronRight } from 'lucide-react';
 
-const DetailedCertificateCard = ({ credential, metadata }) => {
+const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onClick }) => {
     if (!credential) return null;
 
     // Use metadata passed in, or derive it if missing (fallback logic)
-    // Note: metadata construction might vary, assuming it's passed ready-to-use
     const displayMetadata = metadata || (credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData);
 
+    const formattedDate = new Date(credential.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    const title = displayMetadata?.program || displayMetadata?.title || 'Credential Title';
+    const recipient = displayMetadata?.studentName || credential.studentName;
+    const issuer = displayMetadata?.university || credential.university;
+
+    if (minimalist) {
+        return (
+            <div 
+                onClick={onClick}
+                className="group p-5 bg-zinc-900 border border-white/5 rounded-lg hover:border-white/10 transition-colors cursor-pointer flex items-center justify-between"
+            >
+                <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-lg border border-white/5 ${credential.type === 'TRANSCRIPT' ? 'bg-purple-500/10 text-purple-400' : 'bg-indigo-500/10 text-indigo-400'}`}>
+                        {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
+                    </div>
+                    <div>
+                        <h3 className="text-white font-medium text-base mb-0.5">{title}</h3>
+                        <p className="text-sm text-zinc-500">
+                            Issued to <span className="text-zinc-400">{recipient}</span> • {formattedDate}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <div className={`px-2.5 py-0.5 rounded text-xs font-medium border ${
+                        credential.isRevoked 
+                            ? 'bg-red-500/10 text-red-400 border-red-500/20' 
+                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    }`}>
+                        {credential.isRevoked ? 'REVOKED' : 'VALID'}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="group relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800 hover:border-indigo-500/50 transition-all duration-500">
+        <div onClick={onClick} className="group relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800 hover:border-indigo-500/50 transition-all duration-500 cursor-pointer">
             
             {/* Card Header / Banner */}
             <div className="relative h-64 bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900 p-8 md:p-10 flex flex-col justify-between overflow-hidden">
@@ -43,11 +79,11 @@ const DetailedCertificateCard = ({ credential, metadata }) => {
 
                 <div className="relative z-10 mt-auto">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
-                    {displayMetadata?.program || displayMetadata?.title || 'Credential Title'}
+                    {title}
                 </h2>
                 <div className="flex items-center text-indigo-200/80 text-sm font-medium">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Issued on {new Date(credential.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    Issued on {formattedDate}
                 </div>
                 </div>
             </div>
@@ -57,12 +93,12 @@ const DetailedCertificateCard = ({ credential, metadata }) => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 pb-10 border-b border-gray-800">
                 <div className="space-y-1">
                     <label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Recipient</label>
-                    <p className="text-2xl text-white font-semibold tracking-tight">{displayMetadata?.studentName || credential.studentName}</p>
+                    <p className="text-2xl text-white font-semibold tracking-tight">{recipient}</p>
                     <p className="text-sm text-gray-400 font-mono">{credential.studentWalletAddress?.substring(0,10)}...</p>
                 </div>
                 <div className="md:text-right space-y-1">
                     <label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Issued By</label>
-                    <p className="text-xl text-white font-medium">{displayMetadata?.university || credential.university}</p>
+                    <p className="text-xl text-white font-medium">{issuer}</p>
                     <div className="flex md:justify-end">
                         <span className="inline-flex items-center text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded border border-emerald-400/20">
                             <CheckCircle className="w-3 h-3 mr-1" /> trusted issuer
@@ -108,4 +144,4 @@ const DetailedCertificateCard = ({ credential, metadata }) => {
     );
 };
 
-export default DetailedCertificateCard;
+export default DetailedCredentialCard;

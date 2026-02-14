@@ -6,7 +6,7 @@ import { Upload, Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpe
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 
-const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
+const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -216,30 +216,56 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
       <div className="space-y-6">
         
         {/* Mode Switcher */}
-        <div className="flex bg-gray-900/50 p-1 rounded-xl border border-gray-800">
+        <div className="flex bg-black/40 p-1.5 rounded-xl border border-white/[0.08] backdrop-blur-md">
            <button
              onClick={() => setMode('single')}
-             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${mode === 'single' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+             className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+               mode === 'single' 
+                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
+                 : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
+             }`}
            >
+             <User className="w-4 h-4" />
              Single Issue
            </button>
            <button
              onClick={() => setMode('batch')}
-             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${mode === 'batch' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+             className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+               mode === 'batch' 
+                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
+                 : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
+             }`}
            >
+             <Users className="w-4 h-4" />
              Batch Upload (CSV)
            </button>
         </div>
 
         {mode === 'batch' ? (
            <div className="space-y-6">
-              <div className="bg-gray-800/30 border-2 border-dashed border-gray-700 rounded-xl p-8 text-center hover:border-indigo-500/50 transition-colors group">
-                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-gray-700 transition-colors">
-                    <FileText className="w-8 h-8 text-indigo-400" />
+              <div 
+                className={`relative border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-300 group ${
+                    batchFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02] hover:border-indigo-500/30 hover:bg-indigo-500/5'
+                }`}
+              >
+                 <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 ${
+                     batchFile ? 'bg-emerald-500/20' : 'bg-white/[0.05] group-hover:scale-110 group-hover:bg-indigo-500/20'
+                 }`}>
+                    {batchFile ? (
+                        <CheckCircle className="w-10 h-10 text-emerald-400" />
+                    ) : (
+                        <FileText className="w-10 h-10 text-gray-400 group-hover:text-indigo-400 transition-colors" />
+                    )}
                  </div>
-                 <h3 className="text-lg font-semibold text-white mb-2">Upload CSV File</h3>
-                 <p className="text-gray-400 text-sm mb-6 max-w-sm mx-auto">
-                    Upload a CSV file containing multiple credential records. Download the template below for the correct format.
+                 
+                 <h3 className="text-xl font-bold text-white mb-2">
+                     {batchFile ? 'Wrapper File Selected' : 'Upload CSV File'}
+                 </h3>
+                 <p className="text-gray-400 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
+                    {batchFile 
+                        ? <span className="text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded-lg">{batchFile.name}</span>
+                        : 'Drag and drop your CSV file here, or click to browse. Ensure your file matches the template layout.'
+                    }
                  </p>
                  
                  <input
@@ -251,20 +277,22 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                  />
                  <label 
                    htmlFor="batch-file-upload"
-                   className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium cursor-pointer transition-colors shadow-lg shadow-indigo-500/20"
+                   className="inline-flex items-center px-8 py-3.5 bg-white text-black hover:bg-gray-200 rounded-full font-bold cursor-pointer transition-all hover:scale-105 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                  >
                    <Upload className="w-5 h-5 mr-2" />
-                   {batchFile ? batchFile.name : 'Select CSV File'}
+                   {batchFile ? 'Change File' : 'Select File'}
                  </label>
               </div>
 
-              <div className="flex justify-between items-center border-t border-gray-800 pt-6">
+              <div className="flex justify-between items-center border-t border-white/[0.06] pt-6">
                  <button
                    onClick={downloadTemplate}
-                   className="flex items-center text-sm text-gray-400 hover:text-indigo-400 transition-colors"
+                   className="flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors group"
                  >
-                   <Download className="w-4 h-4 mr-2" />
-                   Download Template
+                   <div className="p-2 bg-white/[0.05] rounded-lg mr-2 group-hover:bg-white/[0.1] transition-colors">
+                        <Download className="w-4 h-4" />
+                   </div>
+                   Download CSV Template
                  </button>
                  
                  <Button
@@ -272,27 +300,30 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                     loading={loading}
                     disabled={!batchFile || loading}
                     size="lg"
-                    className="shadow-xl shadow-indigo-500/10"
+                    className="shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full px-8"
                  >
                     Process Batch
                  </Button>
               </div>
 
               {batchSummary && (
-                 <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                    <h4 className="font-semibold text-white mb-2">Results</h4>
+                 <div className="bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/[0.08] animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h4 className="font-bold text-white mb-4 flex items-center">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2"></span>
+                        Processing Results
+                    </h4>
                     <div className="grid grid-cols-3 gap-4 text-center">
-                       <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
-                          <div className="text-xl font-bold text-emerald-500">{batchSummary.success}</div>
-                          <div className="text-xs text-gray-400">Success</div>
+                       <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
+                          <div className="text-2xl font-black text-emerald-400 mb-1">{batchSummary.success}</div>
+                          <div className="text-xs font-bold text-emerald-500/70 uppercase tracking-wider">Success</div>
                        </div>
-                       <div className="bg-red-500/10 p-2 rounded-lg border border-red-500/20">
-                          <div className="text-xl font-bold text-red-500">{batchSummary.failed}</div>
-                          <div className="text-xs text-gray-400">Failed</div>
+                       <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20">
+                          <div className="text-2xl font-black text-red-400 mb-1">{batchSummary.failed}</div>
+                          <div className="text-xs font-bold text-red-500/70 uppercase tracking-wider">Failed</div>
                        </div>
-                       <div className="bg-gray-700/50 p-2 rounded-lg border border-gray-600">
-                          <div className="text-xl font-bold text-white">{batchSummary.total}</div>
-                          <div className="text-xs text-gray-400">Total</div>
+                       <div className="bg-white/[0.05] p-4 rounded-xl border border-white/[0.05]">
+                          <div className="text-2xl font-black text-white mb-1">{batchSummary.total}</div>
+                          <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total</div>
                        </div>
                     </div>
                  </div>
@@ -302,49 +333,55 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
         <div className="space-y-8">
         {/* Credential Type Selector */}
         <div>
-           <label className="block text-gray-400 text-sm font-medium mb-3">Credential Type</label>
+           <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-4 ml-1">Credential Type</label>
            <div className="grid grid-cols-2 gap-4">
              <button
                onClick={() => setCredentialType('CERTIFICATION')}
-               className={`relative p-4 rounded-xl border-2 transition-all duration-200 text-left group ${
+               className={`relative p-5 rounded-2xl border transition-all duration-300 text-left group overflow-hidden ${
                  credentialType === 'CERTIFICATION'
-                   ? 'bg-emerald-500/10 border-emerald-500'
-                   : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                   ? 'bg-gradient-to-br from-emerald-500/20 to-emerald-900/10 border-emerald-500/50 shadow-lg shadow-emerald-500/10'
+                   : 'bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
                }`}
              >
-               <div className="flex items-start justify-between mb-2">
-                  <div className={`p-2 rounded-lg ${credentialType === 'CERTIFICATION' ? 'bg-emerald-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+               <div className="flex items-start justify-between mb-3 relative z-10">
+                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'CERTIFICATION' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'bg-white/10 text-gray-400 group-hover:bg-white/20'}`}>
                      <Award className="w-5 h-5" />
                   </div>
-                  {credentialType === 'CERTIFICATION' && <CheckCircle className="w-5 h-5 text-emerald-500" />}
+                  {credentialType === 'CERTIFICATION' && <div className="bg-emerald-500/20 p-1 rounded-full"><CheckCircle className="w-5 h-5 text-emerald-400" /></div>}
                </div>
-               <h4 className={`font-semibold ${credentialType === 'CERTIFICATION' ? 'text-white' : 'text-gray-300'}`}>Certification</h4>
-               <p className="text-xs text-gray-500 mt-1">For courses, workshops, and skills.</p>
+               <h4 className={`font-bold text-lg mb-1 relative z-10 ${credentialType === 'CERTIFICATION' ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>Certification</h4>
+               <p className="text-xs text-gray-500 group-hover:text-gray-400 relative z-10 font-medium">For courses, workshops, and skills verification.</p>
+               
+               {/* Background Glow */}
+               {credentialType === 'CERTIFICATION' && <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-500/20 blur-2xl rounded-full"></div>}
              </button>
              
              <button
                onClick={() => setCredentialType('TRANSCRIPT')}
-               className={`relative p-4 rounded-xl border-2 transition-all duration-200 text-left group ${
+               className={`relative p-5 rounded-2xl border transition-all duration-300 text-left group overflow-hidden ${
                  credentialType === 'TRANSCRIPT'
-                   ? 'bg-blue-500/10 border-blue-500'
-                   : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                   ? 'bg-gradient-to-br from-indigo-500/20 to-indigo-900/10 border-indigo-500/50 shadow-lg shadow-indigo-500/10'
+                   : 'bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
                }`}
              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className={`p-2 rounded-lg ${credentialType === 'TRANSCRIPT' ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                <div className="flex items-start justify-between mb-3 relative z-10">
+                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'TRANSCRIPT' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'bg-white/10 text-gray-400 group-hover:bg-white/20'}`}>
                      <BookOpen className="w-5 h-5" />
                   </div>
-                  {credentialType === 'TRANSCRIPT' && <CheckCircle className="w-5 h-5 text-blue-500" />}
+                  {credentialType === 'TRANSCRIPT' && <div className="bg-indigo-500/20 p-1 rounded-full"><CheckCircle className="w-5 h-5 text-indigo-400" /></div>}
                </div>
-               <h4 className={`font-semibold ${credentialType === 'TRANSCRIPT' ? 'text-white' : 'text-gray-300'}`}>Academic Transcript</h4>
-               <p className="text-xs text-gray-500 mt-1">For degrees, diplomas, and detailed records.</p>
+               <h4 className={`font-bold text-lg mb-1 relative z-10 ${credentialType === 'TRANSCRIPT' ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>Transcript</h4>
+               <p className="text-xs text-gray-500 group-hover:text-gray-400 relative z-10 font-medium">For degrees, diplomas, and comprehensive records.</p>
+               
+               {/* Background Glow */}
+               {credentialType === 'TRANSCRIPT' && <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-indigo-500/20 blur-2xl rounded-full"></div>}
              </button>
            </div>
         </div>
 
         {/* Common Fields */}
         <div className="space-y-4">
-           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Recipient Details</h3>
+           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Recipient Details</h3>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
              <Input
                label="Student Name"
@@ -354,7 +391,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                placeholder="e.g. Alex Johnson"
                icon={User}
                required
-               className="bg-gray-800/50 border-gray-700"
+               className="bg-black/40 border-white/10 focus:border-indigo-500/50"
              />
              <Input
                label="Student Wallet Address"
@@ -364,7 +401,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                placeholder="e.g. 0x..."
                icon={User} 
                required
-               className="bg-gray-800/50 border-gray-700"
+               className="bg-black/40 border-white/10 focus:border-indigo-500/50"
              />
              <Input
                label="University / Organization"
@@ -374,7 +411,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                placeholder="e.g. Tech Institute"
                icon={Building}
                required
-               className="bg-gray-800/50 border-gray-700"
+               className="bg-black/40 border-white/10 focus:border-indigo-500/50"
              />
              <Input
                label="Issue Date"
@@ -384,16 +421,16 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                onChange={handleChange}
                icon={Calendar}
                required
-               className="bg-gray-800/50 border-gray-700"
+               className="bg-black/40 border-white/10 focus:border-indigo-500/50"
              />
            </div>
            
            <div>
-             <label className="block text-gray-400 text-sm font-medium mb-2">Profile Image</label>
-             <div className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl border-dashed">
+             <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Profile Image</label>
+             <div className="flex items-center space-x-4 p-4 bg-black/20 border border-white/10 rounded-2xl border-dashed hover:border-indigo-500/30 transition-colors group">
                <div className="flex-shrink-0">
                   {formData.studentImage ? (
-                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-500">
+                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
                         <img 
                           src={URL.createObjectURL(formData.studentImage)} 
                           alt="Preview" 
@@ -401,7 +438,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                         />
                      </div>
                   ) : (
-                     <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-gray-500">
+                     <div className="w-14 h-14 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-colors">
                         <Image className="w-6 h-6" />
                      </div>
                   )}
@@ -416,7 +453,7 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                   />
                   <label 
                     htmlFor="student-image-upload"
-                    className="cursor-pointer text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+                    className="cursor-pointer text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
                     Upload Photo
                   </label>
@@ -428,104 +465,103 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
 
         {/* Dynamic Fields */}
         <div className="space-y-4">
-           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">
              {credentialType === 'TRANSCRIPT' ? 'Academic Records' : 'Certification Details'}
            </h3>
            
            {credentialType === 'TRANSCRIPT' ? (
-             <div className="space-y-5 bg-gray-800/30 p-5 rounded-xl border border-gray-700/50">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                 <Input
-                   label="Program"
-                   value={transcriptData.program}
-                   onChange={(e) => setTranscriptData({...transcriptData, program: e.target.value})}
-                   placeholder="e.g. B.Sc Computer Science"
-                   className="bg-gray-800 border-gray-700"
-                 />
+              <div className="space-y-6 bg-black/20 p-6 rounded-2xl border border-white/[0.06] backdrop-blur-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <Input
+                    label="Program"
+                    value={transcriptData.program}
+                    onChange={(e) => setTranscriptData({...transcriptData, program: e.target.value})}
+                    placeholder="e.g. B.Sc Computer Science"
+                    className="bg-black/40 border-white/10 focus:border-indigo-500/50"
+                  />
                  <Input
                    label="Department"
                    value={transcriptData.department}
                    onChange={(e) => setTranscriptData({...transcriptData, department: e.target.value})}
                    placeholder="e.g. Engineering"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                  <Input
                    label="Admission Year"
                    value={transcriptData.admissionYear}
                    onChange={(e) => setTranscriptData({...transcriptData, admissionYear: e.target.value})}
                    placeholder="Year"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                  <Input
                    label="Graduation Year"
                    value={transcriptData.graduationYear}
                    onChange={(e) => setTranscriptData({...transcriptData, graduationYear: e.target.value})}
                    placeholder="Year"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                  <Input
                    label="CGPA / Grade"
                    value={transcriptData.cgpa}
                    onChange={(e) => setTranscriptData({...transcriptData, cgpa: e.target.value})}
                    placeholder="e.g. 3.85"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                </div>
-   
-               <div className="border-t border-gray-700/50 pt-4">
-                 <label className="block text-gray-300 text-sm font-medium mb-3">Courses</label>
-                 <div className="space-y-3">
-                   {transcriptData.courses.map((course, index) => (
-                     <div key={index} className="flex gap-3 items-center">
-                       <input
-                         placeholder="Code"
-                         value={course.code}
-                         onChange={(e) => updateCourse(index, 'code', e.target.value)}
-                         className="w-24 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                       />
-                       <input
-                         placeholder="Subject Name"
-                         value={course.name}
-                         onChange={(e) => updateCourse(index, 'name', e.target.value)}
-                         className="flex-1 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                       />
-                       <input
-                         placeholder="Credits"
-                         value={course.credits}
-                         onChange={(e) => updateCourse(index, 'credits', e.target.value)}
-                         className="w-20 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                       />
-                       <input
-                         placeholder="Grade"
-                         value={course.grade}
-                         onChange={(e) => updateCourse(index, 'grade', e.target.value)}
-                         className="w-20 bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                       />
-                       <button 
-                         onClick={() => removeCourse(index)}
-                         className="p-2 text-gray-500 hover:text-red-400 transition-colors rounded-lg hover:bg-gray-700"
-                       >
-                         <Trash2 className="w-4 h-4" />
-                       </button>
-                     </div>
-                   ))}
-                 </div>
-                 <button
-                   onClick={addCourse}
-                   className="mt-3 flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
-                 >
-                   <Plus className="w-4 h-4 mr-1" /> Add Course
-                 </button>
-               </div>
-             </div>
+                  <div className="border-t border-white/[0.08] pt-6">
+                  <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Course Records</label>
+                  <div className="space-y-3">
+                    {transcriptData.courses.map((course, index) => (
+                      <div key={index} className="flex gap-3 items-center group">
+                        <input
+                          placeholder="Code"
+                          value={course.code}
+                          onChange={(e) => updateCourse(index, 'code', e.target.value)}
+                          className="w-24 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                        />
+                        <input
+                          placeholder="Subject Name"
+                          value={course.name}
+                          onChange={(e) => updateCourse(index, 'name', e.target.value)}
+                          className="flex-1 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                        />
+                        <input
+                          placeholder="Credits"
+                          value={course.credits}
+                          onChange={(e) => updateCourse(index, 'credits', e.target.value)}
+                          className="w-20 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                        />
+                        <input
+                          placeholder="Grade"
+                          value={course.grade}
+                          onChange={(e) => updateCourse(index, 'grade', e.target.value)}
+                          className="w-20 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                        />
+                        <button 
+                          onClick={() => removeCourse(index)}
+                          className="p-2.5 text-gray-500 hover:text-red-400 transition-colors rounded-xl hover:bg-red-500/10 opacity-60 group-hover:opacity-100"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={addCourse}
+                    className="mt-4 flex items-center text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors bg-indigo-500/10 hover:bg-indigo-500/20 px-4 py-2 rounded-lg"
+                  >
+                    <Plus className="w-4 h-4 mr-2" /> Add Course Record
+                  </button>
+                </div>
+              </div>
            ) : (
-             <div className="space-y-5 bg-gray-800/30 p-5 rounded-xl border border-gray-700/50">
+             <div className="space-y-5 bg-black/20 p-6 rounded-2xl border border-white/[0.06] backdrop-blur-sm">
                <Input
                  label="Certification Title"
                  value={certificationData.title}
                  onChange={(e) => setCertificationData({...certificationData, title: e.target.value})}
                  placeholder="e.g. Advanced React Patterns"
-                 className="bg-gray-800 border-gray-700 font-medium"
+                 className="bg-black/40 border-white/10 focus:border-indigo-500/50 font-bold"
                />
                <div className="grid grid-cols-2 gap-5">
                  <Input
@@ -533,36 +569,36 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
                    value={certificationData.level}
                    onChange={(e) => setCertificationData({...certificationData, level: e.target.value})}
                    placeholder="e.g. Expert"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                  <Input
                    label="Duration"
                    value={certificationData.duration}
                    onChange={(e) => setCertificationData({...certificationData, duration: e.target.value})}
                    placeholder="e.g. 20 Hours"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                  <Input
                    label="Score"
                    value={certificationData.score}
                    onChange={(e) => setCertificationData({...certificationData, score: e.target.value})}
                    placeholder="e.g. 98/100"
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                  <Input
                    label="Expiry Date"
                    type="date"
                    value={certificationData.expiryDate}
                    onChange={(e) => setCertificationData({...certificationData, expiryDate: e.target.value})}
-                   className="bg-gray-800 border-gray-700"
+                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                </div>
                <div>
-                 <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                 <label className="block text-sm font-bold text-gray-400 mb-2 ml-1">Description</label>
                  <textarea
                    value={certificationData.description}
                    onChange={(e) => setCertificationData({...certificationData, description: e.target.value})}
-                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 h-28 resize-none text-sm placeholder-gray-500"
+                   className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 h-28 resize-none text-sm placeholder-gray-600 transition-all"
                    placeholder="Briefly describe the skills validated by this certification..."
                  />
                </div>
@@ -570,13 +606,13 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
            )}
         </div>
 
-        <div className="pt-4 border-t border-gray-800">
+        <div className="pt-6 border-t border-white/[0.08]">
           <Button
             onClick={handleSubmit}
             loading={loading}
             disabled={loading}
             size="lg"
-            className="w-full justify-center text-lg font-semibold py-4 shadow-xl shadow-indigo-500/10"
+            className="w-full justify-center text-lg font-bold py-4 shadow-xl shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-500 rounded-2xl"
           >
             Issue Credential
           </Button>
@@ -588,4 +624,4 @@ const UploadCertificateModal = ({ isOpen, onClose, onSuccess }) => {
   );
 };
 
-export default UploadCertificateModal;
+export default UploadCredentialModal;

@@ -11,7 +11,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import StudentCredentials from './pages/StudentCredentials';
 import VerificationPortal from './components/verification/VerificationPortal';
 import AuditLogs from './pages/AuditLogs';
-import RevokedCertificates from './pages/RevokedCertificates';
+import RevokedCredentials from './pages/RevokedCredentials';
 import Settings from './pages/Settings';
 import Profile from './pages/profile';
 import StudentPublicProfile from './pages/StudentPublicProfile';
@@ -21,6 +21,10 @@ import PublicSearch from './pages/PublicSearch';
 import InstitutePublicProfile from './pages/InstitutePublicProfile';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
+import About from './pages/About';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import NotFound from './pages/NotFound';
 
 
 
@@ -41,6 +45,9 @@ function App() {
         <Route path="/verify" element={<VerifyPage />} />
         <Route path="/profile/:walletAddress" element={<StudentPublicProfile />} />
         <Route path="/docs" element={<Documentation />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
 
         {/* Protected Routes */}
         <Route
@@ -101,7 +108,7 @@ function App() {
           path="/revoked"
           element={
             <PrivateRoute allowedRoles={['INSTITUTE']}>
-              <RevokedCertificates />
+              <RevokedCredentials />
             </PrivateRoute>
           }
         />
@@ -127,7 +134,7 @@ function App() {
         />
 
         {/* 404 */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );
