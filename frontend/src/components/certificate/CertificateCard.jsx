@@ -12,7 +12,7 @@ const CertificateCard = ({ certificate, onClick }) => {
       <div className={`h-48 bg-gradient-to-br ${
         certificate.type === 'TRANSCRIPT' 
           ? 'from-indigo-900 via-purple-900 to-gray-900' 
-          : 'from-emerald-900 via-teal-900 to-gray-900'
+          : 'from-emerald-900 via-emerald-700 to-gray-900'
       } flex flex-col justify-between p-5 relative overflow-hidden`}>
         
         {/* Background Noise/Gradient */}

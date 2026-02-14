@@ -38,7 +38,7 @@ function App() {
         <Route path="/institute/wallet/:walletAddress" element={<InstitutePublicProfile />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
-        <Route path="/verify" element={<VerificationPortal />} />
+        <Route path="/verify" element={<VerifyPage />} />
         <Route path="/profile/:walletAddress" element={<StudentPublicProfile />} />
         <Route path="/docs" element={<Documentation />} />
 

@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import DetailedCertificateCard from '../components/certificate/DetailedCertificateCard';
 import Button from '../components/shared/Button';
+import Navbar from '../components/shared/Navbar';
+import Footer from '../components/shared/Footer';
 
 const StudentPublicProfile = () => {
     const { walletAddress } = useParams();
@@ -93,45 +95,7 @@ const StudentPublicProfile = () => {
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             </div>
 
-            {/* Navbar - Floating Island */}
-            <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
-                <div className="w-full max-w-5xl bg-[#030014]/60 backdrop-blur-2xl border border-white/10 rounded-full pl-6 pr-2 py-2 flex items-center justify-between shadow-[0_0_40px_-10px_rgba(99,102,241,0.3)] hover:border-indigo-500/30 transition-colors">
-                    
-                    {/* Left: Logo */}
-                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500"></div>
-                            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300">
-                                <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                                    <Shield className="w-5 h-5 text-indigo-400 group-hover:text-white transition-colors" />
-                                </div>
-                            </div>
-                        </div>
-                        <span className="text-lg font-bold tracking-tight text-white group-hover:text-indigo-200 transition-colors hidden sm:block">
-                            Attestify
-                        </span>
-                    </div>
-
-                    {/* Center: Navigation Links */}
-                     <div className="hidden md:flex items-center gap-1">
-                        <button onClick={() => navigate('/search')} className="px-5 py-2 text-sm font-medium text-white bg-white/10 rounded-full flex items-center gap-2 border border-white/5 shadow-inner">
-                             <Search className="w-3.5 h-3.5 text-indigo-400" />
-                             Public Explorer
-                        </button>
-                     </div>
-
-                    {/* Right: Actions */}
-                    <div className="flex items-center gap-2">
-                        <Button 
-                            onClick={() => navigate('/search')}
-                            className="bg-white/5 hover:bg-white/10 text-white border-0 rounded-full w-10 h-10 p-0 flex items-center justify-center group"
-                            title="Back to Search"
-                        >
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                        </Button>
-                    </div>
-                </div>
-            </nav>
+            <Navbar showBackSearch={true} />
 
             <main className="relative z-10 pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 
@@ -243,6 +207,7 @@ const StudentPublicProfile = () => {
                     )}
                 </div>
             </main>
+            <Footer />
         </div>
     );
 };

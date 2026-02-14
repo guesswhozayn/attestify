@@ -5,6 +5,7 @@ import { verifyAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import Modal from '../shared/Modal';
 import { generateFileHash } from '../../utils/hash';
+import VerificationResult from './VerificationResult';
 
 const VerificationSection = ({ certificate }) => {
   const [file, setFile] = useState(null);
@@ -61,10 +62,10 @@ const VerificationSection = ({ certificate }) => {
 
   return (
     <>
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 h-full flex flex-col">
+      <div className="bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full flex flex-col">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="p-2 bg-purple-500/20 rounded-lg">
-            <ShieldCheck className="w-6 h-6 text-purple-400" />
+          <div className="p-2 bg-indigo-500/10 rounded-lg">
+            <ShieldCheck className="w-6 h-6 text-indigo-400" />
           </div>
           <div>
             <h3 className="text-white font-semibold">Verify Authenticity</h3>
@@ -81,13 +82,13 @@ const VerificationSection = ({ certificate }) => {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
-              file ? 'border-purple-500 bg-purple-500/10' : 'border-gray-600 hover:border-purple-400 hover:bg-gray-700/50'
+              file ? 'border-indigo-500/40 bg-indigo-500/[0.05]' : 'border-white/10 hover:border-indigo-500/30 hover:bg-white/[0.03]'
             }`}>
               {file ? (
-                <div className="flex flex-col items-center text-purple-300">
+                <div className="flex flex-col items-center text-indigo-300">
                   <FileCheck className="w-8 h-8 mb-2" />
                   <span className="text-sm font-medium truncate max-w-full px-2">{file.name}</span>
-                  <span className="text-xs text-purple-400/70 mt-1">Click to change</span>
+                  <span className="text-xs text-indigo-400/70 mt-1">Click to change</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center text-gray-400 group-hover:text-gray-300">
@@ -99,8 +100,8 @@ const VerificationSection = ({ certificate }) => {
             </div>
           </div>
 
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-            <p className="text-blue-200 text-xs flex items-start">
+          <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3">
+            <p className="text-indigo-300 text-xs flex items-start">
                <span className="mr-2">•</span>
                No gas fees required for verification.
             </p>
@@ -113,7 +114,7 @@ const VerificationSection = ({ certificate }) => {
             loading={verifying}
             disabled={verifying || !file}
             variant="primary"
-            className="w-full justify-center py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border-0 shadow-lg shadow-purple-900/20"
+            className="w-full justify-center py-3"
             icon={CheckCircle}
           >
             {verifying ? 'Verifying...' : 'Verify Now'}
@@ -130,124 +131,14 @@ const VerificationSection = ({ certificate }) => {
       >
           {result && (
             <div className="space-y-6">
-              {/* Result Header */}
-              <div className={`p-6 rounded-2xl flex items-center gap-4 ${
-                 result.valid 
-                   ? 'bg-emerald-500/10 border border-emerald-500/20' 
-                   : result.revoked 
-                      ? 'bg-yellow-500/10 border border-yellow-500/20'
-                      : 'bg-red-500/10 border border-red-500/20'
-              }`}>
-                <div className={`p-3 rounded-full flex-shrink-0 ${
-                  result.valid 
-                    ? 'bg-emerald-500 text-white' 
-                    : result.revoked
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-red-500 text-white'
-                }`}>
-                  {result.valid ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
-                </div>
-                <div>
-                  <h3 className={`text-xl font-bold ${
-                      result.valid ? 'text-white' : result.revoked ? 'text-yellow-200' : 'text-red-200'
-                  }`}>
-                    {result.valid 
-                      ? 'Certificate Verified' 
-                      : result.revoked 
-                          ? 'Certificate Revoked' 
-                          : 'Verification Failed'}
-                  </h3>
-                  <p className={`text-sm ${
-                      result.valid ? 'text-emerald-400' : result.revoked ? 'text-yellow-400' : 'text-red-400'
-                  }`}>
-                    {result.message}
-                  </p>
-                </div>
-              </div>
-
-              {/* Revocation Details */}
-              {result.revoked && result.credential && (
-                  <div className="p-4 bg-red-900/20 border border-red-900/50 rounded-xl space-y-2">
-                      <h4 className="text-red-400 font-semibold flex items-center gap-2">
-                           <ShieldAlert className="w-4 h-4" />
-                           Revocation Information
-                      </h4>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                           <div>
-                               <span className="text-gray-500 block">Revoked On</span>
-                               <span className="text-gray-300">
-                                   {result.credential.revokedAt ? new Date(result.credential.revokedAt).toLocaleDateString() : 'Unknown'}
-                               </span>
-                           </div>
-                           <div>
-                               <span className="text-gray-500 block">Reason</span>
-                               <span className="text-gray-300">{result.credential.revocationReason || 'No reason provided'}</span>
-                           </div>
-                       </div>
-                  </div>
-              )}
-
-              {/* Credential Details */}
-              {result.credential && (
-                <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Recipient</label>
-                        <p className="text-lg text-white font-medium">{result.credential.studentName}</p>
-                     </div>
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Issued By</label>
-                        <p className="text-lg text-white font-medium">{result.credential.university}</p>
-                     </div>
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Wallet / ID</label>
-                        <p className="text-sm text-gray-300 font-mono break-all leading-tight">
-                          {result.credential.studentWalletAddress}
-                        </p>
-                     </div>
-                     <div>
-                        <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Issue Date</label>
-                        <p className="text-base text-gray-300">
-                          {result.credential.issueDate ? new Date(result.credential.issueDate).toLocaleDateString(undefined, {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          }) : 'N/A'}
-                        </p>
-                     </div>
-                     {result.credential.tokenId && (
-                        <div>
-                           <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold block mb-1">Token ID</label>
-                           <p className="text-base text-purple-400 font-mono font-medium">#{result.credential.tokenId}</p>
-                        </div>
-                     )}
-                  </div>
-                  
-                  {result.credential.transactionHash && (
-                      <div className="pt-4 border-t border-gray-600/50">
-                         <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold flex items-center gap-2 mb-2">
-                            Blockchain Record
-                         </label>
-                         <a 
-                           href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
-                           target="_blank"
-                           rel="noreferrer"
-                           className="flex items-center justify-between font-mono text-xs text-indigo-400 hover:text-indigo-300 hover:bg-gray-700/50 p-3 rounded-lg border border-gray-700 transition-colors group"
-                         >
-                           <span className="truncate mr-2">{result.credential.transactionHash}</span>
-                           <ExternalLink className="w-4 h-4 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
-                         </a>
-                      </div>
-                  )}
-                </div>
-              )}
+              <VerificationResult result={result} />
               
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-center pt-4">
                   <button 
                       onClick={() => setShowResultModal(false)}
-                      className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium border border-gray-700"
+                      className="px-8 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-sm font-bold rounded-xl transition-all border border-white/5"
                   >
-                      Close
+                      Close Result
                   </button>
               </div>
             </div>

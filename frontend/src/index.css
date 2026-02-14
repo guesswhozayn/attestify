@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@layer base {
+  html, body {
+    @apply bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden;
+    scroll-behavior: smooth;
+  }
+}
+
 @layer utilities {
   .animate-scroll {
     animation: scroll 40s linear infinite;

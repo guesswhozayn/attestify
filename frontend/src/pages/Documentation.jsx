@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/shared/Button';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/shared/Navbar';
+import Footer from '../components/shared/Footer';
 import { 
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
   HardDrive, Lock, Server, ShieldCheck, HelpCircle,
-  Menu, X, ArrowLeft, ExternalLink, Search
+  Menu, X, ArrowRight, ExternalLink, Search, ChevronDown
 } from 'lucide-react';
 
 const sections = [
@@ -24,121 +25,175 @@ const Documentation = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('introduction');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  
+  // Spotlight and Interaction State
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const containerRef = useRef(null);
+  
+  // Unified scroll offset for spy and scrollTo
+  const SCROLL_OFFSET = 110;
+
+  // Cache section elements for performance
+  const sectionRefs = useRef([]);
 
   useEffect(() => {
+    // Initialize section elements once
+    sectionRefs.current = sections.map(s => ({
+      id: s.id,
+      el: document.getElementById(s.id),
+    }));
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setScrollY(window.scrollY);
 
-      const sectionElements = sections.map(s => ({
-        id: s.id,
-        el: document.getElementById(s.id),
-      }));
+      // Handle bottom of page
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+        setActiveSection(prev => {
+          const lastId = sections[sections.length - 1].id;
+          return prev === lastId ? prev : lastId;
+        });
+        return;
+      }
 
-      for (let i = sectionElements.length - 1; i >= 0; i--) {
-        const { id, el } = sectionElements[i];
+      let currentSection = sections[0].id;
+      for (let i = sectionRefs.current.length - 1; i >= 0; i--) {
+        const { id, el } = sectionRefs.current[i];
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= 140) {
-            setActiveSection(id);
+          if (rect.top <= SCROLL_OFFSET + 20) {
+            currentSection = id;
             break;
           }
         }
       }
+
+      setActiveSection(prev => prev === currentSection ? prev : currentSection);
     };
 
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    // Initial check
+    handleScroll();
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
     if (el) {
-      const yOffset = -100;
-      const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+      const y = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
     setMobileNavOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative">
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
+    >
       {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+          {/* Spotlight Layer */}
+          <div 
+            className="absolute inset-0 opacity-40 transition-opacity duration-1000"
+            style={{
+              background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.12), transparent 80%)`,
+              transform: `translateY(${scrollY * 0.1}px)`
+            }}
+          />
+          
+          <div 
+            className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"
+            style={{ transform: `translateY(${scrollY * 0.15}px) translateX(${scrollY * 0.05}px)` }}
+          ></div>
+          <div 
+            className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"
+            style={{ transform: `translateY(${scrollY * 0.08}px) translateX(${scrollY * -0.05}px)` }}
+          ></div>
+          <div 
+            className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"
+            style={{ transform: `translateY(${scrollY * 0.12}px)` }}
+          ></div>
+          
+          {/* Grid Pattern with dynamic mask */}
+          <div 
+            className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"
+            style={{
+              maskImage: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, black, transparent)`,
+              transform: `translateY(${scrollY * 0.05}px)`
+            }}
+          ></div>
       </div>
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 
-      {/* Mobile Nav Drawer */}
-      {mobileNavOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileNavOpen(false)} />
-          <div className="absolute right-0 top-20 bottom-0 w-72 bg-black border-l border-white/10 p-6 overflow-y-auto">
-            <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-4">Sections</p>
-            {sections.map(s => (
-              <button
-                key={s.id}
-                onClick={() => scrollTo(s.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm mb-1 transition-all ${
-                  activeSection === s.id
-                    ? 'bg-indigo-500/10 text-indigo-400 font-medium'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                }`}
-              >
-                <s.icon className="w-4 h-4 flex-shrink-0" />
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="pt-20 flex max-w-[1400px] mx-auto relative z-10">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-72 flex-shrink-0">
-          <div className="fixed w-72 top-20 bottom-0 overflow-y-auto border-r border-white/5 p-6">
-            <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-6">Documentation</p>
-            {sections.map(s => (
-              <button
-                key={s.id}
-                onClick={() => scrollTo(s.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm mb-1 transition-all duration-200 ${
-                  activeSection === s.id
-                    ? 'bg-indigo-500/10 text-indigo-400 font-medium border-l-2 border-indigo-500'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50 border-l-2 border-transparent'
-                }`}
-              >
-                <s.icon className="w-4 h-4 flex-shrink-0" />
-                {s.label}
-              </button>
-            ))}
+      {/* Main Container */}
+      <div className="pt-24 flex max-w-[1440px] mx-auto relative z-10">
+        
+        {/* Desktop Sidebar - Premium Design */}
+        <aside className="hidden lg:block w-72 flex-shrink-0 relative top-24 h-[calc(100vh-6rem)] p-8 overflow-y-auto custom-scrollbar">
+          <div className="fixed">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-8 ml-4">Architecture & Docs</p>
+            <div className="space-y-1 relative">
+              {sections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => scrollTo(s.id)}
+                  className={`w-full group flex items-start justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all relative z-10 text-left ${
+                    activeSection === s.id
+                      ? 'text-white'
+                      : 'text-gray-500 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <s.icon className={`w-4 h-4 mt-0.5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600 group-hover:text-indigo-400'} transition-colors flex-shrink-0`} />
+                    <span className="leading-tight">{s.label}</span>
+                  </div>
+                  {activeSection === s.id && (
+                    <motion.div 
+                      layoutId="active-pill"
+                      className="absolute inset-0 bg-white/5 border border-white/10 rounded-2xl -z-10 shadow-inner"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <ChevronRight className={`w-3.5 h-3.5 transition-all opacity-0 group-hover:opacity-100 ${activeSection === s.id ? 'opacity-100 translate-x-1 text-indigo-400' : 'translate-x-0'}`} />
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 min-w-0 px-6 sm:px-10 lg:px-16 py-12 pb-32">
-
-          {/* Hero */}
-          <div className="mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6">
-              <BookOpen className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-medium text-gray-300 uppercase tracking-wide">Theoretical Documentation</span>
+        {/* Content Area */}
+        <main className="flex-1 min-w-0 px-6 sm:px-12 lg:px-20 py-12 pb-48">
+          
+          {/* High-End Hero */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-20 sm:mb-24 lg:mb-32"
+          >
+            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md mb-8 shadow-xl hover:bg-indigo-500/20 transition-colors">
+              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+              <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">Documentation v1.0</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight">
-              Understanding{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-                Attestify
-              </span>
+            
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.9]">
+              The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 bg-[length:200%_auto] animate-shimmer drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Engine of Truth.</span>
             </h1>
-            <p className="text-lg text-gray-400 max-w-3xl leading-relaxed">
-              A deep-dive into the theoretical foundations powering decentralized academic credential verification, 
-              from blockchain immutability to Soulbound Tokens and cryptographic proof.
+            
+            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed font-medium">
+              Explore the theoretical foundations and cryptographic architecture powering Attestify.
             </p>
-          </div>
+          </motion.div>
 
           {/* Introduction */}
           <Section id="introduction" title="Introduction" icon={BookOpen}>
@@ -570,18 +625,62 @@ const Documentation = () => {
         </main>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-black border-t border-white/10 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Shield className="w-5 h-5 text-indigo-500" />
-            <span className="text-lg font-bold text-white">Attestify</span>
+      {/* Mobile Nav Drawer - Premium Redesign */}
+      <AnimatePresence>
+        {mobileNavOpen && (
+          <div className="fixed inset-0 z-[60] lg:hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-xl" 
+              onClick={() => setMobileNavOpen(false)} 
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-black/95 border-l border-white/10 p-8 shadow-2xl overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-12">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Navigation</span>
+                <button 
+                  onClick={() => setMobileNavOpen(false)}
+                  className="p-2 rounded-full bg-white/5 border border-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {sections.map((s, idx) => (
+                  <motion.button
+                    key={s.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    onClick={() => scrollTo(s.id)}
+                    className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-base font-bold transition-all ${
+                      activeSection === s.id
+                        ? 'bg-indigo-500/10 text-white border border-indigo-500/20'
+                        : 'text-gray-400 hover:text-white border border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600'}`} />
+                      {s.label}
+                    </div>
+                    {activeSection === s.id && <ChevronRight className="w-4 h-4 text-indigo-400" />}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
           </div>
-          <p className="text-gray-500 text-sm">
-            &copy; 2026 Attestify. Building the trust layer for credential verification.
-          </p>
-        </div>
-      </footer>
+        )}
+      </AnimatePresence>
+
+      {/* <Footer /> */}
     </div>
   );
 };
@@ -589,94 +688,119 @@ const Documentation = () => {
 /* ========== Reusable Sub-Components ========== */
 
 const Section = ({ id, title, icon: Icon, children }) => (
-  <section id={id} className="mb-20 scroll-mt-28">
-    <div className="flex items-center gap-3 mb-8">
-      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl flex items-center justify-center border border-indigo-500/20">
-        <Icon className="w-5 h-5 text-indigo-400" />
+  <motion.section 
+    id={id} 
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.8, ease: "easeOut" }}
+    className="mb-32 scroll-mt-28"
+  >
+    <div className="flex items-center gap-4 mb-10">
+      <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/20 shadow-lg">
+        <Icon className="w-7 h-7 text-indigo-400" />
       </div>
-      <h2 className="text-2xl md:text-3xl font-bold text-white">{title}</h2>
+      <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter">{title}</h2>
     </div>
-    <div className="space-y-6">{children}</div>
-  </section>
+    <div className="space-y-8">{children}</div>
+  </motion.section>
 );
 
 const SectionCard = ({ title, children }) => (
-  <div className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm p-6 sm:p-8 hover:border-white/10 transition-colors duration-300">
-    {title && <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>}
-    <div className="text-gray-400 leading-relaxed">{children}</div>
+  <div className="group relative rounded-3xl border border-white/5 bg-gray-900/40 backdrop-blur-xl p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/[0.04] hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
+    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.03] to-purple-500/[0.03] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="relative z-10">
+      {title && <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+        {title}
+      </h3>}
+      <div className="text-gray-400 leading-relaxed space-y-4 font-medium">{children}</div>
+    </div>
   </div>
 );
 
 const Highlight = ({ children }) => (
-  <span className="text-indigo-300 font-medium">{children}</span>
+  <span className="text-indigo-400 font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded-md border border-indigo-500/10">{children}</span>
 );
 
 const InfoItem = ({ label, text }) => (
-  <li className="flex items-start gap-3">
-    <ChevronRight className="w-4 h-4 text-indigo-500 mt-1 flex-shrink-0" />
-    <span>
-      <strong className="text-white">{label}:</strong>{' '}
-      <span className="text-gray-400">{text}</span>
+  <li className="flex items-start gap-4">
+    <div className="mt-1.5 w-4 h-4 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+      <ChevronRight className="w-2.5 h-2.5 text-indigo-400" />
+    </div>
+    <span className="text-[15px] leading-relaxed">
+      <strong className="text-white font-black uppercase tracking-wider text-[11px] mr-2">{label}:</strong>{' '}
+      <span className="text-gray-400 font-medium">{text}</span>
     </span>
   </li>
 );
 
 const CodeBlock = ({ language, children }) => (
-  <div className="mt-4 rounded-xl bg-black border border-white/10 overflow-hidden">
-    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border-b border-white/5">
-      <div className="w-2.5 h-2.5 rounded-full bg-red-500/30 border border-red-500/50" />
-      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
-      <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
-      <span className="ml-2 text-xs text-gray-500 font-mono">{language}</span>
+  <div className="mt-8 rounded-2xl bg-[#0a0a0c] border border-white/5 overflow-hidden shadow-2xl">
+    <div className="flex items-center justify-between px-5 py-3 bg-white/[0.02] border-b border-white/5">
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 rounded-full bg-red-500/40 border border-red-500/50" />
+        <div className="w-3 h-3 rounded-full bg-yellow-500/40 border border-yellow-500/50" />
+        <div className="w-3 h-3 rounded-full bg-green-500/40 border border-green-500/50" />
+      </div>
+      <span className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">{language} source</span>
     </div>
-    <pre className="p-4 overflow-x-auto text-sm font-mono text-gray-300 leading-relaxed">
+    <pre className="p-6 overflow-x-auto text-sm font-mono text-gray-300 leading-relaxed scrollbar-thin scrollbar-thumb-white/10">
       <code>{children}</code>
     </pre>
   </div>
 );
 
 const VerifyStep = ({ number, title, children }) => (
-  <div className="flex gap-4">
-    <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-lg flex items-center justify-center border border-indigo-500/20 text-sm font-bold text-indigo-400">
+  <div className="flex gap-6 group">
+    <div className="flex-shrink-0 w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 text-sm font-black text-indigo-400 transition-all group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20">
       {number}
     </div>
     <div>
-      <h4 className="text-white font-medium mb-1">{title}</h4>
-      <p className="text-gray-400 text-sm leading-relaxed">{children}</p>
+      <h4 className="text-white font-bold mb-2 flex items-center gap-2">
+        {title}
+        <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+      </h4>
+      <p className="text-gray-400 text-[15px] leading-relaxed font-medium">{children}</p>
     </div>
   </div>
 );
 
 const FlowStep = ({ number, title, children }) => (
-  <div className="relative flex gap-4 pl-2">
+  <div className="relative flex gap-6 pl-2 group">
     <div className="flex flex-col items-center">
-      <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 text-xs font-bold text-indigo-400 flex-shrink-0">
+      <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 text-xs font-black text-indigo-400 flex-shrink-0 z-10 transition-all group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20">
         {number}
       </div>
-      <div className="w-px h-full bg-gradient-to-b from-gray-700 to-transparent mt-2" />
+      <div className="w-px h-full bg-gradient-to-b from-white/10 to-transparent mt-3" />
     </div>
-    <div className="pb-6">
-      <h4 className="text-white font-medium mb-1">{title}</h4>
-      <p className="text-gray-400 text-sm leading-relaxed">{children}</p>
+    <div className="pb-10">
+      <h4 className="text-white font-bold mb-2 group-hover:text-indigo-400 transition-colors">{title}</h4>
+      <p className="text-gray-400 text-[15px] leading-relaxed font-medium">{children}</p>
     </div>
   </div>
 );
 
 const ArchCard = ({ title, tech, description }) => (
-  <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5 hover:border-indigo-500/30 transition-colors duration-300">
-    <h4 className="text-white font-semibold mb-1">{title}</h4>
-    <p className="text-indigo-400 text-xs font-mono mb-2">{tech}</p>
-    <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+  <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/[0.04] group shadow-lg">
+    <h4 className="text-white font-bold mb-1.5 flex items-center justify-between">
+      {title}
+      <Server className="w-4 h-4 text-gray-600 group-hover:text-indigo-400 transition-colors" />
+    </h4>
+    <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-4 inline-block bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">{tech}</p>
+    <p className="text-gray-400 text-sm leading-relaxed font-medium">{description}</p>
   </div>
 );
 
 const FAQItem = ({ question, children }) => (
-  <div className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm p-6 sm:p-8 hover:border-white/10 transition-colors duration-300">
-    <h3 className="text-white font-semibold mb-3 flex items-start gap-3">
-      <HelpCircle className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
-      {question}
+  <div className="group relative rounded-3xl border border-white/5 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-white/20">
+    <h3 className="text-white font-bold text-lg mb-4 flex items-start gap-4">
+      <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 transition-colors group-hover:bg-indigo-500/20">
+        <HelpCircle className="w-5 h-5 text-indigo-400" />
+      </div>
+      <span className="mt-1.5">{question}</span>
     </h3>
-    <p className="text-gray-400 leading-relaxed pl-8">{children}</p>
+    <p className="text-gray-400 leading-relaxed pl-14 font-medium">{children}</p>
   </div>
 );
 

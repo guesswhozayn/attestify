@@ -7,7 +7,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
   
-  const noLayoutRoutes = ['/', '/login', '/register', '/verify'];
+  const noLayoutRoutes = ['/', '/login', '/register', '/verify', '/docs'];
   const shouldShowLayout = user && !noLayoutRoutes.includes(location.pathname);
 
   if (!shouldShowLayout) {
