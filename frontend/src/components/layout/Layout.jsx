@@ -17,7 +17,8 @@ const Layout = ({ children }) => {
       '/student/credentials',
       '/audit-logs',
       '/revoked',
-      '/settings'
+      '/settings',
+      '/network-status'
   ];
 
   const isDashboardRoute = dashboardRoutes.some(route => 
@@ -52,6 +53,8 @@ const Layout = ({ children }) => {
         return role === 'ISSUER' ? 'Issuer Profile' : 'Student Profile';
       case '/revoked':
         return 'Revoked Credentials';
+      case '/network-status':
+        return 'Network Status';
       default:
         // Handle student profile route which might have an ID
         if (pathname.includes('/student/')) return 'Student Profile';

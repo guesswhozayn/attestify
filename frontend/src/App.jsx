@@ -10,7 +10,7 @@ import Credentials from './pages/Credentials'; // Import Credentials page
 import StudentDashboard from './pages/StudentDashboard';
 import StudentCredentials from './pages/StudentCredentials';
 import VerificationPortal from './components/verification/VerificationPortal';
-import AuditLogs from './pages/AuditLogs';
+import NetworkStatus from './pages/NetworkStatus';
 import RevokedCredentials from './pages/RevokedCredentials';
 import Settings from './pages/Settings';
 import Profile from './pages/profile';
@@ -96,10 +96,10 @@ function App() {
         />
 
         <Route
-          path="/audit-logs"
+          path="/network-status"
           element={
             <PrivateRoute allowedRoles={['ISSUER']}>
-              <AuditLogs />
+              <NetworkStatus />
             </PrivateRoute>
           }
         />

@@ -1,43 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import Header from '../components/layout/Header';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/shared/Button';
-import CredentialGrid from '../components/credential/CredentialGrid';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import UploadCredentialModal from '../components/credential/UploadCredentialModal';
-import { Plus, Search, Shield, Filter, Award } from 'lucide-react';
+import RevokeCredentialModal from '../components/credential/RevokeCredentialModal';
+import CredentialsStats from '../components/credential/CredentialsStats';
+import CredentialsFilter from '../components/credential/CredentialsFilter';
+import CredentialTable from '../components/credential/CredentialTable';
+import { Plus } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
 const Credentials = () => {
+    // Data States
     const [credentials, setCredentials] = useState([]);
-    const [filteredCredentials, setFilteredCredentials] = useState([]);
-    const [activeTab, setActiveTab] = useState('all');
-    const [selectedCredential, setSelectedCredential] = useState(null);
-    const [showUploadModal, setShowUploadModal] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { showNotification } = useNotification();
+    const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0, uniqueRecipients: 0, sbtCount: 0 });
 
+    // UI States
+    const [selectedCredential, setSelectedCredential] = useState(null);
+    const [credentialToRevoke, setCredentialToRevoke] = useState(null);
+    const [showUploadModal, setShowUploadModal] = useState(false);
+
+    // Filter States
+    const [searchQuery, setSearchQuery] = useState('');
+    const [typeFilter, setTypeFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('all');
+
+    const { showNotification } = useNotification();
     const isMounted = React.useRef(true);
 
     useEffect(() => {
         isMounted.current = true;
         fetchCredentials();
         return () => { isMounted.current = false; };
-    }, [activeTab]);
+    }, []);
 
     const fetchCredentials = async () => {
         try {
             setLoading(true);
-            const params = activeTab !== 'all' ? { type: activeTab } : {};
-            const response = await credentialAPI.getAll(params);
+            const response = await credentialAPI.getAll();
             
             if (isMounted.current) {
                 const docs = response.data.credentials || [];
                 setCredentials(docs);
-                setFilteredCredentials(docs);
+                calculateStats(docs);
             }
         } catch (error) {
+            console.error(error);
             if (isMounted.current) {
                if (error.response?.status !== 401) {
                    showNotification('Failed to fetch credentials', 'error');
@@ -50,26 +60,64 @@ const Credentials = () => {
         }
     };
 
-    const handleSearch = (query) => {
-        const lower = query.toLowerCase();
-        const filtered = credentials.filter(cred =>
-            cred.studentName.toLowerCase().includes(lower) ||
-            (cred.studentWalletAddress && cred.studentWalletAddress.toLowerCase().includes(lower)) ||
-            cred.university.toLowerCase().includes(lower)
-        );
-        setFilteredCredentials(filtered);
+    const calculateStats = (docs) => {
+        const total = docs.length;
+        const revoked = docs.filter(d => d.isRevoked).length;
+        const active = total - revoked;
+        const sbtCount = docs.filter(d => !!d.tokenId).length;
+        
+        // Count unique recipients by wallet address or name
+        const uniqueRecipients = new Set(
+            docs.map(d => d.studentWalletAddress || d.studentName)
+        ).size;
+
+        setStats({ total, active, revoked, uniqueRecipients, sbtCount });
     };
 
-    const handleCredentialUpload = (newCredential) => {
-        // Optimistic update or refetch
-        fetchCredentials(); 
+    const handleCredentialUpload = () => {
+        fetchCredentials();
     };
+
+    const handleRevokeSuccess = () => {
+        fetchCredentials();
+        setCredentialToRevoke(null);
+        if (selectedCredential && selectedCredential._id === credentialToRevoke?._id) {
+            setSelectedCredential(null);
+        }
+    };
+
+    // Filter Logic
+    const filteredCredentials = useMemo(() => {
+        return credentials.filter(cred => {
+            // Search Filter
+            const lowerQuery = searchQuery.toLowerCase();
+            const matchesSearch = 
+                cred.studentName?.toLowerCase().includes(lowerQuery) ||
+                cred.studentWalletAddress?.toLowerCase().includes(lowerQuery) ||
+                cred._id?.toLowerCase().includes(lowerQuery) ||
+                cred.courseName?.toLowerCase().includes(lowerQuery);
+
+            if (!matchesSearch) return false;
+
+            // Type Filter
+            if (typeFilter !== 'all' && cred.type !== typeFilter) return false;
+
+            // Status Filter
+            if (statusFilter === 'active' && cred.isRevoked) return false;
+            if (statusFilter === 'revoked' && !cred.isRevoked) return false;
+
+            return true;
+        });
+    }, [credentials, searchQuery, typeFilter, statusFilter]);
 
     return (
-        <div className="min-h-screen bg-transparent text-gray-100 pb-20">
+        <div className="min-h-screen bg-transparent text-gray-100 pb-20 relative">
+             {/* Background Effects */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[0%] left-[20%] w-[600px] h-[600px] bg-indigo-600/[0.03] rounded-full blur-[120px]"></div>
+            </div>
 
-
-            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
                 
                 {/* Header & Actions */}
                 <motion.div 
@@ -79,19 +127,26 @@ const Credentials = () => {
                     className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6"
                 >
                     <div className="relative">
-                         <div className="absolute -left-4 top-0 w-1 h-full bg-indigo-500 rounded-full hidden md:block"></div>
+                         <div className="absolute -left-6 top-1 w-1.5 h-12 bg-indigo-500 rounded-r-full hidden md:block opacity-60"></div>
                         <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Issued Credentials</h1>
-                        <p className="text-gray-400 max-w-xl">Manage and track all credentials issued by your institution. Verify status and handle revocations.</p>
+                        <p className="text-gray-400 max-w-xl">
+                            Manage and track all credentials issued by your institution. Verify status, handle revocations, and issue new certificates.
+                        </p>
                     </div>
-                     <Button
-                        onClick={() => setShowUploadModal(true)}
-                        variant="secondary"
-                        icon={Plus}
-                        className="px-6 rounded-full"
-                    >
-                        Issue New
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <Button
+                            onClick={() => setShowUploadModal(true)}
+                            variant="primary"
+                            icon={Plus}
+                            className="rounded-full shadow-lg shadow-indigo-500/20 px-6 py-3"
+                        >
+                            Issue Credential
+                        </Button>
+                    </div>
                 </motion.div>
+
+                {/* Stats Section */}
+                <CredentialsStats stats={stats} />
 
                 {/* Content Section */}
                 <motion.div 
@@ -100,47 +155,23 @@ const Credentials = () => {
                     transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
                     className="space-y-6"
                 >
-                    {/* Toolbar */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/[0.02] p-2 rounded-2xl border border-white/[0.05] backdrop-blur-sm">
-                         
-                        {/* Tabs */}
-                        <div className="flex p-1 space-x-1 bg-black/20 rounded-xl">
-                           {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((tab) => (
-                             <button
-                               key={tab}
-                               onClick={() => setActiveTab(tab)}
-                               className={`
-                                 px-4 py-2 text-sm font-medium rounded-lg transition-all
-                                 ${activeTab === tab 
-                                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' 
-                                   : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'}
-                               `}
-                             >
-                               {tab === 'all' ? 'All' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}
-                             </button>
-                           ))}
-                        </div>
+                    <CredentialsFilter 
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        typeFilter={typeFilter}
+                        setTypeFilter={setTypeFilter}
+                        statusFilter={statusFilter}
+                        setStatusFilter={setStatusFilter}
+                        onRefresh={fetchCredentials}
+                        onBulkIssue={() => setShowUploadModal(true)}
+                    />
 
-                        <div className="relative w-full md:w-80 group">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search by name, wallet or ID..."
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className="block w-full pl-10 pr-4 py-2.5 bg-black/20 border border-white/[0.05] rounded-xl text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all focus:bg-black/40"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="min-h-[400px]">
-                        <CredentialGrid
-                            credentials={filteredCredentials}
-                            onCredentialClick={setSelectedCredential}
-                            loading={loading}
-                        />
-                    </div>
+                    <CredentialTable
+                        credentials={filteredCredentials}
+                        onView={setSelectedCredential}
+                        onRevoke={setCredentialToRevoke}
+                        loading={loading}
+                    />
                 </motion.div>
             </main>
 
@@ -151,19 +182,30 @@ const Credentials = () => {
                 onSuccess={handleCredentialUpload}
             />
 
-            {selectedCredential && (
-                <CredentialDetails
-                    isOpen={!!selectedCredential}
-                    onClose={() => setSelectedCredential(null)}
-                    credential={selectedCredential}
-                    onUpdate={() => {
-                        fetchCredentials();
-                        setSelectedCredential(null);
-                    }}
-                />
-            )}
+            <AnimatePresence>
+                {selectedCredential && (
+                    <CredentialDetails
+                        isOpen={!!selectedCredential}
+                        onClose={() => setSelectedCredential(null)}
+                        credential={selectedCredential}
+                        onUpdate={() => {
+                            fetchCredentials();
+                            setSelectedCredential(null);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Revocation Modal */}
+            <RevokeCredentialModal 
+                isOpen={!!credentialToRevoke}
+                onClose={() => setCredentialToRevoke(null)}
+                credentialId={credentialToRevoke?._id}
+                onSuccess={handleRevokeSuccess}
+            />
         </div>
     );
 };
 
+// Add AnimatePresence import as it was missing in my variable list but used in JSX
 export default Credentials;

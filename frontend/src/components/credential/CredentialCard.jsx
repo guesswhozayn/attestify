@@ -9,8 +9,8 @@ const CredentialCard = ({ credential, onClick }) => {
 
   // Base gradients
   const bgGradient = isTranscript 
-    ? 'from-indigo-500/10 via-purple-500/5 to-blue-500/5' 
-    : 'from-emerald-500/10 via-teal-500/5 to-cyan-500/5';
+    ? 'from-indigo-600/15 via-purple-600/10 to-indigo-900/10' 
+    : 'from-emerald-600/15 via-teal-600/10 to-emerald-900/10';
 
   const accentColor = isTranscript ? 'indigo' : 'emerald';
   const Icon = isTranscript ? GraduationCap : Award;

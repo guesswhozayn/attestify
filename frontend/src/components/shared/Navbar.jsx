@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn, LayoutDashboard } from 'lucide-react';
+import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn, LayoutDashboard, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
+import Avatar from './Avatar';
 
 const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSidebar }) => {
     const navigate = useNavigate();
@@ -33,10 +34,10 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
             <div className={`
                 w-full max-w-6xl pointer-events-auto transition-all duration-500 ease-in-out
                 ${isScrolled 
-                    ? 'bg-black/80 backdrop-blur-2xl border-white/10 rounded-2xl px-6 py-3 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]' 
-                    : 'bg-[#030014]/60 backdrop-blur-xl border-white/5 rounded-full px-6 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]'
+                    ? 'bg-black/80 backdrop-blur-2xl border-white/10 rounded-2xl px-6 py-2 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]' 
+                    : 'bg-[#030014]/40 backdrop-blur-xl border-white/5 rounded-full px-6 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]'
                 }
-                border flex items-center justify-between group/nav hover:border-indigo-500/30
+                border flex items-center justify-between group/nav hover:border-white/20 transition-all duration-500
             `}>
                 
                 {/* Left: Logo & Toggle */}
@@ -98,29 +99,39 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                 {/* Right: Actions */}
                 <div className="flex items-center gap-3">
                     {showBackSearch && (
-                        <Button 
-                            onClick={() => navigate('/search')}
-                            className="hidden sm:flex bg-white/5 hover:bg-white/10 text-white border-0 rounded-full px-4 py-2 text-xs font-black items-center gap-2 group/back"
+                        <button 
+                            onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/search')}
+                            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group/back text-xs font-bold uppercase tracking-wider"
                         >
                             <ArrowLeft className="w-3.5 h-3.5 group-hover/back:-translate-x-1 transition-transform" />
-                            Back
-                        </Button>
+                            Return
+                        </button>
                     )}
 
-                    <div className="h-8 w-[1px] bg-white/10 mx-1 hidden sm:block"></div>
+                    <div className="h-6 w-[1px] bg-white/5 mx-2 hidden sm:block"></div>
 
                     {user ? (
-                        <Button 
-                            onClick={() => navigate('/dashboard')}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white border-0 rounded-full px-5 py-2 text-sm font-bold flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(99,102,241,0.5)]"
-                        >
-                            <LayoutDashboard className="w-4 h-4" />
-                            Dashboard
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={() => navigate('/dashboard')}
+                                className="relative group/dash flex items-center gap-3 pl-1 pr-4 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                            >
+                                <Avatar 
+                                    src={user.avatar} 
+                                    initials={user.name} 
+                                    size="sm" 
+                                    className="border-0 shadow-none scale-90 group-hover/dash:scale-100 transition-transform"
+                                />
+                                <div className="flex flex-col items-start pr-1">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40 group-hover/dash:text-indigo-400 transition-colors">Dashboard</span>
+                                    <span className="text-[11px] font-bold text-white/90 truncate max-w-[80px]">{(user.name || 'User').split(' ')[0]}</span>
+                                </div>
+                            </button>
+                        </div>
                     ) : (
                         <Button 
                             onClick={() => navigate('/login')}
-                            className="bg-white text-black hover:bg-gray-200 border-0 rounded-full px-6 py-2 text-sm font-black flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
+                            className="bg-white text-black hover:bg-gray-200 border-0 rounded-full px-6 py-2 text-sm font-black flex items-center gap-2 shadow-[0_8px_20px_-8px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all"
                         >
                             <LogIn className="w-4 h-4" />
                             Sign In

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Grid, FileText, Users, Trash2, User, LogOut, Settings, ClipboardList, Menu } from 'lucide-react';
+import { Shield, Grid, FileText, Users, Trash2, User, LogOut, Settings, ClipboardList, Menu, Activity } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
@@ -12,7 +12,7 @@ const Sidebar = () => {
     { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['ISSUER', 'STUDENT'] },
     { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['ISSUER'] },
     { icon: FileText, path: '/student/credentials', label: 'My Credentials', roles: ['STUDENT'] },
-    { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['ISSUER'] },
+    { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] },
     { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
     { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] },
   ];

@@ -44,102 +44,130 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
         );
     }
 
+    const headerGradient = credential.type === 'TRANSCRIPT'
+        ? 'from-indigo-600 via-purple-700 to-indigo-900'
+        : 'from-emerald-600 via-teal-700 to-emerald-900';
+
     return (
-        <div onClick={onClick} className="group relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800 hover:border-indigo-500/50 transition-all duration-500 cursor-pointer">
-            
-            {/* Card Header / Banner */}
-            <div className="relative h-64 bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900 p-8 md:p-10 flex flex-col justify-between overflow-hidden">
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+        <div 
+            onClick={onClick} 
+            className="group relative bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 hover:border-white/10 transition-all duration-700 cursor-pointer"
+        >
+            {/* Holographic Header / Banner */}
+            <div className={`relative h-72 bg-gradient-to-br ${headerGradient} p-8 md:p-12 flex flex-col justify-between overflow-hidden`}>
+                {/* Dynamic Lighting Effects */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none group-hover:bg-white/15 transition-colors duration-700"></div>
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-black/20 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none"></div>
+                
+                {/* Advanced Noise & Grain Texture */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 brightness-150 contrast-125 mix-blend-overlay"></div>
+                
+                {/* Shimmer Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer-slow pointer-events-none"></div>
 
                 <div className="relative z-10 flex justify-between items-start">
-                <div className="flex items-center gap-3">
-                    <div className="bg-white/20 backdrop-blur-md p-2 rounded-xl shadow-lg border border-white/10">
-                        {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-6 h-6 text-white" /> : <Award className="w-6 h-6 text-white" />}
+                    <div className="flex items-center gap-4">
+                        <div className="bg-white/10 backdrop-blur-2xl p-3 rounded-2xl shadow-2xl border border-white/20 group-hover:scale-110 transition-transform duration-500">
+                            {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-7 h-7 text-white" /> : <Award className="w-7 h-7 text-white" />}
+                        </div>
+                        <div className="space-y-1">
+                            <span className="block text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">Authentic</span>
+                            <div className="bg-white/10 backdrop-blur-md px-4 py-1 rounded-full border border-white/10 text-[10px] font-black text-white tracking-widest uppercase text-center min-w-[80px]">
+                                {credential.type}
+                            </div>
+                        </div>
                     </div>
-                    <div className="bg-black/30 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/10 text-xs font-semibold text-white tracking-wider uppercase">
-                        {credential.type}
+                    
+                    <div className={`flex items-center gap-2 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] shadow-2xl backdrop-blur-2xl border transition-all duration-500 hover:scale-105 ${
+                        credential.isRevoked 
+                            ? 'bg-red-500/20 border-red-500/40 text-red-100' 
+                            : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-100'
+                    }`}>
+                        {credential.isRevoked ? (
+                            <><ShieldAlert className="w-4 h-4" /> SECURED: REVOKED</>
+                        ) : (
+                            <><CheckCircle className="w-4 h-4" /> SECURED: VERIFIED</>
+                        )}
                     </div>
-                </div>
-                
-                <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-sm border ${
-                    credential.isRevoked 
-                        ? 'bg-red-500/20 border-red-500/50 text-red-200' 
-                        : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
-                }`}>
-                    {credential.isRevoked ? (
-                        <><ShieldAlert className="w-3.5 h-3.5" /> REVOKED</>
-                    ) : (
-                        <><CheckCircle className="w-3.5 h-3.5" /> VERIFIED</>
-                    )}
-                </div>
                 </div>
 
                 <div className="relative z-10 mt-auto">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
-                    {title}
-                </h2>
-                <div className="flex items-center text-indigo-200/80 text-sm font-medium">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Issued on {formattedDate}
-                </div>
+                    <h2 className="text-4xl md:text-5xl font-black text-white mb-3 tracking-tight leading-[1.1] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:translate-x-1 transition-transform duration-500">
+                        {title}
+                    </h2>
+                    <div className="flex items-center text-white/70 text-xs font-bold tracking-wider uppercase">
+                        <Calendar className="w-4 h-4 mr-2 text-white/50" />
+                        Date of Issue: <span className="text-white ml-2">{formattedDate}</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Card Body */}
-            <div className="p-8 md:p-10 bg-gray-900">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-10 pb-10 border-b border-gray-800">
-                <div className="space-y-1">
-                    <label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Recipient</label>
-                    <p className="text-2xl text-white font-semibold tracking-tight">{recipient}</p>
-                    <p className="text-sm text-gray-400 font-mono">{credential.studentWalletAddress?.substring(0,10)}...</p>
-                </div>
-                <div className="md:text-right space-y-1">
-                    <label className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Issued By</label>
-                    <p className="text-xl text-white font-medium">{issuer}</p>
-                    <div className="flex md:justify-end">
-                        <span className="inline-flex items-center text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded border border-emerald-400/20">
-                            <CheckCircle className="w-3 h-3 mr-1" /> trusted issuer
-                        </span>
+            {/* Premium Card Body */}
+            <div className="p-10 md:p-14 bg-gradient-to-b from-[#0f0f0f] to-[#050505]">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-10 mb-12 pb-12 border-b border-white/5">
+                    <div className="space-y-3">
+                        <label className="text-[10px] text-white/30 uppercase tracking-[0.3em] font-black">Legal Recipient</label>
+                        <p className="text-3xl text-white font-bold tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/50 transition-all duration-500">{recipient}</p>
+                        <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                            <p className="text-xs text-white/40 font-mono tracking-widest">{credential.studentWalletAddress?.substring(0, 16)}...</p>
+                        </div>
                     </div>
-                </div>
+                    
+                    <div className="md:text-right space-y-3">
+                        <label className="text-[10px] text-white/30 uppercase tracking-[0.3em] font-black">Attesting Institution</label>
+                        <p className="text-2xl text-white font-bold tracking-tight">{issuer}</p>
+                        <div className="flex md:justify-end">
+                            <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border ${
+                                credential.type === 'TRANSCRIPT' 
+                                    ? 'text-indigo-400 bg-indigo-400/5 border-indigo-400/20' 
+                                    : 'text-emerald-400 bg-emerald-400/5 border-emerald-400/20'
+                            }`}>
+                                <CheckCircle className="w-3.5 h-3.5 mr-2" /> Verified Registry
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                <div>
-                    <label className="text-xs text-gray-500 uppercase font-semibold mb-2 block">GPA/Score</label>
-                    <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                        {displayMetadata?.cgpa || displayMetadata?.gpa || displayMetadata?.score || 'N/A'}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-12">
+                    <div className="space-y-3">
+                        <label className="text-[10px] text-white/30 uppercase font-black tracking-[0.2em]">Academic Standing</label>
+                        <div className={`text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r ${credential.type === 'TRANSCRIPT' ? 'from-indigo-400 to-purple-500' : 'from-emerald-400 to-teal-500'}`}>
+                            {displayMetadata?.cgpa || displayMetadata?.gpa || displayMetadata?.score || 'N/A'}
+                        </div>
                     </div>
-                </div>
-                <div className="col-span-2 md:col-span-1">
-                    <label className="text-xs text-gray-500 uppercase font-semibold mb-2 block">Major / Field</label>
-                    <p className="text-white font-medium text-lg leading-snug">{displayMetadata?.major || displayMetadata?.department || 'N/A'}</p>
-                </div>
-                {displayMetadata?.admissionYear && (
-                    <div>
-                        <label className="text-xs text-gray-500 uppercase font-semibold mb-2 block">Class Of</label>
-                        <p className="text-white font-medium text-lg">{displayMetadata?.graduationYear || 'N/A'}</p>
+                    <div className="col-span-2 md:col-span-1 space-y-3">
+                        <label className="text-[10px] text-white/30 uppercase font-black tracking-[0.2em]">Specialization</label>
+                        <p className="text-xl text-white font-bold leading-tight tracking-tight">{displayMetadata?.major || displayMetadata?.department || 'N/A'}</p>
                     </div>
-                )}
+                    {displayMetadata?.graduationYear && (
+                        <div className="space-y-3">
+                            <label className="text-[10px] text-white/30 uppercase font-black tracking-[0.2em]">Certification Class</label>
+                            <div className="flex items-end gap-2">
+                                <span className="text-3xl font-black text-white leading-none">'{displayMetadata?.graduationYear?.toString().slice(-2)}</span>
+                                <span className="text-xs text-white/50 mb-1 font-bold uppercase">Series</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {credential.isRevoked && (
-                <div className="mt-8 p-6 bg-red-950/30 border border-red-500/20 rounded-2xl flex gap-4">
-                    <div className="p-3 bg-red-500/10 rounded-full h-fit">
-                        <ShieldAlert className="w-6 h-6 text-red-500" />
+                    <div className="mt-12 p-8 bg-red-950/20 border border-red-500/20 rounded-[2rem] flex gap-6 backdrop-blur-xl">
+                        <div className="p-4 bg-red-500/10 rounded-2xl h-fit border border-red-500/20 shadow-lg shadow-red-500/10">
+                            <ShieldAlert className="w-8 h-8 text-red-500" />
+                        </div>
+                        <div>
+                            <h4 className="text-red-400 font-black text-lg mb-2 tracking-tight uppercase group-hover:animate-pulse">Revocation Alert</h4>
+                            <p className="text-sm text-red-200/60 leading-relaxed font-medium">
+                                This cryptographic record has been invalidated by the issuer. It no longer represents a verified qualification in the Attestify network. Any associated rights or recognitions are null and void.
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 className="text-red-400 font-bold mb-2">Revocation Notice</h4>
-                        <p className="text-sm text-red-300/80 leading-relaxed">
-                            This credential has been officially revoked by the issuing authority. It is no longer considered valid proof of qualification. Please contact the institution for more details.
-                        </p>
-                    </div>
-                </div>
                 )}
             </div>
+            
+            {/* Bottom Glow */}
+            <div className={`absolute bottom-0 inset-x-0 h-1 bg-gradient-to-r ${credential.type === 'TRANSCRIPT' ? 'from-indigo-500 to-purple-600' : 'from-emerald-500 to-teal-600'} opacity-30 shadow-[0_0_20px_rgba(99,102,241,0.5)]`}></div>
         </div>
     );
 };

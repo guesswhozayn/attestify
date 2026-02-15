@@ -10,8 +10,6 @@ import {
     Calendar, 
     Wallet, 
     Shield, 
-    Camera, 
-    Loader, 
     BadgeCheck, 
     Activity, 
     ExternalLink,
@@ -20,7 +18,7 @@ import {
     X,
     Share2,
     Copy,
-    CheckCircle
+    Globe
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
 import Input from '../../components/shared/Input';
@@ -39,7 +37,8 @@ const StudentProfileEditor = () => {
         title: '',
         university: '',
         about: '',
-        email: ''
+        email: '',
+        visibility: true
     });
 
     // Initialize/Sync Form Data
@@ -50,7 +49,8 @@ const StudentProfileEditor = () => {
                 title: user.title || '',
                 university: user.university || '',
                 about: user.about || '',
-                email: user.email || ''
+                email: user.email || '',
+                visibility: user.preferences?.visibility !== false
             });
         }
     }, [user]);
@@ -89,7 +89,10 @@ const StudentProfileEditor = () => {
                 name: formData.name,
                 title: formData.title,
                 university: formData.university,
-                about: formData.about
+                about: formData.about,
+                preferences: {
+                    visibility: formData.visibility
+                }
             });
             
             if (response.data.success) {
@@ -298,74 +301,123 @@ const StudentProfileEditor = () => {
                 {/* Details Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
-                    {/* Public Details */}
-                    <motion.div 
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                      className="lg:col-span-2 space-y-6"
-                    >
-                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            <User className="w-5 h-5 text-indigo-400" />
-                            Academic Details
-                         </h2>
+                    {/* Public details & settings column */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Academic Details */}
+                        <motion.div 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                          className="space-y-6"
+                        >
+                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <User className="w-5 h-5 text-indigo-400" />
+                                Academic Details
+                             </h2>
 
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             {isEditing ? (
-                                 <div className="p-6 bg-white/[0.02] border border-white/[0.08] rounded-2xl space-y-2 backdrop-blur-sm">
-                                     <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                         <Building className="w-3.5 h-3.5" /> Institution
-                                     </label>
-                                     <input 
-                                        value={formData.university}
-                                        onChange={(e) => setFormData({...formData, university: e.target.value})}
-                                        className="w-full bg-transparent border-b border-white/10 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors font-medium"
-                                        placeholder="University Name"
-                                     />
-                                 </div>
-                             ) : (
-                                <ProfileCard 
-                                    icon={Building}
-                                    label="Institution"
-                                    value={user?.university}
-                                    color="text-purple-400"
-                                    bg="bg-purple-500/10"
-                                    border="border-purple-500/20"
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 {isEditing ? (
+                                     <div className="p-6 bg-white/[0.02] border border-white/[0.08] rounded-2xl space-y-2 backdrop-blur-sm">
+                                         <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                             <Building className="w-3.5 h-3.5" /> Institution
+                                         </label>
+                                         <input 
+                                            value={formData.university}
+                                            onChange={(e) => setFormData({...formData, university: e.target.value})}
+                                            className="w-full bg-transparent border-b border-white/10 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors font-medium"
+                                            placeholder="University Name"
+                                         />
+                                     </div>
+                                 ) : (
+                                    <ProfileCard 
+                                        icon={Building}
+                                        label="Institution"
+                                        value={user?.university}
+                                        color="text-purple-400"
+                                        bg="bg-purple-500/10"
+                                        border="border-purple-500/20"
+                                    />
+                                 )}
+
+                                 <ProfileCard 
+                                    icon={Calendar}
+                                    label="Member Since"
+                                    value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    }) : 'N/A'}
+                                    color="text-amber-400"
+                                    bg="bg-amber-500/10"
+                                    border="border-amber-500/20"
                                 />
-                             )}
+                                
+                                <ProfileCard 
+                                    icon={Activity}
+                                    label="Account Status"
+                                    value={user?.isActive ? 'Active' : 'Inactive'}
+                                    color="text-emerald-400"
+                                    bg="bg-emerald-500/10"
+                                    border="border-emerald-500/20"
+                                />
 
-                             <ProfileCard 
-                                icon={Calendar}
-                                label="Member Since"
-                                value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                }) : 'N/A'}
-                                color="text-amber-400"
-                                bg="bg-amber-500/10"
-                                border="border-amber-500/20"
-                            />
-                            
-                            <ProfileCard 
-                                icon={Activity}
-                                label="Account Status"
-                                value={user?.isActive ? 'Active' : 'Inactive'}
-                                color="text-emerald-400"
-                                bg="bg-emerald-500/10"
-                                border="border-emerald-500/20"
-                            />
+                                <ProfileCard 
+                                    icon={Shield}
+                                    label="Verification Level"
+                                    value="Level 2 (Verified)"
+                                    color="text-blue-400"
+                                    bg="bg-blue-500/10"
+                                    border="border-blue-500/20"
+                                />
+                             </div>
+                        </motion.div>
 
-                            <ProfileCard 
-                                icon={Shield}
-                                label="Verification Level"
-                                value="Level 2 (Verified)"
-                                color="text-blue-400"
-                                bg="bg-blue-500/10"
-                                border="border-blue-500/20"
-                            />
-                         </div>
-                    </motion.div>
+                        {/* Public Profile Settings */}
+                        <motion.div 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
+                          className="space-y-6"
+                        >
+                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Globe className="w-5 h-5 text-purple-400" />
+                                Public Profile Settings
+                             </h2>
+
+                             <div className="p-6 bg-white/[0.03] border border-white/[0.08] rounded-3xl backdrop-blur-xl relative overflow-hidden group">
+                                 {/* Gloss */}
+                                 <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] -ml-16 -mt-16 pointer-events-none group-hover:bg-purple-500/10 transition-colors duration-500"></div>
+                                 
+                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                                     <div className="flex-1">
+                                         <h3 className="text-lg font-bold text-white mb-2">Public Visibility</h3>
+                                         <p className="text-gray-400 text-sm leading-relaxed">
+                                             When enabled, your academic profile and verified credentials will be visible to anyone with your public profile link. Disabling this will hide your profile from the public.
+                                         </p>
+                                     </div>
+                                     
+                                     <div className="flex flex-col items-center gap-3">
+                                         <button
+                                             onClick={() => isEditing && setFormData({...formData, visibility: !formData.visibility})}
+                                             disabled={!isEditing}
+                                             className={`relative inline-flex h-8 w-16 items-center rounded-full transition-all duration-300 focus:outline-none ${!isEditing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${
+                                                 formData.visibility ? 'bg-emerald-500 shadow-[0_0_15px_-3px_rgba(16,185,129,0.5)]' : 'bg-gray-700'
+                                             }`}
+                                         >
+                                             <span
+                                                 className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
+                                                     formData.visibility ? 'translate-x-9' : 'translate-x-1'
+                                                 }`}
+                                             />
+                                         </button>
+                                         <span className={`text-[10px] font-black uppercase tracking-widest ${formData.visibility ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                             {formData.visibility ? 'LIVE ON-CHAIN' : 'HIDDEN'}
+                                         </span>
+                                     </div>
+                                 </div>
+                             </div>
+                        </motion.div>
+                    </div>
 
                     {/* Blockchain Identity */}
                     <motion.div 

@@ -3,19 +3,22 @@ import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import CredentialGrid from '../components/credential/CredentialGrid';
 import CredentialDetails from '../components/credential/CredentialDetails';
-import { Search, Wallet, Shield, FileText, Filter } from 'lucide-react';
+import { Search, Wallet, Shield, FileText, Filter, RefreshCw } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
+import StudentStats from '../components/credential/StudentStats';
 
 const StudentCredentials = () => {
     const { user } = useAuth();
     const [credentials, setCredentials] = useState([]);
     const [filteredCredentials, setFilteredCredentials] = useState([]);
+    const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
     const [activeTab, setActiveTab] = useState('all');
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const { showNotification } = useNotification();
     const [walletAddress, setWalletAddress] = useState(user?.walletAddress);
 
@@ -41,23 +44,34 @@ const StudentCredentials = () => {
         }
     }, [walletAddress, activeTab]);
 
-    const fetchCredentials = async () => {
+    const fetchCredentials = async (isRefresh = false) => {
         try {
-            setLoading(true);
+            if (isRefresh) setRefreshing(true);
+            else setLoading(true);
             const response = await credentialAPI.getByWalletAddress(walletAddress);
-            let docs = response.data.credentials || [];
+            const docs = response.data.credentials || [];
             
-            if (activeTab !== 'all') {
-                docs = docs.filter(doc => doc.type === activeTab);
-            }
+            // Calculate Stats
+            const total = docs.length;
+            const revokedCount = docs.filter(d => d.isRevoked).length;
+            const active = total - revokedCount;
+            const sbtCount = docs.filter(d => !!d.tokenId).length;
+            const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
+            setStats({ total, active, sbtCount, uniqueIssuers });
 
             setCredentials(docs);
-            setFilteredCredentials(docs);
+            
+            let filtered = docs;
+            if (activeTab !== 'all') {
+                filtered = docs.filter(doc => doc.type === activeTab);
+            }
+            setFilteredCredentials(filtered);
         } catch (error) {
             console.error('Failed to fetch credentials:', error);
             showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
@@ -80,18 +94,42 @@ const StudentCredentials = () => {
             <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
                 
                 {/* Header & Actions */}
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6"
-                >
-                    <div className="relative">
-                        <div className="absolute -left-4 top-0 w-1 h-full bg-indigo-500 rounded-full hidden md:block"></div>
-                        <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Academic Records</h1>
-                        <p className="text-gray-400 max-w-2xl">View and manage your blockchain-verified certificates and transcripts.</p>
-                    </div>
-                </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/20 to-blue-900/20 border border-white/[0.08] p-8 md:p-10 backdrop-blur-xl"
+        >
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none"></div>
+            
+            <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                   <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                            <Shield className="w-6 h-6 text-indigo-400" />
+                        </div>
+                        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Academic Records</h1>
+                   </div>
+                   <p className="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                      Your verifiable digital identity. Review your certificates, transcripts, and on-chain mastery records.
+                   </p>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => fetchCredentials(true)} 
+                      disabled={refreshing}
+                      className={`p-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? 'animate-spin' : 'hover:scale-105 active:scale-95'}`}
+                      title="Refresh Records"
+                    >
+                      <RefreshCw className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* Stats Section */}
+        {walletAddress && <StudentStats stats={stats} />}
 
                 {/* Content Section */}
                 <motion.div 

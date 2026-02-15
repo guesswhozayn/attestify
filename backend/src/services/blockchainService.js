@@ -243,6 +243,9 @@ class BlockchainService {
 
   async getNetworkStats() {
     try {
+      if (!this.provider) {
+          throw new Error('Blockchain provider not initialized');
+      }
       const blockNumber = await this.provider.getBlockNumber();
       const feeData = await this.provider.getFeeData();
       return {
@@ -251,11 +254,13 @@ class BlockchainService {
         connected: true
       };
     } catch (error) {
-      console.error('Network stats error:', error);
+      console.error('Network stats retrieval failed:', error.message);
+      if (error.code) console.error('Error Code:', error.code);
       return {
         blockNumber: 0,
         gasPrice: '0',
-        connected: false
+        connected: false,
+        error: error.message
       };
     }
   }

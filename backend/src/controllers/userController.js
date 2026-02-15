@@ -200,8 +200,8 @@ exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
 
     const credentials = await Credential.find({
         studentWalletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
-        status: 'issued'
-    }).select('studentName university issueDate type certificationData transcriptData ipfsCID certificateHash');
+        isRevoked: false
+    }).select('studentName university issueDate type certificationData transcriptData ipfsCID certificateHash isRevoked');
 
     res.json({
         success: true,

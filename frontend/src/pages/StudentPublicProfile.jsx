@@ -15,17 +15,33 @@ import {
     Shield
 } from 'lucide-react';
 import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
+import CredentialDetails from '../components/credential/CredentialDetails';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import Avatar from '../components/shared/Avatar';
+import { useAuth } from '../context/AuthContext';
+import { Settings, LayoutDashboard } from 'lucide-react';
 
 const StudentPublicProfile = () => {
     const { walletAddress } = useParams();
     const navigate = useNavigate();
+    const { user: authUser } = useAuth();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedCredential, setSelectedCredential] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = (credential) => {
+        setSelectedCredential(credential);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedCredential(null);
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -136,7 +152,7 @@ const StudentPublicProfile = () => {
                                     {student?.name || "Unknown Student"}
                                 </h1>
 
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-6">
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-8">
                                     <div className="flex items-center px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-gray-300 text-sm hover:bg-white/10 transition-colors">
                                         <Building2 className="w-4 h-4 mr-2 text-purple-400" />
                                         {student?.university || "Unknown University"}
@@ -150,13 +166,54 @@ const StudentPublicProfile = () => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex items-center justify-center md:justify-start gap-3">
-                                    <Button className="h-10 px-6 bg-white text-black hover:bg-gray-200 rounded-full font-bold text-sm shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
-                                        Connect
-                                    </Button>
-                                    <button className="h-10 w-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors">
-                                        <Share2 className="w-4 h-4" />
+                                <div className="flex items-center justify-center md:justify-start gap-3 mb-8">
+                                    {authUser && authUser.walletAddress?.toLowerCase() === walletAddress?.toLowerCase() ? (
+                                        <Button 
+                                            onClick={() => navigate('/profile')}
+                                            icon={Settings}
+                                            className="bg-white text-black hover:bg-gray-200 rounded-full font-bold text-sm shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
+                                        >
+                                            Edit Profile
+                                        </Button>
+                                    ) : null}
+                                    
+                                    <button 
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(window.location.href);
+                                            alert('Profile link copied!');
+                                        }}
+                                        className="h-10 w-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors group/share"
+                                        title="Share Profile"
+                                    >
+                                        <Share2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                                     </button>
+                                </div>
+
+                                {/* Simplified Stats Bar */}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/5">
+                                    <div>
+                                        <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Total Badges</span>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
+                                            <span className="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                                                {credentials?.length || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Member Tier</span>
+                                        <div className="flex items-center gap-2 text-white/70 font-bold text-sm uppercase tracking-tight">
+                                            <Shield className="w-4 h-4 text-emerald-400" />
+                                            Verified Entry
+                                        </div>
+                                    </div>
+                                    <div className="hidden sm:block">
+                                        <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">Visibility</span>
+                                        <div className="flex items-center gap-2 text-white/70 font-bold text-sm uppercase tracking-tight">
+                                            <Globe className="w-4 h-4 text-indigo-400" />
+                                            Public On-Chain
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -185,6 +242,7 @@ const StudentPublicProfile = () => {
                                     key={cred._id} 
                                     credential={cred} 
                                     metadata={cred.type === 'TRANSCRIPT' ? cred.transcriptData : cred.certificationData} 
+                                    onClick={() => openModal(cred)}
                                 />
                             ))}
                         </div>
@@ -203,7 +261,13 @@ const StudentPublicProfile = () => {
                     )}
                 </div>
             </main>
-            <Footer />
+
+            <CredentialDetails 
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                credential={selectedCredential}
+            />
+
         </div>
     );
 };

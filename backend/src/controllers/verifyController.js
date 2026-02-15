@@ -1,5 +1,4 @@
 const Credential = require('../models/Credential');
-const AuditLog = require('../models/AuditLog');
 const hashService = require('../services/hashService');
 const blockchainService = require('../services/blockchainService');
 const fs = require('fs');
@@ -66,18 +65,8 @@ exports.verifyWithFile = asyncHandler(async (req, res) => {
     credential.lastVerifiedAt = new Date();
     await credential.save();
 
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.CREDENTIAL_VERIFIED,
-      targetCredential: credential._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent'),
-      details: {
-        inputIdentifier: studentWalletAddress,
-        hashMatch: uploadedHash === credential.certificateHash,
-        blockchainValid: isValidOnChain,
-        isRevoked: credential.isRevoked
-      }
-    });
+    await credential.save();
+
 
     if (fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
@@ -234,17 +223,8 @@ exports.verifyByHash = asyncHandler(async (req, res) => {
   credential.lastVerifiedAt = new Date();
   await credential.save();
 
-  await AuditLog.create({
-    action: AUDIT_ACTIONS.CREDENTIAL_VERIFIED,
-    targetCredential: credential._id,
-    ipAddress: req.ip,
-    userAgent: req.get('user-agent'),
-    details: {
-      inputIdentifier: studentWalletAddress,
-      hashMatch: hash === credential.certificateHash,
-      blockchainValid: isValidOnChain
-    }
-  });
+    await credential.save();
+
 
   if (isValidOnChain && hash === credential.certificateHash) {
     return res.json({

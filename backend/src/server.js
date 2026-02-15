@@ -29,14 +29,14 @@ const authRoutes = require('./routes/auth');
 const credentialRoutes = require('./routes/credentials');
 const verifyRoutes = require('./routes/verify');
 const userRoutes = require('./routes/user');
-const auditRoutes = require('./routes/audit');
+const networkRoutes = require('./routes/network');
 const publicRoutes = require('./routes/public');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/credentials', credentialRoutes);
 app.use('/api/verify', verifyRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/audit', auditRoutes);
+app.use('/api/network', networkRoutes);
 app.use('/api/public', publicRoutes);
 
 app.get('/health', (req, res) => {
@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
       credentials: '/api/credentials',
       verify: '/api/verify',
       admin: '/api/admin',
-      audit: '/api/audit'
+      network: '/api/network'
     }
   });
 });

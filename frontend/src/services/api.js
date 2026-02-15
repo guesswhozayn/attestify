@@ -196,32 +196,12 @@ export const verifyAPI = {
 };
 
 // ============================================
-// Audit Log APIs
+// Network Status APIs
 // ============================================
-export const auditAPI = {
-  // Get all logs
-  getLogs: async (params = {}) => {
-    return api.get('/audit/logs', { params });
-  },
-
-  // Get logs by user
-  getByUser: async (userId, params = {}) => {
-    return api.get(`/audit/user/${userId}`, { params });
-  },
-
-  // Get logs by credential
-  getByCredential: async (credentialId, params = {}) => {
-    return api.get(`/audit/credential/${credentialId}`, { params });
-  },
-
-  // Get logs by action
-  getByAction: async (action, params = {}) => {
-    return api.get(`/audit/action/${action}`, { params });
-  },
-
-  // Get dashboard stats
-  getDashboardStats: async (params = {}) => {
-    return api.get('/audit/dashboard-stats', { params });
+export const networkAPI = {
+  // Get network stats
+  getStats: async () => {
+    return api.get('/network/stats');
   }
 };
 

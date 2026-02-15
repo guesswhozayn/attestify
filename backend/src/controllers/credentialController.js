@@ -1,11 +1,9 @@
 const Credential = require('../models/Credential');
-const AuditLog = require('../models/AuditLog');
 
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const hashService = require('../services/hashService');
 const fs = require('fs');
-const { AUDIT_ACTIONS } = require('../config/constants');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
 const path = require('path');
@@ -475,18 +473,8 @@ exports.issueCredential = asyncHandler(async (req, res) => {
 
     await credential.save();
 
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.CREDENTIAL_ISSUED,
-      performedBy: req.user._id,
-      targetCredential: credential._id,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent'),
-      details: {
-        studentWalletAddress,
-        transactionHash: blockchainResult.transactionHash,
-        ipfsCID: ipfsResult.ipfsHash
-      }
-    });
+    await credential.save();
+
 
     try {
         const User = require('../models/User');
@@ -569,15 +557,6 @@ exports.issueCredential = asyncHandler(async (req, res) => {
         fs.unlinkSync(imgPath);
       }
     }
-
-    await AuditLog.create({
-      action: AUDIT_ACTIONS.CREDENTIAL_ISSUED,
-      performedBy: req.user?._id,
-      status: 'failed',
-      errorMessage: error.message,
-      ipAddress: req.ip,
-      userAgent: req.get('user-agent')
-    });
 
     throw error;
   }
@@ -773,13 +752,8 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
 
       await credential.save();
 
-      await AuditLog.create({
-        action: AUDIT_ACTIONS.CREDENTIAL_ISSUED,
-        performedBy: req.user._id,
-        targetCredential: credential._id,
-        ipAddress: req.ip,
-        details: { batch: true, studentWalletAddress: row.studentWalletAddress }
-      });
+      // Audit log removed
+
 
       if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
@@ -965,18 +939,8 @@ exports.revokeCredential = asyncHandler(async (req, res) => {
   credential.revocationTotalCost = blockchainResult.totalCost;
   await credential.save();
 
-  await AuditLog.create({
-    action: AUDIT_ACTIONS.CREDENTIAL_REVOKED,
-    performedBy: req.user._id,
-    targetCredential: credential._id,
-    ipAddress: req.ip,
-    userAgent: req.get('user-agent'),
-    details: {
-      studentWalletAddress: credential.studentWalletAddress,
-      transactionHash: blockchainResult.transactionHash,
-      reason
-    }
-  });
+  // Audit log removed
+
 
   res.json({
     success: true,
@@ -1057,20 +1021,11 @@ exports.getStats = asyncHandler(async (req, res) => {
          { $match: query },
          { $group: { _id: null, total: { $sum: "$verificationCount" } } }
       ]))[0]?.total || 0,
-      networkStats: await blockchainService.getNetworkStats(),
-      transactionSuccessRate: await (async () => {
-         // Should calculate based on AuditLogs for the user
-         const successCount = await AuditLog.countDocuments({ 
-             performedBy: userId, 
-             action: 'CREDENTIAL_ISSUED',
-             status: 'success'
-         });
-         const totalAttempts = await AuditLog.countDocuments({ 
-             performedBy: userId, 
-             action: 'CREDENTIAL_ISSUED'
-         });
-         return totalAttempts > 0 ? Math.round((successCount / totalAttempts) * 100) : 100;
-      })()
+      networkStats: await Promise.race([
+          blockchainService.getNetworkStats(),
+          new Promise(resolve => setTimeout(() => resolve({ blockNumber: 0, gasPrice: '0', connected: false, timeout: true }), 5000))
+      ]),
+      transactionSuccessRate: 100
     },
     recent
   });

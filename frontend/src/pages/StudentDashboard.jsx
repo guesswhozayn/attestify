@@ -3,17 +3,22 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
 import IPFSService from '../services/ipfs';
-import { Download, Share2, Award, Calendar, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
+import {Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash, RefreshCw } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
 import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
+import StudentStats from '../components/credential/StudentStats';
+import Avatar from '../components/shared/Avatar';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const [credentials, setCredentials] = useState([]);
   const [credential, setCredential] = useState(null);
   const [metadata, setMetadata] = useState(null);
+  const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [walletAddress, setWalletAddress] = useState(null);
 
@@ -43,49 +48,51 @@ const StudentDashboard = () => {
     return () => { isMounted.current = false; };
   }, []);
 
-  const fetchCredential = async (address) => {
+  const fetchCredential = async (address, isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
       setError('');
       
       const targetAddress = address || walletAddress;
 
       if (!targetAddress) {
         setLoading(false);
+        setRefreshing(false);
         return;
       }
 
-      try {
-        const response = await credentialAPI.getByWalletAddress(targetAddress);
-        if (!isMounted.current) return;
+      const response = await credentialAPI.getByWalletAddress(targetAddress);
+      if (!isMounted.current) return;
 
-        const credentials = response.data.credentials;
-        
-        if (credentials && credentials.length > 0) {
-           const latestCred = credentials[0];
-           setCredential(latestCred);
-           setMetadata(latestCred.type === 'TRANSCRIPT' ? latestCred.transcriptData : latestCred.certificationData);
-        } else {
-             setCredential(null);
-        }
+      const docs = response.data.credentials || [];
+      setCredentials(docs);
+      
+      // Calculate Stats
+      const total = docs.length;
+      const revokedCount = docs.filter(d => d.isRevoked).length;
+      const active = total - revokedCount;
+      const sbtCount = docs.filter(d => !!d.tokenId).length;
+      const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
+      setStats({ total, active, sbtCount, uniqueIssuers });
 
-      } catch (apiError) {
-        if (!isMounted.current) return;
-        if (apiError.response && apiError.response.status === 404) {
-            setCredential(null);
-        } else {
-            throw apiError;
-        }
+      if (docs.length > 0) {
+         const latestCred = docs[0];
+         setCredential(latestCred);
+         setMetadata(latestCred.type === 'TRANSCRIPT' ? latestCred.transcriptData : latestCred.certificationData);
+      } else {
+           setCredential(null);
       }
 
     } catch (err) {
       if (isMounted.current) {
           console.error('Error fetching credential:', err);
-          setError('Failed to load your credential. ' + (err.message || ''));
+          setError('Failed to load your credentials. Please ensure your wallet is connected.');
       }
     } finally {
       if (isMounted.current) {
           setLoading(false);
+          setRefreshing(false);
       }
     }
   };
@@ -140,22 +147,73 @@ const StudentDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/[0.03] via-transparent to-white/[0.01] border border-white/[0.08] p-8 md:p-12 backdrop-blur-md"
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/20 to-purple-900/20 border border-white/[0.08] p-8 md:p-10 backdrop-blur-xl"
         >
-          {/* Decorative gradients inside the card */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none"></div>
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay pointer-events-none"></div>
           
-          <div className="relative z-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tighter">
-              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.name?.split(' ')[0] || 'Student'}</span>
-            </h1>
-            <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
-              Your academic identity, secured on-chain. Access, manage, and share your verifiable credentials with absolute confidence.
-            </p>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="space-y-4">
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md cursor-default"
+                >
+                     <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                     </span>
+                     <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Student Vault</span>
+                </motion.div>
+                
+                <motion.h1 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+                    className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight flex flex-col md:flex-row md:items-center gap-4"
+                >
+                    <div className="shrink-0 mb-2 md:mb-0">
+                        <Avatar 
+                            src={user?.avatar} 
+                            initials={user?.name} 
+                            size="md" 
+                            className="ring-4 ring-indigo-500/20"
+                        />
+                    </div>
+                    <span>Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.name?.split(' ')[0] || 'Student'}</span></span>
+                </motion.h1>
+                
+                <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                    className="text-gray-400 max-w-xl text-lg leading-relaxed"
+                >
+                    Your decentralized academic record is ready. Manage your on-chain credentials and share them with the world securely.
+                </motion.p>
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex items-center gap-4"
+            >
+                <button 
+                  onClick={() => fetchCredential(walletAddress, true)}
+                  disabled={refreshing}
+                  className={`p-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? 'animate-spin' : 'hover:scale-105 active:scale-95'}`}
+                  title="Refresh Dashboard"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+            </motion.div>
           </div>
         </motion.div>
+
+        {/* Stats Section */}
+        {walletAddress && <StudentStats stats={stats} />}
 
         {/* Error Alert */}
         {error && (
@@ -249,6 +307,60 @@ const StudentDashboard = () => {
                   <p className="text-xs text-gray-500 mt-6 text-center leading-relaxed relative z-10">
                      Provide this link to employers or institutions. They can instantly verify the authenticity of this credential on-chain.
                   </p>
+               </motion.div>
+
+               {/* Public Profile Status Card */}
+               <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
+                 className="bg-gray-900/60 rounded-3xl p-6 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden group"
+               >
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  <div className="flex items-center justify-between mb-6 relative z-10">
+                    <h3 className="text-white font-bold flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-purple-400" />
+                      Public Profile
+                    </h3>
+                    <div className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest border ${
+                      user?.preferences?.visibility !== false 
+                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                        : 'bg-gray-500/10 border-gray-500/20 text-gray-400'
+                    }`}>
+                      {user?.preferences?.visibility !== false ? 'LIVE' : 'HIDDEN'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 relative z-10">
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Your verified credentials are {user?.preferences?.visibility !== false ? 'currently visible' : 'currently hidden'} to the public. 
+                      You can manage this in your profile settings.
+                    </p>
+                    
+                    <div className="flex flex-col gap-2">
+                       <a 
+                          href={`/profile/${walletAddress}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold rounded-xl transition-all"
+                       >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Visit Public Profile
+                       </a>
+                       <button
+                          onClick={() => {
+                            const url = `${window.location.origin}/profile/${walletAddress}`;
+                            navigator.clipboard.writeText(url);
+                            alert('Profile link copied!');
+                          }}
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 text-indigo-300 text-xs font-bold rounded-xl transition-all"
+                       >
+                          <Share2 className="w-3.5 h-3.5" />
+                          Copy Share Link
+                       </button>
+                    </div>
+                  </div>
                </motion.div>
 
                {/* Blockchain Proof Card */}
