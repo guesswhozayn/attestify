@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
-import CredentialGrid from '../components/credential/CredentialGrid';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import UploadCredentialModal from '../components/credential/UploadCredentialModal';
-import { Plus, Shield, Filter, ArrowRight, FileText, TrendingUp, Activity, Users, Award } from 'lucide-react';
+import RecentActivityList from '../components/dashboard/RecentActivityList';
+import { Plus, Shield, Filter, ArrowRight, FileText, TrendingUp, Activity, Users, Award, CheckCircle, Clock, Calendar, Zap, Server, Wifi } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +44,16 @@ const StatCard = ({ label, value, icon: Icon, subtext, gradient, iconBg, delay }
 
 const IssuerDashboard = () => {
     const [credentials, setCredentials] = useState([]);
-    const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0 });
+    const [stats, setStats] = useState({ 
+        total: 0, 
+        active: 0, 
+        revoked: 0,
+        today: 0, 
+        thisWeek: 0, 
+        verificationRequests: 0,
+        transactionSuccessRate: 100,
+        networkStats: { blockNumber: 0, gasPrice: '0', connected: false }
+    });
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -67,7 +76,7 @@ const IssuerDashboard = () => {
             setLoading(true);
             
             const [statsResponse, recentResponse] = await Promise.all([
-                 credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0 } } }),
+                 credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0, today: 0, thisWeek: 0, verificationRequests: 0, transactionSuccessRate: 100, networkStats: { blockNumber: 0, gasPrice: '0', connected: false } } } }),
                  credentialAPI.getAll({ limit: 6 }) 
             ]);
 
@@ -154,8 +163,8 @@ const IssuerDashboard = () => {
                     </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Key Metrics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard 
                         label="Total Issued" 
                         value={stats.total} 
@@ -169,10 +178,50 @@ const IssuerDashboard = () => {
                         label="Active Status" 
                         value={stats.active} 
                         icon={Activity} 
-                        subtext="Currently valid on-chain"
+                        subtext="Currently valid"
                         gradient="from-emerald-500/10 to-teal-500/5"
                         iconBg="bg-emerald-500/20"
                         delay={0.5}
+                    />
+                    <StatCard 
+                        label="Verifications" 
+                        value={stats.verificationRequests} 
+                        icon={CheckCircle} 
+                        subtext="Total verifications"
+                        gradient="from-blue-500/10 to-cyan-500/5"
+                        iconBg="bg-blue-500/20"
+                        delay={0.6}
+                    />
+                    <StatCard 
+                        label="Success Rate" 
+                        value={`${stats.transactionSuccessRate}%`} 
+                        icon={Zap} 
+                        subtext="On-chain tx success"
+                        gradient="from-amber-500/10 to-orange-500/5"
+                        iconBg="bg-amber-500/20"
+                        delay={0.7}
+                    />
+                </div>
+
+                {/* Secondary Metrics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <StatCard 
+                        label="Issued Today" 
+                        value={stats.today} 
+                        icon={Clock} 
+                        subtext="Last 24 hours"
+                        gradient="from-pink-500/10 to-rose-500/5"
+                        iconBg="bg-pink-500/20"
+                        delay={0.8}
+                    />
+                    <StatCard 
+                        label="This Week" 
+                        value={stats.thisWeek} 
+                        icon={Calendar} 
+                        subtext="Last 7 days"
+                        gradient="from-violet-500/10 to-purple-500/5"
+                        iconBg="bg-violet-500/20"
+                        delay={0.9}
                     />
                     <StatCard 
                         label="Revoked" 
@@ -181,71 +230,118 @@ const IssuerDashboard = () => {
                         subtext="Withdrawn credentials"
                         gradient="from-red-500/10 to-orange-500/5"
                         iconBg="bg-red-500/20"
-                        delay={0.6}
+                        delay={1.0}
                     />
                 </div>
 
-                {/* Recent Activity Section */}
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.7 }}
-                    className="space-y-6"
-                >
-                    <div className="flex items-center justify-between px-2">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-                                <FileText className="w-5 h-5 text-indigo-400" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-white tracking-tight">Recent Issuances</h2>
-                        </div>
-                        <Button 
-                            variant="outline" 
-                            className="text-zinc-400 hover:text-white border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-full px-6"
-                            onClick={() => navigate('/credentials')}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Recent Activity Section */}
+                    <div className="lg:col-span-2">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.7 }}
+                            className="space-y-6"
                         >
-                            View All <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                    </div>
-
-                    <div className="min-h-[200px]">
-                        {loading ? (
-                             <div className="flex flex-col items-center justify-center p-20 bg-white/[0.02] border border-dashed border-white/10 rounded-3xl">
-                                <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <div className="text-zinc-500 font-medium animate-pulse">Loading blockchain records...</div>
-                             </div>
-                        ) : credentials.length > 0 ? (
-                            <div className="relative">
-                                {/* Decor */}
-                                <div className="absolute -left-4 top-10 bottom-10 w-px bg-white/5 hidden xl:block"></div>
-                                
-                                <CredentialGrid 
-                                    credentials={credentials} 
-                                    onCredentialClick={setSelectedCredential}
-                                    loading={loading}
-                                />
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center backdrop-blur-sm group hover:bg-white/[0.03] transition-colors">
-                                <div className="w-20 h-20 bg-white/[0.03] rounded-full flex items-center justify-center mb-6 shadow-xl ring-8 ring-white/[0.02] group-hover:scale-110 transition-transform">
-                                    <Award className="w-10 h-10 text-zinc-600 group-hover:text-indigo-500 transition-colors" />
+                            <div className="flex items-center justify-between px-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                                        <FileText className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-white tracking-tight">Recent Issuances</h2>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">No Credentials Issued</h3>
-                                <p className="text-zinc-500 max-w-sm mx-auto text-base mb-8">
-                                    Start issuing blockchain-secured credentials to populate your dashboard.
-                                </p>
                                 <Button 
-                                    onClick={() => setShowUploadModal(true)}
-                                    variant="primary"
-                                    className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-full px-8 shadow-lg shadow-indigo-500/20"
+                                    variant="outline" 
+                                    className="text-zinc-400 hover:text-white border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-full px-6"
+                                    onClick={() => navigate('/credentials')}
                                 >
-                                    Issue First Credential
+                                    View All <ArrowRight className="w-4 h-4 ml-2" />
                                 </Button>
                             </div>
-                        )}
+
+                            <div className="min-h-[200px]">
+                                {loading ? (
+                                    <div className="flex flex-col items-center justify-center p-20 bg-white/[0.02] border border-dashed border-white/10 rounded-3xl">
+                                        <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                        <div className="text-zinc-500 font-medium animate-pulse">Loading blockchain records...</div>
+                                    </div>
+                                ) : credentials.length > 0 ? (
+                                    <div className="relative">
+                                        <RecentActivityList 
+                                            credentials={credentials} 
+                                            onCredentialClick={setSelectedCredential}
+                                            loading={loading}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center backdrop-blur-sm group hover:bg-white/[0.03] transition-colors">
+                                        <div className="w-20 h-20 bg-white/[0.03] rounded-full flex items-center justify-center mb-6 shadow-xl ring-8 ring-white/[0.02] group-hover:scale-110 transition-transform">
+                                            <Award className="w-10 h-10 text-zinc-600 group-hover:text-indigo-500 transition-colors" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white mb-2">No Credentials Issued</h3>
+                                        <p className="text-zinc-500 max-w-sm mx-auto text-base mb-8">
+                                            Start issuing blockchain-secured credentials to populate your dashboard.
+                                        </p>
+                                        <Button 
+                                            onClick={() => setShowUploadModal(true)}
+                                            variant="primary"
+                                            className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-full px-8 shadow-lg shadow-indigo-500/20"
+                                        >
+                                            Issue First Credential
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
                     </div>
-                </motion.div>
-            </main>
+
+                    {/* Network Status Section */}
+                    <div className="lg:col-span-1">
+                        <motion.div
+                             initial={{ opacity: 0, x: 20 }}
+                             animate={{ opacity: 1, x: 0 }}
+                             transition={{ duration: 0.8, delay: 0.8 }}
+                             className="rounded-3xl bg-gray-900/40 border border-white/[0.08] backdrop-blur-xl p-6 space-y-6 sticky top-8"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                                    <Server className="w-5 h-5 text-emerald-400" />
+                                </div>
+                                <h2 className="text-xl font-bold text-white">Network Status</h2>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-zinc-400 text-sm">Status</span>
+                                        <div className={`flex items-center gap-2 px-2 py-1 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} text-xs font-medium`}>
+                                            <Wifi className="w-3 h-3" />
+                                            {stats.networkStats?.connected ? 'Online' : 'Offline'}
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-zinc-500">Connected to Sepolia Testnet</div>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-zinc-400 text-sm">Latest Block</span>
+                                        <span className="text-white font-mono">{stats.networkStats?.blockNumber}</span>
+                                    </div>
+                                    <div className="w-full bg-white/10 h-1 rounded-full mt-3 overflow-hidden">
+                                        <div className="h-full bg-emerald-500 w-full animate-pulse"></div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
+                                     <div className="flex items-center justify-between mb-1">
+                                        <span className="text-zinc-400 text-sm">Gas Price</span>
+                                        <span className="text-white font-mono">{stats.networkStats?.gasPrice} Gwei</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>            </main>
 
             {/* Modals */}
             <UploadCredentialModal

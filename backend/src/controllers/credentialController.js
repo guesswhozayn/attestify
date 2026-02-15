@@ -1044,7 +1044,33 @@ exports.getStats = asyncHandler(async (req, res) => {
       active,
       revoked,
       thisMonth,
-      gasBalance
+      gasBalance,
+      today: await Credential.countDocuments({
+         ...query,
+         createdAt: { $gte: new Date(new Date().setHours(0,0,0,0)) }
+      }),
+      thisWeek: await Credential.countDocuments({
+         ...query,
+         createdAt: { $gte: new Date(new Date().setDate(new Date().getDate() - 7)) }
+      }),
+      verificationRequests: (await Credential.aggregate([
+         { $match: query },
+         { $group: { _id: null, total: { $sum: "$verificationCount" } } }
+      ]))[0]?.total || 0,
+      networkStats: await blockchainService.getNetworkStats(),
+      transactionSuccessRate: await (async () => {
+         // Should calculate based on AuditLogs for the user
+         const successCount = await AuditLog.countDocuments({ 
+             performedBy: userId, 
+             action: 'CREDENTIAL_ISSUED',
+             status: 'success'
+         });
+         const totalAttempts = await AuditLog.countDocuments({ 
+             performedBy: userId, 
+             action: 'CREDENTIAL_ISSUED'
+         });
+         return totalAttempts > 0 ? Math.round((successCount / totalAttempts) * 100) : 100;
+      })()
     },
     recent
   });

@@ -240,6 +240,25 @@ class BlockchainService {
       return '0';
     }
   }
+
+  async getNetworkStats() {
+    try {
+      const blockNumber = await this.provider.getBlockNumber();
+      const feeData = await this.provider.getFeeData();
+      return {
+        blockNumber,
+        gasPrice: feeData.gasPrice ? ethers.formatUnits(feeData.gasPrice, 'gwei') : '0',
+        connected: true
+      };
+    } catch (error) {
+      console.error('Network stats error:', error);
+      return {
+        blockNumber: 0,
+        gasPrice: '0',
+        connected: false
+      };
+    }
+  }
 }
 
 module.exports = new BlockchainService();

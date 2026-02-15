@@ -145,50 +145,62 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
         doc.text(`Cumulative GPA: ${transcriptData?.cgpa || 'N/A'}`, 40, y, { align: 'right', width: doc.page.width - 80 });
         
         // Footer section alignment
-        const footerY = doc.page.height - 100;
-        
-        // 1. LEFT: Issued Date & Info
-        doc.fontSize(10).font('Helvetica').fillColor('#1f2937')
-           .text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, 50, footerY);
-        doc.fontSize(8).fillColor('#64748b')
-           .text(`Credential ID: ${credentialId.substring(0, 16)}...`, 50, footerY + 15)
-           .text(`Generated: ${new Date().toLocaleDateString()}`, 50, footerY + 25);
+        const footerHeight = 80;
+        const footerY = doc.page.height - footerHeight - 20; // 20 padding from bottom
+        const margin = 40;
+
+        // 1. CENTER: QR Code (Bottom Center)
+        const qrSize = 60;
+        const qrX = (doc.page.width - qrSize) / 2;
+        const qrY = footerY;
+
         doc.fillColor('#000');
-  
-
-        doc.image(qrCodeDataUrl, doc.page.width / 2 - 30, footerY - 20, { width: 60 });
+        doc.image(qrCodeDataUrl, qrX, qrY, { width: qrSize });
         doc.fontSize(8).font('Helvetica').fillColor('#64748b')
-           .text('SCAN TO VERIFY', 0, footerY + 45, { align: 'center', width: doc.page.width });
-  
-        // 3. RIGHT: Seal & Signature
-        const rightEdge = doc.page.width - 50;
-        const signatureWidth = 140;
-        const signatureX = rightEdge - signatureWidth;
+           .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: doc.page.width });
 
+        // 2. LEFT: Issued Date & Info (Bottom Left)
+        const leftInfoY = footerY + 10;
+        doc.fontSize(10).font('Helvetica').fillColor('#1f2937')
+           .text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, margin, leftInfoY);
+        
+        doc.fontSize(8).fillColor('#64748b')
+           .text(`Credential ID: ${credentialId.substring(0, 16)}...`, margin, leftInfoY + 15)
+           .text(`Generated: ${new Date().toLocaleDateString()}`, margin, leftInfoY + 27);
 
+        // 3. RIGHT: Seal & Signature (Bottom Right)
+        const signatureWidth = 160;
+        const signatureX = doc.page.width - margin - signatureWidth;
+        const signatureY = footerY; 
+
+        // Seal behind signature if exists
         if (seal) {
             try {
                doc.save();
                doc.opacity(0.8);
-               doc.image(seal, signatureX - 40, footerY - 40, { width: 70 });
+               // Place seal slightly adjusted relative to signature area
+               doc.image(seal, signatureX - 20, signatureY - 10, { width: 70 });
                doc.restore();
             } catch (e) {
                console.warn('Failed to embed footer seal:', e.message); 
             }
         }
   
-
         if (signature) {
             try {
-              doc.image(signature, signatureX, footerY - 45, { width: signatureWidth, height: 40, fit: [signatureWidth, 40] });
+              // Center signature image in the signature area
+              doc.image(signature, signatureX, signatureY, { width: signatureWidth, height: 40, fit: [signatureWidth, 40], align: 'center' });
             } catch (e) {
               console.warn('Failed to embed signature:', e.message); 
             }
         }
         
-        doc.lineWidth(1).strokeColor('#e2e8f0').moveTo(signatureX, footerY).lineTo(rightEdge, footerY).stroke();
+        // Line for signature
+        const lineY = signatureY + 45;
+        doc.lineWidth(1).strokeColor('#e2e8f0').moveTo(signatureX, lineY).lineTo(signatureX + signatureWidth, lineY).stroke();
+        
         doc.fontSize(10).font('Helvetica-Bold').fillColor('#1f2937')
-           .text('Authorized Signature', signatureX, footerY + 10, { width: signatureWidth, align: 'center' });
+           .text('Authorized Signature', signatureX, lineY + 5, { width: signatureWidth, align: 'center' });
   
       } else {
 
