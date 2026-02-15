@@ -205,14 +205,6 @@ const CredentialDetails = ({ isOpen, onClose, credential, onUpdate }) => {
                           <span className="text-xs text-gray-500 block mb-1">Score</span>
                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-bold">{credential.certificationData.score || '-'}</span>
                         </div>
-                        <div className="bg-black/30 p-3 rounded-xl text-center border border-white/5">
-                          <span className="text-xs text-gray-500 block mb-1">Expiry</span>
-                          <span className="text-white font-medium">
-                            {credential.certificationData.expiryDate 
-                              ? formatDate(credential.certificationData.expiryDate)
-                              : 'None'}
-                          </span>
-                        </div>
                     </div>
                  </div>
               ) : (

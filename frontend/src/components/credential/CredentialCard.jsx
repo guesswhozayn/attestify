@@ -1,111 +1,126 @@
 import React from 'react';
-import { FileText, Calendar, ShieldAlert, CheckCircle, GraduationCap, Award } from 'lucide-react';
+import { FileText, Calendar, ShieldAlert, CheckCircle, GraduationCap, Award, Shield, User, ChevronRight } from 'lucide-react';
 
 const CredentialCard = ({ credential, onClick }) => {
   const displayMetadata = credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData;
   const isTranscript = credential.type === 'TRANSCRIPT';
+  const isSBT = !!credential.tokenId;
+  const isRevoked = credential.isRevoked;
 
-  // Dynamic gradients based on type
-  const gradient = isTranscript 
-    ? 'from-indigo-500/20 via-purple-500/10 to-transparent' 
-    : 'from-emerald-500/20 via-teal-500/10 to-transparent';
-    
+  // Base gradients
+  const bgGradient = isTranscript 
+    ? 'from-indigo-500/10 via-purple-500/5 to-blue-500/5' 
+    : 'from-emerald-500/10 via-teal-500/5 to-cyan-500/5';
+
   const accentColor = isTranscript ? 'indigo' : 'emerald';
   const Icon = isTranscript ? GraduationCap : Award;
 
   return (
     <div
       onClick={onClick}
-      className="group relative bg-gray-900 rounded-3xl overflow-hidden cursor-pointer border border-gray-800 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1"
+      className={`group relative rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 hover:-translate-y-2
+        ${isSBT ? 'hover:shadow-[0_0_40px_-10px_rgba(168,85,247,0.4)]' : `hover:shadow-[0_0_40px_-10px_rgba(${isTranscript ? '99,102,241' : '16,185,129'},0.3)]`}
+      `}
     >
-      <div className={`h-48 bg-gradient-to-br ${
-        credential.type === 'TRANSCRIPT' 
-          ? 'from-indigo-900 via-purple-900 to-gray-900' 
-          : 'from-emerald-900 via-emerald-700 to-gray-900'
-      } flex flex-col justify-between p-5 relative overflow-hidden`}>
+      {/* Dynamic Border Gradient */}
+      <div className={`absolute inset-0 p-[1px] rounded-3xl bg-gradient-to-br from-white/10 via-white/5 to-transparent 
+        ${isSBT ? 'group-hover:from-purple-500/50 group-hover:via-indigo-500/30' : `group-hover:from-${accentColor}-500/50 group-hover:via-${accentColor}-500/30`}
+        transition-all duration-500
+      `}></div>
+
+      {/* Main Card Content */}
+      <div className={`relative h-full bg-black/40 backdrop-blur-xl rounded-3xl p-6 flex flex-col justify-between overflow-hidden
+        border border-white/5 group-hover:border-white/10 transition-all duration-300
+      `}>
         
-        {/* Background Noise/Gradient */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-        <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none ${
-             credential.type === 'TRANSCRIPT' ? 'bg-indigo-500/20' : 'bg-emerald-500/20'
-        }`}></div>
-        
-        {/* Header Top Row */}
-        <div className="relative z-10 flex justify-between items-start">
-             <div className="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/10 shadow-lg">
-                {credential.type === 'TRANSCRIPT' ? (
-                    <GraduationCap className="w-5 h-5 text-white" />
+        {/* Background Effects */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-30 group-hover:opacity-50 transition-opacity duration-500`}></div>
+        <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors duration-500"></div>
+        {isSBT && <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-colors duration-500"></div>}
+
+        {/* Header Section */}
+        <div className="relative z-10 flex justify-between items-start mb-6">
+          <div className="flex items-center gap-3">
+            <div className={`p-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md shadow-inner
+              ${isTranscript ? 'text-indigo-400' : 'text-emerald-400'}
+            `}>
+              <Icon className="w-5 h-5" />
+            </div>
+            {/* Issuer Badge (Simulated or Real) */}
+            <div className="flex flex-col">
+               <span className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-0.5">Issuer</span>
+               <div className="flex items-center gap-1.5">
+                 {credential.issuedBy?.issuerDetails?.branding?.logo ? (
+                   <img src={credential.issuedBy.issuerDetails.branding.logo} alt="Logo" className="w-3.5 h-3.5 rounded-full object-cover" />
+                 ) : (
+                   <div className={`w-3.5 h-3.5 rounded-full bg-${accentColor}-500/20 flex items-center justify-center`}>
+                     <CheckCircle className={`w-2.5 h-2.5 text-${accentColor}-400`} />
+                   </div>
+                 )}
+                 <span className="text-xs font-medium text-white/90 truncate max-w-[120px]">
+                   {credential.university || credential.issuedBy?.name || 'Unknown Issuer'}
+                 </span>
+               </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-2">
+            {/* Status Badge */}
+            <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border shadow-sm flex items-center gap-1.5
+              ${isRevoked 
+                ? 'bg-red-500/10 border-red-500/20 text-red-400' 
+                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
+            `}>
+              <div className={`w-1.5 h-1.5 rounded-full ${isRevoked ? 'bg-red-500' : 'bg-emerald-500'} animate-pulse`}></div>
+              {isRevoked ? 'Revoked' : 'Valid'}
+            </div>
+            
+            {/* SBT Badge */}
+            {isSBT && (
+              <div className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border border-purple-500/30 bg-purple-500/10 text-purple-300 shadow-[0_0_10px_-3px_rgba(168,85,247,0.3)]">
+                Soulbound
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Body Section */}
+        <div className="relative z-10 flex-grow">
+          <h3 className="text-xl font-bold text-white leading-snug mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 transition-all duration-300 line-clamp-2">
+            {displayMetadata?.program || displayMetadata?.title || 'Credential Title'}
+          </h3>
+          
+          <div className="flex items-center gap-2 mt-4">
+             <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                {credential.studentImage ? (
+                  <img src={credential.studentImage} alt="User" className="w-full h-full object-cover" />
                 ) : (
-                    <Award className="w-5 h-5 text-white" />
+                  <User className="w-4 h-4 text-white/50" />
                 )}
              </div>
-
-             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg backdrop-blur-md border ${
-                credential.isRevoked 
-                  ? 'bg-red-500/20 border-red-500/30 text-red-200' 
-                  : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-200'
-             }`}>
-                {credential.isRevoked ? (
-                   <><ShieldAlert className="w-3 h-3" /> Revoked</>
-                ) : (
-                   <><CheckCircle className="w-3 h-3" /> Valid</>
-                )}
+             <div className="flex flex-col">
+                <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Recipient</span>
+                <span className="text-xs text-white/90 font-medium truncate max-w-[150px]">
+                  {displayMetadata?.studentName || credential.studentName}
+                </span>
              </div>
+          </div>
         </div>
 
-        {/* Header Bottom (Title) */}
-        <div className="relative z-10 mt-auto pt-4">
-             <h3 className="text-xl font-bold text-white leading-tight drop-shadow-md line-clamp-2">
-               {displayMetadata?.program || displayMetadata?.title || 'Credential Title'}
-             </h3>
-             <div className="flex items-center text-white/70 text-xs font-medium mt-1">
-                <Calendar className="w-3 h-3 mr-1.5" />
-                Issued {new Date(credential.issueDate).toLocaleDateString()}
-             </div>
+        {/* Footer Section */}
+        <div className="relative z-10 mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-white/50 text-[11px] font-medium font-mono">
+            <Calendar className="w-3 h-3" />
+            <span>{new Date(credential.issueDate).toLocaleDateString()}</span>
+          </div>
+
+          <div className={`flex items-center gap-1 text-xs font-bold transition-all duration-300 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0
+            ${isTranscript ? 'text-indigo-400' : 'text-emerald-400'}
+          `}>
+            Details <ChevronRight className="w-3 h-3" />
+          </div>
         </div>
-      </div>
-      
-      <div className="p-5 bg-gray-900">
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-800">
-             <div className="space-y-0.5">
-                <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Recipient</label>
-                <div className="font-semibold text-gray-200 text-sm truncate max-w-[150px]">
-                    {displayMetadata?.studentName || credential.studentName}
-                </div>
-             </div>
-             <div className="text-right space-y-0.5">
-                <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Issuer</label>
-                <div className="font-medium text-emerald-400 text-xs flex items-center justify-end gap-1">
-                    <CheckCircle className="w-3 h-3" />
-                    <span className="truncate max-w-[100px]">{displayMetadata?.university || credential.university}</span>
-                </div>
-             </div>
-        </div>
-        
-        <div className="flex items-center justify-between">
-           <div>
-               <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold block mb-0.5">Type</label>
-               <div className="flex gap-2">
-                   <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-800 text-gray-300 border border-gray-700">
-                      {credential.type}
-                   </span>
-                   {credential.tokenId && (
-                       <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-900/50 text-purple-300 border border-purple-700/50" title="Soulbound Token">
-                          SBT
-                       </span>
-                   )}
-               </div>
-           </div>
-           
-           {(displayMetadata?.cgpa || displayMetadata?.score) && (
-               <div className="text-right">
-                   <label className="text-[10px] text-gray-500 uppercase tracking-wider font-bold block mb-0.5">Score</label>
-                   <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                       {displayMetadata?.cgpa || displayMetadata.score}
-                   </span>
-               </div>
-           )}
-        </div>
+
       </div>
     </div>
   );

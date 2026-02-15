@@ -44,7 +44,6 @@ const credentialSchema = new mongoose.Schema({
     description: String,
     level: String,
     duration: String,
-    expiryDate: Date,
     score: String
   },
   studentImage: {

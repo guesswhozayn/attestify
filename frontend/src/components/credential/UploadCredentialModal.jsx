@@ -53,11 +53,9 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     description: '',
     level: '',
     duration: '',
-    expiryDate: '',
     score: ''
   });
 
-  // Course management for transcripts
   const addCourse = () => {
     setTranscriptData(prev => ({
       ...prev,
@@ -133,7 +131,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         description: '',
         level: '',
         duration: '',
-        expiryDate: '',
+        duration: '',
         score: ''
       });
 
@@ -184,9 +182,9 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     const headers = [
       'studentName', 'studentWalletAddress', 'university', 'issueDate', 'type', 
       'program', 'department', 'admissionYear', 'graduationYear', 'cgpa', 'courses', 
-      'title', 'level', 'duration', 'score', 'expiryDate', 'description'
+      'title', 'level', 'duration', 'score', 'description'
     ];
-    const example1 = 'John Doe,0x1234567890123456789012345678901234567890,Tech University,2024-01-01,CERTIFICATION,,,,,,,,Advanced React Patterns,Expert,20 Hours,98,2025-01-01,Mastering React hooks and patterns';
+    const example1 = 'John Doe,0x1234567890123456789012345678901234567890,Tech University,2024-01-01,CERTIFICATION,,,,,,,,Advanced React Patterns,Expert,20 Hours,98,Mastering React hooks and patterns';
     const example2 = 'Jane Smith,0x0987654321098765432109876543210987654321,Tech University,2024-01-01,TRANSCRIPT,B.Sc CS,Engineering,2020,2024,3.85,CS101;Intro;A;4|CS102;Algo;B;3,,,,,,';
     
     const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + example1 + "\n" + example2;
@@ -583,13 +581,6 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                    value={certificationData.score}
                    onChange={(e) => setCertificationData({...certificationData, score: e.target.value})}
                    placeholder="e.g. 98/100"
-                   className="bg-black/40 border-white/10 focus:border-indigo-500/50"
-                 />
-                 <Input
-                   label="Expiry Date"
-                   type="date"
-                   value={certificationData.expiryDate}
-                   onChange={(e) => setCertificationData({...certificationData, expiryDate: e.target.value})}
                    className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                </div>

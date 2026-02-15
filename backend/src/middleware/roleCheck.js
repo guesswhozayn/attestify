@@ -21,8 +21,8 @@ exports.requireAdmin = (req, res, next) => {
     return res.status(401).json({ error: 'Authentication required.' });
   }
 
-  if (req.user.role !== 'INSTITUTE') {
-    return res.status(403).json({ error: 'Institute access required.' });
+  if (req.user.role !== 'ISSUER') {
+    return res.status(403).json({ error: 'Issuer access required.' });
   }
 
   next();

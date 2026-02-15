@@ -164,6 +164,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     const writeStream = fs.createWriteStream(tempFilePath);
     doc.pipe(writeStream);
 
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
 
@@ -690,8 +691,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
            description: row.description,
            level: row.level,
            score: row.score,
-           duration: row.duration,
-           expiryDate: row.expiryDate
+           duration: row.duration
          };
       }
 
@@ -849,7 +849,7 @@ exports.getCredentials = asyncHandler(async (req, res) => {
   } = req.query;
 
   const query = {};
-  if (req.user.role === 'INSTITUTE') {
+  if (req.user.role === 'ISSUER') {
     query.issuedBy = req.user._id;
   } else {
     if (!req.user.walletAddress) {
@@ -988,10 +988,10 @@ exports.revokeCredential = asyncHandler(async (req, res) => {
 
 exports.getStats = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const isInstitute = req.user.role === 'INSTITUTE';
+  const isIssuer = req.user.role === 'ISSUER';
   
   const query = {};
-  if (isInstitute) {
+  if (isIssuer) {
     query.issuedBy = userId;
   } else {
     if (!req.user.walletAddress) {
