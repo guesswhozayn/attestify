@@ -56,10 +56,10 @@ const CredentialDetails = ({ isOpen, onClose, credential, onUpdate }) => {
             <div className="flex items-end space-x-6">
               {/* Avatar or Logo */}
               <div className="w-24 h-24 rounded-2xl border-2 border-white/20 bg-black/30 backdrop-blur-md shadow-xl overflow-hidden flex-shrink-0 -mb-4 z-10 flex items-center justify-center">
-                {credential.issuedBy?.instituteDetails?.branding && (credential.issuedBy.instituteDetails.branding.logo || credential.issuedBy.instituteDetails.branding.logoCID) ? (
+                {credential.issuedBy?.issuerDetails?.branding && (credential.issuedBy.issuerDetails.branding.logo || credential.issuedBy.issuerDetails.branding.logoCID) ? (
                    <img 
-                     src={credential.issuedBy.instituteDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.instituteDetails.branding.logoCID}`}
-                     alt="Institute Logo"
+                     src={credential.issuedBy.issuerDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.logoCID}`}
+                     alt="Issuer Logo"
                      className="w-full h-full object-contain p-1"
                    />
                 ) : credential.studentImage ? (
@@ -289,14 +289,14 @@ const CredentialDetails = ({ isOpen, onClose, credential, onUpdate }) => {
             {/* Actions */}
               <div className="space-y-3 pt-2">
                 {/* Branding Assets Display */}
-                {(credential.issuedBy?.instituteDetails?.branding?.signature || credential.issuedBy?.instituteDetails?.branding?.signatureCID) && (
+                {(credential.issuedBy?.issuerDetails?.branding?.signature || credential.issuedBy?.issuerDetails?.branding?.signatureCID) && (
                    <div className="text-center py-4 border-t border-b border-white/10 mb-4">
                       <img 
-                        src={credential.issuedBy.instituteDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.instituteDetails.branding.signatureCID}`} 
-                        alt="Authorized Signature" 
+                        src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`} 
+                        alt="Issuer Signature" 
                         className="h-16 mx-auto mb-2 object-contain"
                       />
-                      <p className="text-xs text-gray-500 font-medium">Authorized Signature</p>
+                      <p className="text-xs text-gray-500 font-medium">Issuer Signature</p>
                    </div>
                 )}
 
@@ -318,7 +318,7 @@ const CredentialDetails = ({ isOpen, onClose, credential, onUpdate }) => {
                 View on Etherscan
               </Button>
               
-              {['INSTITUTE', 'ADMIN'].includes(user?.role) && !credential.isRevoked && (
+              {['ISSUER', 'ADMIN'].includes(user?.role) && !credential.isRevoked && (
                 <Button
                   onClick={() => setShowRevokeModal(true)}
                   variant="danger"

@@ -17,7 +17,7 @@ import StatCard from '../components/StatCard';
 import CredentialCard from '../components/CredentialCard';
 import GlassCard from '../components/GlassCard';
 
-const InstituteDashboardScreen = () => {
+const IssuerDashboardScreen = () => {
   const { user, logout } = useAuth();
   const [credentials, setCredentials] = useState([]);
   const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0 });
@@ -78,10 +78,10 @@ const InstituteDashboardScreen = () => {
         <GlassCard style={styles.banner}>
           <View style={styles.badge}>
             <Shield size={12} color={theme.colors.primary} />
-            <Text style={styles.badgeText}>INSTITUTE ACCESS</Text>
+            <Text style={styles.badgeText}>ISSUER ACCESS</Text>
           </View>
           <Text style={styles.welcomeText}>
-            Welcome, <Text style={styles.highlight}>{user?.instituteDetails?.institutionName || user?.name || 'Institute'}</Text>
+            Welcome, <Text style={styles.highlight}>{user?.issuerDetails?.institutionName || user?.name || 'Issuer'}</Text>
           </Text>
           <Text style={styles.bannerSubtitle}>Manage and issue secure blockchain credentials.</Text>
           
@@ -276,4 +276,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default InstituteDashboardScreen;
+export default IssuerDashboardScreen;

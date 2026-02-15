@@ -17,7 +17,7 @@ import GlassCard from '../components/GlassCard';
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
-  const isInstitute = user?.role === 'INSTITUTE';
+  const isIssuer = user?.role === 'ISSUER';
 
   const renderInfoItem = (icon: React.ReactNode, label: string, value: string) => (
     <View style={styles.infoItem}>
@@ -37,13 +37,13 @@ const ProfileScreen = () => {
         <View style={styles.header}>
             <View style={styles.avatarContainer}>
                 <View style={styles.avatar}>
-                    {isInstitute ? <Building size={40} color="#fff" /> : <User size={40} color="#fff" />}
+                    {isIssuer ? <Building size={40} color="#fff" /> : <User size={40} color="#fff" />}
                 </View>
                 <View style={styles.roleBadge}>
                     <Text style={styles.roleText}>{user?.role}</Text>
                 </View>
             </View>
-            <Text style={styles.name}>{isInstitute ? user?.instituteDetails?.institutionName : user?.name}</Text>
+            <Text style={styles.name}>{isIssuer ? user?.issuerDetails?.institutionName : user?.name}</Text>
             <Text style={styles.email}>{user?.email}</Text>
         </View>
 
@@ -54,7 +54,7 @@ const ProfileScreen = () => {
                 <Text style={styles.walletTitle}>Blockchain Wallet</Text>
             </View>
             <Text style={styles.walletAddress}>
-                {isInstitute ? user?.instituteDetails?.authorizedWalletAddress : user?.studentDetails?.walletAddress || 'No wallet connected'}
+                {isIssuer ? user?.issuerDetails?.authorizedWalletAddress : user?.studentDetails?.walletAddress || 'No wallet connected'}
             </Text>
             <TouchableOpacity style={styles.copyBtn}>
                 <Text style={styles.copyBtnText}>Copy Address</Text>
@@ -64,10 +64,10 @@ const ProfileScreen = () => {
         {/* Detailed Info */}
         <Text style={styles.sectionTitle}>Account Details</Text>
         <GlassCard style={styles.infoCard}>
-            {isInstitute ? (
+            {isIssuer ? (
                 <>
-                    {renderInfoItem(<Shield size={18} color={theme.colors.primary} />, "Registration No", user?.instituteDetails?.registrationNumber)}
-                    {renderInfoItem(<Globe size={18} color={theme.colors.primary} />, "Email Domain", user?.instituteDetails?.officialEmailDomain)}
+                    {renderInfoItem(<Shield size={18} color={theme.colors.primary} />, "Registration No", user?.issuerDetails?.registrationNumber)}
+                    {renderInfoItem(<Globe size={18} color={theme.colors.primary} />, "Email Domain", user?.issuerDetails?.officialEmailDomain)}
                     {renderInfoItem(<Mail size={18} color={theme.colors.primary} />, "Contact Email", user?.email)}
                 </>
             ) : (

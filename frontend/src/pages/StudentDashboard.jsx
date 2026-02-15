@@ -190,7 +190,7 @@ const StudentDashboard = () => {
            <EmptyState 
              icon={FileText} 
              title="No Credentials Found" 
-             message="You haven't received any credentials yet. Once issued by an institute, they will appear here instantly." 
+             message="You haven't received any credentials yet. Once issued by an issuer, they will appear here instantly." 
            />
         ) : (
           <motion.div 

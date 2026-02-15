@@ -5,7 +5,7 @@ import { theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 
 // Screens
-import InstituteDashboardScreen from '../screens/InstituteDashboardScreen';
+import IssuerDashboardScreen from '../screens/IssuerDashboardScreen';
 import StudentDashboardScreen from '../screens/StudentDashboardScreen';
 import CredentialsScreen from '../screens/CredentialsScreen';
 import VerificationScreen from '../screens/VerificationScreen';
@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = () => {
   const { user } = useAuth();
-  const isInstitute = user?.role === 'INSTITUTE';
+  const isIssuer = user?.role === 'ISSUER';
 
   return (
     <Tab.Navigator
@@ -35,7 +35,7 @@ const MainTabNavigator = () => {
     >
       <Tab.Screen 
         name="Dashboard" 
-        component={isInstitute ? InstituteDashboardScreen : StudentDashboardScreen} 
+        component={isIssuer ? IssuerDashboardScreen : StudentDashboardScreen} 
         options={{
           tabBarIcon: ({ color, size }) => <LayoutGrid color={color} size={size} />,
         }}
@@ -47,7 +47,7 @@ const MainTabNavigator = () => {
           tabBarIcon: ({ color, size }) => <Award color={color} size={size} />,
         }}
       />
-      {isInstitute && (
+      {isIssuer && (
         <Tab.Screen 
           name="Audit" 
           component={AuditLogsScreen} 

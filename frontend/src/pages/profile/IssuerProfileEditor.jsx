@@ -100,18 +100,18 @@ const AssetUploader = ({ title, description, value, onUpload, onRemove, loading 
     );
 };
 
-const InstituteProfileEditor = () => {
+const IssuerProfileEditor = () => {
     const { user, updateUser } = useAuth();
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [branding, setBranding] = useState({
-      logo: user?.instituteDetails?.branding?.logo || '',
-      seal: user?.instituteDetails?.branding?.seal || '',
-      signature: user?.instituteDetails?.branding?.signature || '',
-      logoCID: user?.instituteDetails?.branding?.logoCID || '',
-      sealCID: user?.instituteDetails?.branding?.sealCID || '',
-      signatureCID: user?.instituteDetails?.branding?.signatureCID || ''
+      logo: user?.issuerDetails?.branding?.logo || '',
+      seal: user?.issuerDetails?.branding?.seal || '',
+      signature: user?.issuerDetails?.branding?.signature || '',
+      logoCID: user?.issuerDetails?.branding?.logoCID || '',
+      sealCID: user?.issuerDetails?.branding?.sealCID || '',
+      signatureCID: user?.issuerDetails?.branding?.signatureCID || ''
     });
     const [connectedAddress, setConnectedAddress] = useState('');
 
@@ -174,7 +174,7 @@ const InstituteProfileEditor = () => {
         
         if (response.data.success) {
           updateUser(response.data.user);
-          const newBranding = response.data.user.instituteDetails?.branding || {};
+          const newBranding = response.data.user.issuerDetails?.branding || {};
           setBranding({
               logo: newBranding.logo || '',
               seal: newBranding.seal || '',
@@ -203,7 +203,7 @@ const InstituteProfileEditor = () => {
             const response = await api.delete(`/user/branding/${fieldName}`);
             if (response.data.success) {
                 updateUser(response.data.user);
-                const newBranding = response.data.user.instituteDetails?.branding || {};
+                const newBranding = response.data.user.issuerDetails?.branding || {};
                 setBranding({
                     logo: newBranding.logo || '',
                     seal: newBranding.seal || '',
@@ -234,7 +234,7 @@ const InstituteProfileEditor = () => {
                animate={{ opacity: 1, y: 0 }}
                transition={{ duration: 0.5, ease: "easeOut" }}
             >
-                <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Institute Profile</h1>
+                <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Issuer Profile</h1>
                 <p className="text-gray-400 max-w-2xl">Manage public facing branding assets and verify institutional details. These assets will be used when issuing verifiable credentials.</p>
             </motion.div>
 
@@ -262,14 +262,14 @@ const InstituteProfileEditor = () => {
                                 />
                             </div>
                             <h3 className="text-lg font-semibold text-white">{user.name}</h3>
-                            <p className="text-sm text-gray-500">Institution Administrator</p>
+                            <p className="text-sm text-gray-500">Issuer Administrator</p>
                         </div>
 
                         {/* Read-only Fields */}
                         <div className="space-y-4">
                             <div className="px-3 pb-2 border-b border-white/[0.05] text-xs font-semibold text-indigo-400 uppercase tracking-wider">Details</div>
-                            <InputField label="Institution Name" value={user.instituteDetails?.institutionName || user.name} readOnly icon={Building} />
-                            <InputField label="Registration ID" value={user.instituteDetails?.registrationNumber} readOnly icon={CheckCircle} />
+                            <InputField label="Institution Name" value={user.issuerDetails?.institutionName || user.name} readOnly icon={Building} />
+                            <InputField label="Registration ID" value={user.issuerDetails?.registrationNumber} readOnly icon={CheckCircle} />
                             <InputField label="Wallet Address" value={user.walletAddress || connectedAddress} readOnly icon={Copy} />
                         </div>
                      </div>
@@ -327,4 +327,4 @@ const InstituteProfileEditor = () => {
     );
 };
 
-export default InstituteProfileEditor;
+export default IssuerProfileEditor;

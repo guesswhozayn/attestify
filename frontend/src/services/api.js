@@ -316,19 +316,19 @@ export const publicAPI = {
     return api.get(`/public/student/${walletAddress}`);
   },
 
-  // Search institutes
-  searchInstitutes: async (query) => {
-    return api.get(`/public/institutes/search`, { params: { query } });
+  // Search issuers
+  searchIssuers: async (query) => {
+    return api.get(`/public/issuers/search`, { params: { query } });
   },
 
-  // Get institute profile by ID
-  getInstituteProfile: async (id) => {
-    return api.get(`/public/institute/${id}`);
+  // Get issuer profile by ID
+  getIssuerProfile: async (id) => {
+    return api.get(`/public/issuer/${id}`);
   },
 
-  // Get institute profile by Wallet
-  getInstituteProfileByWallet: async (walletAddress) => {
-    return api.get(`/public/institute/wallet/${walletAddress}`);
+  // Get issuer profile by Wallet
+  getIssuerProfileByWallet: async (walletAddress) => {
+    return api.get(`/public/issuer/wallet/${walletAddress}`);
   }
 };
 

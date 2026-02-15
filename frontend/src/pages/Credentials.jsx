@@ -85,9 +85,9 @@ const Credentials = () => {
                     </div>
                      <Button
                         onClick={() => setShowUploadModal(true)}
-                        variant="primary"
+                        variant="secondary"
                         icon={Plus}
-                        className="shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-500 text-white border-transparent px-6 rounded-full"
+                        className="px-6 rounded-full"
                     >
                         Issue New
                     </Button>

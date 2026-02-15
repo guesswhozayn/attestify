@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
   const dashboardRoutes = [
       '/dashboard',
       '/student-dashboard',
-      '/institute-dashboard',
+      '/issuer-dashboard',
       '/credentials',
       '/student/credentials',
       '/audit-logs',
@@ -36,7 +36,7 @@ const Layout = ({ children }) => {
   const getPageTitle = (pathname, role) => {
     switch (pathname) {
       case '/dashboard':
-      case '/institute-dashboard':
+      case '/issuer-dashboard':
         return 'Dashboard';
       case '/student-dashboard':
         return 'Student Dashboard';
@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
       case '/audit-logs':
         return 'Audit & Analytics';
       case '/profile':
-        return role === 'INSTITUTE' ? 'Institute Profile' : 'Student Profile';
+        return role === 'ISSUER' ? 'Issuer Profile' : 'Student Profile';
       case '/revoked':
         return 'Revoked Credentials';
       default:

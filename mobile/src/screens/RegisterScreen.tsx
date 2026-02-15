@@ -31,7 +31,7 @@ const RegisterScreen = ({ navigation }: any) => {
     authorizedWalletAddress: '',
     officialEmailDomain: '',
     institutionName: '',
-    role: 'INSTITUTE',
+    role: 'ISSUER',
   });
   
   const [loading, setLoading] = useState(false);
@@ -68,7 +68,7 @@ const RegisterScreen = ({ navigation }: any) => {
     setLoading(false);
   };
 
-  const isInstitute = formData.role === 'INSTITUTE';
+  const isIssuer = formData.role === 'ISSUER';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,20 +96,20 @@ const RegisterScreen = ({ navigation }: any) => {
               <View 
                 style={[
                   styles.toggleActive, 
-                  { left: isInstitute ? 4 : '50%' }
-                ]} 
+                  { left: isIssuer ? 4 : '50%' }
+                ]}  
               />
               <TouchableOpacity 
                 style={styles.toggleBtn} 
-                onPress={() => handleChange('role', 'INSTITUTE')}
+                onPress={() => handleChange('role', 'ISSUER')}
               >
-                <Text style={[styles.toggleText, isInstitute && styles.toggleTextActive]}>Institute</Text>
+                <Text style={[styles.toggleText, isIssuer && styles.toggleTextActive]}>Issuer</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.toggleBtn} 
                 onPress={() => handleChange('role', 'STUDENT')}
               >
-                <Text style={[styles.toggleText, !isInstitute && styles.toggleTextActive]}>Student</Text>
+                <Text style={[styles.toggleText, !isIssuer && styles.toggleTextActive]}>Student</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -118,7 +118,7 @@ const RegisterScreen = ({ navigation }: any) => {
 
           <GlassCard style={styles.card}>
             {/* General Fields */}
-            {!isInstitute && (
+            {!isIssuer && (
               <Input
                 label="Full Name"
                 placeholder="e.g. Alex Johnson"
@@ -130,7 +130,7 @@ const RegisterScreen = ({ navigation }: any) => {
 
             <Input
               label="Email Address"
-              placeholder={isInstitute ? "institute@university.edu" : "student@university.edu"}
+              placeholder={isIssuer ? "issuer@university.edu" : "student@university.edu"}
               icon={<Mail size={20} color={theme.colors.textDim} />}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -138,10 +138,10 @@ const RegisterScreen = ({ navigation }: any) => {
               onChangeText={(text) => handleChange('email', text)}
             />
 
-            {isInstitute ? (
+            {isIssuer ? (
               <>
                 <Input
-                  label="Institution Name"
+                  label="Organization Name"
                   placeholder="e.g. University of Tech"
                   icon={<Building size={20} color={theme.colors.textDim} />}
                   value={formData.institutionName}
@@ -172,8 +172,8 @@ const RegisterScreen = ({ navigation }: any) => {
             ) : (
               <>
                 <Input
-                  label="University / Institute"
-                  placeholder="Select your institute"
+                  label="University / Organization"
+                  placeholder="Select your university/organization"
                   icon={<Building size={20} color={theme.colors.textDim} />}
                   value={formData.university}
                   onChangeText={(text) => handleChange('university', text)}

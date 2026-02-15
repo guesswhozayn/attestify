@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, User, FileText, Activity, AlertCircle, Shield, Hash, ArrowRight } from 'lucide-react';
 
-const InstituteLogTable = ({ logs, loading }) => {
+const IssuerLogTable = ({ logs, loading }) => {
   const getActionIcon = (action) => {
     switch (action) {
       case 'CREDENTIAL_ISSUED':
@@ -16,7 +16,7 @@ const InstituteLogTable = ({ logs, loading }) => {
   };
 
   const FormatAction = ({ action }) => {
-      const displayAction = action.replace('ADMIN', 'INSTITUTE');
+      const displayAction = action.replace('ADMIN', 'ISSUER');
       const parts = displayAction.split('_');
       return (
           <span className="font-medium">
@@ -123,4 +123,4 @@ const InstituteLogTable = ({ logs, loading }) => {
   );
 };
 
-export default InstituteLogTable;
+export default IssuerLogTable;

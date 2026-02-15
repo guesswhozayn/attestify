@@ -42,7 +42,7 @@ const StatCard = ({ label, value, icon: Icon, subtext, gradient, iconBg, delay }
     </motion.div>
 );
 
-const InstituteDashboard = () => {
+const IssuerDashboard = () => {
     const [credentials, setCredentials] = useState([]);
     const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0 });
     const [selectedCredential, setSelectedCredential] = useState(null);
@@ -124,7 +124,7 @@ const InstituteDashboard = () => {
                                 transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
                                 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight"
                             >
-                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.instituteDetails?.institutionName || user?.name || 'Institute'}</span>
+                                Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.issuerDetails?.institutionName || user?.name || 'Issuer'}</span>
                             </motion.h1>
                             
                             <motion.p 
@@ -133,7 +133,7 @@ const InstituteDashboard = () => {
                                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                                 className="text-gray-400 max-w-xl text-lg leading-relaxed"
                             >
-                                Manage your institute's on-chain credentials. Issue new certificates, verify student identities, and track issuance in real-time.
+                                Manage your issuer's on-chain credentials. Issue new certificates, verify student identities, and track issuance in real-time.
                             </motion.p>
                         </div>
 
@@ -267,4 +267,4 @@ const InstituteDashboard = () => {
     );
 };
 
-export default InstituteDashboard;
+export default IssuerDashboard;

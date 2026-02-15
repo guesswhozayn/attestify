@@ -408,7 +408,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                name="university"
                value={formData.university}
                onChange={handleChange}
-               placeholder="e.g. Tech Institute"
+               placeholder="e.g. Tech Issuer"
                icon={Building}
                required
                className="bg-black/40 border-white/10 focus:border-indigo-500/50"

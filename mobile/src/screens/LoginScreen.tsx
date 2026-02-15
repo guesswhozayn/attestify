@@ -22,7 +22,7 @@ const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'INSTITUTE' | 'STUDENT'>('INSTITUTE');
+  const [selectedRole, setSelectedRole] = useState<'ISSUER' | 'STUDENT'>('ISSUER');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -71,11 +71,11 @@ const LoginScreen = ({ navigation }: any) => {
             {/* Role Toggle */}
             <View style={styles.roleToggle}>
               <TouchableOpacity 
-                style={[styles.roleBtn, selectedRole === 'INSTITUTE' && styles.roleBtnActive]}
-                onPress={() => setSelectedRole('INSTITUTE')}
+                style={[styles.roleBtn, selectedRole === 'ISSUER' && styles.roleBtnActive]}
+                onPress={() => setSelectedRole('ISSUER')}
               >
-                <Text style={[styles.roleText, selectedRole === 'INSTITUTE' && styles.roleTextActive]}>
-                  Institute
+                <Text style={[styles.roleText, selectedRole === 'ISSUER' && styles.roleTextActive]}>
+                  Issuer
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -90,7 +90,7 @@ const LoginScreen = ({ navigation }: any) => {
 
             <Input
               label="Email Address"
-              placeholder={selectedRole === 'INSTITUTE' ? "institute@univ.edu" : "student@univ.edu"}
+              placeholder={selectedRole === 'ISSUER' ? "issuer@univ.edu" : "student@univ.edu"}
               value={email}
               onChangeText={setEmail}
               icon={<Mail size={20} color={theme.colors.textDim} />}

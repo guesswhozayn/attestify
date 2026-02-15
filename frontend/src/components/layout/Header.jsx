@@ -74,18 +74,18 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             {/* Role Badge */}
             {user?.role && (
                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                    user.role === 'INSTITUTE' 
+                    user.role === 'ISSUER' 
                         ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' 
                         : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                 }`}>
-                    {user.role === 'INSTITUTE' ? 'Issuer Nexus' : 'Student Digital Backpack'}
+                    {user.role === 'ISSUER' ? 'Issuer Nexus' : 'Student Digital Backpack'}
                 </span>
             )}
           </h1>
-          {user?.role === 'INSTITUTE' && user?.instituteDetails?.institutionName && (
+          {user?.role === 'ISSUER' && user?.issuerDetails?.institutionName && (
              <p className="text-gray-500 text-xs font-medium mt-1 flex items-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2"></span>
-                {user.instituteDetails.institutionName}
+                {user.issuerDetails.institutionName}
              </p>
           )}
         </div>
@@ -133,34 +133,12 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             </div>
           )}
 
-          {/* New Features: Date, Help, Notifications */}
-          <div className="hidden xl:flex items-center space-x-4 border-l border-white/[0.06] pl-6">
-              <div className="flex items-center text-gray-400 text-xs font-medium bg-white/[0.02] px-4 py-2 rounded-full border border-white/[0.05] shadow-sm">
-                 <Calendar className="w-3.5 h-3.5 mr-2 text-indigo-400" />
-                 {currentDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-              </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-              <button className="p-2.5 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative group border border-transparent hover:border-white/[0.05]">
-                  <CircleHelp className="w-5 h-5" />
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-[2px]"></div>
-              </button>
-              <button className="p-2.5 text-gray-400 hover:text-white hover:bg-white/[0.05] rounded-full transition-colors relative border border-transparent hover:border-white/[0.05]">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-2.5 right-3 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                  </span>
-              </button>
-          </div>
-
           {/* User Profile Pill */}
           <div className="flex items-center space-x-3 pl-4 border-l border-white/[0.06]">
             <div className="text-right hidden sm:block">
               <div className="text-white text-sm font-medium leading-none">{user?.name}</div>
               <div className="text-gray-500 text-xs mt-1 leading-none">
-                {user?.title || (user?.role === 'INSTITUTE' ? 'Institute' : 'Student')}
+                {user?.title || (user?.role === 'ISSUER' ? 'Issuer' : 'Student')}
               </div>
             </div>
             <div className="cursor-pointer hover:scale-105 transition-transform duration-200">

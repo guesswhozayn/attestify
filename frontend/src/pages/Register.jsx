@@ -31,12 +31,12 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     university: '',
-    registrationNumber: '', // Required for Institute
+    registrationNumber: '', // Required for Issuer
     walletAddress: '', // Initialize for student
-    authorizedWalletAddress: '', // Initialize for institute
-    officialEmailDomain: '', // Initialize for institute
-    institutionName: '', // Initialize for institute
-    role: 'INSTITUTE', // Default role
+    authorizedWalletAddress: '', // Initialize for issuer
+    officialEmailDomain: '', // Initialize for issuer
+    institutionName: '', // Initialize for issuer
+    role: 'ISSUER', // Default role
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -176,14 +176,14 @@ const Register = () => {
            {/* Role Toggle */}
            <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
              <div 
-               className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${formData.role === 'INSTITUTE' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
+               className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${formData.role === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
              ></div>
              <button
-               className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${formData.role === 'INSTITUTE' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
-               onClick={() => setFormData({ ...formData, role: 'INSTITUTE' })}
+               className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${formData.role === 'ISSUER' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+               onClick={() => setFormData({ ...formData, role: 'ISSUER' })}
                type="button"
              >
-               Institute
+               Issuer
              </button>
              <button
                className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${formData.role === 'STUDENT' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
@@ -204,7 +204,7 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               {formData.role !== 'INSTITUTE' && (
+               {formData.role !== 'ISSUER' && (
                   <FormInput
                     label="Full Name"
                     name="name"
@@ -222,15 +222,15 @@ const Register = () => {
                  name="email"
                  value={formData.email}
                  onChange={handleChange}
-                 placeholder={formData.role === 'INSTITUTE' ? "institute@university.edu" : "student@university.edu"}
+                 placeholder={formData.role === 'ISSUER' ? "issuer@university.edu" : "student@university.edu"}
                  icon={Mail}
                  required
                />
 
-               {formData.role === 'INSTITUTE' ? (
+               {formData.role === 'ISSUER' ? (
                  <>
                    <FormInput
-                     label="Institution Name"
+                     label="Organization Name"
                      name="institutionName"
                      value={formData.institutionName}
                      onChange={handleChange}
@@ -286,11 +286,11 @@ const Register = () => {
                ) : (
                  <>
                    <FormInput
-                     label="University / Institute"
+                     label="University / Organization"
                      name="university"
                      value={formData.university}
                      onChange={handleChange}
-                     placeholder="Select your institute"
+                     placeholder="Select your issuer/organization"
                      icon={Building}
                      required
                    />

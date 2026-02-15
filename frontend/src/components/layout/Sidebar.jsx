@@ -9,12 +9,12 @@ const Sidebar = () => {
   const { logout, user } = useAuth();
 
   const menuItems = [
-    { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['INSTITUTE', 'STUDENT'] },
-    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['INSTITUTE'] },
+    { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['ISSUER', 'STUDENT'] },
+    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['ISSUER'] },
     { icon: FileText, path: '/student/credentials', label: 'My Credentials', roles: ['STUDENT'] },
-    { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['INSTITUTE'] },
-    { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['INSTITUTE'] },
-    { icon: User, path: '/profile', label: 'Profile', roles: ['INSTITUTE', 'STUDENT'] },
+    { icon: ClipboardList, path: '/audit-logs', label: 'Audit Logs', roles: ['ISSUER'] },
+    { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
+    { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] },
   ];
 
   const isActive = (path) => location.pathname === path;

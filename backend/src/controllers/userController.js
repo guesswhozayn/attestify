@@ -3,7 +3,7 @@ const Credential = require('../models/Credential');
 const asyncHandler = require('../middleware/asyncHandler');
 
 exports.updateProfile = asyncHandler(async (req, res) => {
-  const { name, title, university, about, walletAddress, instituteDetails } = req.body;
+  const { name, title, university, about, walletAddress, issuerDetails } = req.body;
   
   const updateFields = {};
   if (name) updateFields.name = name;
@@ -18,10 +18,10 @@ exports.updateProfile = asyncHandler(async (req, res) => {
       };
   }
   
-  if (instituteDetails) {
-      if (instituteDetails.branding) {
-          for (const [key, value] of Object.entries(instituteDetails.branding)) {
-              updateFields[`instituteDetails.branding.${key}`] = value;
+  if (issuerDetails) {
+      if (issuerDetails.branding) {
+          for (const [key, value] of Object.entries(issuerDetails.branding)) {
+              updateFields[`issuerDetails.branding.${key}`] = value;
           }
       }
   }
@@ -75,7 +75,7 @@ exports.updateBranding = asyncHandler(async (req, res) => {
         const file = files[fileKey][0];
         try {
           const fileUrl = `${req.protocol}://${req.get('host')}/${file.path}`;
-          updateFields[`instituteDetails.branding.${brandingKey}`] = fileUrl;
+          updateFields[`issuerDetails.branding.${brandingKey}`] = fileUrl;
         } catch (err) {
           console.error(`Failed to process ${fileKey}:`, err);
           if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
@@ -127,8 +127,8 @@ exports.deleteBranding = asyncHandler(async (req, res) => {
     const brandingKey = type;
     const cidKey = `${type}CID`;
 
-    const brandingPath = user.instituteDetails?.branding?.[brandingKey];
-    const brandingCID = user.instituteDetails?.branding?.[cidKey];
+    const brandingPath = user.issuerDetails?.branding?.[brandingKey];
+    const brandingCID = user.issuerDetails?.branding?.[cidKey];
 
     if (brandingPath) {
         const fs = require('fs');
@@ -150,8 +150,8 @@ exports.deleteBranding = asyncHandler(async (req, res) => {
         }
     }
     
-    const updatePathLocal = `instituteDetails.branding.${brandingKey}`;
-    const updatePathCID = `instituteDetails.branding.${cidKey}`;
+    const updatePathLocal = `issuerDetails.branding.${brandingKey}`;
+    const updatePathCID = `issuerDetails.branding.${cidKey}`;
     
     const updateQuery = { 
         $unset: { 
@@ -215,82 +215,82 @@ exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
     });
 });
 
-exports.getPublicInstituteProfile = asyncHandler(async (req, res) => {
+exports.getPublicIssuerProfile = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const institute = await User.findById(id).select('name avatar instituteDetails university about email');
+    const issuer = await User.findById(id).select('name avatar issuerDetails university about email role');
 
-    if (!institute || institute.role !== 'INSTITUTE') {
-        return res.status(404).json({ error: 'Institute not found' });
+    if (!issuer || issuer.role !== 'ISSUER') {
+        return res.status(404).json({ error: 'Issuer not found' });
     }
 
     res.json({
         success: true,
-        institute: {
-            _id: institute._id,
-            name: institute.name,
-            avatar: institute.avatar,
-            university: institute.university, // Fallback if name is different
-            about: institute.about,
-            email: institute.instituteDetails?.officialEmailDomain ? `contact@${institute.instituteDetails.officialEmailDomain}` : institute.email, // Construct email or use account email
-            details: institute.instituteDetails
+        issuer: {
+            _id: issuer._id,
+            name: issuer.name,
+            avatar: issuer.avatar,
+            university: issuer.university, // Fallback if name is different
+            about: issuer.about,
+            email: issuer.issuerDetails?.officialEmailDomain ? `contact@${issuer.issuerDetails.officialEmailDomain}` : issuer.email, // Construct email or use account email
+            details: issuer.issuerDetails
         }
     });
 });
 
-exports.searchInstitutes = asyncHandler(async (req, res) => {
+exports.searchIssuers = asyncHandler(async (req, res) => {
     const { query } = req.query;
 
     if (!query) {
         return res.status(400).json({ error: 'Search query is required' });
     }
 
-    const institutes = await User.find({
-        role: 'INSTITUTE',
+    const issuers = await User.find({
+        role: 'ISSUER',
         $or: [
             { name: { $regex: query, $options: 'i' } },
-            { 'instituteDetails.institutionName': { $regex: query, $options: 'i' } }
+            { 'issuerDetails.institutionName': { $regex: query, $options: 'i' } }
         ]
-    }).select('name avatar instituteDetails.institutionName _id');
+    }).select('name avatar issuerDetails.institutionName _id');
 
     res.json({
         success: true,
-        count: institutes.length,
-        institutes: institutes.map(inst => ({
+        count: issuers.length,
+        issuers: issuers.map(inst => ({
             _id: inst._id,
-            name: inst.instituteDetails?.institutionName || inst.name,
+            name: inst.issuerDetails?.institutionName || inst.name,
             avatar: inst.avatar
         }))
     });
 });
 
-exports.getPublicInstituteProfileByWallet = asyncHandler(async (req, res) => {
+exports.getPublicIssuerProfileByWallet = asyncHandler(async (req, res) => {
     const { walletAddress } = req.params;
 
     if (!walletAddress) {
         return res.status(400).json({ error: 'Wallet address is required' });
     }
 
-    const institute = await User.findOne({ 
+    const issuer = await User.findOne({ 
         walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
-        role: 'INSTITUTE'
-    }).select('name avatar instituteDetails university about email role createdAt');
+        role: 'ISSUER'
+    }).select('name avatar issuerDetails university about email role createdAt');
 
-    if (!institute) {
-        return res.status(404).json({ error: 'Institute not found' });
+    if (!issuer) {
+        return res.status(404).json({ error: 'Issuer not found' });
     }
 
     res.json({
         success: true,
-        institute: {
-            _id: institute._id,
-            name: institute.name,
-            avatar: institute.avatar,
-            university: institute.university,
-            about: institute.about,
-            email: institute.instituteDetails?.officialEmailDomain ? `contact@${institute.instituteDetails.officialEmailDomain}` : institute.email,
-            details: institute.instituteDetails,
-            createdAt: institute.createdAt
+        issuer: {
+            _id: issuer._id,
+            name: issuer.name,
+            avatar: issuer.avatar,
+            university: issuer.university,
+            about: issuer.about,
+            email: issuer.issuerDetails?.officialEmailDomain ? `contact@${issuer.issuerDetails.officialEmailDomain}` : issuer.email,
+            details: issuer.issuerDetails,
+            createdAt: issuer.createdAt
         }
     });
 });

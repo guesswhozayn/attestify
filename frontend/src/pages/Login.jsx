@@ -8,7 +8,7 @@ import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState('INSTITUTE');
+  const [selectedRole, setSelectedRole] = useState('ISSUER');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,7 @@ const Login = () => {
       if (selectedRole === 'STUDENT') {
         navigate('/student-dashboard');
       } else {
-        navigate('/institute-dashboard');
+        navigate('/issuer-dashboard');
       }
     } else {
       setError(result.error);
@@ -120,14 +120,14 @@ const Login = () => {
             {/* Role Toggle Switch */}
             <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
               <div 
-                 className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${selectedRole === 'INSTITUTE' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
+                 className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${selectedRole === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
               ></div>
               <button
-                 className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${selectedRole === 'INSTITUTE' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
-                 onClick={() => setSelectedRole('INSTITUTE')}
+                 className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${selectedRole === 'ISSUER' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+                 onClick={() => setSelectedRole('ISSUER')}
                  type="button"
               >
-                 Institute
+                 Issuer
               </button>
               <button
                  className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${selectedRole === 'STUDENT' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
@@ -157,7 +157,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="block w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
-                    placeholder={selectedRole === 'INSTITUTE' ? "admin@university.edu" : "student@university.edu"}
+                    placeholder={selectedRole === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
                     required
                   />
                 </div>

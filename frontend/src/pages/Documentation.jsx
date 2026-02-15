@@ -221,7 +221,7 @@ const Documentation = () => {
               <ul className="mt-4 space-y-3">
                 <InfoItem label="Tamper-Proof" text="Once recorded, credential data cannot be altered or deleted by any single party." />
                 <InfoItem label="Universally Accessible" text="Anyone with an internet connection can verify a credential, anywhere in the world, at any time." />
-                <InfoItem label="Institution-Independent" text="Credentials remain verifiable even if the issuing institution ceases to exist." />
+                <InfoItem label="Issuer-Independent" text="Credentials remain verifiable even if the issuing organization ceases to exist." />
                 <InfoItem label="Student-Owned" text="Graduates maintain sovereignty over their own academic records." />
               </ul>
             </SectionCard>
@@ -508,12 +508,12 @@ const Documentation = () => {
             <SectionCard title="Data Flow: Credential Issuance">
               <div className="space-y-4">
                 <FlowStep number="1" title="Data Submission">
-                  An institution submits student data (name, wallet address, degree details) through the 
+                  An issuer submits student data (name, wallet address, degree details) through the 
                   web dashboard. The data is sent to the Backend API via an authenticated REST request.
                 </FlowStep>
                 <FlowStep number="2" title="PDF Generation">
                   The backend generates a professional PDF certificate using PDFKit, incorporating the 
-                  institution's branding (logo, seal, signature) and a QR code linking to the verification portal.
+                  issuer's branding (logo, seal, signature) and a QR code linking to the verification portal.
                 </FlowStep>
                 <FlowStep number="3" title="IPFS Upload">
                   The PDF is uploaded to IPFS via Pinata, returning a Content Identifier (CID) that 
@@ -580,7 +580,7 @@ const Documentation = () => {
               <ul className="space-y-3">
                 <InfoItem label="JWT Authentication" text="All API routes are protected by JSON Web Token authentication, ensuring that only verified users can access sensitive endpoints." />
                 <InfoItem label="Password Hashing" text="User passwords are hashed using bcrypt with salt rounds, preventing plaintext exposure even if the database is compromised." />
-                <InfoItem label="Role-Based Access Control" text="The system enforces distinct roles (INSTITUTE, STUDENT) with different permission sets, preventing students from accessing issuance functions." />
+                <InfoItem label="Role-Based Access Control" text="The system enforces distinct roles (ISSUER, STUDENT) with different permission sets, preventing students from accessing issuance functions." />
                 <InfoItem label="Input Sanitization" text="All user inputs are validated and sanitized on both client and server sides, mitigating injection attacks." />
                 <InfoItem label="Audit Logging" text="Every credential operation (issuance, revocation, verification) is logged in the audit trail, providing complete accountability." />
               </ul>
@@ -589,16 +589,16 @@ const Documentation = () => {
 
           {/* FAQ */}
           <Section id="faq" title="Frequently Asked Questions" icon={HelpCircle}>
-            <FAQItem question="What happens if the issuing institution shuts down?">
+            <FAQItem question="What happens if the issuing organization shuts down?">
               Because credentials are stored on the Ethereum blockchain and IPFS, they remain fully 
-              verifiable regardless of the issuing institution's status. The blockchain is maintained 
+              verifiable regardless of the issuing organization's status. The blockchain is maintained 
               by thousands of independent nodes worldwide, and IPFS ensures the credential document 
               persists as long as it is pinned by at least one node.
             </FAQItem>
             <FAQItem question="Can a degree be faked by minting a token from a different wallet?">
-              No. Each issuing institution's wallet address is registered as an authorized issuer in the 
+              No. Each issuer's wallet address is registered as an authorized issuer in the 
               smart contract. Only whitelisted addresses can mint credentials. A verifier can check the 
-              issuer's on-chain address to confirm it belongs to a legitimate institution.
+              issuer's on-chain address to confirm it belongs to a legitimate issuer.
             </FAQItem>
             <FAQItem question="Why are Soulbound Tokens better than regular NFTs for credentials?">
               Regular NFTs can be freely transferred, sold, or traded, which would allow someone to buy 

@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['INSTITUTE', 'STUDENT'],
+    enum: ['ISSUER', 'STUDENT'],
     default: 'STUDENT'
   },
   university: {
@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  instituteDetails: {
+  issuerDetails: {
     institutionName: { type: String, trim: true },
     registrationNumber: { type: String, trim: true, unique: true, sparse: true },
     authorizedWalletAddress: { type: String, trim: true },

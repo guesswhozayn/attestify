@@ -5,13 +5,13 @@ const userController = require('../controllers/userController');
 // Public student search by wallet address
 router.get('/student/:walletAddress', userController.getPublicStudentProfile);
 
-// Public institute search
-router.get('/institutes/search', userController.searchInstitutes);
+// Public issuer search
+router.get('/issuers/search', userController.searchIssuers);
 
-// Public institute profile by ID
-router.get('/institute/:id', userController.getPublicInstituteProfile);
+// Public issuer profile by ID
+router.get('/issuer/:id', userController.getPublicIssuerProfile);
 
-// Public institute profile by Wallet
-router.get('/institute/wallet/:walletAddress', userController.getPublicInstituteProfileByWallet);
+// Public issuer profile by Wallet
+router.get('/issuer/wallet/:walletAddress', userController.getPublicIssuerProfileByWallet);
 
 module.exports = router;

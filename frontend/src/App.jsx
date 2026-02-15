@@ -5,7 +5,7 @@ import Layout from './components/layout/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import InstituteDashboard from './pages/InstituteDashboard';
+import IssuerDashboard from './pages/IssuerDashboard';
 import Credentials from './pages/Credentials'; // Import Credentials page
 import StudentDashboard from './pages/StudentDashboard';
 import StudentCredentials from './pages/StudentCredentials';
@@ -18,7 +18,7 @@ import StudentPublicProfile from './pages/StudentPublicProfile';
 import VerifyPage from './pages/Verify';
 import Documentation from './pages/Documentation';
 import PublicSearch from './pages/PublicSearch';
-import InstitutePublicProfile from './pages/InstitutePublicProfile';
+import IssuerPublicProfile from './pages/IssuerPublicProfile';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import About from './pages/About';
@@ -38,8 +38,8 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/search" element={<PublicSearch />} />
         <Route path="/student/:walletAddress" element={<StudentPublicProfile />} />
-        <Route path="/institute/:id" element={<InstitutePublicProfile />} />
-        <Route path="/institute/wallet/:walletAddress" element={<InstitutePublicProfile />} />
+        <Route path="/issuer/:id" element={<IssuerPublicProfile />} />
+        <Route path="/issuer/wallet/:walletAddress" element={<IssuerPublicProfile />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerifyPage />} />
@@ -54,7 +54,7 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              {user?.role === 'STUDENT' ? <Navigate to="/student-dashboard" /> : <Navigate to="/institute-dashboard" />}
+              {user?.role === 'STUDENT' ? <Navigate to="/student-dashboard" /> : <Navigate to="/issuer-dashboard" />}
             </PrivateRoute>
           }
         />
@@ -78,10 +78,10 @@ function App() {
         />
 
         <Route
-          path="/institute-dashboard"
+          path="/issuer-dashboard"
           element={
-            <PrivateRoute allowedRoles={['INSTITUTE']}>
-              <InstituteDashboard />
+            <PrivateRoute allowedRoles={['ISSUER']}>
+              <IssuerDashboard />
             </PrivateRoute>
           }
         />
@@ -89,7 +89,7 @@ function App() {
         <Route
           path="/credentials"
           element={
-            <PrivateRoute allowedRoles={['INSTITUTE']}>
+            <PrivateRoute allowedRoles={['ISSUER']}>
               <Credentials />
             </PrivateRoute>
           }
@@ -98,7 +98,7 @@ function App() {
         <Route
           path="/audit-logs"
           element={
-            <PrivateRoute allowedRoles={['INSTITUTE']}>
+            <PrivateRoute allowedRoles={['ISSUER']}>
               <AuditLogs />
             </PrivateRoute>
           }
@@ -107,7 +107,7 @@ function App() {
         <Route
           path="/revoked"
           element={
-            <PrivateRoute allowedRoles={['INSTITUTE']}>
+            <PrivateRoute allowedRoles={['ISSUER']}>
               <RevokedCredentials />
             </PrivateRoute>
           }

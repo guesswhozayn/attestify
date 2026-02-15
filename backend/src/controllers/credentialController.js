@@ -39,7 +39,7 @@ async function ensureLogoCID(branding) {
 }
 
 async function prepareSBTMetadata(user, credential, ipfsCID) {
-  const branding = user.instituteDetails?.branding || {};
+  const branding = user.issuerDetails?.branding || {};
   const logoCID = await ensureLogoCID(branding);
 
   const metadata = {
@@ -94,7 +94,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     const credentialId = credential._id.toString();
 
 
-    const branding = req.user.instituteDetails?.branding || {};
+    const branding = req.user.issuerDetails?.branding || {};
     const assets = {
       logo: null,
       seal: null,
@@ -167,7 +167,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
 
-    const institutionName = req.user.instituteDetails?.institutionName || university || 'Attestify University';
+    const institutionName = req.user.issuerDetails?.institutionName || university || 'Attestify University';
 
     if (type === 'TRANSCRIPT') {
       doc.rect(0, 0, doc.page.width, 100).fill('#f9fafb');
@@ -492,12 +492,12 @@ exports.issueCredential = asyncHandler(async (req, res) => {
         const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
         
          if (studentUser && studentUser.email) {
-              const instituteLogo = req.user.instituteDetails?.branding?.logo || 
-                                   (req.user.instituteDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.instituteDetails.branding.logoCID}` : null);
+              const instituteLogo = req.user.issuerDetails?.branding?.logo || 
+                                   (req.user.issuerDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.issuerDetails.branding.logoCID}` : null);
 
               const emailData = {
                  studentName,
-                 university: req.user.instituteDetails?.institutionName || university,
+                 university: req.user.issuerDetails?.institutionName || university,
                  issueDate,
                  transactionHash: blockchainResult.transactionHash,
                  id: credential._id,
@@ -636,7 +636,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Failed to parse CSV file', details: parseError.message });
   }
 
-  const branding = req.user.instituteDetails?.branding || {};
+  const branding = req.user.issuerDetails?.branding || {};
   const assets = { logo: null, seal: null, signature: null };
 
   try {
@@ -698,7 +698,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       const credential = new Credential({
         studentWalletAddress: row.studentWalletAddress,
         studentName: row.studentName,
-        university: req.user.instituteDetails?.institutionName || row.university || 'Attestify University',
+        university: req.user.issuerDetails?.institutionName || row.university || 'Attestify University',
         issueDate: issueDate,
         type,
         transcriptData,
@@ -713,7 +713,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
       tempFilePath = path.join(uploadsDir, `batch_cert_${credentialId}_${Date.now()}.pdf`);
 
-      const institutionName = req.user.instituteDetails?.institutionName || credential.university;
+      const institutionName = req.user.issuerDetails?.institutionName || credential.university;
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
 
@@ -788,12 +788,12 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
           const studentUser = await User.findOne({ walletAddress: row.studentWalletAddress.toLowerCase() });
           
           if (studentUser && studentUser.email) {
-              const instituteLogo = req.user.instituteDetails?.branding?.logo || 
-                                   (req.user.instituteDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.instituteDetails.branding.logoCID}` : null);
+              const instituteLogo = req.user.issuerDetails?.branding?.logo || 
+                                   (req.user.issuerDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.issuerDetails.branding.logoCID}` : null);
 
               const emailData = {
                   studentName: row.studentName,
-                  university: req.user.instituteDetails?.institutionName || row.university || 'Attestify',
+                  university: req.user.issuerDetails?.institutionName || row.university || 'Attestify',
                   issueDate: credential.issueDate,
                   transactionHash: blockchainResult.transactionHash,
                   id: credential._id,

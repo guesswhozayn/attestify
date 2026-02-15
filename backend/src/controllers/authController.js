@@ -50,8 +50,8 @@ exports.register = asyncHandler(async (req, res) => {
     walletAddress
   };
 
-  if (role === 'INSTITUTE') {
-    userData.instituteDetails = {
+  if (role === 'ISSUER') {
+    userData.issuerDetails = {
       institutionName,
       registrationNumber: req.body.registrationNumber,
       authorizedWalletAddress,
@@ -87,7 +87,8 @@ exports.register = asyncHandler(async (req, res) => {
       title: user.title,
       about: user.about,
       isActive: user.isActive,
-      instituteDetails: user.instituteDetails
+      isActive: user.isActive,
+      issuerDetails: user.issuerDetails
     }
   });
 });
@@ -134,7 +135,7 @@ exports.login = asyncHandler(async (req, res) => {
       about: user.about,
       isActive: user.isActive,
       studentId: user.studentId,
-      instituteDetails: user.instituteDetails
+      issuerDetails: user.issuerDetails
     }
   });
 });
@@ -158,7 +159,7 @@ exports.getCurrentUser = asyncHandler(async (req, res) => {
       title: user.title,
       about: user.about,
       isActive: user.isActive,
-      instituteDetails: user.instituteDetails,
+      issuerDetails: user.issuerDetails,
       createdAt: user.createdAt
     }
   });
@@ -181,22 +182,22 @@ exports.updateProfile = asyncHandler(async (req, res) => {
   if (title !== undefined) user.title = title;
   if (about !== undefined) user.about = about;
 
-  if (user.role === 'INSTITUTE' && req.body.instituteDetails) {
-    const { branding, authorizedWalletAddress } = req.body.instituteDetails;
+  if (user.role === 'ISSUER' && req.body.issuerDetails) {
+    const { branding, authorizedWalletAddress } = req.body.issuerDetails;
     
-    if (!user.instituteDetails) {
-      user.instituteDetails = {};
+    if (!user.issuerDetails) {
+      user.issuerDetails = {};
     }
 
     if (branding) {
-      user.instituteDetails.branding = {
-        ...user.instituteDetails.branding,
+      user.issuerDetails.branding = {
+        ...user.issuerDetails.branding,
         ...branding
       };
     }
     
     if (authorizedWalletAddress) {
-      user.instituteDetails.authorizedWalletAddress = authorizedWalletAddress;
+      user.issuerDetails.authorizedWalletAddress = authorizedWalletAddress;
     }
   }
 
@@ -213,7 +214,7 @@ exports.updateProfile = asyncHandler(async (req, res) => {
       walletAddress: user.walletAddress,
       title: user.title,
       isActive: user.isActive,
-      instituteDetails: user.instituteDetails
+      issuerDetails: user.issuerDetails
     }
   });
 });
@@ -283,7 +284,7 @@ exports.googleLogin = asyncHandler(async (req, res) => {
       title: user.title,
       about: user.about,
       isActive: user.isActive,
-      instituteDetails: user.instituteDetails,
+      issuerDetails: user.issuerDetails,
       avatar: user.avatar
     }
   });

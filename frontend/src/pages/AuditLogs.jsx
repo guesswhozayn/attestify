@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Activity, Clock, Filter, Search, Zap, Coins } from 'lucide-react';
 import { auditAPI } from '../services/api';
-import InstituteLogTable from '../components/institute/InstituteLogTable';
+import IssuerLogTable from '../components/issuer/IssuerLogTable';
 
 const AuditLogs = () => {
   const [stats, setStats] = useState(null);
@@ -166,7 +166,7 @@ const AuditLogs = () => {
            </div>
            
            <div className="bg-white/[0.01] border border-white/[0.05] rounded-3xl overflow-hidden backdrop-blur-sm">
-              <InstituteLogTable logs={logs} loading={loading} />
+              <IssuerLogTable logs={logs} loading={loading} />
            </div>
         </motion.div>
       </main>
