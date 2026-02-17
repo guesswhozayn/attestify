@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Users, Globe, Target, Rocket } from 'lucide-react';
-import Navbar from '../components/shared/Navbar';
+import { Shield, Users, Globe, Target, Rocket, Github, Mail } from 'lucide-react';
+import BackButton from '../components/shared/BackButton';
 import Footer from '../components/shared/Footer';
 import Button from '../components/shared/Button';
 import { useNavigate } from 'react-router-dom';
@@ -35,7 +35,7 @@ const About = () => {
           <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
       </div>
 
-      <Navbar />
+      <BackButton />
 
       <main className="relative z-10 pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -129,7 +129,7 @@ const About = () => {
                         We asked a simple question: <span className="text-white font-medium">What if a degree was as immutable as a Bitcoin transaction?</span>
                     </p>
                     <p>
-                        Attestify was born from this question. By leveraging Soulbound Tokens (SBTs) on Ethereum, we created a system where credentials are permanently bound to the recipient's identity, mathematically impossible to forge, and instantly verifiable by anyone in the world for free.
+                        Attestify was born from this question. By leveraging Soulbound Tokens (SBTs) on Ethereum, we created a system where credentials are permanently bound to the recipient&apos;s identity, mathematically impossible to forge, and instantly verifiable by anyone in the world for free.
                     </p>
                 </div>
             </motion.div>

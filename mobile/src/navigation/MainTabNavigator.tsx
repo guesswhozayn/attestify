@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { LayoutGrid, Award, ShieldCheck, User, Settings, Activity } from 'lucide-react-native';
+import { LayoutGrid, Award, ShieldCheck, User, Activity } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,22 @@ import CredentialsScreen from '../screens/CredentialsScreen';
 import VerificationScreen from '../screens/VerificationScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AuditLogsScreen from '../screens/AuditLogsScreen';
+
+const DashboardIcon = ({ color, size }: { color: string; size: number }) => (
+  <LayoutGrid color={color} size={size} />
+);
+const CredentialsIcon = ({ color, size }: { color: string; size: number }) => (
+  <Award color={color} size={size} />
+);
+const AuditIcon = ({ color, size }: { color: string; size: number }) => (
+  <Activity color={color} size={size} />
+);
+const VerifyIcon = ({ color, size }: { color: string; size: number }) => (
+  <ShieldCheck color={color} size={size} />
+);
+const ProfileIcon = ({ color, size }: { color: string; size: number }) => (
+  <User color={color} size={size} />
+);
 
 const Tab = createBottomTabNavigator();
 
@@ -37,14 +53,14 @@ const MainTabNavigator = () => {
         name="Dashboard" 
         component={isIssuer ? IssuerDashboardScreen : StudentDashboardScreen} 
         options={{
-          tabBarIcon: ({ color, size }) => <LayoutGrid color={color} size={size} />,
+          tabBarIcon: DashboardIcon,
         }}
       />
       <Tab.Screen 
         name="Credentials" 
         component={CredentialsScreen} 
         options={{
-          tabBarIcon: ({ color, size }) => <Award color={color} size={size} />,
+          tabBarIcon: CredentialsIcon,
         }}
       />
       {isIssuer && (
@@ -52,7 +68,7 @@ const MainTabNavigator = () => {
           name="Audit" 
           component={AuditLogsScreen} 
           options={{
-            tabBarIcon: ({ color, size }) => <Activity color={color} size={size} />,
+            tabBarIcon: AuditIcon,
           }}
         />
       )}
@@ -60,14 +76,14 @@ const MainTabNavigator = () => {
         name="Verify" 
         component={VerificationScreen} 
         options={{
-          tabBarIcon: ({ color, size }) => <ShieldCheck color={color} size={size} />,
+          tabBarIcon: VerifyIcon,
         }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileScreen} 
         options={{
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+          tabBarIcon: ProfileIcon,
         }}
       />
     </Tab.Navigator>

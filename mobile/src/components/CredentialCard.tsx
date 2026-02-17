@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Award, Calendar, ShieldCheck, ShieldAlert } from 'lucide-react-native';
+import { Award, Calendar, ShieldCheck } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import GlassCard from './GlassCard';
 
@@ -18,17 +18,17 @@ const CredentialCard: React.FC<CredentialCardProps> = ({ credential, onPress }) 
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.wrapper}>
       <GlassCard style={[styles.card, isRevoked && styles.revokedCard]}>
         <View style={styles.topRow}>
-          <View style={[styles.iconContainer, { backgroundColor: isRevoked ? 'rgba(239, 68, 68, 0.1)' : 'rgba(99, 102, 241, 0.1)' }]}>
+          <View style={[styles.iconContainer, isRevoked ? styles.bgErrorLight : styles.bgPrimaryLight]}>
             <Award color={isRevoked ? theme.colors.error : theme.colors.primary} size={22} />
           </View>
           <View style={[
             styles.statusBadge, 
-            { backgroundColor: isRevoked ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)' }
+            isRevoked ? styles.bgErrorBadge : styles.bgSuccessBadge
           ]}>
-            <View style={[styles.dot, { backgroundColor: isRevoked ? theme.colors.error : theme.colors.success }]} />
+            <View style={[styles.dot, isRevoked ? styles.bgError : styles.bgSuccess]} />
             <Text style={[
               styles.statusText, 
-              { color: isRevoked ? theme.colors.error : theme.colors.success }
+              isRevoked ? styles.textError : styles.textSuccess
             ]}>
               {isRevoked ? 'REVOKED' : 'VERIFIED'}
             </Text>
@@ -144,6 +144,30 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
+  bgErrorLight: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  bgPrimaryLight: {
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  bgErrorBadge: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+  },
+  bgSuccessBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  },
+  bgError: {
+    backgroundColor: theme.colors.error,
+  },
+  bgSuccess: {
+    backgroundColor: theme.colors.success,
+  },
+  textError: {
+    color: theme.colors.error,
+  },
+  textSuccess: {
+    color: theme.colors.success,
+  }
 });
 
 export default CredentialCard;

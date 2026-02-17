@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 import QRCodeDisplay from './QRCodeDisplay';
-import { credentialAPI, fileAPI } from '../../services/api';
+import { fileAPI } from '../../services/api';
 import { Download, ExternalLink, User, Building, Hash, ShieldAlert, GraduationCap, Award, Shield, ShieldCheck, Copy, Check, Database, Loader2 } from 'lucide-react';
 import VerificationSection from '../verification/VerificationSection';
 import RevokeCredentialModal from './RevokeCredentialModal';
@@ -89,9 +89,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const displayMetadata = credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData;
   const isSBT = !!credential.tokenId;
 
-  const headerGradient = credential.type === 'TRANSCRIPT' 
-    ? 'from-indigo-900 via-purple-900 to-gray-900' 
-    : 'from-emerald-900 via-teal-900 to-gray-900';
+
 
   const iconColor = credential.type === 'TRANSCRIPT' 
     ? 'text-indigo-400' 

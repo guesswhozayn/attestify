@@ -10,14 +10,13 @@ import {
   StatusBar,
   TextInput
 } from 'react-native';
-import { Search, Filter, Award, ChevronRight } from 'lucide-react-native';
+import { Search, Filter, Award } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { credentialAPI } from '../services/api';
 import CredentialCard from '../components/CredentialCard';
 
 const CredentialsScreen = ({ navigation }: any) => {
   const [credentials, setCredentials] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -27,13 +26,11 @@ const CredentialsScreen = ({ navigation }: any) => {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
       const response = await credentialAPI.getAll();
       setCredentials(response.data.credentials || []);
     } catch (error) {
       console.error('Credentials fetch error', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
@@ -85,7 +82,7 @@ const CredentialsScreen = ({ navigation }: any) => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Award size={48} color={theme.colors.textDim} strokeWidth={1} style={{ marginBottom: 16 }} />
+            <Award size={48} color={theme.colors.textDim} strokeWidth={1} style={styles.emptyIcon} />
             <Text style={styles.emptyText}>No credentials found.</Text>
             {searchQuery ? (
               <Text style={styles.emptySubtext}>Try adjusting your search criteria.</Text>
@@ -153,6 +150,9 @@ const styles = StyleSheet.create({
     color: theme.colors.textDim,
     textAlign: 'center',
     fontSize: 14,
+  },
+  emptyIcon: {
+    marginBottom: 16,
   }
 });
 

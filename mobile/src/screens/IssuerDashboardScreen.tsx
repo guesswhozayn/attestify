@@ -98,7 +98,7 @@ const IssuerDashboardScreen = () => {
             value={stats.total} 
             icon={Shield} 
           />
-          <View style={{ width: theme.spacing.md }} />
+          <View style={styles.statGap} />
           <StatCard 
             label="Active" 
             value={stats.active} 
@@ -113,8 +113,8 @@ const IssuerDashboardScreen = () => {
             icon={Filter} 
             color={theme.colors.error}
           />
-          <View style={{ width: theme.spacing.md }} />
-          <View style={{ flex: 1 }} /> 
+          <View style={styles.statGap} />
+          <View style={styles.flex1} /> 
         </View>
 
         {/* Recent Activity */}
@@ -273,6 +273,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: theme.colors.textDim,
+  },
+  statGap: {
+    width: theme.spacing.md,
+  },
+  flex1: {
+    flex: 1,
   }
 });
 

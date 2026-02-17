@@ -100,7 +100,7 @@ const StudentDashboardScreen = ({ navigation }: any) => {
                 title="Share Verification"
                 onPress={() => {}}
                 icon={<Share2 size={18} color={theme.colors.primary} />}
-                style={{ flex: 1 }}
+                style={styles.flex1}
             />
         </View>
 
@@ -123,7 +123,7 @@ const StudentDashboardScreen = ({ navigation }: any) => {
           ))
         ) : (
           <View style={styles.emptyContainer}>
-            <Award size={48} color={theme.colors.textDim} strokeWidth={1} style={{ marginBottom: 16 }} />
+            <Award size={48} color={theme.colors.textDim} strokeWidth={1} style={styles.emptyIcon} />
             <Text style={styles.emptyText}>No credentials found yet.</Text>
             <Text style={styles.emptySubtext}>Once issued by your institution, they will appear here.</Text>
           </View>
@@ -276,6 +276,12 @@ const styles = StyleSheet.create({
     color: theme.colors.textDim,
     textAlign: 'center',
     fontSize: 14,
+  },
+  flex1: {
+    flex: 1,
+  },
+  emptyIcon: {
+    marginBottom: 16,
   }
 });
 

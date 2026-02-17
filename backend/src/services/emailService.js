@@ -32,207 +32,186 @@ class EmailService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
           
           body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background-color: #030014; 
+            background-color: #000000; 
             margin: 0; 
             padding: 0; 
             -webkit-font-smoothing: antialiased; 
-            color: #e2e8f0;
+            color: #ffffff;
           }
           .container { 
             max-width: 600px; 
             margin: 40px auto; 
-            background-color: #0f172a; 
-            border-radius: 24px; 
+            background-color: #0a0a0a; 
+            border-radius: 32px; 
             overflow: hidden; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
           }
           .header { 
-            background: linear-gradient(to right, #1e1b4b, #312e81); 
-            padding: 40px 30px; 
+            padding: 50px 40px 30px 40px; 
             text-align: center; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
           }
-          .logo-container {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+          .logo-text {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            color: #ffffff;
+            margin: 0;
+            text-transform: lowercase;
           }
-          .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-          }
-          .header h1 { 
-            margin: 0; 
-            font-size: 24px; 
-            font-weight: 700; 
-            color: white; 
-            letter-spacing: -0.025em;
+          .logo-dot {
+            color: #6366f1;
           }
           .content { 
-            padding: 40px 30px; 
-            color: #cbd5e1; 
-            line-height: 1.6; 
+            padding: 0 40px 50px 40px; 
+            color: #94a3b8; 
+            line-height: 1.7; 
             font-size: 16px;
           }
           .button { 
             display: inline-block; 
-            background: linear-gradient(to right, #4f46e5, #7c3aed); 
-            color: white !important; 
-            padding: 14px 32px; 
+            background-color: #ffffff; 
+            color: #000000 !important; 
+            padding: 18px 36px; 
             text-decoration: none; 
-            border-radius: 9999px; 
-            font-weight: 600; 
+            border-radius: 18px; 
+            font-weight: 800; 
             font-size: 15px; 
-            margin-top: 24px; 
-            box-shadow: 0 0 20px -5px rgba(79, 70, 229, 0.5); 
+            margin-top: 30px; 
             text-align: center;
-            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
           }
-          .button:hover {
-            transform: scale(1.02);
-          }
-          .button-outline { 
+          .button-secondary { 
             display: inline-block; 
             background-color: rgba(255, 255, 255, 0.05); 
             border: 1px solid rgba(255, 255, 255, 0.1); 
-            color: #9ca3af !important; 
-            padding: 12px 24px; 
+            color: #ffffff !important; 
+            padding: 16px 32px; 
             text-decoration: none; 
-            border-radius: 9999px; 
-            font-weight: 500; 
+            border-radius: 18px; 
+            font-weight: 700; 
             font-size: 14px; 
-            margin-top: 12px; 
+            margin-top: 15px; 
             text-align: center; 
+            backdrop-blur: 10px;
           }
           .footer { 
-            background-color: #020617; 
-            padding: 30px; 
+            padding: 40px; 
             text-align: center; 
-            color: #64748b; 
-            font-size: 12px; 
-            border-top: 1px solid rgba(255, 255, 255, 0.05); 
+            color: #475569; 
+            font-size: 11px; 
+            border-top: 1px solid rgba(255, 255, 255, 0.03); 
+            background-color: #050505;
           }
           .card { 
-            background-color: #1e293b; 
-            border-radius: 16px; 
+            background-color: rgba(255, 255, 255, 0.03); 
+            border-radius: 24px; 
             padding: 24px; 
-            margin: 24px 0; 
+            margin: 30px 0; 
             border: 1px solid rgba(255, 255, 255, 0.05); 
           }
           .detail-row { 
             display: flex; 
             justify-content: space-between; 
-            padding: 12px 0; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            padding: 14px 0; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
           }
           .detail-row:last-child {
             border-bottom: none;
           }
           .detail-label { 
-            font-weight: 500; 
-            color: #94a3b8; 
-            font-size: 14px; 
+            font-weight: 600; 
+            color: #64748b; 
+            font-size: 11px; 
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
           }
           .detail-value { 
-            color: #f1f5f9; 
-            font-weight: 600; 
-            font-size: 14px; 
-            text-align: right; 
+            color: #ffffff; 
+            font-weight: 700; 
+            font-size: 13px; 
           }
           .hash-container { 
-            background-color: #0f172a; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-top: 8px; 
+            background-color: rgba(0, 0, 0, 0.3); 
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-top: 10px; 
             border: 1px solid rgba(255, 255, 255, 0.05); 
           }
           .hash-text { 
-            font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; 
-            font-size: 12px; 
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
+            font-size: 11px; 
             color: #818cf8; 
             word-break: break-all; 
-          }
-          .sbt-badge { 
-            display: inline-block; 
-            padding: 6px 16px; 
-            background: rgba(79, 70, 229, 0.1); 
-            color: #a5b4fc; 
-            border-radius: 9999px; 
-            font-size: 12px; 
-            font-weight: 600; 
-            border: 1px solid rgba(99, 102, 241, 0.2); 
-            text-transform: uppercase; 
-            letter-spacing: 0.05em; 
-          }
-          .institute-logo { 
-            max-width: 120px; 
-            max-height: 60px; 
-            margin-bottom: 24px; 
-            display: block; 
-            margin-left: auto; 
-            margin-right: auto; 
-            filter: brightness(0) invert(1);
-            opacity: 0.9;
-          }
-          .info-box {
-            background: rgba(59, 130, 246, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 30px;
-          }
-          .info-title {
-            color: #60a5fa;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 8px;
-            display: block;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-          }
-          .info-text {
-            color: #bfdbfe;
-            font-size: 13px;
-            margin: 0;
             line-height: 1.5;
           }
+          .badge { 
+            display: inline-block; 
+            padding: 6px 14px; 
+            background: rgba(99, 102, 241, 0.1); 
+            color: #818cf8; 
+            border-radius: 10px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            border: 1px solid rgba(99, 102, 241, 0.2); 
+            text-transform: uppercase; 
+            letter-spacing: 0.15em; 
+          }
+          .info-box {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 40px;
+            border: 1px dotted rgba(255, 255, 255, 0.1);
+          }
+          .info-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+          }
+          .info-text {
+            color: #64748b;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.6;
+          }
           h2 {
-            color: white;
-            font-weight: 700;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -0.02em;
+            margin-top: 0;
+          }
+          p {
+            margin-bottom: 20px;
           }
           strong {
-            color: white;
-            font-weight: 600;
+            color: #ffffff;
+            font-weight: 700;
           }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo-container">
-               <h1>Attestify</h1>
-            </div>
+            <h1 class="logo-text">attestify<span class="logo-dot">.</span></h1>
           </div>
           <div class="content">
             ${content}
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Attestify Protocol. Decentralized Trust.</p>
-            <p>This is a secure on-chain notification. No action is required unless specified.</p>
+            <p>&copy; ${new Date().getFullYear()} Attestify Protocol. Decentralized Truth System.</p>
+            <p>This is an automated securely-issued notification from the Attestify blockchain network.</p>
           </div>
         </div>
       </body>
@@ -247,37 +226,29 @@ class EmailService {
     }
 
     const content = `
-      ${data.instituteLogo ? `<img src="${data.instituteLogo}" alt="${data.university}" class="institute-logo">` : ''}
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div class="badge">Verified On-Chain</div>
+      </div>
       
-      <h2 style="margin-top: 0; text-align: center; font-size: 24px;">Credential Successfully Issued</h2>
-      <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">Dear <strong>${data.studentName}</strong>,</p>
-      
-      <p style="text-align: center;">We are pleased to inform you that <strong>${data.university}</strong> has issued a new digital credential. This represents a permanent, verifiable record of your achievement.</p>
+      <h2 style="text-align: center;">Credential Issued</h2>
+      <p style="text-align: center; color: #64748b;">A permanent cryptographic record has been generated for <strong>${data.studentName}</strong>.</p>
       
       <div class="card">
-        <div style="text-align: center; margin-bottom: 24px;">
-            <div class="sbt-badge">Soulbound Token Minted</div>
-        </div>
-        
-        <div class="detail-row">
-          <span class="detail-label">Status</span>
-          <span class="detail-value" style="color: #4ade80;">✓ On-Chain Verified</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Token ID</span>
-          <span class="detail-value" style="font-family: monospace; color: #818cf8;">#${data.tokenId || data.id.substring(0, 8)}</span>
-        </div>
         <div class="detail-row">
           <span class="detail-label">Institution</span>
           <span class="detail-value">${data.university}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Token ID</span>
+          <span class="detail-value" style="font-family: monospace;">#${data.tokenId || data.id.substring(0, 8)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Issue Date</span>
           <span class="detail-value">${new Date(data.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
         </div>
 
-        <div style="margin-top: 20px;">
-          <span class="detail-label">Blockchain Transaction</span>
+        <div style="margin-top: 24px;">
+          <span class="detail-label">Transaction Hash</span>
           <div class="hash-container">
             <span class="hash-text">${data.transactionHash}</span>
           </div>
@@ -285,24 +256,25 @@ class EmailService {
       </div>
 
       <div class="info-box">
-        <span class="info-title">What is a Soulbound Token?</span>
+        <span class="info-title">The Standard of Truth</span>
         <p class="info-text">
-          A Soulbound Token (SBT) is a non-transferable digital identity token that represents your credentials on the blockchain. Unlike standard NFTs, SBTs cannot be sold or transferred, ensuring that your achievements remain permanently bound to your identity.
+          This credential is anchored to the Ethereum blockchain as a Soulbound Token. It is non-transferable and provides a tamper-proof guarantee of authenticity that can be verified globally, forever.
         </p>
       </div>
 
-      <div style="text-align: center; display: grid; gap: 12px; margin-top: 30px;">
-        <a href="${data.certificateLink}" class="button">Access Certificate Dashboard</a>
-        <a href="https://sepolia.etherscan.io/tx/${data.transactionHash}" class="button-outline">View On-Chain Proof (Etherscan)</a>
+      <div style="text-align: center; margin-top: 40px;">
+        <a href="${data.certificateLink}" class="button">View Credential</a>
+        <br>
+        <a href="https://sepolia.etherscan.io/tx/${data.transactionHash}" class="button-secondary">Explore on Etherscan</a>
       </div>
     `;
 
-    const html = this._wrapTemplate('Certificate Issued', content);
+    const html = this._wrapTemplate('Credential Issued', content);
 
     const mailOptions = {
-      from: `"Attestify Notification" <${process.env.EMAIL_USER}>`,
+      from: `"Attestify" <${process.env.EMAIL_USER}>`,
       to: to,
-      subject: `Certificate Issued: ${data.university}`,
+      subject: `New Credential Issued: ${data.university}`,
       html: html
     };
 
@@ -322,38 +294,43 @@ class EmailService {
     }
 
     const content = `
-      <h2 style="margin-top: 0; text-align: center;">Welcome to Attestify!</h2>
-      <p style="text-align: center; color: #94a3b8;">Dear ${name},</p>
-      
-      <p>Thank you for joining <strong>Attestify</strong>, the decentralized credential verification platform. Your account has been successfully created.</p>
+      <h2 style="text-align: center;">Welcome to the Network.</h2>
+      <p style="text-align: center;">The future of decentralized credentialing is here. We're glad to have you, <strong>${name}</strong>.</p>
       
       <div class="card">
-        <p style="margin: 0 0 16px 0; color: #94a3b8;">With your new account, you can:</p>
-        <ul style="color: #e2e8f0; padding-left: 20px; margin: 0;">
-          <li style="margin-bottom: 8px;">View and manage your digital certificates</li>
-          <li style="margin-bottom: 8px;">Share verifiable credentials with employers</li>
-          <li style="margin-bottom: 8px;">Verify the authenticity of documents instantly</li>
-        </ul>
+        <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #ffffff;">Your Account Capabilities:</p>
+        <div class="detail-row">
+          <span class="detail-label">Verification</span>
+          <span class="detail-value">Instant On-Chain Proof</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Management</span>
+          <span class="detail-value">Universal Dashboard</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Sharing</span>
+          <span class="detail-value">Direct Credential Access</span>
+        </div>
       </div>
 
       <div class="info-box">
-        <span class="info-title">Secured by Blockchain</span>
+        <span class="info-title">Secured by Cryptography</span>
         <p class="info-text">
-          Attestify uses advanced blockchain technology to ensure your credentials are tamper-proof and permanently verifiable. Your data is secured by the decentralized nature of the network.
+          Attestify leverages decentralized identity protocols to ensure your academic records remain sovereign, private, and immutable. Welcome to the engine of truth.
         </p>
       </div>
 
-      <div style="text-align: center; margin-top: 30px;">
-        <a href="${process.env.FRONTEND_URL}/login" class="button">Login to Dashboard</a>
+      <div style="text-align: center; margin-top: 40px;">
+        <a href="${process.env.FRONTEND_URL}/login" class="button">Access Dashboard</a>
       </div>
     `;
 
     const html = this._wrapTemplate('Welcome to Attestify', content);
 
     const mailOptions = {
-      from: `"Attestify Team" <${process.env.EMAIL_USER}>`,
+      from: `"Attestify" <${process.env.EMAIL_USER}>`,
       to: to,
-      subject: 'Welcome to the Future of Credentials',
+      subject: 'Welcome to Attestify',
       html: html
     };
 

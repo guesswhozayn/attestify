@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -223,7 +222,7 @@ const IssuerProfileEditor = () => {
             >
                 <div>
                    <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Issuer Profile</h1>
-                   <p className="text-gray-400">Manage your institution's public profile and branding assets.</p>
+                   <p className="text-gray-400">Manage your institution&apos;s public profile and branding assets.</p>
                 </div>
                 <div className="flex gap-3">
                    {isEditing ? (
@@ -526,7 +525,6 @@ const IssuerProfileEditor = () => {
     );
 };
 
-// eslint-disable-next-line no-unused-vars
 const ProfileCard = ({ icon: LucideIcon, label, value, color, bg, border }) => (
   <div className="flex items-start space-x-4 p-5 bg-white/[0.02] rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-md group h-full">
     <div className={`p-3 rounded-xl border transition-colors ${bg} ${border} group-hover:bg-opacity-20`}>

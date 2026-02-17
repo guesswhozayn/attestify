@@ -10,7 +10,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     const etherscanUrl = `https://sepolia.etherscan.io/token/${contractAddress}?a=${credential.tokenId}`;
     const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`;
 
-    const copyToClipboard = (text, label) => {
+    const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
     };
 

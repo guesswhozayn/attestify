@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Award, ShieldAlert, CheckCircle, GraduationCap, ChevronRight, Box, Activity, ExternalLink, Database } from 'lucide-react';
 
 const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onClick }) => {
-    const [isHovered, setIsHovered] = useState(false);
+
     if (!credential) return null;
 
     const displayMetadata = metadata || (credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData);
@@ -52,8 +52,7 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
     return (
         <div 
             className="py-10"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+
         >
             <div
                 onClick={onClick}
@@ -156,7 +155,7 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                                     </div>
                                     <div>
                                         <span className="block text-[8px] font-black text-purple-300/40 uppercase tracking-widest">On-Chain Asset ID</span>
-                                        <span className="text-[11px] font-mono font-bold text-purple-200">TOKEN #{credential.tokenId} // SBT-LOCKED</span>
+                                        <span className="text-[11px] font-mono font-bold text-purple-200">TOKEN #{credential.tokenId} {"//"} SBT-LOCKED</span>
                                     </div>
                                 </div>
                                 <a 

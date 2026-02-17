@@ -6,17 +6,23 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
+    let timer;
     if (isOpen) {
-      setShouldRender(true);
-      setTimeout(() => setIsVisible(true), 10);
       document.body.style.overflow = 'hidden';
+      timer = setTimeout(() => {
+        setShouldRender(true);
+        setTimeout(() => setIsVisible(true), 10);
+      }, 0);
     } else {
-      setIsVisible(false);
-      setTimeout(() => setShouldRender(false), 300);
+      timer = setTimeout(() => {
+        setIsVisible(false);
+        setTimeout(() => setShouldRender(false), 300);
+      }, 0);
       document.body.style.overflow = 'unset';
     }
     return () => {
-       document.body.style.overflow = 'unset';
+      if (timer) clearTimeout(timer);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 

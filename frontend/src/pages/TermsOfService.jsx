@@ -1,4 +1,5 @@
 import { FileText } from 'lucide-react';
+import BackButton from '../components/shared/BackButton';
 
 const TermsOfService = () => {
   return (
@@ -9,6 +10,7 @@ const TermsOfService = () => {
           <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
           <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
       </div>
+      <BackButton />
 
       <main className="relative z-10 pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         

@@ -1,4 +1,5 @@
 import { Lock } from 'lucide-react';
+import BackButton from '../components/shared/BackButton';
 
 const PrivacyPolicy = () => {
   return (
@@ -9,6 +10,7 @@ const PrivacyPolicy = () => {
           <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
           <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
       </div>
+      <BackButton />
 
       <main className="relative z-10 pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -25,7 +27,7 @@ const PrivacyPolicy = () => {
             <section>
                 <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>
                 <p className="text-gray-400 leading-relaxed">
-                    Attestify ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share your personal information when you use our decentralized credential verification platform. By using Attestify, you agree to the collection and use of information in accordance with this policy.
+                    Attestify (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share your personal information when you use our decentralized credential verification platform. By using Attestify, you agree to the collection and use of information in accordance with this policy.
                 </p>
             </section>
 

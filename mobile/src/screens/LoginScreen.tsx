@@ -24,22 +24,16 @@ const LoginScreen = ({ navigation }: any) => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'ISSUER' | 'STUDENT'>('ISSUER');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError('Please fill in all fields');
       return;
     }
-
     setLoading(true);
-    setError('');
     
     const result = await login({ email, password, role: selectedRole });
     
-    if (!result.success) {
-      setError(result.error || 'Login failed');
-    }
+      console.error(result.error || 'Login failed');
     setLoading(false);
   };
 
@@ -48,13 +42,13 @@ const LoginScreen = ({ navigation }: any) => {
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
+        style={styles.flex1}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
           {/* Background Ambience Placeholders (Simulated with views) */}
-          <View style={[styles.ambience, { top: -100, left: -100, backgroundColor: 'rgba(99, 102, 241, 0.1)' }]} />
-          <View style={[styles.ambience, { bottom: -100, right: -100, backgroundColor: 'rgba(168, 85, 247, 0.1)' }]} />
+          <View style={[styles.ambience, styles.ambienceTopLeft]} />
+          <View style={[styles.ambience, styles.ambienceBottomRight]} />
 
           {/* Header */}
           <View style={styles.header}>
@@ -233,6 +227,19 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  flex1: {
+    flex: 1,
+  },
+  ambienceTopLeft: {
+    top: -100,
+    left: -100,
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  ambienceBottomRight: {
+    bottom: -100,
+    right: -100,
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
   }
 });
 

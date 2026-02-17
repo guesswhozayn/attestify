@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import CredentialRow from '../components/credential/CredentialRow';
@@ -33,6 +33,7 @@ const StudentCredentials = () => {
             }
         };
         init();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -41,9 +42,9 @@ const StudentCredentials = () => {
         } else {
             setLoading(false);
         }
-    }, [walletAddress, activeTab]);
+    }, [walletAddress, activeTab, fetchCredentials]);
 
-    const fetchCredentials = async (isRefresh = false) => {
+    const fetchCredentials = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
@@ -72,7 +73,7 @@ const StudentCredentials = () => {
             setLoading(false);
             setRefreshing(false);
         }
-    };
+    }, [walletAddress, activeTab, showNotification]);
 
     const handleSearch = (query) => {
         const lower = query.toLowerCase();

@@ -14,7 +14,6 @@ import Avatar from '../components/shared/Avatar';
 const StudentDashboard = () => {
   const { user } = useAuth();
   const [credential, setCredential] = useState(null);
-  const [credentials, setCredentials] = useState([]);
   const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -50,9 +49,9 @@ const StudentDashboard = () => {
     };
     init();
     return () => { isMounted.current = false; };
-  }, []);
+  }, [fetchCredential]);
 
-  const fetchCredential = async (address, isRefresh = false) => {
+  const fetchCredential = useCallback(async (address, isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
@@ -70,7 +69,6 @@ const StudentDashboard = () => {
       if (!isMounted.current) return;
 
       const docs = response.data.credentials || [];
-      setCredentials(docs);
       
       // Calculate Stats
       const total = docs.length;
@@ -98,7 +96,7 @@ const StudentDashboard = () => {
           setRefreshing(false);
       }
     }
-  };
+  }, [walletAddress]);
 
   const handleShare = useCallback(() => {
     if (!credential || !walletAddress) return;

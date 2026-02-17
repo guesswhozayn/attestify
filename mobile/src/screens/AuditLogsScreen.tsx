@@ -17,7 +17,6 @@ import { theme } from '../theme/theme';
 
 const AuditLogsScreen = () => {
   const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -26,13 +25,11 @@ const AuditLogsScreen = () => {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
       const response = await auditAPI.getLogs();
       setLogs(response.data.logs || []);
     } catch (error) {
       console.error('Audit logs fetch error', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
@@ -69,7 +66,6 @@ const AuditLogsScreen = () => {
   };
 
   const renderLogItem = ({ item }: { item: any }) => {
-    const isLogin = item.action?.toLowerCase() === 'login';
     const isIssue = item.action?.toLowerCase().includes('issue');
     const isRevoke = item.action?.toLowerCase().includes('revoke');
 
@@ -79,12 +75,12 @@ const AuditLogsScreen = () => {
           <View style={styles.logHeader}>
             <View style={[
               styles.actionBadge,
-              { backgroundColor: isIssue ? 'rgba(99, 102, 241, 0.1)' : isRevoke ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)' }
+              isIssue ? styles.bgIssue : isRevoke ? styles.bgRevoke : styles.bgDefault
             ]}>
               {getLogIcon(item.action)}
               <Text style={[
                 styles.logAction,
-                { color: isIssue ? theme.colors.primary : isRevoke ? theme.colors.error : theme.colors.success }
+                isIssue ? styles.textIssue : isRevoke ? styles.textRevoke : styles.textDefault
               ]}>
                 {item.action.toUpperCase()}
               </Text>
@@ -132,7 +128,7 @@ const AuditLogsScreen = () => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Activity size={48} color={theme.colors.textDim} strokeWidth={1} style={{ marginBottom: 16 }} />
+            <Activity size={48} color={theme.colors.textDim} strokeWidth={1} style={styles.emptyIcon} />
             <Text style={styles.emptyText}>No activity recorded</Text>
             <Text style={styles.emptySubtext}>New system events will appear here in real-time.</Text>
           </View>
@@ -269,6 +265,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     lineHeight: 20,
+  },
+  emptyIcon: {
+    marginBottom: 16,
+  },
+  bgIssue: {
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  bgRevoke: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  bgDefault: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+  },
+  textIssue: {
+    color: theme.colors.primary,
+  },
+  textRevoke: {
+    color: theme.colors.error,
+  },
+  textDefault: {
+    color: theme.colors.success,
   }
 });
 
