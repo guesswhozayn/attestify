@@ -1,4 +1,5 @@
 const Credential = require('../models/Credential');
+const User = require('../models/User');
 
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
@@ -477,7 +478,6 @@ exports.issueCredential = asyncHandler(async (req, res) => {
 
 
     try {
-        const User = require('../models/User');
         const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
         
          if (studentUser && studentUser.email) {
@@ -565,9 +565,9 @@ exports.issueCredential = asyncHandler(async (req, res) => {
 const fetchImageFromSource = async (source, type) => {
   if (!source) return null;
   
-  if (require('fs').existsSync(source)) {
+  if (fs.existsSync(source)) {
       try {
-          return require('fs').readFileSync(source);
+          return fs.readFileSync(source);
       } catch (e) {
           console.warn(`Failed to read local batch ${type}:`, e);
       }
@@ -577,8 +577,8 @@ const fetchImageFromSource = async (source, type) => {
       try {
           const filename = source.split('/uploads/')[1];
           const localPath = path.join(__dirname, '../../uploads', filename);
-          if (require('fs').existsSync(localPath)) {
-              return require('fs').readFileSync(localPath);
+          if (fs.existsSync(localPath)) {
+              return fs.readFileSync(localPath);
           }
       } catch (err) {
            console.warn(`Failed to resolve local URL batch ${source}:`, err);
@@ -758,7 +758,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
       try {
-          const User = require('../models/User');
           const studentUser = await User.findOne({ walletAddress: row.studentWalletAddress.toLowerCase() });
           
           if (studentUser && studentUser.email) {

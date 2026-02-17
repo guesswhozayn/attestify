@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, CircleHelp, Calendar, Wallet, CheckCircle, Copy } from 'lucide-react';
+import { Search, CheckCircle, Copy } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import Avatar from '../shared/Avatar';
@@ -7,15 +7,9 @@ import Avatar from '../shared/Avatar';
 const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Search...", rightContent }) => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [walletAddress, setWalletAddress] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentDate(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
-
+  
   // Detect Wallet
   useEffect(() => {
     const detectWallet = async () => {
@@ -141,7 +135,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
                 {user?.title || (user?.role === 'ISSUER' ? 'Issuer' : 'Student')}
               </div>
             </div>
-            <div className="cursor-pointer hover:scale-105 transition-transform duration-200">
+            <div className="cursor-pointer hover:scale-105 transition-transform duration-200 rounded-full">
                <Avatar 
                    src={user?.avatar} 
                    initials={user?.name} 
@@ -155,4 +149,4 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   );
 };
 
-export default Header;
+export default React.memo(Header);

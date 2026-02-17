@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import VerificationPortal from '../components/verification/VerificationPortal';
 
 const VerifyPage = () => {
+    const navigate = useNavigate();
     // Spotlight Effect State
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const containerRef = useRef(null);
@@ -18,34 +20,44 @@ const VerifyPage = () => {
 
     return (
         <div ref={containerRef} className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex flex-col relative overflow-hidden">
-            {/* Background Effects matching Landing.jsx */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                 {/* Main Gradient Orbs */}
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
+            {/* Back Button */}
+            <div className="fixed top-8 left-8 z-50">
+                <button 
+                    onClick={() => navigate('/')}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group text-xs font-black uppercase tracking-widest backdrop-blur-xl"
+                >
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                    Back to Home
+                </button>
+            </div>
+
+            {/* Background Effects matching scanner aesthetic */}
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+                {/* Main Gradient Orbs */}
+                <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[150px] mix-blend-screen opacity-50"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen opacity-40"></div>
+
+                {/* Technical Grid Overlay */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] opacity-100"></div>
                 
-                 {/* Grid Pattern with dynamic mask */}
-                <div 
-                    className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
-                    style={{
-                        maskImage: `radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, black, transparent)`
-                    }}
-                ></div>
+                {/* Horizontal Laser Sweep Animation */}
+                <motion.div 
+                    animate={{ top: ['0%', '100%', '0%'] }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    className="absolute left-0 right-0 h-[20vh] bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent z-10"
+                />
 
                 {/* Spotlight Layer */}
                  <div 
                     className="absolute inset-0 opacity-40 transition-opacity duration-1000"
                     style={{
-                        background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.08), transparent 80%)`
+                        background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.05), transparent 80%)`
                     }}
                 />
             </div>
 
-            <Navbar />
-
             {/* Main Content */}
-            <main className="flex-grow relative z-[1] flex flex-col justify-center min-h-screen pt-24">
+            <main className="flex-grow relative z-[1] flex flex-col justify-center min-h-screen">
                 <VerificationPortal />
             </main>
         </div>

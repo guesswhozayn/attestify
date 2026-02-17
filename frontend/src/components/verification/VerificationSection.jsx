@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import Button from '../shared/Button';
-import { Upload, CheckCircle, ShieldCheck, FileCheck, XCircle, ShieldAlert, ExternalLink } from 'lucide-react';
+import { Upload, CheckCircle, ShieldCheck, FileCheck } from 'lucide-react';
 import { verifyAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import Modal from '../shared/Modal';
 import { generateFileHash } from '../../utils/hash';
 import VerificationResult from './VerificationResult';
 
-const VerificationSection = ({ certificate }) => {
+const VerificationSection = React.memo(({ certificate }) => {
   const [file, setFile] = useState(null);
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
@@ -62,14 +62,20 @@ const VerificationSection = ({ certificate }) => {
 
   return (
     <>
-      <div className="bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full flex flex-col">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="p-2 bg-indigo-500/10 rounded-lg">
-            <ShieldCheck className="w-6 h-6 text-indigo-400" />
+      <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-indigo-500/10 rounded-lg">
+              <ShieldCheck className="w-4 h-4 text-indigo-400" />
+            </div>
+            <div>
+              <h3 className="text-white text-sm font-bold tracking-tight leading-none mb-1">Verify Proof</h3>
+              <p className="text-[10px] text-gray-500 font-medium">Validate file hash locally</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-white font-semibold">Verify Authenticity</h3>
-            <p className="text-xs text-gray-400">Validate file hash against blockchain</p>
+          <div className="px-2 py-0.5 rounded bg-emerald-500/5 border border-emerald-500/10 text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+            Gas Free
           </div>
         </div>
         
@@ -81,43 +87,36 @@ const VerificationSection = ({ certificate }) => {
               onChange={handleFileChange}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
-            <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
-              file ? 'border-indigo-500/40 bg-indigo-500/[0.05]' : 'border-white/10 hover:border-indigo-500/30 hover:bg-white/[0.03]'
+            <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
+              file ? 'border-indigo-500/30 bg-indigo-500/[0.04]' : 'border-white/5 hover:border-indigo-500/20 hover:bg-white/[0.02]'
             }`}>
               {file ? (
-                <div className="flex flex-col items-center text-indigo-300">
-                  <FileCheck className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium truncate max-w-full px-2">{file.name}</span>
-                  <span className="text-xs text-indigo-400/70 mt-1">Click to change</span>
+                <div className="flex flex-col items-center text-indigo-300 py-1">
+                  <FileCheck className="w-6 h-6 mb-2" />
+                  <span className="text-xs font-bold truncate max-w-full px-4">{file.name}</span>
+                  <span className="text-[10px] text-gray-550 mt-1 font-medium opacity-60">Click to change</span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-gray-400 group-hover:text-gray-300">
-                  <Upload className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Click to upload PDF</span>
-                  <span className="text-xs text-gray-500 mt-1">or drag and drop</span>
+                <div className="flex flex-col items-center text-gray-500 group-hover:text-gray-400 py-1">
+                  <Upload className="w-7 h-7 mb-2 opacity-40" />
+                  <span className="text-xs font-bold">Upload PDF Proof</span>
+                  <span className="text-[10px] text-gray-600 mt-1 font-medium">Drag and drop here</span>
                 </div>
               )}
             </div>
           </div>
-
-          <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3">
-            <p className="text-indigo-300 text-xs flex items-start">
-               <span className="mr-2">•</span>
-               No gas fees required for verification.
-            </p>
-          </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-5">
           <Button
             onClick={handleVerify}
             loading={verifying}
             disabled={verifying || !file}
             variant="primary"
-            className="w-full justify-center py-3"
+            className="w-full justify-center py-2.5 text-xs font-black tracking-widest uppercase"
             icon={CheckCircle}
           >
-            {verifying ? 'Verifying...' : 'Verify Now'}
+            {verifying ? 'Verifying...' : 'Authenticate Now'}
           </Button>
         </div>
       </div>
@@ -126,19 +125,19 @@ const VerificationSection = ({ certificate }) => {
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
-          title="Verification Result"
+          title="Verification Analysis"
           size="lg"
       >
           {result && (
             <div className="space-y-6">
               <VerificationResult result={result} />
               
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2">
                   <button 
                       onClick={() => setShowResultModal(false)}
-                      className="px-8 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-sm font-bold rounded-xl transition-all border border-white/5"
+                      className="px-8 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-bold rounded-xl transition-all border border-white/5 uppercase tracking-widest"
                   >
-                      Close Result
+                      Close Report
                   </button>
               </div>
             </div>
@@ -146,6 +145,8 @@ const VerificationSection = ({ certificate }) => {
       </Modal>
     </>
   );
-};
+});
+
+VerificationSection.displayName = 'VerificationSection';
 
 export default VerificationSection;

@@ -19,7 +19,7 @@ const Landing = () => {
         {/* Dynamic Background Elements */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
             {/* Main Gradient Orbs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
             <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
             <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
             
@@ -51,7 +51,7 @@ const Landing = () => {
             className="text-6xl md:text-8xl font-bold text-white mb-8 tracking-tighter leading-[1.1]"
           >
             Trust is <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
               Programmable.
             </span>
           </motion.h1>
@@ -70,10 +70,10 @@ const Landing = () => {
           
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Button onClick={() => navigate('/register')} className="h-14 px-8 text-lg bg-white text-black hover:bg-gray-200 rounded-full font-bold transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)] hover:shadow-[0_0_60px_-10px_rgba(255,255,255,0.5)] hover:-translate-y-1">
-              Start Issuing
+            <Button onClick={() => navigate('/register')} variant="white" className="h-14 px-8 text-lg font-bold transition-all hover:-translate-y-1">
+              Start Issuing Now
             </Button>
-            <Button onClick={() => navigate('/verify')} variant="outline" className="h-14 px-8 text-lg border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all hover:-translate-y-1 font-medium">
+            <Button onClick={() => navigate('/verify')} variant="outline" className="h-14 px-8 text-lg font-medium rounded-full backdrop-blur-md transition-all hover:-translate-y-1">
               Verify Credential
             </Button>
           </div>
@@ -89,7 +89,7 @@ const Landing = () => {
              {/* Glow behind dashboard */}
              <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] -z-10 rounded-full"></div>
              
-             <div className="rounded-xl border border-white/10 bg-gray-900/40 backdrop-blur-xl shadow-2xl overflow-hidden">
+             <div className="rounded-xl border border-white/10 bg-gray-900/60 backdrop-blur-lg shadow-2xl overflow-hidden">
                 {/* Mock Browser Header */}
                 <div className="h-10 border-b border-white/5 bg-black/40 flex items-center px-4 space-x-2">
                    <div className="flex space-x-1.5">
@@ -160,7 +160,7 @@ const Landing = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-20">
                   <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
-                      The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-emerald-300 to-indigo-400 bg-[length:200%_auto] animate-shimmer">Universal Standard</span>
+                      The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-emerald-300 to-indigo-400">Universal Standard</span>
                   </h2>
                   <p className="text-gray-400 max-w-2xl mx-auto text-xl">
                       Attestify isn't just a platform. It's a new primitive for digital trust.
@@ -181,7 +181,7 @@ const Landing = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.1 }}
-                    className="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/40 backdrop-blur-xl p-8 flex flex-col justify-between"
+                    className="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur-lg p-8 flex flex-col justify-between"
                   >
                       <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                       <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-10 pointer-events-none">
@@ -205,7 +205,6 @@ const Landing = () => {
                               
                               {/* Background Gradient Mesh */}
                               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-black"></div>
-                              <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[linear-gradient(transparent_0%,rgba(255,255,255,0.05)_50%,transparent_100%)] rotate-45 animate-[shimmer_3s_infinite]"></div>
 
                               {/* Card Content */}
                               <div className="relative z-10 p-6 flex flex-col justify-between h-full">
@@ -247,7 +246,7 @@ const Landing = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="md:col-span-1 md:row-span-2 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/40 backdrop-blur-xl p-8 flex flex-col"
+                    className="md:col-span-1 md:row-span-2 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur-lg p-8 flex flex-col"
                   >
                       <div className="absolute inset-0 bg-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                       
@@ -264,10 +263,10 @@ const Landing = () => {
                       {/* Visual: Globe/Network */}
                       <div className="mt-8 relative flex-1 min-h-[200px] flex items-center justify-center">
                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent"></div>
-                          {/* Animated nodes */}
-                          <div className="w-4 h-4 rounded-full bg-purple-500 absolute top-1/4 left-1/4 animate-ping"></div>
-                          <div className="w-3 h-3 rounded-full bg-indigo-500 absolute bottom-1/3 right-1/4 animate-ping delay-100"></div>
-                          <div className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1/2 right-1/3 animate-ping delay-200"></div>
+                          {/* Static nodes instead of ping */}
+                          <div className="w-4 h-4 rounded-full bg-purple-500 absolute top-1/4 left-1/4 opacity-50"></div>
+                          <div className="w-3 h-3 rounded-full bg-indigo-500 absolute bottom-1/3 right-1/4 opacity-50"></div>
+                          <div className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1/2 right-1/3 opacity-50"></div>
                           <Globe className="w-48 h-48 text-white/5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                       </div>
                   </motion.div>
@@ -278,7 +277,7 @@ const Landing = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.3 }}
-                    className="md:col-span-1 md:row-span-1 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/40 backdrop-blur-xl p-8"
+                    className="md:col-span-1 md:row-span-1 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur-lg p-8"
                    >
                        <div className="absolute inset-0 bg-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 border border-emerald-500/30">
@@ -296,7 +295,7 @@ const Landing = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="md:col-span-2 md:row-span-1 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/40 backdrop-blur-xl p-8 flex items-center justify-between"
+                    className="md:col-span-2 md:row-span-1 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur-lg p-8 flex items-center justify-between"
                    >
                        <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                        <div className="relative z-10 max-w-lg">
@@ -325,7 +324,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
              <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-                Why <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-400 to-white bg-[length:200%_auto] animate-shimmer">Attestify?</span>
+                Why <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-400 to-white">Attestify?</span>
              </h2>
              <p className="text-gray-400">The three pillars of the new standard.</p>
           </div>
@@ -456,14 +455,14 @@ const Landing = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto px-4 text-center relative z-10"
            >
-               <h2 className="text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white bg-[length:200%_auto] animate-shimmer">Ready to secure the future?</h2>
+               <h2 className="text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">Ready to secure the future?</h2>
                <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Join the decentralized standard today. Issue, manage, and verify credentials with the power of Ethereum.</p>
                <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                 <Button onClick={() => navigate('/register')} className="h-14 px-8 text-lg bg-white text-black hover:bg-gray-200 rounded-full font-bold transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)] hover:shadow-[0_0_60px_-10px_rgba(255,255,255,0.5)] hover:-translate-y-1">
-                  Get Started Now
+                <Button onClick={() => navigate('/register')} variant="white" className="h-14 px-8 text-lg font-bold transition-all hover:-translate-y-1">
+                    Get Started Free
                 </Button>
-                <Button onClick={() => window.open('mailto:sales@attestify.io')} variant="outline" className="h-14 px-8 text-lg border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-full backdrop-blur-md transition-all hover:-translate-y-1">
-                  Contact Sales
+                <Button onClick={() => window.open('mailto:sales@attestify.io')} variant="outline" className="h-14 px-8 text-lg font-bold border-white/10 bg-white/5 hover:bg-white/10 rounded-full backdrop-blur-md transition-all hover:-translate-y-1">
+                    Contact Sales
                 </Button>
                </div>
            </motion.div>

@@ -10,7 +10,7 @@ import {
   Image,
   Platform
 } from 'react-native';
-import { User, Building, Mail, Shield, Wallet, MapPin, Globe, Calendar, LogOut, ChevronRight } from 'lucide-react-native';
+import { User, Building, Mail, Shield, Wallet, Globe, Calendar, LogOut, ChevronRight } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';

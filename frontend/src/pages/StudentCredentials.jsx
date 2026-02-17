@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Button from '../components/shared/Button';
-import CredentialGrid from '../components/credential/CredentialGrid';
 import CredentialDetails from '../components/credential/CredentialDetails';
-import { Search, Wallet, Shield, FileText, Filter, RefreshCw } from 'lucide-react';
+import CredentialRow from '../components/credential/CredentialRow';
+import { Search, Wallet, Shield, RefreshCw } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -88,10 +87,16 @@ const StudentCredentials = () => {
 
 
     return (
-        <div className="min-h-screen bg-transparent text-gray-100 pb-20">
+        <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
+            {/* Dynamic Background Elements */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
+                {/* Main Gradient Orbs */}
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
+            </div>
 
-
-            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
                 
                 {/* Header & Actions */}
         <motion.div 
@@ -186,12 +191,29 @@ const StudentCredentials = () => {
                                 <h3 className="text-xl font-bold text-white mb-2">Wallet Not Connected</h3>
                                 <p className="text-gray-500 max-w-sm mx-auto mb-6">Connect your wallet to access your decentralized academic vault.</p>
                             </motion.div>
+                        ) : loading ? (
+                            <div className="flex flex-col items-center justify-center py-20">
+                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+                                <p className="text-gray-500 text-sm">Loading your credentials...</p>
+                            </div>
+                        ) : filteredCredentials.length === 0 ? (
+                           <div className="flex flex-col items-center justify-center py-16 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center">
+                                <div className="w-20 h-20 bg-gray-800/80 rounded-full flex items-center justify-center mb-6 ring-8 ring-gray-800/40">
+                                    <Shield className="w-8 h-8 text-gray-500" />
+                                </div>
+                                <p className="text-white font-semibold text-lg mb-1">No Credentials Found</p>
+                                <p className="text-gray-500 text-sm">Any credentials issued to your wallet will appear here.</p>
+                           </div>
                         ) : (
-                            <CredentialGrid
-                                credentials={filteredCredentials}
-                                onCredentialClick={setSelectedCredential}
-                                loading={loading}
-                            />
+                            <div className="space-y-4">
+                                {filteredCredentials.map((cred) => (
+                                    <CredentialRow 
+                                        key={cred._id || cred.id} 
+                                        credential={cred} 
+                                        onClick={() => setSelectedCredential(cred)} 
+                                    />
+                                ))}
+                            </div>
                         )}
                     </div>
                 </motion.div>

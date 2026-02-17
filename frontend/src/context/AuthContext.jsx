@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { authAPI, setAuthToken, clearAuth } from '../services/api';
 
 // Create the Auth Context
@@ -196,26 +196,26 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Check if user has specific role
-  const hasRole = (role) => {
+  const hasRole = useCallback((role) => {
     if (!user) return false;
     if (Array.isArray(role)) {
       return role.includes(user.role);
     }
     return user.role === role;
-  };
+  }, [user]);
 
   // Check if user is issuer
-  const isIssuer = () => {
+  const isIssuer = useCallback(() => {
     return hasRole('ISSUER');
-  };
+  }, [hasRole]);
 
   // Check if user is student
-  const isStudent = () => {
+  const isStudent = useCallback(() => {
     return hasRole('STUDENT');
-  };
+  }, [hasRole]);
 
   // Context value
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     isAuthenticated,
@@ -228,7 +228,15 @@ export const AuthProvider = ({ children }) => {
     hasRole,
     isIssuer,
     isStudent
-  };
+  }), [
+    user, 
+    loading, 
+    isAuthenticated, 
+    hasRole, 
+    isIssuer, 
+    isStudent
+    // Functions like login/logout are defined once and don't depend on state that isn't already in other deps
+  ]);
 
   return (
     <AuthContext.Provider value={value}>

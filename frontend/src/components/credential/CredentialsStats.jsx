@@ -1,4 +1,3 @@
-import React from 'react';
 import StatCard from '../shared/StatCard';
 import { Shield, Activity, Users, Filter } from 'lucide-react';
 

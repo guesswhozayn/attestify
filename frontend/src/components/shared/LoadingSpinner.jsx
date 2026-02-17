@@ -11,10 +11,10 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...' }) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <Loader2 className={`${sizes[size]} text-green-500 animate-spin`} />
+      <Loader2 className={`${sizes[size]} text-indigo-500 animate-spin`} />
       {text && <p className="text-gray-400">{text}</p>}
     </div>
   );
 };
 
-export default LoadingSpinner;
+export default React.memo(LoadingSpinner);

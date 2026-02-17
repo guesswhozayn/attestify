@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import { User, Lock, Mail, Save, Shield, ChevronLeft } from 'lucide-react-native';
+import { User, Lock, Save, Shield, ChevronLeft } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';

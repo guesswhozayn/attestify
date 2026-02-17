@@ -18,7 +18,6 @@ import {
   ExternalLink, 
   Share2, 
   ArrowLeft,
-  ChevronRight,
   User,
   Hash,
   Activity,

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { userAPI } from '../../services/api'; 
@@ -21,7 +22,6 @@ import {
     Globe
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
-import Input from '../../components/shared/Input';
 import Avatar from '../../components/shared/Avatar';
 
 const StudentProfileEditor = () => {
@@ -116,8 +116,16 @@ const StudentProfileEditor = () => {
     };
 
     return (
-      <div className="min-h-screen bg-transparent text-gray-100 pb-20">
-        <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-8">
+      <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden relative">
+        
+        {/* Background Elements */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
+            <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+            <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
+        </div>
+
+        <div className="relative z-10 p-6 lg:p-10 max-w-7xl mx-auto space-y-8 pb-20">
             
             {/* Header Section */}
             <motion.div 
@@ -135,7 +143,7 @@ const StudentProfileEditor = () => {
                        <>
                            <Button 
                                onClick={() => setIsEditing(false)}
-                               variant="danger"
+                               variant="secondary"
                                icon={X}
                            >
                                Cancel
@@ -143,7 +151,7 @@ const StudentProfileEditor = () => {
                            <Button 
                                onClick={handleSave}
                                loading={loading}
-                               className="bg-emerald-600 hover:bg-emerald-500 text-white border-0 shadow-lg shadow-emerald-500/20"
+                               variant="success"
                                icon={Save}
                            >
                                Save Changes
@@ -478,10 +486,11 @@ const StudentProfileEditor = () => {
     );
 };
 
-const ProfileCard = ({ icon: Icon, label, value, color, bg, border }) => (
+// eslint-disable-next-line no-unused-vars
+const ProfileCard = ({ icon: LucideIcon, label, value, color, bg, border }) => (
   <div className="flex items-start space-x-4 p-5 bg-white/[0.02] rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-md group h-full">
     <div className={`p-3 rounded-xl border transition-colors ${bg} ${border} group-hover:bg-opacity-20`}>
-      <Icon className={`w-5 h-5 ${color}`} />
+      <LucideIcon className={`w-5 h-5 ${color}`} />
     </div>
     <div>
       <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">{label}</h4>

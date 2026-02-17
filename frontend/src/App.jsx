@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
@@ -6,10 +5,9 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import IssuerDashboard from './pages/IssuerDashboard';
-import Credentials from './pages/Credentials'; // Import Credentials page
+import Credentials from './pages/Credentials';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentCredentials from './pages/StudentCredentials';
-import VerificationPortal from './components/verification/VerificationPortal';
 import NetworkStatus from './pages/NetworkStatus';
 import RevokedCredentials from './pages/RevokedCredentials';
 import Settings from './pages/Settings';
@@ -26,10 +24,19 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import NotFound from './pages/NotFound';
 
-
-
 function App() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
+        <div className="relative z-10 flex flex-col items-center">
+            <LoadingSpinner size="xl" text="Initializing Secure Access..." />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Layout>
@@ -43,7 +50,6 @@ function App() {
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerifyPage />} />
-        <Route path="/profile/:walletAddress" element={<StudentPublicProfile />} />
         <Route path="/docs" element={<Documentation />} />
         <Route path="/about" element={<About />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -112,8 +118,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-
 
         <Route
           path="/profile"

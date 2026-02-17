@@ -19,7 +19,6 @@ import {
   QrCode, 
   AlertCircle, 
   CheckCircle2, 
-  ChevronRight, 
   Share2,
   X
 } from 'lucide-react-native';

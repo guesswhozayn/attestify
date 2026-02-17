@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
 import { 
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
-  HardDrive, Lock, Server, ShieldCheck, HelpCircle,
-  Menu, X, ArrowRight, ExternalLink, Search, ChevronDown
+  HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight
 } from 'lucide-react';
 
 const sections = [
@@ -22,12 +19,10 @@ const sections = [
 ];
 
 const Documentation = () => {
-  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('introduction');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   
   // Spotlight and Interaction State
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef(null);
   
@@ -71,18 +66,12 @@ const Documentation = () => {
       setActiveSection(prev => prev === currentSection ? prev : currentSection);
     };
 
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-
     // Initial check
     handleScroll();
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
@@ -100,39 +89,7 @@ const Documentation = () => {
       ref={containerRef}
       className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
     >
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          {/* Spotlight Layer */}
-          <div 
-            className="absolute inset-0 opacity-40 transition-opacity duration-1000"
-            style={{
-              background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.12), transparent 80%)`,
-              transform: `translateY(${scrollY * 0.1}px)`
-            }}
-          />
-          
-          <div 
-            className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"
-            style={{ transform: `translateY(${scrollY * 0.15}px) translateX(${scrollY * 0.05}px)` }}
-          ></div>
-          <div 
-            className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"
-            style={{ transform: `translateY(${scrollY * 0.08}px) translateX(${scrollY * -0.05}px)` }}
-          ></div>
-          <div 
-            className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"
-            style={{ transform: `translateY(${scrollY * 0.12}px)` }}
-          ></div>
-          
-          {/* Grid Pattern with dynamic mask */}
-          <div 
-            className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"
-            style={{
-              maskImage: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, black, transparent)`,
-              transform: `translateY(${scrollY * 0.05}px)`
-            }}
-          ></div>
-      </div>
+      <BackgroundEffects scrollY={scrollY} />
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 
@@ -187,7 +144,7 @@ const Documentation = () => {
             </div>
             
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.9]">
-              The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 bg-[length:200%_auto] animate-shimmer drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Engine of Truth.</span>
+              The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Engine of Truth.</span>
             </h1>
             
             <p className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed font-medium">
@@ -633,7 +590,7 @@ const Documentation = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-xl" 
+              className="absolute inset-0 bg-black/80 backdrop-blur-lg" 
               onClick={() => setMobileNavOpen(false)} 
             />
             <motion.div 
@@ -687,7 +644,28 @@ const Documentation = () => {
 
 /* ========== Reusable Sub-Components ========== */
 
-const Section = ({ id, title, icon: Icon, children }) => (
+const BackgroundEffects = React.memo(({ scrollY }) => (
+  <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    {/* Static Backdrop Gradient instead of dynamic spotlight */}
+    <div className="absolute inset-0 bg-indigo-500/5 transition-opacity duration-1000" />
+    
+    <div 
+      className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"
+      style={{ transform: `translateY(${scrollY * 0.15}px) translateX(${scrollY * 0.05}px)` }}
+    ></div>
+    <div 
+      className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"
+      style={{ transform: `translateY(${scrollY * 0.08}px) translateX(${scrollY * -0.05}px)` }}
+    ></div>
+    <div 
+      className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"
+      style={{ transform: `translateY(${scrollY * 0.12}px)` }}
+    ></div>
+  </div>
+));
+BackgroundEffects.displayName = 'BackgroundEffects';
+
+const Section = React.memo(({ id, title, icon: Icon, children }) => (
   <motion.section 
     id={id} 
     initial={{ opacity: 0, y: 40 }}
@@ -704,10 +682,11 @@ const Section = ({ id, title, icon: Icon, children }) => (
     </div>
     <div className="space-y-8">{children}</div>
   </motion.section>
-);
+));
+Section.displayName = 'Section';
 
-const SectionCard = ({ title, children }) => (
-  <div className="group relative rounded-3xl border border-white/5 bg-gray-900/40 backdrop-blur-xl p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/[0.04] hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
+const SectionCard = React.memo(({ title, children }) => (
+  <div className="group relative rounded-3xl border border-white/5 bg-gray-900/60 backdrop-blur-lg p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/[0.04] hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.03] to-purple-500/[0.03] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     <div className="relative z-10">
       {title && <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
@@ -717,13 +696,15 @@ const SectionCard = ({ title, children }) => (
       <div className="text-gray-400 leading-relaxed space-y-4 font-medium">{children}</div>
     </div>
   </div>
-);
+));
+SectionCard.displayName = 'SectionCard';
 
-const Highlight = ({ children }) => (
+const Highlight = React.memo(({ children }) => (
   <span className="text-indigo-400 font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded-md border border-indigo-500/10">{children}</span>
-);
+));
+Highlight.displayName = 'Highlight';
 
-const InfoItem = ({ label, text }) => (
+const InfoItem = React.memo(({ label, text }) => (
   <li className="flex items-start gap-4">
     <div className="mt-1.5 w-4 h-4 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
       <ChevronRight className="w-2.5 h-2.5 text-indigo-400" />
@@ -733,9 +714,10 @@ const InfoItem = ({ label, text }) => (
       <span className="text-gray-400 font-medium">{text}</span>
     </span>
   </li>
-);
+));
+InfoItem.displayName = 'InfoItem';
 
-const CodeBlock = ({ language, children }) => (
+const CodeBlock = React.memo(({ language, children }) => (
   <div className="mt-8 rounded-2xl bg-[#0a0a0c] border border-white/5 overflow-hidden shadow-2xl">
     <div className="flex items-center justify-between px-5 py-3 bg-white/[0.02] border-b border-white/5">
       <div className="flex items-center gap-2">
@@ -749,9 +731,10 @@ const CodeBlock = ({ language, children }) => (
       <code>{children}</code>
     </pre>
   </div>
-);
+));
+CodeBlock.displayName = 'CodeBlock';
 
-const VerifyStep = ({ number, title, children }) => (
+const VerifyStep = React.memo(({ number, title, children }) => (
   <div className="flex gap-6 group">
     <div className="flex-shrink-0 w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 text-sm font-black text-indigo-400 transition-all group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20">
       {number}
@@ -764,9 +747,10 @@ const VerifyStep = ({ number, title, children }) => (
       <p className="text-gray-400 text-[15px] leading-relaxed font-medium">{children}</p>
     </div>
   </div>
-);
+));
+VerifyStep.displayName = 'VerifyStep';
 
-const FlowStep = ({ number, title, children }) => (
+const FlowStep = React.memo(({ number, title, children }) => (
   <div className="relative flex gap-6 pl-2 group">
     <div className="flex flex-col items-center">
       <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 text-xs font-black text-indigo-400 flex-shrink-0 z-10 transition-all group-hover:bg-indigo-500/10 group-hover:border-indigo-500/20">
@@ -779,9 +763,10 @@ const FlowStep = ({ number, title, children }) => (
       <p className="text-gray-400 text-[15px] leading-relaxed font-medium">{children}</p>
     </div>
   </div>
-);
+));
+FlowStep.displayName = 'FlowStep';
 
-const ArchCard = ({ title, tech, description }) => (
+const ArchCard = React.memo(({ title, tech, description }) => (
   <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/[0.04] group shadow-lg">
     <h4 className="text-white font-bold mb-1.5 flex items-center justify-between">
       {title}
@@ -790,9 +775,10 @@ const ArchCard = ({ title, tech, description }) => (
     <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-4 inline-block bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">{tech}</p>
     <p className="text-gray-400 text-sm leading-relaxed font-medium">{description}</p>
   </div>
-);
+));
+ArchCard.displayName = 'ArchCard';
 
-const FAQItem = ({ question, children }) => (
+const FAQItem = React.memo(({ question, children }) => (
   <div className="group relative rounded-3xl border border-white/5 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-white/20">
     <h3 className="text-white font-bold text-lg mb-4 flex items-start gap-4">
       <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 transition-colors group-hover:bg-indigo-500/20">
@@ -802,6 +788,7 @@ const FAQItem = ({ question, children }) => (
     </h3>
     <p className="text-gray-400 leading-relaxed pl-14 font-medium">{children}</p>
   </div>
-);
+));
+FAQItem.displayName = 'FAQItem';
 
 export default Documentation;

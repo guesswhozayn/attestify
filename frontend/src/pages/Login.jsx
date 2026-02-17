@@ -54,11 +54,11 @@ const Login = () => {
       </Link>
       
       {/* Background Elements */}
+      {/* Background Elements */}
       <div className="absolute inset-0 w-full h-full pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
           <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
           <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       </div>
 
       {/* Main Container */}
@@ -197,7 +197,8 @@ const Login = () => {
                    type="submit"
                    loading={loading}
                    disabled={loading}
-                   className="w-full justify-center py-3.5 text-base font-bold bg-white text-black hover:bg-gray-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300 rounded-xl"
+                   variant="white"
+                   className="w-full justify-center py-3.5 text-base shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300 rounded-xl"
                  >
                    {loading ? 'Signing in...' : 'Sign In'}
                    {!loading && <ArrowRight className="ml-2 w-5 h-5" />}

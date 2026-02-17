@@ -16,10 +16,12 @@ const Button = ({
   const baseStyles = 'font-bold rounded-full transition-all duration-300 flex items-center justify-center space-x-2 active:scale-95';
   
   const variants = {
-    primary: `bg-white text-black hover:bg-gray-200 border-0 shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)] disabled:opacity-50 disabled:shadow-none`,
-    secondary: 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 disabled:opacity-50',
+    primary: 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 disabled:opacity-50',
+    secondary: 'bg-white/5 text-white hover:bg-white/10 border border-white/10 backdrop-blur-md disabled:opacity-50',
+    white: 'bg-white text-black hover:bg-gray-200 border-0 shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)] disabled:opacity-50 disabled:shadow-none',
+    success: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 disabled:opacity-50',
     danger: 'bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 disabled:opacity-50',
-    outline: 'bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/30 backdrop-blur-md disabled:opacity-50',
+    outline: 'bg-transparent border border-white/20 text-white hover:bg-white/5 disabled:opacity-50',
     ghost: 'text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-50',
   };
 
@@ -46,4 +48,4 @@ const Button = ({
   );
 };
 
-export default Button;
+export default React.memo(Button);

@@ -45,4 +45,4 @@ const StudentStats = ({ stats }) => {
     );
 };
 
-export default StudentStats;
+export default React.memo(StudentStats);
