@@ -65,8 +65,8 @@ const VerificationScreen = () => {
 
   const startScanner = async () => {
     if (!permission || permission.status !== 'granted') {
-      const result = await requestPermission();
-      if (!result.granted) {
+      const permissionResult = await requestPermission();
+      if (!permissionResult.granted) {
         setError('Camera permission is required to scan QR codes.');
         return;
       }
@@ -85,7 +85,7 @@ const VerificationScreen = () => {
       <StatusBar barStyle="light-content" />
       
       {isScannerVisible ? (
-        <View style={{ flex: 1 }}>
+        <View style={styles.flex1}>
           <View style={styles.scannerHeader}>
             <Text style={styles.scannerTitle}>Scan Certificate QR</Text>
             <TouchableOpacity 
@@ -122,7 +122,7 @@ const VerificationScreen = () => {
       ) : (
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
+          style={styles.flex1}
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {/* Header */}
@@ -151,7 +151,7 @@ const VerificationScreen = () => {
                   title="Verify Record"
                   onPress={() => handleVerify()}
                   loading={loading}
-                  style={{ flex: 2 }}
+                  style={styles.flex2}
                 />
                 <TouchableOpacity style={styles.scanBtn} onPress={startScanner}>
                   <QrCode size={24} color={theme.colors.primary} />
@@ -438,6 +438,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     opacity: 0.8,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex2: {
+    flex: 2,
   }
 });
 

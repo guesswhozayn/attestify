@@ -75,7 +75,7 @@ const RegisterScreen = ({ navigation }: any) => {
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
+        style={styles.flex1}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Header */}
@@ -96,7 +96,7 @@ const RegisterScreen = ({ navigation }: any) => {
               <View 
                 style={[
                   styles.toggleActive, 
-                  { left: isIssuer ? 4 : '50%' }
+                  isIssuer ? styles.left4 : styles.left50
                 ]}  
               />
               <TouchableOpacity 
@@ -340,6 +340,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  left4: {
+    left: 4,
+  },
+  left50: {
+    left: '50%',
+  },
+  flex1: {
+    flex: 1,
+  }
 });
 
 export default RegisterScreen;

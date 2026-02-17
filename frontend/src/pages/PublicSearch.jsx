@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wallet, Search, Building, ArrowRight, Sparkles, CheckCircle, ChevronRight, Loader, ArrowLeft } from 'lucide-react';
+import { Wallet, Search, Building, ArrowRight, Sparkles, CheckCircle, ChevronRight, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { publicAPI } from '../services/api';
+import BackButton from '../components/shared/BackButton';
 
 const PublicSearch = () => {
     const [query, setQuery] = useState('');
@@ -46,16 +47,7 @@ const PublicSearch = () => {
 
     return (
         <div className="min-h-screen bg-black text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
-            {/* Back Button */}
-            <div className="fixed top-8 left-8 z-50">
-                <button 
-                    onClick={() => navigate('/')}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group text-xs font-black uppercase tracking-widest backdrop-blur-xl"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    Back to Home
-                </button>
-            </div>
+            <BackButton />
 
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">

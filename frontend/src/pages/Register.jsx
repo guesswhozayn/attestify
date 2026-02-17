@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet, ArrowLeft } from 'lucide-react';
+import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet } from 'lucide-react';
+import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 import blockchainService from '../services/blockchain';
@@ -92,13 +93,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 md:p-8">
       
-       {/* Back to Home */}
-      <Link to="/" className="absolute top-6 left-6 sm:top-10 sm:left-10 z-50 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
-        <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 backdrop-blur-md flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all">
-            <ArrowLeft className="w-5 h-5" />
-        </div>
-        <span className="font-bold text-sm hidden sm:block">Back</span>
-      </Link>
+      <BackButton />
 
         {/* Background Elements */}
        <div className="absolute inset-0 w-full h-full pointer-events-none">
@@ -264,9 +259,10 @@ const Register = () => {
                         <Button
                            type="button"
                            variant="secondary"
+                           size="md"
                            onClick={() => handleConnectWallet('authorizedWalletAddress')}
                            icon={Wallet}
-                           className="mb-[1px] h-[52px] whitespace-nowrap rounded-xl"
+                           className="mb-[1px] h-[52px] whitespace-nowrap"
                         >
                            Connect
                         </Button>
@@ -309,9 +305,10 @@ const Register = () => {
                         <Button
                            type="button"
                            variant="secondary"
+                           size="md"
                            onClick={() => handleConnectWallet('walletAddress')}
                            icon={Wallet}
-                           className="mb-[1px] h-[52px] whitespace-nowrap rounded-xl"
+                           className="mb-[1px] h-[52px] whitespace-nowrap"
                         >
                            Connect
                         </Button>
@@ -369,10 +366,11 @@ const Register = () => {
             <div className="pt-2">
                <Button
                  type="submit"
-                 variant="white"
+                 variant="premium"
+                 size="lg"
                  loading={loading}
                  disabled={loading}
-                 className="w-full justify-center py-3.5 text-base shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300 rounded-xl"
+                 className="w-full"
                >
                  {loading ? 'Creating Account...' : 'Create Account'}
                  {!loading && <ArrowRight className="ml-2 w-5 h-5" />}

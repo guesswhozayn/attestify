@@ -246,7 +246,9 @@ const VerificationPortal = () => {
                     onClick={handleVerify}
                     loading={verifying}
                     disabled={verifying || (!file && !walletAddress)}
-                    className="w-full justify-center py-6 text-xl font-black uppercase tracking-[0.3em] rounded-2xl bg-white text-black hover:bg-indigo-50 transition-all shadow-white/5 hover:shadow-white/20 active:scale-[0.98] disabled:opacity-20"
+                    variant="premium"
+                    size="xl"
+                    className="w-full shadow-indigo-500/20 hover:shadow-indigo-500/40"
                   >
                     {verifying ? 'Verifying...' : 'Initiate Scan'}
                   </Button>
@@ -269,12 +271,14 @@ const VerificationPortal = () => {
               <VerificationResult result={result} />
               
               <div className="flex justify-center pt-8 border-t border-white/5">
-                  <button 
+                  <Button 
                       onClick={() => setShowResultModal(false)}
-                      className="px-10 py-3 bg-white/5 hover:bg-white/10 text-xs font-black uppercase tracking-widest rounded-xl transition-all border border-white/5 text-gray-400 hover:text-white"
+                      variant="secondary"
+                      size="md"
+                      className="px-10 uppercase tracking-widest"
                   >
                       Terminate Session
-                  </button>
+                  </Button>
               </div>
             </div>
           )}

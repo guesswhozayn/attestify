@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Camera, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+
 
 const Avatar = ({ 
   src, 

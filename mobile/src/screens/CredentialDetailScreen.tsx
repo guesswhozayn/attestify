@@ -28,6 +28,16 @@ import { theme } from '../theme/theme';
 import GlassCard from '../components/GlassCard';
 import Button from '../components/Button';
 
+const DetailItem = ({ label, value, icon: Icon }: any) => (
+  <View style={styles.detailItem}>
+    <View style={styles.detailLabelRow}>
+      <Icon size={16} color={theme.colors.textDim} />
+      <Text style={styles.detailLabel}>{label}</Text>
+    </View>
+    <Text style={styles.detailValue} numberOfLines={1} ellipsizeMode="middle">{value || 'N/A'}</Text>
+  </View>
+);
+
 const CredentialDetailScreen = ({ route, navigation }: any) => {
   const { credential } = route.params;
   const isRevoked = credential.isRevoked || credential.status === 'REVOKED';
@@ -49,15 +59,7 @@ const CredentialDetailScreen = ({ route, navigation }: any) => {
     Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
   };
 
-  const DetailItem = ({ label, value, icon: Icon }: any) => (
-    <View style={styles.detailItem}>
-      <View style={styles.detailLabelRow}>
-        <Icon size={16} color={theme.colors.textDim} />
-        <Text style={styles.detailLabel}>{label}</Text>
-      </View>
-      <Text style={styles.detailValue} numberOfLines={1} ellipsizeMode="middle">{value || 'N/A'}</Text>
-    </View>
-  );
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -82,7 +84,7 @@ const CredentialDetailScreen = ({ route, navigation }: any) => {
         <GlassCard style={styles.badgeCard}>
           <View style={[
             styles.iconCircle,
-            { backgroundColor: isRevoked ? 'rgba(239, 68, 68, 0.1)' : 'rgba(99, 102, 241, 0.1)' }
+            isRevoked ? styles.bgRevokeLight : styles.bgIssueLight
           ]}>
             <Award size={40} color={isRevoked ? theme.colors.error : theme.colors.primary} />
           </View>
@@ -92,12 +94,12 @@ const CredentialDetailScreen = ({ route, navigation }: any) => {
           
           <View style={[
             styles.statusBadge,
-            { backgroundColor: isRevoked ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)' }
+            isRevoked ? styles.bgRevoke : styles.bgSuccess
           ]}>
             {isRevoked ? <ShieldAlert size={14} color={theme.colors.error} /> : <ShieldCheck size={14} color={theme.colors.success} />}
             <Text style={[
               styles.statusText,
-              { color: isRevoked ? theme.colors.error : theme.colors.success }
+              isRevoked ? styles.textError : styles.textSuccess
             ]}>
               {isRevoked ? 'REVOKED' : 'VERIFIED'}
             </Text>
@@ -285,6 +287,24 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 40,
+  },
+  bgRevokeLight: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  bgIssueLight: {
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  bgRevoke: {
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+  },
+  bgSuccess: {
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+  },
+  textError: {
+    color: theme.colors.error,
+  },
+  textSuccess: {
+    color: theme.colors.success,
   }
 });
 

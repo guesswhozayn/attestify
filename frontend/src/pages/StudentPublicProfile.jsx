@@ -251,7 +251,7 @@ const StudentPublicProfile = () => {
                             </div>
                             <h3 className="text-xl font-bold text-white mb-2 relative z-10">No Public Badges</h3>
                             <p className="text-gray-500 max-w-sm mx-auto text-sm relative z-10">
-                                This student hasn't added any achievements to their public achievement grid yet.
+                                This student hasn&apos;t added any achievements to their public achievement grid yet.
                             </p>
                         </div>
                     )}

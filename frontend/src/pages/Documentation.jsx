@@ -164,7 +164,7 @@ const Documentation = () => {
               <p className="mt-4">
                 The core issue lies in the <Highlight>centralized trust model</Highlight>. When a single institution 
                 is the sole custodian of credential records, that institution becomes a single point of failure. 
-                Records can be lost, altered, or forged. Verification depends entirely on the institution's 
+                Records can be lost, altered, or forged. Verification depends entirely on the institution&apos;s 
                 continued existence and cooperation.
               </p>
             </SectionCard>
@@ -225,7 +225,7 @@ const Documentation = () => {
                 In Attestify, gas is consumed during three primary operations: <strong>credential issuance</strong> (minting 
                 a Soulbound Token), <strong>credential revocation</strong> (burning a token), and <strong>issuer 
                 authorization</strong> management. Read operations, such as verifying a credential, are free 
-                because they don't modify the blockchain state.
+                because they don&apos;t modify the blockchain state.
               </p>
               <p className="mt-4">
                 Attestify tracks gas consumption per transaction, providing institutions with real-time 
@@ -239,9 +239,9 @@ const Documentation = () => {
             <SectionCard title="The Concept">
               <p>
                 Soulbound Tokens were first proposed by Ethereum co-founder <Highlight>Vitalik Buterin</Highlight> in 
-                his 2022 paper <em>"Decentralized Society: Finding Web3's Soul"</em> (co-authored with E. Glen Weyl 
+                his 2022 paper <em>&quot;Decentralized Society: Finding Web3&apos;s Soul&quot;</em> (co-authored with E. Glen Weyl 
                 and Puja Ohlhaver). SBTs are non-transferable tokens that represent commitments, credentials, 
-                and affiliations. These are items inherently tied to an individual's identity that should not be 
+                and affiliations. These are items inherently tied to an individual&apos;s identity that should not be 
                 bought, sold, or traded.
               </p>
               <p className="mt-4">
@@ -273,9 +273,9 @@ const Documentation = () => {
     return super._update(to, tokenId, auth);
 }`}</CodeBlock>
               <p className="mt-4">
-                This ensures that tokens can only be <strong>minted</strong> (issued to a student's wallet) or <strong>burned</strong> (revoked 
+                This ensures that tokens can only be <strong>minted</strong> (issued to a student&apos;s wallet) or <strong>burned</strong> (revoked 
                 by an authorized issuer). Any attempt to transfer a credential between wallets is rejected at 
-                the protocol level. The credential is permanently "bound to the soul" of its recipient.
+                the protocol level. The credential is permanently &quot;bound to the soul&quot; of its recipient.
               </p>
             </SectionCard>
             <SectionCard title="Properties of Attestify SBTs">
@@ -305,7 +305,7 @@ const Documentation = () => {
             </SectionCard>
             <SectionCard title="Wallet Addresses as Identifiers">
               <p>
-                In Attestify, a student's <Highlight>Ethereum wallet address</Highlight> serves as their 
+                In Attestify, a student&apos;s <Highlight>Ethereum wallet address</Highlight> serves as their 
                 decentralized identifier (DID). This address is a cryptographically derived pseudonym that 
                 uniquely identifies the student within the system without revealing their real-world identity 
                 by default.
@@ -324,7 +324,7 @@ const Documentation = () => {
               <p>
                 MetaMask and similar Web3 wallets serve as the bridge between users and the Ethereum network. 
                 They securely manage private keys, sign transactions, and interact with smart contracts, all 
-                within the user's browser. In the Attestify workflow, institutions connect their wallet 
+                within the user&apos;s browser. In the Attestify workflow, institutions connect their wallet 
                 to authorize credential issuance, and students provide their wallet address to receive 
                 Soulbound Tokens.
               </p>
@@ -342,7 +342,7 @@ const Documentation = () => {
               </p>
               <p className="mt-4">
                 When a credential PDF is uploaded to IPFS, the protocol generates a unique <Highlight>Content 
-                Identifier (CID)</Highlight>, a hash that is mathematically derived from the file's contents. 
+                Identifier (CID)</Highlight>, a hash that is mathematically derived from the file&apos;s contents. 
                 This means:
               </p>
               <ul className="mt-4 space-y-3">
@@ -358,7 +358,7 @@ const Documentation = () => {
                 hundreds of dollars in gas fees to store on-chain.
               </p>
               <p className="mt-4">
-                Attestify uses a <Highlight>hybrid storage model</Highlight>: the credential's <strong>hash and 
+                Attestify uses a <Highlight>hybrid storage model</Highlight>: the credential&apos;s <strong>hash and 
                 metadata</strong> are stored on the Ethereum blockchain (small, fixed-cost), while the <strong>full 
                 document</strong> is stored on IPFS (cheap, scalable). The on-chain hash serves as an 
                 anchor of truth. Anyone can retrieve the document from IPFS and verify its integrity 
@@ -371,7 +371,7 @@ const Documentation = () => {
                 Attestify uses <Highlight>Pinata</Highlight>, a professional IPFS pinning service, to 
                 ensure that credential documents remain persistently available. Pinning guarantees that 
                 the credential PDF is always hosted on reliable infrastructure, even if the issuing 
-                institution's own nodes go offline.
+                institution&apos;s own nodes go offline.
               </p>
             </SectionCard>
           </Section>
@@ -393,7 +393,7 @@ const Documentation = () => {
             </SectionCard>
             <SectionCard title="The Verification Process">
               <p>
-                When a verifier wants to confirm a credential's authenticity, the following process occurs:
+                When a verifier wants to confirm a credential&apos;s authenticity, the following process occurs:
               </p>
               <div className="mt-4 space-y-4">
                 <VerifyStep number="1" title="Query the Blockchain">
@@ -421,11 +421,11 @@ const Documentation = () => {
             <SectionCard title="Digital Signatures">
               <p>
                 Every credential issuance transaction is <Highlight>digitally signed</Highlight> by the 
-                issuing institution's Ethereum wallet. This signature is based on <strong>Elliptic Curve 
+                issuing institution&apos;s Ethereum wallet. This signature is based on <strong>Elliptic Curve 
                 Digital Signature Algorithm (ECDSA)</strong> and proves that:
               </p>
               <ul className="mt-4 space-y-3">
-                <InfoItem label="Authenticity" text="The transaction was created by the holder of the private key associated with the institution's wallet address." />
+                <InfoItem label="Authenticity" text="The transaction was created by the holder of the private key associated with the institution&apos;s wallet address." />
                 <InfoItem label="Non-Repudiation" text="The institution cannot deny having issued the credential because the signature is permanently recorded on the blockchain." />
                 <InfoItem label="Integrity" text="If the transaction data is altered after signing, the signature becomes invalid, preventing post-issuance tampering." />
               </ul>
@@ -470,7 +470,7 @@ const Documentation = () => {
                 </FlowStep>
                 <FlowStep number="2" title="PDF Generation">
                   The backend generates a professional PDF certificate using PDFKit, incorporating the 
-                  issuer's branding (logo, seal, signature) and a QR code linking to the verification portal.
+                  issuer&apos;s branding (logo, seal, signature) and a QR code linking to the verification portal.
                 </FlowStep>
                 <FlowStep number="3" title="IPFS Upload">
                   The PDF is uploaded to IPFS via Pinata, returning a Content Identifier (CID) that 
@@ -478,7 +478,7 @@ const Documentation = () => {
                 </FlowStep>
                 <FlowStep number="4" title="Blockchain Recording">
                   The backend calls the Attestify smart contract, minting a Soulbound Token to the 
-                  student's wallet. The credential hash and IPFS CID are stored on-chain as part of the 
+                  student&apos;s wallet. The credential hash and IPFS CID are stored on-chain as part of the 
                   token metadata.
                 </FlowStep>
                 <FlowStep number="5" title="Database Record">
@@ -548,18 +548,18 @@ const Documentation = () => {
           <Section id="faq" title="Frequently Asked Questions" icon={HelpCircle}>
             <FAQItem question="What happens if the issuing organization shuts down?">
               Because credentials are stored on the Ethereum blockchain and IPFS, they remain fully 
-              verifiable regardless of the issuing organization's status. The blockchain is maintained 
+              verifiable regardless of the issuing organization&apos;s status. The blockchain is maintained 
               by thousands of independent nodes worldwide, and IPFS ensures the credential document 
               persists as long as it is pinned by at least one node.
             </FAQItem>
             <FAQItem question="Can a degree be faked by minting a token from a different wallet?">
-              No. Each issuer's wallet address is registered as an authorized issuer in the 
+              No. Each issuer&apos;s wallet address is registered as an authorized issuer in the 
               smart contract. Only whitelisted addresses can mint credentials. A verifier can check the 
-              issuer's on-chain address to confirm it belongs to a legitimate issuer.
+              issuer&apos;s on-chain address to confirm it belongs to a legitimate issuer.
             </FAQItem>
             <FAQItem question="Why are Soulbound Tokens better than regular NFTs for credentials?">
               Regular NFTs can be freely transferred, sold, or traded, which would allow someone to buy 
-              a degree they didn't earn. Soulbound Tokens are permanently bound to the recipient's wallet, 
+              a degree they didn&apos;t earn. Soulbound Tokens are permanently bound to the recipient&apos;s wallet, 
               reflecting the real-world property that academic achievements are personal and non-transferable.
             </FAQItem>
             <FAQItem question="Is verification truly free?">
@@ -568,7 +568,7 @@ const Documentation = () => {
               institution.
             </FAQItem>
             <FAQItem question="How does Attestify handle student privacy?">
-              Wallet addresses are pseudonymous and don't inherently reveal a student's real-world 
+              Wallet addresses are pseudonymous and don&apos;t inherently reveal a student&apos;s real-world 
               identity. Students choose what information to share and with whom. The on-chain record 
               contains hashes and CIDs, not plaintext personal data.
             </FAQItem>

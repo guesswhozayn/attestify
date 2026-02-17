@@ -69,7 +69,7 @@ const RevokedCredentials = () => {
            <div className="flex-1 relative z-10 text-center md:text-left">
               <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Revocation Registry</h2>
               <p className="text-red-200/80 max-w-2xl text-lg leading-relaxed">
-                 These credentials have been permanently invalidated by the institution. They are no longer considered valid proof of qualification and will appear as "Revoked" during verification.
+                 These credentials have been permanently invalidated by the institution. They are no longer considered valid proof of qualification and will appear as &quot;Revoked&quot; during verification.
               </p>
            </div>
            

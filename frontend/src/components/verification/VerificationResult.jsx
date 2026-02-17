@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, XCircle, ShieldAlert, Award, FileText, ExternalLink, Calendar, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Button from '../shared/Button';
 
 const VerificationResult = ({ result }) => {
   if (!result) return null;
@@ -129,17 +130,19 @@ const VerificationResult = ({ result }) => {
 
         {/* Blockchain proof link */}
         {result.credential?.transactionHash && (
-             <div className="mt-6 text-center">
-                <a 
+              <div className="mt-6 text-center">
+                <Button 
                     href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 rounded-xl text-xs font-bold text-indigo-300 transition-all hover:text-white group"
+                    variant="secondary"
+                    size="sm"
+                    icon={FileText}
+                    className="group"
                 >
-                    <FileText className="w-3.5 h-3.5" />
                     <span>View Onchain Receipt</span>
-                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </a>
+                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity ml-1" />
+                </Button>
              </div>
         )}
       </div>

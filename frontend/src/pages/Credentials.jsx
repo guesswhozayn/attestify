@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
@@ -34,9 +34,9 @@ const Credentials = () => {
         isMounted.current = true;
         fetchCredentials();
         return () => { isMounted.current = false; };
-    }, []);
+    }, [fetchCredentials]);
 
-    const fetchCredentials = async () => {
+    const fetchCredentials = useCallback(async () => {
         try {
             setLoading(true);
             const response = await credentialAPI.getAll();
@@ -58,7 +58,7 @@ const Credentials = () => {
                 setLoading(false);
             }
         }
-    };
+    }, [showNotification]);
 
     const calculateStats = (docs) => {
         const total = docs.length;
@@ -144,7 +144,7 @@ const Credentials = () => {
                                 <span className="text-indigo-500">Archive</span>
                             </h1>
                             <p className="text-zinc-500 max-w-2xl text-lg font-medium leading-relaxed">
-                                Manage your institution's complete issuance history. Access immutable records, verify cryptographic proof-of-state, and maintain the integrity of your digital credentials.
+                                Manage your institution&apos;s complete issuance history. Access immutable records, verify cryptographic proof-of-state, and maintain the integrity of your digital credentials.
                             </p>
                         </div>
                     </div>

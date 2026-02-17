@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import {motion} from 'framer-motion';
+import BackButton from '../components/shared/BackButton';
 import VerificationPortal from '../components/verification/VerificationPortal';
 
 const VerifyPage = () => {
-    const navigate = useNavigate();
     // Spotlight Effect State
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const containerRef = useRef(null);
@@ -20,16 +18,7 @@ const VerifyPage = () => {
 
     return (
         <div ref={containerRef} className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex flex-col relative overflow-hidden">
-            {/* Back Button */}
-            <div className="fixed top-8 left-8 z-50">
-                <button 
-                    onClick={() => navigate('/')}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group text-xs font-black uppercase tracking-widest backdrop-blur-xl"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    Back to Home
-                </button>
-            </div>
+            <BackButton />
 
             {/* Background Effects matching scanner aesthetic */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">

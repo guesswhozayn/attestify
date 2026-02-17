@@ -66,7 +66,7 @@ const SettingsScreen = ({ navigation }: any) => {
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
+        style={styles.flex1}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Header */}
@@ -252,6 +252,9 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     marginTop: 12,
+  },
+  flex1: {
+    flex: 1,
   }
 });
 

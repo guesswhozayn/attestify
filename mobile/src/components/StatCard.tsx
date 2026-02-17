@@ -15,7 +15,10 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon: Icon, subtitle,
   return (
     <GlassCard style={styles.card}>
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: color ? `${color}20` : 'rgba(99, 102, 241, 0.1)' }]}>
+        <View style={StyleSheet.flatten([
+          styles.iconContainer, 
+          { backgroundColor: color ? `${color}20` : 'rgba(99, 102, 241, 0.1)' }
+        ])}>
           <Icon color={color || theme.colors.primary} size={24} />
         </View>
         <Text style={styles.label}>{label.toUpperCase()}</Text>

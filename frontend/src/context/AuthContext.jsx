@@ -22,10 +22,10 @@ export const AuthProvider = ({ children }) => {
   // Initialize auth state from localStorage
   useEffect(() => {
     initializeAuth();
-  }, []);
+  }, [initializeAuth]);
 
   // Initialize authentication
-  const initializeAuth = async () => {
+  const initializeAuth = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
@@ -49,10 +49,10 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [verifyToken, handleLogout]);
 
   // Verify token with backend
-  const verifyToken = async () => {
+  const verifyToken = useCallback(async () => {
     try {
       const response = await authAPI.getCurrentUser();
       const currentUser = response.data.user;
@@ -69,10 +69,10 @@ export const AuthProvider = ({ children }) => {
         handleLogout();
       }
     }
-  };
+  }, [user, handleLogout]);
 
   // Register new user
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     try {
       await authAPI.register(userData);
       // Do not auto-login
@@ -85,10 +85,10 @@ export const AuthProvider = ({ children }) => {
         error: error.response?.data?.error || 'Registration failed. Please try again.'
       };
     }
-  };
+  }, []);
 
   // Login user
-  const login = async (email, password, role) => {
+  const login = useCallback(async (email, password, role) => {
     try {
       const response = await authAPI.login({ email, password, selectedRole: role });
       const { token, user: loggedInUser } = response.data;
@@ -113,10 +113,10 @@ export const AuthProvider = ({ children }) => {
         error: error.response?.data?.error || 'Login failed. Please check your credentials.'
       };
     }
-  };
+  }, []);
 
   // Logout user
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       // Optional: Call backend logout endpoint
       await authAPI.logout();
@@ -126,10 +126,10 @@ export const AuthProvider = ({ children }) => {
     } finally {
       handleLogout();
     }
-  };
+  }, [handleLogout]);
 
   // Google Login
-  const googleLogin = async (token) => {
+  const googleLogin = useCallback(async (token) => {
     try {
       // We need to call the API manually as it might not be in authAPI yet, 
       // OR we update api.js as well. Let's assume we update api.js first or use direct axios here.
@@ -158,10 +158,10 @@ export const AuthProvider = ({ children }) => {
         error: error.response?.data?.error || 'Google login failed.'
       };
     }
-  };
+  }, []);
 
   // Handle logout cleanup
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -172,17 +172,19 @@ export const AuthProvider = ({ children }) => {
     // Update state
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
   // Update user profile
-  const updateUser = (updates) => {
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-  };
+  const updateUser = useCallback((updates) => {
+    setUser(prevUser => {
+      const updatedUser = { ...prevUser, ...updates };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
+  }, []);
 
   // Refresh user data
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const response = await authAPI.getCurrentUser();
       const currentUser = response.data.user;
@@ -193,7 +195,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Refresh user error:', error);
       return { success: false, error: error.message };
     }
-  };
+  }, []);
 
   // Check if user has specific role
   const hasRole = useCallback((role) => {
@@ -232,10 +234,15 @@ export const AuthProvider = ({ children }) => {
     user, 
     loading, 
     isAuthenticated, 
+    register,
+    login,
+    googleLogin,
+    logout,
+    updateUser,
+    refreshUser,
     hasRole, 
     isIssuer, 
     isStudent
-    // Functions like login/logout are defined once and don't depend on state that isn't already in other deps
   ]);
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Activity,
   Box,
@@ -27,9 +27,9 @@ const NetworkStatus = () => {
     fetchData();
     const interval = setInterval(fetchData, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (!data) setLoading(true);
       else setRefreshing(true);
@@ -47,7 +47,7 @@ const NetworkStatus = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [data]);
 
   if (loading) {
     return (

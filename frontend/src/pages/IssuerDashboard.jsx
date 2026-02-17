@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
@@ -50,9 +50,9 @@ const IssuerDashboard = () => {
              isMounted.current = false;
              clearInterval(refreshInterval);
         };
-    }, []);
+    }, [fetchDashboardData, loading, refreshing]);
 
-    const fetchDashboardData = async (isRefresh = false) => {
+    const fetchDashboardData = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
@@ -81,7 +81,7 @@ const IssuerDashboard = () => {
                 setRefreshing(false);
             }
         }
-    };
+    }, [showNotification]);
 
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const handleMouseMove = (e) => {
@@ -157,7 +157,7 @@ const IssuerDashboard = () => {
                                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                                 className="text-zinc-400 max-w-xl text-lg leading-relaxed"
                             >
-                                Manage your institution's digital footprint. Issue on-chain credentials and monitor network status in real-time.
+                                Manage your institution&apos;s digital footprint. Issue on-chain credentials and monitor network status in real-time.
                             </motion.p>
                         </div>
 

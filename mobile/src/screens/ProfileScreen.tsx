@@ -7,7 +7,6 @@ import {
   ScrollView, 
   TouchableOpacity,
   StatusBar,
-  Image,
   Platform
 } from 'react-native';
 import { User, Building, Mail, Shield, Wallet, Globe, Calendar, LogOut, ChevronRight } from 'lucide-react-native';
@@ -84,7 +83,7 @@ const ProfileScreen = () => {
         <GlassCard style={styles.menuCard}>
             <TouchableOpacity style={styles.menuItem}>
                 <View style={styles.menuItemLeft}>
-                    <View style={[styles.menuIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
+                    <View style={[styles.menuIcon, styles.bgPrimaryLight]}>
                         <User size={18} color={theme.colors.primary} />
                     </View>
                     <Text style={styles.menuText}>Edit Profile</Text>
@@ -94,10 +93,10 @@ const ProfileScreen = () => {
             
             <TouchableOpacity style={styles.menuItem} onPress={logout}>
                 <View style={styles.menuItemLeft}>
-                    <View style={[styles.menuIcon, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+                    <View style={[styles.menuIcon, styles.bgErrorLight]}>
                         <LogOut size={18} color={theme.colors.error} />
                     </View>
-                    <Text style={[styles.menuText, { color: theme.colors.error }]}>Sign Out</Text>
+                    <Text style={[styles.menuText, styles.textError]}>Sign Out</Text>
                 </View>
                 <ChevronRight size={18} color={theme.colors.textDim} />
             </TouchableOpacity>
@@ -257,6 +256,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: theme.colors.text,
     fontWeight: '600',
+  },
+  bgPrimaryLight: {
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  bgErrorLight: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  textError: {
+    color: theme.colors.error,
   }
 });
 
