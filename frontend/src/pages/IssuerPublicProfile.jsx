@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
     ShieldCheck, 
     Building2, 
-    Globe, 
     Loader2,
     Share2,
     CheckCircle,
@@ -14,9 +13,7 @@ import {
 } from 'lucide-react';
 import { publicAPI } from '../services/api';
 import Button from '../components/shared/Button';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
-import Avatar from '../components/shared/Avatar';
+import BackButton from '../components/shared/BackButton';
 
 const IssuerPublicProfile = () => {
     const { id, walletAddress } = useParams();
@@ -65,7 +62,7 @@ const IssuerPublicProfile = () => {
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white relative overflow-hidden font-sans">
                  {/* Background Elements */}
                  <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
                 
                 <div className="relative z-10 flex flex-col items-center">
                     <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-6" />
@@ -78,8 +75,6 @@ const IssuerPublicProfile = () => {
     if (error) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-                
                 <div className="relative z-10 max-w-md w-full bg-gray-900/40 backdrop-blur-xl border border-white/10 p-12 rounded-3xl shadow-2xl">
                     <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20 mx-auto">
                         <ShieldCheck className="w-10 h-10 text-red-500" />
@@ -107,10 +102,9 @@ const IssuerPublicProfile = () => {
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
                 <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             </div>
 
-            <Navbar showBackSearch={true} />
+            <BackButton fallbackPath="/search" />
 
             <main className="relative z-10 flex-grow flex flex-col justify-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
                 
@@ -127,7 +121,7 @@ const IssuerPublicProfile = () => {
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
                             {/* Logo/Avatar */}
                             <div className="relative shrink-0 group/avatar">
-                                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl bg-black border border-white/10 p-4 flex items-center justify-center shadow-2xl relative overflow-hidden">
+                                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-black border border-white/10 p-4 flex items-center justify-center shadow-2xl relative overflow-hidden">
                                     {data.details?.branding?.logo ? (
                                         <img src={data.details.branding.logo} alt={data.name} className="w-full h-full object-contain" />
                                     ) : (
@@ -231,7 +225,7 @@ const IssuerPublicProfile = () => {
                             </div>
                             
                             <div className="flex flex-col md:flex-row gap-8 items-center relative z-10">
-                                <div className="w-32 h-32 shrink-0 bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center justify-center">
+                                <div className="w-32 h-32 shrink-0 bg-white/5 rounded-full p-4 border border-white/10 flex items-center justify-center">
                                     <img 
                                         src={data.details.branding.seal} 
                                         alt="Official Seal" 

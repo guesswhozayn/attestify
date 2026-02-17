@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import api, { userAPI } from '../../services/api';
@@ -7,9 +8,7 @@ import {
     Building, 
     Upload, 
     Trash2,
-    CheckCircle,
     Copy,
-    Image as ImageIcon,
     Shield,
     FileCheck,
     Edit2,
@@ -23,11 +22,11 @@ import {
     Mail
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
-import Input from '../../components/shared/Input';
 import Avatar from '../../components/shared/Avatar';
 
 const IssuerProfileEditor = () => {
     const { user, updateUser } = useAuth();
+    // ... (rest of state initialization unchanged) ...
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -54,8 +53,8 @@ const IssuerProfileEditor = () => {
     const [formData, setFormData] = useState({
         name: '',
         about: '',
-        institutionName: '', // Specific to Issuer
-        registrationNumber: '' // Specific to Issuer
+        institutionName: '', 
+        registrationNumber: '' 
     });
 
     // Branding Assets State
@@ -120,17 +119,9 @@ const IssuerProfileEditor = () => {
     const handleSave = async () => {
         setLoading(true);
         try {
-            // Update basic profile info
             const response = await userAPI.updateProfile({
                 name: formData.name,
                 about: formData.about
-                // Note: userAPI.updateProfile might need to support issuerDetails update if backend supports it.
-                // Assuming basic profile update here for Name/About. 
-                // Institution Name/Reg Number specific handling might be needed if backend separates it.
-                // For now, valid fields are name, title, university, about.
-                // Issuers might treat "university" as "institution name" or have separate fields.
-                // If backend updates issuerDetails via a separate route, we'd need that.
-                // Based on context, I'll send name and about.
             });
             
             if (response.data.success) {
@@ -163,8 +154,6 @@ const IssuerProfileEditor = () => {
             if (response.data.success) {
                 updateUser(response.data.user);
                 const newBranding = response.data.user.issuerDetails?.branding || {};
-                // Determine if we need to update local branding state directly or if user effect handles it
-                // It's safer to rely on the effect but immediate update is good for UX
                 setBranding(prev => ({
                     ...prev,
                     [fieldName]: newBranding[fieldName] || '',
@@ -214,8 +203,16 @@ const IssuerProfileEditor = () => {
     };
 
     return (
-      <div className="min-h-screen bg-transparent text-gray-100 pb-20">
-        <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-8">
+      <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden relative">
+        
+        {/* Background Elements */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
+            <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+            <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
+        </div>
+
+        <div className="relative z-10 p-6 lg:p-10 max-w-7xl mx-auto space-y-8 pb-20">
             
             {/* Header Section */}
             <motion.div 
@@ -233,7 +230,7 @@ const IssuerProfileEditor = () => {
                        <>
                            <Button 
                                onClick={() => setIsEditing(false)}
-                               variant="danger"
+                               variant="secondary"
                                icon={X}
                            >
                                Cancel
@@ -241,7 +238,7 @@ const IssuerProfileEditor = () => {
                            <Button 
                                onClick={handleSave}
                                loading={loading}
-                               className="bg-emerald-600 hover:bg-emerald-500 text-white border-0 shadow-lg shadow-emerald-500/20"
+                               variant="success"
                                icon={Save}
                            >
                                Save Changes
@@ -469,7 +466,7 @@ const IssuerProfileEditor = () => {
                             </div>
                         </motion.div>
 
-                        {/* Blockchain Identity */}
+            {/* Blockchain Identity */}
                         <motion.div 
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -529,10 +526,11 @@ const IssuerProfileEditor = () => {
     );
 };
 
-const ProfileCard = ({ icon: Icon, label, value, color, bg, border }) => (
+// eslint-disable-next-line no-unused-vars
+const ProfileCard = ({ icon: LucideIcon, label, value, color, bg, border }) => (
   <div className="flex items-start space-x-4 p-5 bg-white/[0.02] rounded-2xl border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 backdrop-blur-md group h-full">
     <div className={`p-3 rounded-xl border transition-colors ${bg} ${border} group-hover:bg-opacity-20`}>
-      <Icon className={`w-5 h-5 ${color}`} />
+      <LucideIcon className={`w-5 h-5 ${color}`} />
     </div>
     <div>
       <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">{label}</h4>

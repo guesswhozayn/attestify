@@ -1,130 +1,43 @@
 import React from 'react';
-import { 
-    GraduationCap, 
-    Award, 
-    Calendar, 
-    User, 
-    ChevronRight, 
-    Clock,
-    MoreHorizontal
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
-const CredentialRow = ({ credential, onClick }) => {
-    const isTranscript = credential.type === 'TRANSCRIPT';
-    const displayMetadata = isTranscript ? credential.transcriptData : credential.certificationData;
-    const Icon = isTranscript ? GraduationCap : Award;
-    const accentColor = isTranscript ? 'indigo' : 'emerald';
-    const isRevoked = credential.isRevoked;
-
-    return (
-        <div 
-            onClick={onClick}
-            className="group grid grid-cols-12 gap-4 items-center p-4 rounded-2xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.05] transition-all duration-200 cursor-pointer"
-        >
-            {/* Type Icon */}
-            <div className="col-span-1">
-                <div className={`w-10 h-10 rounded-xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 text-${accentColor}-400`} />
-                </div>
-            </div>
-
-            {/* Recipient */}
-            <div className="col-span-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                    {credential.studentImage ? (
-                        <img src={credential.studentImage} alt="User" className="w-full h-full object-cover" />
-                    ) : (
-                        <User className="w-4 h-4 text-white/40" />
-                    )}
-                </div>
-                <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-medium text-white truncate">
-                        {credential.studentName}
-                    </span>
-                    <span className="text-xs text-zinc-500 truncate">
-                        {credential.studentWalletAddress.substring(0, 6)}...{credential.studentWalletAddress.substring(38)}
-                    </span>
-                </div>
-            </div>
-
-            {/* Credential Details */}
-            <div className="col-span-4 flex flex-col min-w-0">
-                <span className="text-sm text-zinc-300 font-medium truncate">
-                    {displayMetadata?.program || displayMetadata?.title || 'Untitled Credential'}
-                </span>
-                <span className="text-xs text-zinc-500 truncate">
-                    {isTranscript ? 'Academic Transcript' : 'Certification'} • {credential.university}
-                </span>
-            </div>
-
-            {/* Date */}
-            <div className="col-span-2 flex items-center gap-2 text-zinc-400 text-sm">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{new Date(credential.issueDate).toLocaleDateString()}</span>
-            </div>
-
-            {/* Status */}
-            <div className="col-span-2 flex items-center justify-end gap-3">
-                <div className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5
-                    ${isRevoked 
-                        ? 'bg-red-500/10 border-red-500/20 text-red-400' 
-                        : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
-                `}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${isRevoked ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
-                    {isRevoked ? 'Revoked' : 'Active'}
-                </div>
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ChevronRight className="w-4 h-4 text-white/60" />
-                </div>
-            </div>
-        </div>
-    );
-};
+import { Clock, FileText } from 'lucide-react';
+import CredentialRow from '../credential/CredentialRow';
 
 const RecentActivityList = ({ credentials, onCredentialClick, loading }) => {
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 bg-white/[0.02] rounded-3xl border border-white/[0.05]">
-                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <div className="text-zinc-500 text-sm font-medium">Loading activity...</div>
+            <div className="flex flex-col items-center justify-center p-20 bg-black/20 rounded-[2.5rem] border border-white/[0.04] border-dashed">
+                <div className="relative">
+                    <div className="w-12 h-12 border-2 border-indigo-500/20 rounded-full"></div>
+                    <div className="absolute top-0 w-12 h-12 border-t-2 border-indigo-500 rounded-full animate-spin"></div>
+                </div>
+                <div className="text-zinc-600 text-xs font-black uppercase tracking-[0.2em] mt-6 animate-pulse">Scanning Registry...</div>
             </div>
         );
     }
 
     if (!credentials || credentials.length === 0) {
         return (
-             <div className="flex flex-col items-center justify-center p-12 bg-white/[0.02] rounded-3xl border border-white/[0.05] text-center">
-                <div className="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-                    <Clock className="w-6 h-6 text-zinc-500" />
+             <div className="flex flex-col items-center justify-center p-20 bg-black/20 rounded-[2.5rem] border border-white/[0.04] border-dashed text-center">
+                <div className="w-16 h-16 bg-white/[0.02] rounded-3xl flex items-center justify-center mb-6 border border-white/[0.04]">
+                    <Clock className="w-8 h-8 text-zinc-700" />
                 </div>
-                <h3 className="text-white font-medium mb-1">No Recent Activity</h3>
-                <p className="text-zinc-500 text-sm">Issued credentials will appear here.</p>
+                <h3 className="text-lg font-bold text-white mb-2">Registry Silent</h3>
+                <p className="text-zinc-500 text-sm font-medium">No recent credentials found on our servers.</p>
              </div>
         );
     }
 
     return (
-        <div className="space-y-1 bg-white/[0.02] border border-white/[0.05] rounded-3xl p-2">
-            <div className="grid grid-cols-12 gap-4 px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider border-b border-white/[0.05] mb-2">
-                <div className="col-span-1">Type</div>
-                <div className="col-span-3">Recipient</div>
-                <div className="col-span-4">Credential</div>
-                <div className="col-span-2">Date</div>
-                <div className="col-span-2 text-right">Status</div>
-            </div>
-            
-            <div className="space-y-1">
-                {credentials.map((cred) => (
-                    <CredentialRow 
-                        key={cred._id || cred.id} 
-                        credential={cred} 
-                        onClick={() => onCredentialClick(cred)} 
-                    />
-                ))}
-            </div>
+        <div className="space-y-4">
+            {credentials.map((cred) => (
+                <CredentialRow 
+                    key={cred._id || cred.id} 
+                    credential={cred} 
+                    onClick={() => onCredentialClick(cred)} 
+                />
+            ))}
         </div>
     );
 };
 
-export default RecentActivityList;
+export default React.memo(RecentActivityList);

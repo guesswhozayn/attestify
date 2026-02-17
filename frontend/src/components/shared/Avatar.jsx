@@ -24,20 +24,16 @@ const Avatar = ({
   const containerSize = sizeClasses[size] || sizeClasses.md;
 
   return (
-    <div className={`relative group ${containerSize} ${className}`}>
+    <div className={`relative group rounded-full ${containerSize} ${className}`}>
       
       {/* 1. Outer Glow (Static) */}
       <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
 
-      {/* 2. Rotating Orbital Ring (Creative Element) */}
-      {/* Gradient border ring that spins slowly */}
-      <div className="absolute -inset-[3px] rounded-full border border-transparent border-t-indigo-500/60 border-r-purple-500/60 border-b-transparent border-l-transparent animate-[spin_4s_linear_infinite] opacity-80" />
-      
-      {/* 3. Counter-rotating inner ring (Subtle detail) */}
-      <div className="absolute -inset-[1px] rounded-full border border-white/5 border-t-transparent border-l-transparent animate-[spin_6s_linear_infinite_reverse] opacity-40" />
+      {/* 2. Simplified Border (Static) */}
+      <div className="absolute -inset-[1px] rounded-full border border-white/10 opacity-40" />
 
       {/* 4. Static Glass Container */}
-      <div className="absolute inset-0 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden flex items-center justify-center">
+      <div className="absolute inset-0 rounded-full bg-black/60 border border-white/10 overflow-hidden flex items-center justify-center">
         
         {src ? (
           <img 
@@ -85,4 +81,4 @@ const Avatar = ({
   );
 };
 
-export default Avatar;
+export default React.memo(Avatar);

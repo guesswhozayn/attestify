@@ -1,178 +1,183 @@
 import React from 'react';
 import { 
-    MoreHorizontal, 
-    Eye, 
     ShieldAlert, 
     ExternalLink, 
-    CheckCircle, 
-    XCircle, 
     FileText, 
     Award,
     Calendar,
-    Hash
+    User,
+    ChevronRight,
+    Search
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
+    const isRevoked = cred.isRevoked;
+    const isSBT = !!cred.tokenId;
+    const isTranscript = cred.type === 'TRANSCRIPT';
+    const Icon = isTranscript ? FileText : Award;
+    const accentColor = isTranscript ? 'indigo' : 'emerald';
+
+    return (
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ delay: idx * 0.05, duration: 0.5 }}
+            onClick={() => onView(cred)}
+            className="group relative bg-[#0b0b0b] border border-white/[0.04] hover:border-white/10 rounded-[2rem] p-6 transition-all duration-500 cursor-pointer overflow-hidden mb-4 active:scale-[0.99] shadow-lg hover:shadow-2xl"
+        >
+            {/* Background Accent */}
+            <div className={`absolute -right-24 -top-24 w-80 h-80 bg-${accentColor}-500/[0.03] blur-[120px] pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity`}></div>
+
+            <div className="flex flex-col lg:flex-row lg:items-center gap-8 relative z-10">
+                
+                {/* Section 1: Credential Identification */}
+                <div className="lg:w-[35%] flex items-center gap-5">
+                    <div className={`p-4 rounded-[1.5rem] bg-${accentColor}-500/10 border border-${accentColor}-500/20 group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
+                        <Icon className={`w-8 h-8 text-${accentColor}-400`} />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Subject Title</span>
+                        <h3 className="text-lg font-black text-white truncate leading-tight group-hover:text-indigo-300 transition-colors">
+                            {cred.transcriptData?.program || cred.certificationData?.title || cred.courseName || cred.degreeName || 'Untitled Record'}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-2">
+                             <div className="px-2 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[9px] font-mono text-zinc-500">
+                                {cred._id ? `#${cred._id.substring(cred._id.length - 8)}` : 'ID-SYSTEM'}
+                             </div>
+                             {isSBT ? (
+                                <span className="px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[8px] font-black uppercase tracking-widest">SBT Linked</span>
+                             ) : (
+                                <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[8px] font-black uppercase tracking-widest">Standard NFT</span>
+                             )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 2: Recipient Data */}
+                <div className="lg:w-[25%] flex items-center gap-4 border-l lg:border-white/5 lg:pl-8">
+                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/20 transition-colors">
+                        {cred.studentImage ? (
+                            <img src={cred.studentImage} alt="User" className="w-full h-full object-cover" />
+                        ) : (
+                            <User className="w-5 h-5 text-zinc-700" />
+                        )}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Authenticated Recipient</span>
+                        <span className="text-sm font-bold text-zinc-200 truncate">{cred.studentName}</span>
+                        <span className="text-[10px] text-zinc-500 font-mono tracking-tighter mt-0.5">
+                            {cred.studentWalletAddress ? `${cred.studentWalletAddress.substring(0, 10)}...${cred.studentWalletAddress.substring(34)}` : 'ANONYMOUS-WALLET'}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Section 3: Ledger Data */}
+                <div className="lg:w-[20%] flex flex-col items-start lg:items-center justify-center border-l lg:border-white/5 lg:pl-8">
+                    <div className="flex flex-col lg:items-center">
+                        <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1.5">Registry Entry</span>
+                        <div className="flex items-center gap-2 text-zinc-400 font-bold text-xs">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(cred.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 4: Status & Controls */}
+                <div className="lg:w-[20%] flex items-center justify-between lg:justify-end gap-6 lg:pl-8 border-l lg:border-white/5">
+                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border flex items-center gap-2.5 shadow-inner backdrop-blur-md
+                        ${isRevoked 
+                            ? 'bg-red-500/10 border-red-500/20 text-red-500' 
+                            : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
+                    `}>
+                        <div className={`w-2 h-2 rounded-full ${isRevoked ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse'}`}></div>
+                        {isRevoked ? 'Revoked' : 'Active'}
+                    </div>
+
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 duration-500">
+                        {cred.transactionHash && (
+                            <a 
+                                href={`https://sepolia.etherscan.io/tx/${cred.transactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-3 text-zinc-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-2xl transition-all border border-transparent hover:border-indigo-500/20 active:scale-90"
+                                title="Ledger Explorer"
+                            >
+                                <ExternalLink className="w-5 h-5" />
+                            </a>
+                        )}
+
+                        {!cred.isRevoked && (
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRevoke(cred);
+                                }}
+                                className="p-3 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all border border-transparent hover:border-red-500/20 active:scale-90"
+                                title="Invalidate Record"
+                            >
+                                <ShieldAlert className="w-5 h-5" />
+                            </button>
+                        )}
+                        <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-indigo-400">
+                            <ChevronRight className="w-5 h-5" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
 
 const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
     
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <div className="text-gray-500 animate-pulse">Loading credentials...</div>
+            <div className="flex flex-col items-center justify-center py-32 bg-black/20 rounded-[3rem] border border-white/[0.04] border-dashed">
+                <div className="relative">
+                    <div className="w-16 h-16 border-4 border-indigo-500/10 rounded-full"></div>
+                    <div className="absolute top-0 w-16 h-16 border-t-4 border-indigo-500 rounded-full animate-spin"></div>
+                </div>
+                <div className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mt-8 animate-pulse">Syncing Chain State</div>
             </div>
         );
     }
 
     if (credentials.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-center bg-white/[0.02] rounded-2xl border border-dashed border-white/10">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                    <FileText className="w-8 h-8 text-gray-600" />
+            <div className="flex flex-col items-center justify-center py-32 text-center bg-[#0a0a0a] rounded-[3rem] border border-dashed border-white/[0.06] shadow-2xl group transition-all">
+                <div className="w-24 h-24 bg-white/[0.02] rounded-[2rem] flex items-center justify-center mb-8 border border-white/[0.05] group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+                    <FileText className="w-10 h-10 text-zinc-800 group-hover:text-indigo-500/40 transition-colors" />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">No Credentials Found</h3>
-                <p className="text-gray-500 max-w-sm">
-                    Try adjusting your filters or issue a new credential to get started.
+                <h3 className="text-2xl font-black text-white mb-3">No Records Identified</h3>
+                <p className="text-zinc-500 max-w-sm mx-auto font-medium">
+                    The institutional registry is currently empty based on your active filters.
                 </p>
+                <div className="mt-10 flex items-center gap-3 px-6 py-2.5 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl text-[10px] font-black text-indigo-400/60 uppercase tracking-widest">
+                    <Search className="w-3.5 h-3.5" />
+                    Archive Scanned
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="overflow-x-auto rounded-2xl border border-white/[0.05] bg-black/20 backdrop-blur-sm">
-            <table className="w-full text-left border-collapse">
-                <thead>
-                    <tr className="border-b border-white/[0.05] bg-white/[0.02]">
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Credential</th>
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Recipient</th>
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Type</th>
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Mint Type</th>
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Issued Date</th>
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.05]">
-                    <AnimatePresence>
-                        {credentials.map((cred, idx) => (
-                            <motion.tr 
-                                key={cred._id || idx}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ delay: idx * 0.05 }}
-                                className="group hover:bg-white/[0.02] transition-colors"
-                            >
-                                {/* Credential Info */}
-                                <td className="px-6 py-4">
-                                    <div className="flex items-start gap-3">
-                                        <div className={`p-2 rounded-lg ${cred.isRevoked ? 'bg-red-500/10 text-red-500' : 'bg-indigo-500/10 text-indigo-400'}`}>
-                                            {cred.type === 'TRANSCRIPT' ? <FileText className="w-5 h-5" /> : <Award className="w-5 h-5" />}
-                                        </div>
-                                        <div>
-                                            <div className="font-medium text-white group-hover:text-indigo-300 transition-colors">
-                                                {cred.transcriptData?.program || cred.certificationData?.title || cred.courseName || cred.degreeName || 'Untitled Credential'}
-                                            </div>
-                                            <div className="text-xs text-gray-500 font-mono flex items-center gap-1 mt-1">
-                                                <Hash className="w-3 h-3" />
-                                                {cred._id ? `${cred._id.substring(0, 8)}...` : 'N/A'}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                {/* Recipient */}
-                                <td className="px-6 py-4">
-                                    <div className="text-sm text-gray-300">{cred.studentName}</div>
-                                    <div className="text-xs text-gray-500 font-mono mt-0.5">
-                                        {cred.studentWalletAddress ? `${cred.studentWalletAddress.substring(0, 6)}...${cred.studentWalletAddress.substring(cred.studentWalletAddress.length - 4)}` : '-'}
-                                    </div>
-                                </td>
-
-                                {/* Type */}
-                                <td className="px-6 py-4">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/5 text-gray-300 border border-white/10">
-                                        {cred.type}
-                                    </span>
-                                </td>
-
-                                {/* Mint Type */}
-                                <td className="px-6 py-4">
-                                    {cred.tokenId ? (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                                            Soulbound (SBT)
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                            Standard NFT
-                                        </span>
-                                    )}
-                                </td>
-
-                                {/* Date */}
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center text-sm text-gray-400">
-                                        <Calendar className="w-3.5 h-3.5 mr-2 opacity-70" />
-                                        {new Date(cred.createdAt).toLocaleDateString()}
-                                    </div>
-                                </td>
-
-                                {/* Status */}
-                                <td className="px-6 py-4">
-                                    {cred.isRevoked ? (
-                                        <div className="flex items-center gap-1.5 text-red-400 text-xs font-medium bg-red-500/10 w-fit px-2.5 py-1 rounded-lg border border-red-500/20">
-                                            <XCircle className="w-3.5 h-3.5" />
-                                            Revoked
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium bg-emerald-500/10 w-fit px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                                            <CheckCircle className="w-3.5 h-3.5" />
-                                            Active
-                                        </div>
-                                    )}
-                                </td>
-
-                                {/* Actions */}
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button 
-                                            onClick={() => onView(cred)}
-                                            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                                            title="View Details"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                        </button>
-                                        
-                                        {cred.transactionHash && (
-                                            <a 
-                                                href={`https://sepolia.etherscan.io/tx/${cred.transactionHash}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="p-2 text-gray-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors"
-                                                title="View on Blockchain"
-                                            >
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
-                                        )}
-
-                                        {!cred.isRevoked && (
-                                            <button 
-                                                onClick={() => onRevoke(cred)}
-                                                className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                title="Revoke Credential"
-                                            >
-                                                <ShieldAlert className="w-4 h-4" />
-                                            </button>
-                                        )}
-                                    </div>
-                                </td>
-                            </motion.tr>
-                        ))}
-                    </AnimatePresence>
-                </tbody>
-            </table>
+        <div className="pb-10">
+            <AnimatePresence mode="popLayout">
+                {credentials.map((cred, idx) => (
+                    <CredentialTableRow 
+                        key={cred._id || idx}
+                        cred={cred}
+                        idx={idx}
+                        onView={onView}
+                        onRevoke={onRevoke}
+                    />
+                ))}
+            </AnimatePresence>
         </div>
     );
 };
 
-export default CredentialTable;
+export default React.memo(CredentialTable);

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import CredentialGrid from '../components/credential/CredentialGrid';
+import CredentialTable from '../components/credential/CredentialTable';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import { credentialAPI } from '../services/api';
-import { ShieldAlert, AlertTriangle, FileWarning, Search } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, FileWarning } from 'lucide-react';
 
 const RevokedCredentials = () => {
   const [credentials, setCredentials] = useState([]);
@@ -38,9 +38,16 @@ const RevokedCredentials = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-100 pb-20">
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
+          {/* Main Gradient Orbs */}
+          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
+      </div>
 
-      <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+      <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
         
         {/* Warning Banner */}
         <motion.div 
@@ -89,9 +96,9 @@ const RevokedCredentials = () => {
            </div>
            
            <div className="min-h-[300px]">
-               <CredentialGrid
+               <CredentialTable
                  credentials={credentials}
-                 onCredentialClick={setSelectedCredential}
+                 onView={setSelectedCredential}
                  loading={loading}
                />
            </div>

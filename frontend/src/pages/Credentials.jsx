@@ -7,7 +7,7 @@ import RevokeCredentialModal from '../components/credential/RevokeCredentialModa
 import CredentialsStats from '../components/credential/CredentialsStats';
 import CredentialsFilter from '../components/credential/CredentialsFilter';
 import CredentialTable from '../components/credential/CredentialTable';
-import { Plus } from 'lucide-react';
+import { Plus, Shield, Award, Filter, Search, ArrowRight, BookOpen } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
@@ -111,49 +111,68 @@ const Credentials = () => {
     }, [credentials, searchQuery, typeFilter, statusFilter]);
 
     return (
-        <div className="min-h-screen bg-transparent text-gray-100 pb-20 relative">
-             {/* Background Effects */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[0%] left-[20%] w-[600px] h-[600px] bg-indigo-600/[0.03] rounded-full blur-[120px]"></div>
+        <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
+            {/* Dynamic Background Elements */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
+                {/* Main Gradient Orbs */}
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
             </div>
 
-            <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
+            <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
                 
-                {/* Header & Actions */}
+                {/* Header Section */}
                 <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6"
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10"
                 >
-                    <div className="relative">
-                         <div className="absolute -left-6 top-1 w-1.5 h-12 bg-indigo-500 rounded-r-full hidden md:block opacity-60"></div>
-                        <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Issued Credentials</h1>
-                        <p className="text-gray-400 max-w-xl">
-                            Manage and track all credentials issued by your institution. Verify status, handle revocations, and issue new certificates.
-                        </p>
+                    <div className="space-y-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                            </span>
+                            <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">Institutional Registry</span>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none flex flex-col md:flex-row md:items-center gap-4">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-zinc-500">Credential</span>
+                                <span className="text-indigo-500">Archive</span>
+                            </h1>
+                            <p className="text-zinc-500 max-w-2xl text-lg font-medium leading-relaxed">
+                                Manage your institution's complete issuance history. Access immutable records, verify cryptographic proof-of-state, and maintain the integrity of your digital credentials.
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    <div className="flex items-center gap-4 w-full lg:w-auto">
                         <Button
                             onClick={() => setShowUploadModal(true)}
                             variant="primary"
                             icon={Plus}
-                            className="rounded-full shadow-lg shadow-indigo-500/20 px-6 py-3"
+                            className="flex-1 lg:flex-none rounded-2xl shadow-2xl shadow-indigo-600/20 px-10 py-5 bg-indigo-600 hover:bg-indigo-500 border-none group overflow-hidden relative"
                         >
-                            Issue Credential
+                            <span className="relative z-10 font-black uppercase tracking-widest text-sm">Issue New Record</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                         </Button>
                     </div>
                 </motion.div>
 
-                {/* Stats Section */}
-                <CredentialsStats stats={stats} />
+                {/* Stats Dashboard */}
+                <div className="bg-white/[0.01] border border-white/[0.04] rounded-[3rem] p-2 backdrop-blur-3xl shadow-2xl">
+                    <CredentialsStats stats={stats} />
+                </div>
 
-                {/* Content Section */}
+                {/* Main Interaction Area */}
                 <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-                    className="space-y-6"
+                    transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-10"
                 >
                     <CredentialsFilter 
                         searchQuery={searchQuery}
@@ -166,16 +185,18 @@ const Credentials = () => {
                         onBulkIssue={() => setShowUploadModal(true)}
                     />
 
-                    <CredentialTable
-                        credentials={filteredCredentials}
-                        onView={setSelectedCredential}
-                        onRevoke={setCredentialToRevoke}
-                        loading={loading}
-                    />
+                    <div className="min-h-[600px] px-2">
+                        <CredentialTable
+                            credentials={filteredCredentials}
+                            onView={setSelectedCredential}
+                            onRevoke={setCredentialToRevoke}
+                            loading={loading}
+                        />
+                    </div>
                 </motion.div>
             </main>
 
-            {/* Modals */}
+            {/* Modal Components */}
             <UploadCredentialModal
                 isOpen={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
@@ -196,7 +217,6 @@ const Credentials = () => {
                 )}
             </AnimatePresence>
 
-            {/* Revocation Modal */}
             <RevokeCredentialModal 
                 isOpen={!!credentialToRevoke}
                 onClose={() => setCredentialToRevoke(null)}
@@ -207,5 +227,4 @@ const Credentials = () => {
     );
 };
 
-// Add AnimatePresence import as it was missing in my variable list but used in JSX
 export default Credentials;

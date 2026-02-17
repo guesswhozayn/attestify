@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useMemo } from 'react';
 import Notification from '../components/layout/Notification';
 
 const NotificationContext = createContext(null);
@@ -23,9 +23,10 @@ export const NotificationProvider = ({ children }) => {
   const removeNotification = (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
-  
+  const value = useMemo(() => ({ showNotification }), []);
+
   return (
-    <NotificationContext.Provider value={{ showNotification }}>
+    <NotificationContext.Provider value={value}>
       {children}
       <div className="fixed top-4 right-4 z-50 space-y-2">
         {notifications.map(notification => (

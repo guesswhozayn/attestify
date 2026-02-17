@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Users, Globe, Target, Rocket, Award, ExternalLink } from 'lucide-react';
+import { Shield, Users, Globe, Target, Rocket } from 'lucide-react';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import Button from '../components/shared/Button';
@@ -31,10 +31,8 @@ const About = () => {
           />
           
           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute top-[30%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
           <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-          
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       </div>
 
       <Navbar />
@@ -187,14 +185,16 @@ const About = () => {
                  <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
                      We are open source and community driven. Help us build the future of digital trust.
                  </p>
-                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <Button onClick={() => window.open('https://github.com', '_blank')} className="px-8 py-4 bg-white text-black hover:bg-gray-200">
-                        View on GitHub
+                 <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+                    <Button onClick={() => window.open('https://github.com', '_blank')} variant="white" className="px-8 py-4">
+                        <Github className="w-5 h-5" />
+                        <span>View Source</span>
                     </Button>
                     <Button onClick={() => navigate('/contact')} variant="outline" className="px-8 py-4 border-white/10 hover:bg-white/5">
-                        Contact Team
+                        <Mail className="w-5 h-5" />
+                        <span>Contact Team</span>
                     </Button>
-                 </div>
+                </div>
              </div>
         </motion.div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn, LayoutDashboard, User } from 'lucide-react';
+import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Avatar from './Avatar';
@@ -34,8 +34,8 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
             <div className={`
                 w-full max-w-6xl pointer-events-auto transition-all duration-500 ease-in-out
                 ${isScrolled 
-                    ? 'bg-black/80 backdrop-blur-2xl border-white/10 rounded-2xl px-6 py-2 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]' 
-                    : 'bg-[#030014]/40 backdrop-blur-xl border-white/5 rounded-full px-6 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]'
+                    ? 'bg-black/90 backdrop-blur-lg border-white/10 rounded-2xl px-6 py-2 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]' 
+                    : 'bg-[#030014]/60 backdrop-blur-lg border-white/5 rounded-full px-6 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]'
                 }
                 border flex items-center justify-between group/nav hover:border-white/20 transition-all duration-500
             `}>
@@ -131,9 +131,10 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                     ) : (
                         <Button 
                             onClick={() => navigate('/login')}
-                            className="bg-white text-black hover:bg-gray-200 border-0 rounded-full px-6 py-2 text-sm font-black flex items-center gap-2 shadow-[0_8px_20px_-8px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all"
+                            variant="white"
+                            icon={LogIn}
+                            className="hover:scale-105 active:scale-95 transition-all"
                         >
-                            <LogIn className="w-4 h-4" />
                             Sign In
                         </Button>
                     )}
@@ -185,4 +186,4 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
     );
 };
 
-export default Navbar;
+export default React.memo(Navbar);

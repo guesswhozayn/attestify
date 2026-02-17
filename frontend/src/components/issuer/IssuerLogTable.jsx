@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, User, FileText, Activity, AlertCircle, Shield, Hash, ArrowRight } from 'lucide-react';
+import { Clock, User, FileText, Activity, AlertCircle, Hash, ArrowRight } from 'lucide-react';
 
 const IssuerLogTable = ({ logs, loading }) => {
   const getActionIcon = (action) => {

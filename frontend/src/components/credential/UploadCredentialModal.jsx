@@ -131,7 +131,6 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         description: '',
         level: '',
         duration: '',
-        duration: '',
         score: ''
       });
 
@@ -197,10 +196,19 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     document.body.removeChild(link);
   };
 
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Issue New Credential" size="xl">
       {loading && (
-        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-xl transition-all">
+        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all rounded-3xl">
             <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl flex flex-col items-center max-w-sm w-full">
                 <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
                 <h3 className="text-white text-lg font-bold mb-2">Processing Transaction</h3>
@@ -211,15 +219,29 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div 
+        onMouseMove={handleMouseMove}
+        className="relative group flex flex-col"
+      >
+        {/* Spotlight Effect */}
+        <div 
+          className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+          style={{
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99, 102, 241, 0.05), transparent 80%)`
+          }}
+        />
+
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700"></div>
+        
+        <div className="relative z-10 space-y-8 pb-4">
         
         {/* Mode Switcher */}
-        <div className="flex bg-black/40 p-1.5 rounded-xl border border-white/[0.08] backdrop-blur-md">
+        <div className="flex bg-white/[0.03] p-1.5 rounded-xl border border-white/[0.08]">
            <button
              onClick={() => setMode('single')}
              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
                mode === 'single' 
-                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
+                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
                  : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
              }`}
            >
@@ -230,7 +252,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
              onClick={() => setMode('batch')}
              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
                mode === 'batch' 
-                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
+                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
                  : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
              }`}
            >
@@ -337,12 +359,12 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                onClick={() => setCredentialType('CERTIFICATION')}
                className={`relative p-5 rounded-2xl border transition-all duration-300 text-left group overflow-hidden ${
                  credentialType === 'CERTIFICATION'
-                   ? 'bg-gradient-to-br from-emerald-500/20 to-emerald-900/10 border-emerald-500/50 shadow-lg shadow-emerald-500/10'
+                   ? 'bg-gradient-to-br from-emerald-900/50 via-teal-900/40 to-gray-900/50 border-emerald-500/50 shadow-lg shadow-emerald-500/10'
                    : 'bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
                }`}
              >
                <div className="flex items-start justify-between mb-3 relative z-10">
-                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'CERTIFICATION' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'bg-white/10 text-gray-400 group-hover:bg-white/20'}`}>
+                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'CERTIFICATION' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'bg-white/10 text-emerald-400 group-hover:bg-white/20'}`}>
                      <Award className="w-5 h-5" />
                   </div>
                   {credentialType === 'CERTIFICATION' && <div className="bg-emerald-500/20 p-1 rounded-full"><CheckCircle className="w-5 h-5 text-emerald-400" /></div>}
@@ -358,12 +380,12 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                onClick={() => setCredentialType('TRANSCRIPT')}
                className={`relative p-5 rounded-2xl border transition-all duration-300 text-left group overflow-hidden ${
                  credentialType === 'TRANSCRIPT'
-                   ? 'bg-gradient-to-br from-indigo-500/20 to-indigo-900/10 border-indigo-500/50 shadow-lg shadow-indigo-500/10'
+                   ? 'bg-gradient-to-br from-indigo-900/50 via-purple-900/40 to-gray-900/50 border-indigo-500/50 shadow-lg shadow-indigo-500/10'
                    : 'bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
                }`}
              >
                 <div className="flex items-start justify-between mb-3 relative z-10">
-                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'TRANSCRIPT' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'bg-white/10 text-gray-400 group-hover:bg-white/20'}`}>
+                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'TRANSCRIPT' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'bg-white/10 text-indigo-400 group-hover:bg-white/20'}`}>
                      <BookOpen className="w-5 h-5" />
                   </div>
                   {credentialType === 'TRANSCRIPT' && <div className="bg-indigo-500/20 p-1 rounded-full"><CheckCircle className="w-5 h-5 text-indigo-400" /></div>}
@@ -378,8 +400,11 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Common Fields */}
-        <div className="space-y-4">
-           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Recipient Details</h3>
+        <div className="bg-white/[0.02] p-6 rounded-3xl border border-white/[0.06] space-y-6">
+           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+              <User className="w-4 h-4 text-indigo-400" />
+              Recipient Details
+           </h3>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
              <Input
                label="Student Name"
@@ -423,12 +448,12 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
              />
            </div>
            
-           <div>
-             <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Profile Image</label>
+           <div className="border-t border-white/[0.06] pt-6">
+             <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 ml-1">Profile Image</label>
              <div className="flex items-center space-x-4 p-4 bg-black/20 border border-white/10 rounded-2xl border-dashed hover:border-indigo-500/30 transition-colors group">
                <div className="flex-shrink-0">
                   {formData.studentImage ? (
-                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
+                     <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
                         <img 
                           src={URL.createObjectURL(formData.studentImage)} 
                           alt="Preview" 
@@ -436,8 +461,8 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                         />
                      </div>
                   ) : (
-                     <div className="w-14 h-14 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-colors">
-                        <Image className="w-6 h-6" />
+                     <div className="w-16 h-16 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-colors">
+                        <Image className="w-7 h-7" />
                      </div>
                   )}
                </div>
@@ -453,7 +478,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                     htmlFor="student-image-upload"
                     className="cursor-pointer text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
-                    Upload Photo
+                    Upload Student Photo
                   </label>
                   <p className="text-xs text-gray-500 mt-1">Recommended: Square JPG/PNG, max 2MB</p>
                </div>
@@ -462,13 +487,14 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Dynamic Fields */}
-        <div className="space-y-4">
-           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">
+        <div className="bg-white/[0.02] p-6 rounded-3xl border border-white/[0.06] space-y-6">
+           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+             {credentialType === 'TRANSCRIPT' ? <BookOpen className="w-4 h-4 text-indigo-400" /> : <Award className="w-4 h-4 text-emerald-400" />}
              {credentialType === 'TRANSCRIPT' ? 'Academic Records' : 'Certification Details'}
            </h3>
            
            {credentialType === 'TRANSCRIPT' ? (
-              <div className="space-y-6 bg-black/20 p-6 rounded-2xl border border-white/[0.06] backdrop-blur-sm">
+              <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <Input
                     label="Program"
@@ -506,7 +532,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                    className="bg-black/40 border-white/10 focus:border-indigo-500/50"
                  />
                </div>
-                  <div className="border-t border-white/[0.08] pt-6">
+                  <div className="border-t border-white/[0.06] pt-6">
                   <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Course Records</label>
                   <div className="space-y-3">
                     {transcriptData.courses.map((course, index) => (
@@ -553,7 +579,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               </div>
            ) : (
-             <div className="space-y-5 bg-black/20 p-6 rounded-2xl border border-white/[0.06] backdrop-blur-sm">
+             <div className="space-y-5">
                <Input
                  label="Certification Title"
                  value={certificationData.title}
@@ -589,7 +615,7 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                  <textarea
                    value={certificationData.description}
                    onChange={(e) => setCertificationData({...certificationData, description: e.target.value})}
-                   className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 h-28 resize-none text-sm placeholder-gray-600 transition-all"
+                   className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 h-28 resize-none text-sm placeholder-gray-600 transition-all text-base"
                    placeholder="Briefly describe the skills validated by this certification..."
                  />
                </div>
@@ -603,15 +629,20 @@ const UploadCredentialModal = ({ isOpen, onClose, onSuccess }) => {
             loading={loading}
             disabled={loading}
             size="lg"
-            className="w-full justify-center text-lg font-bold py-4 shadow-xl shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-500 rounded-2xl"
+            className={`w-full justify-center text-lg font-bold py-4 shadow-xl rounded-2xl ${
+              credentialType === 'TRANSCRIPT'
+                ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20'
+                : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'
+            }`}
           >
-            Issue Credential
+            Issue {credentialType === 'TRANSCRIPT' ? 'Transcript' : 'Certification'}
           </Button>
         </div>
       </div>
       )}
+     </div>
     </div>
-    </Modal>
+   </Modal>
   );
 };
 

@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import {
   Activity,
   Box,
   Server,
-  Database,
   Shield,
   Clock,
   Zap,
@@ -81,11 +79,12 @@ const NetworkStatus = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-100 pb-20 relative">
+    <div className="min-h-screen bg-black text-white pb-20 relative">
        {/* Background Effects - similar to Dashboard */}
        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-indigo-600/[0.1] rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/[0.05] rounded-full blur-[120px]"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
+          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 space-y-8">

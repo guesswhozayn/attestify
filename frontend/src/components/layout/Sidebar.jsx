@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Grid, FileText, Users, Trash2, User, LogOut, Settings, ClipboardList, Menu, Activity } from 'lucide-react';
+import { Shield, Grid, FileText, Trash2, User, LogOut, Settings, Activity } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
@@ -107,4 +107,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

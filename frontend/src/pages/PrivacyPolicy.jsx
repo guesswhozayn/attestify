@@ -1,6 +1,3 @@
-import React from 'react';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
 import { Lock } from 'lucide-react';
 
 const PrivacyPolicy = () => {
@@ -8,12 +5,10 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative">
       {/* Subtle Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[150px]"></div>
-          <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[150px]"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
+          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
       </div>
-
-      <Navbar />
 
       <main className="relative z-10 pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -74,9 +69,7 @@ const PrivacyPolicy = () => {
         </div>
 
       </main>
-      
-      <Footer />
-    </div>
+   </div>
   );
 };
 

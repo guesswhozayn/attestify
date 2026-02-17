@@ -272,8 +272,11 @@ exports.getPublicIssuerProfileByWallet = asyncHandler(async (req, res) => {
     }
 
     const issuer = await User.findOne({ 
-        walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
-        role: 'ISSUER'
+        role: 'ISSUER',
+        $or: [
+            { walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') } },
+            { 'issuerDetails.authorizedWalletAddress': { $regex: new RegExp(`^${walletAddress}$`, 'i') } }
+        ]
     }).select('name avatar issuerDetails university about email role createdAt');
 
     if (!issuer) {

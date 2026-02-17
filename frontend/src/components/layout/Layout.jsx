@@ -15,7 +15,6 @@ const Layout = ({ children }) => {
       '/issuer-dashboard',
       '/credentials',
       '/student/credentials',
-      '/audit-logs',
       '/revoked',
       '/settings',
       '/network-status'
@@ -47,8 +46,6 @@ const Layout = ({ children }) => {
          return 'My Credentials';
       case '/settings':
         return 'Account Settings';
-      case '/audit-logs':
-        return 'Audit & Analytics';
       case '/profile':
         return role === 'ISSUER' ? 'Issuer Profile' : 'Student Profile';
       case '/revoked':

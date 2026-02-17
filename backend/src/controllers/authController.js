@@ -87,8 +87,8 @@ exports.register = asyncHandler(async (req, res) => {
       title: user.title,
       about: user.about,
       isActive: user.isActive,
-      isActive: user.isActive,
-      issuerDetails: user.issuerDetails
+      issuerDetails: user.issuerDetails,
+      avatar: user.avatar
     }
   });
 });
@@ -135,7 +135,8 @@ exports.login = asyncHandler(async (req, res) => {
       about: user.about,
       isActive: user.isActive,
       studentId: user.studentId,
-      issuerDetails: user.issuerDetails
+      issuerDetails: user.issuerDetails,
+      avatar: user.avatar
     }
   });
 });
@@ -160,7 +161,8 @@ exports.getCurrentUser = asyncHandler(async (req, res) => {
       about: user.about,
       isActive: user.isActive,
       issuerDetails: user.issuerDetails,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      avatar: user.avatar
     }
   });
 });
@@ -214,7 +216,8 @@ exports.updateProfile = asyncHandler(async (req, res) => {
       walletAddress: user.walletAddress,
       title: user.title,
       isActive: user.isActive,
-      issuerDetails: user.issuerDetails
+      issuerDetails: user.issuerDetails,
+      avatar: user.avatar
     }
   });
 });

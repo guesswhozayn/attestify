@@ -1,27 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { publicAPI } from '../services/api';
 import { 
     ShieldCheck, 
     Building2, 
     Wallet, 
     Globe, 
-    ArrowLeft, 
     Loader2,
     Award,
-    Search,
     Share2,
     CheckCircle,
-    Shield
+    Shield,
+    Settings
 } from 'lucide-react';
-import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
+import CredentialBadge from '../components/credential/CredentialBadge';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import Button from '../components/shared/Button';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
+import BackButton from '../components/shared/BackButton';
 import Avatar from '../components/shared/Avatar';
 import { useAuth } from '../context/AuthContext';
-import { Settings, LayoutDashboard } from 'lucide-react';
+
 
 const StudentPublicProfile = () => {
     const { walletAddress } = useParams();
@@ -67,7 +65,7 @@ const StudentPublicProfile = () => {
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white relative overflow-hidden">
                  {/* Background Elements */}
                  <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
                 
                 <div className="relative z-10 flex flex-col items-center">
                     <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-6" />
@@ -80,8 +78,6 @@ const StudentPublicProfile = () => {
     if (error) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-                
                 <div className="relative z-10 max-w-md w-full bg-gray-900/40 backdrop-blur-xl border border-white/10 p-12 rounded-3xl shadow-2xl">
                     <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20 mx-auto">
                         <ShieldCheck className="w-10 h-10 text-red-500" />
@@ -109,12 +105,11 @@ const StudentPublicProfile = () => {
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
                 <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             </div>
 
-            <Navbar showBackSearch={true} />
+            <BackButton fallbackPath="/search" />
 
-            <main className="relative z-10 pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <main className="relative z-10 pt-20 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Profile Header Card */}
                 <div className="relative mb-20">
@@ -128,7 +123,7 @@ const StudentPublicProfile = () => {
 
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
                             {/* Avatar */}
-                            <div className="relative shrink-0 group/avatar">
+                            <div className="relative shrink-0 group/avatar rounded-full">
                                 <Avatar 
                                     src={student?.avatar} 
                                     initials={student?.name} 
@@ -171,7 +166,8 @@ const StudentPublicProfile = () => {
                                         <Button 
                                             onClick={() => navigate('/profile')}
                                             icon={Settings}
-                                            className="bg-white text-black hover:bg-gray-200 rounded-full font-bold text-sm shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
+                                            variant="white"
+                                            className="rounded-full font-bold text-sm shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                                         >
                                             Edit Profile
                                         </Button>
@@ -236,12 +232,12 @@ const StudentPublicProfile = () => {
                     </div>
 
                     {credentials && credentials.length > 0 ? (
-                        <div className="grid gap-6">
-                            {credentials.map((cred) => (
-                                <DetailedCredentialCard 
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                            {credentials.map((cred, index) => (
+                                <CredentialBadge 
                                     key={cred._id} 
                                     credential={cred} 
-                                    metadata={cred.type === 'TRANSCRIPT' ? cred.transcriptData : cred.certificationData} 
+                                    index={index}
                                     onClick={() => openModal(cred)}
                                 />
                             ))}

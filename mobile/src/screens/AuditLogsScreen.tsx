@@ -10,7 +10,7 @@ import {
   StatusBar,
   Platform
 } from 'react-native';
-import { Activity, Clock, ShieldAlert, User, Globe } from 'lucide-react-native';
+import { Activity, Clock, ShieldAlert, User } from 'lucide-react-native';
 import { auditAPI } from '../services/api';
 import GlassCard from '../components/GlassCard';
 import { theme } from '../theme/theme';

@@ -1,9 +1,7 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
+
 import { Home, Search, AlertTriangle } from 'lucide-react';
 
 const NotFound = () => {
@@ -14,10 +12,7 @@ const NotFound = () => {
              {/* Background Effects */}
              <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[150px] animate-pulse"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"></div>
              </div>
-
-             <Navbar />
 
              <main className="flex-grow relative z-10 flex flex-col items-center justify-center text-center px-4 pt-20">
                 <motion.div 
@@ -43,11 +38,11 @@ const NotFound = () => {
                             </p>
                             
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Button onClick={() => navigate('/')} icon={Home} className="bg-white text-black hover:bg-gray-200">
+                                <Button onClick={() => navigate('/')} icon={Home} variant="white">
                                     Return Home
                                 </Button>
                                 <Button onClick={() => navigate('/search')} variant="outline" icon={Search} className="border-white/10 hover:bg-white/5">
-                                    Search Explorer
+                                    Search Credentials
                                 </Button>
                             </div>
                          </div>
@@ -58,8 +53,6 @@ const NotFound = () => {
                     ERROR_CODE: 0x404_PAGE_NOT_FOUND
                 </div>
              </main>
-
-             <Footer />
         </div>
     );
 };

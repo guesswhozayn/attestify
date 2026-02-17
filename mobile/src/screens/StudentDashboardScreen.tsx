@@ -9,7 +9,7 @@ import {
   RefreshControl,
   StatusBar
 } from 'react-native';
-import { Wallet, Award, Share2, ExternalLink, LogOut, ShieldCheck } from 'lucide-react-native';
+import { Wallet, Award, Share2, LogOut, ShieldCheck } from 'lucide-react-native';
 import { theme } from '../theme/theme';
 import { useAuth } from '../context/AuthContext';
 import { credentialAPI } from '../services/api';
@@ -20,7 +20,7 @@ import Button from '../components/Button';
 const StudentDashboardScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
   const [credentials, setCredentials] = useState([]);
-  const [walletAddress, setWalletAddress] = useState('0x71C...394e'); // Mock wallet for now
+  const [walletAddress] = useState('0x71C...394e'); // Mock wallet for now
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 

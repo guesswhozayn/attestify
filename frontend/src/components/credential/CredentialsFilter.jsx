@@ -1,5 +1,4 @@
-import React from 'react';
-import { Search, Filter, RefreshCw, Download, Upload } from 'lucide-react';
+import { Search, RefreshCw, Upload, SlidersHorizontal, X } from 'lucide-react';
 import Button from '../shared/Button';
 
 const CredentialsFilter = ({ 
@@ -9,92 +8,119 @@ const CredentialsFilter = ({
     setTypeFilter, 
     statusFilter, 
     setStatusFilter,
-    dateRange,
-    setDateRange,
     onRefresh,
     onBulkIssue
 }) => {
     return (
-        <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 backdrop-blur-sm space-y-4">
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <div className="bg-[#0b0b0b]/50 border border-white/[0.04] rounded-[2.5rem] p-6 backdrop-blur-3xl shadow-2xl space-y-6">
+            <div className="flex flex-col xl:flex-row gap-6 items-center justify-between">
                 
                 {/* Search Bar */}
-                <div className="relative w-full lg:max-w-md group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                <div className="relative w-full xl:max-w-2xl group">
+                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
                     </div>
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by student name, wallet address, or credential ID..."
-                        className="block w-full pl-10 pr-4 py-2.5 bg-black/20 border border-white/[0.05] rounded-xl text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all focus:bg-black/40"
+                        placeholder="Search Registry by name, wallet, or record ID..."
+                        className="block w-full pl-14 pr-14 py-4 bg-white/[0.01] border border-white/[0.04] rounded-2xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all focus:bg-white/[0.03] shadow-inner"
                     />
+                    {searchQuery && (
+                        <button 
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-6 flex items-center text-zinc-600 hover:text-white transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    )}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex w-full lg:w-auto gap-2">
+                {/* Main Actions */}
+                <div className="flex items-center gap-3 w-full xl:w-auto">
                     <Button 
                         onClick={onRefresh}
                         variant="ghost" 
-                        className="p-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
-                        title="Refresh Data"
+                        className="p-4 text-zinc-500 hover:text-white hover:bg-white/5 rounded-2xl border border-white/[0.04] hover:border-white/10 transition-all shadow-xl active:scale-90"
+                        title="Sync Registry"
                     >
                         <RefreshCw className="w-5 h-5" />
                     </Button>
+                    
+                    <div className="h-10 w-[1px] bg-white/5 mx-2 hidden xl:block"></div>
+
                     <Button 
                         onClick={onBulkIssue}
                         variant="secondary" 
                         icon={Upload}
-                        className="flex-1 lg:flex-none whitespace-nowrap bg-indigo-500/10 text-indigo-300 border-indigo-500/20 hover:bg-indigo-500/20"
+                        className="flex-1 xl:flex-none py-4 px-8 bg-zinc-800 hover:bg-zinc-700 text-white border-zinc-700 group shadow-xl rounded-2xl"
                     >
-                        Bulk Issue
+                        <span className="font-black uppercase tracking-widest text-[11px]">Bulk Sync</span>
                     </Button>
                 </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 pt-2 border-t border-white/[0.05]">
-                {/* Filter Label */}
-                <div className="flex items-center text-sm text-gray-500 mr-2">
-                    <Filter className="w-4 h-4 mr-2" />
-                    Filters:
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-6 border-t border-white/[0.04]">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.02] border border-white/[0.04] rounded-xl">
+                        <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-600" />
+                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Active Filters</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {/* Type Toggle */}
+                        <div className="flex p-1 bg-black/40 border border-white/[0.04] rounded-xl shadow-inner">
+                            {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => setTypeFilter(type)}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        typeFilter === type 
+                                            ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                                            : 'text-zinc-500 hover:text-zinc-300'
+                                    }`}
+                                >
+                                    {type === 'all' ? 'All' : type === 'TRANSCRIPT' ? 'Academic' : 'Certificates'}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Status Toggle */}
+                        <div className="flex p-1 bg-black/40 border border-white/[0.04] rounded-xl shadow-inner">
+                            {['all', 'active', 'revoked'].map((status) => (
+                                <button
+                                    key={status}
+                                    onClick={() => setStatusFilter(status)}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        statusFilter === status 
+                                            ? (status === 'revoked' ? 'bg-red-500 shadow-red-500/20' : 'bg-emerald-500 shadow-emerald-500/20') + ' text-white shadow-lg'
+                                            : 'text-zinc-500 hover:text-zinc-300'
+                                    }`}
+                                >
+                                    {status}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Type Filter */}
-                <select 
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    className="bg-black/20 text-gray-300 text-sm rounded-lg border border-white/[0.1] px-3 py-1.5 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none hover:bg-white/5 transition-colors"
-                >
-                    <option value="all">All Types</option>
-                    <option value="TRANSCRIPT">Transcripts</option>
-                    <option value="CERTIFICATION">Certificates</option>
-                </select>
-
-                {/* Status Filter */}
-                <select 
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-black/20 text-gray-300 text-sm rounded-lg border border-white/[0.1] px-3 py-1.5 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none hover:bg-white/5 transition-colors"
-                >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="revoked">Revoked</option>
-                </select>
-
-                {/* Clear Filters (Only show if filters are active) */}
-                {(typeFilter !== 'all' || statusFilter !== 'all' || searchQuery) && (
-                    <button 
-                        onClick={() => {
-                            setTypeFilter('all');
-                            setStatusFilter('all');
-                            setSearchQuery('');
-                        }}
-                        className="ml-auto text-xs text-red-400 hover:text-red-300 hover:underline px-2 py-1"
-                    >
-                        Clear Filters
-                    </button>
-                )}
+                {/* Stats / Clear */}
+                <div className="flex items-center gap-4">
+                    {(typeFilter !== 'all' || statusFilter !== 'all' || searchQuery) && (
+                        <button 
+                            onClick={() => {
+                                setTypeFilter('all');
+                                setStatusFilter('all');
+                                setSearchQuery('');
+                            }}
+                            className="flex items-center gap-2 text-[10px] font-black text-red-500/60 hover:text-red-400 uppercase tracking-widest transition-colors px-4 py-2 border border-red-500/10 hover:border-red-500/30 rounded-xl"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            Clear Archive
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

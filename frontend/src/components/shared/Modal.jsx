@@ -33,7 +33,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   return (
     <div 
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
-        isVisible ? 'opacity-100 backdrop-blur-md' : 'opacity-0 backdrop-blur-none'
+        isVisible ? 'opacity-100 backdrop-blur-sm' : 'opacity-0 backdrop-blur-none'
       }`}
     >
       {/* Backdrop */}
@@ -44,7 +44,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 
       {/* Modal Content */}
       <div 
-        className={`bg-gray-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl w-full max-h-[90vh] flex flex-col shadow-2xl transform transition-all duration-300 ${sizes[size]} ${
+        className={`bg-gray-900 border border-white/10 rounded-3xl w-full max-h-[90vh] flex flex-col shadow-2xl transform transition-all duration-300 ${sizes[size]} ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}
       >
@@ -60,7 +60,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
         </div>
 
         {/* Body - Scrollable */}
-        <div className="p-6 overflow-y-auto custom-scrollbar">
+        <div className="p-6 overflow-y-auto overflow-x-hidden scrollbar-hide custom-scrollbar">
           {children}
         </div>
       </div>
