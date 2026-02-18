@@ -59,7 +59,8 @@ async function drawTranscript(doc, data) {
     verificationUrl,
     institutionName,
     issuerWalletAddress,
-    issuerRegistration
+    issuerRegistration,
+    ipfsUrl
   } = data;
 
   const margin = 50;
@@ -208,9 +209,12 @@ async function drawTranscript(doc, data) {
   const qrSize = 50; 
   let qrY = footerY + 10;
   
-  if(verificationUrl){
+  // Use IPFS URL if available, otherwise fallback to verification URL
+  const qrTarget = ipfsUrl || verificationUrl;
+  
+  if(qrTarget){
     try {
-        const qrData = await QRCode.toDataURL(verificationUrl);
+        const qrData = await QRCode.toDataURL(qrTarget);
         doc.image(qrData, (pageWidth - qrSize) / 2, qrY, { width: qrSize });
     } catch (e) { console.warn('QR Code generation failed', e); }
   }
@@ -244,7 +248,8 @@ async function drawCertificate(doc, data) {
       verificationUrl,
       institutionName,
       issuerWalletAddress,
-      issuerRegistration
+      issuerRegistration,
+      ipfsUrl
   } = data;
 
   const pageWidth = doc.page.width;
@@ -333,9 +338,12 @@ async function drawCertificate(doc, data) {
   const qrSize = 50; 
   let qrY = footerY + 10;
   
-  if(verificationUrl){
+  // Use IPFS URL if available, otherwise fallback to verification URL
+  const qrTarget = ipfsUrl || verificationUrl;
+  
+  if(qrTarget){
     try {
-        const qrData = await QRCode.toDataURL(verificationUrl);
+        const qrData = await QRCode.toDataURL(qrTarget);
         doc.image(qrData, (pageWidth - qrSize) / 2, qrY, { width: qrSize });
     } catch (e) { prevConsole.warn('QR Code generation failed', e); }
   }
