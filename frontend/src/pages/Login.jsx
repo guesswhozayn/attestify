@@ -5,6 +5,8 @@ import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } fr
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
+import BrandLogo from '../components/shared/BrandLogo';
+import ShieldLogo from '../components/shared/ShieldLogo';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -46,7 +48,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-6 md:p-12">
       
-      <BackButton />
+      <BackButton force={true} fallbackPath="/" />
       
       {/* Background Elements */}
       {/* Background Elements */}
@@ -65,10 +67,8 @@ const Login = () => {
              {/* Logo */}
              <div>
                 <Link to="/" className="inline-flex items-center gap-4 group">
-                   <div className="relative w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
-                      <Shield className="w-10 h-10 text-indigo-400" />
-                   </div>
-                   <span className="text-4xl font-bold tracking-tight text-white">Attestify</span>
+                   <ShieldLogo size="lg" className="shadow-2xl group-hover:scale-110" />
+                   <BrandLogo textSize="text-4xl" />
                 </Link>
              </div>
 

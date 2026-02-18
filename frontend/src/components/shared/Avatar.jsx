@@ -55,7 +55,7 @@ const Avatar = ({
 
         {/* 5. Upload Overlay (if editable) */}
         {editable && (
-          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 backdrop-blur-[2px] z-20">
+          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 backdrop-blur-[2px] z-20 rounded-full">
             {uploading ? (
               <Loader2 className="w-8 h-8 text-white animate-spin" />
             ) : (

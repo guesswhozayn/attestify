@@ -270,14 +270,15 @@ const VerificationPortal = () => {
             <div className="space-y-6 pt-2">
               <VerificationResult result={result} />
               
+            {/* Footer Actions */}
               <div className="flex justify-center pt-8 border-t border-white/5">
                   <Button 
                       onClick={() => setShowResultModal(false)}
                       variant="secondary"
-                      size="md"
-                      className="px-10 uppercase tracking-widest"
+                      size="lg"
+                      className="px-8 uppercase tracking-widest text-xs font-bold border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-300"
                   >
-                      Terminate Session
+                      System Reset
                   </Button>
               </div>
             </div>

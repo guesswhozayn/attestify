@@ -21,29 +21,6 @@ const StudentCredentials = () => {
     const { showNotification } = useNotification();
     const [walletAddress, setWalletAddress] = useState(user?.walletAddress);
 
-    useEffect(() => {
-        const init = async () => {
-            if (!walletAddress) {
-                try {
-                    const address = await blockchainService.connectWallet();
-                    setWalletAddress(address);
-                } catch (e) {
-                    console.log("Wallet not auto-connected", e);
-                }
-            }
-        };
-        init();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        if (walletAddress) {
-            fetchCredentials();
-        } else {
-            setLoading(false);
-        }
-    }, [walletAddress, activeTab, fetchCredentials]);
-
     const fetchCredentials = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
@@ -74,6 +51,30 @@ const StudentCredentials = () => {
             setRefreshing(false);
         }
     }, [walletAddress, activeTab, showNotification]);
+
+    useEffect(() => {
+        const init = async () => {
+            if (!walletAddress) {
+                try {
+                    const address = await blockchainService.connectWallet();
+                    setWalletAddress(address);
+                } catch (e) {
+                    console.log("Wallet not auto-connected", e);
+                }
+            }
+        };
+        init();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (walletAddress) {
+            fetchCredentials();
+        } else {
+            setLoading(false);
+        }
+    }, [walletAddress, activeTab, fetchCredentials]);
+
 
     const handleSearch = (query) => {
         const lower = query.toLowerCase();

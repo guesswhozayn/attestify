@@ -19,13 +19,27 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Initialize auth state from localStorage
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+  // Handle logout cleanup
+  const handleLogout = useCallback(() => {
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    // Clear axios auth header
+    clearAuth();
+
+    // Update state
+    setUser(null);
+    setIsAuthenticated(false);
+  }, []);
+
+  // Consolidate initialization and verification
+  const isInitialized = React.useRef(false);
 
   // Initialize authentication
   const initializeAuth = useCallback(async () => {
+    if (isInitialized.current) return;
+    
     try {
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
@@ -39,37 +53,36 @@ export const AuthProvider = ({ children }) => {
         setUser(parsedUser);
         setIsAuthenticated(true);
 
-        // Optionally verify token with backend
-        await verifyToken();
+        // Verify token with backend
+        try {
+          const response = await authAPI.getCurrentUser();
+          const currentUser = response.data.user;
+          
+          // Update user data if changed
+          setUser(currentUser);
+          localStorage.setItem('user', JSON.stringify(currentUser));
+        } catch (error) {
+          console.error('Token verification failed:', error);
+          if (error.response?.status === 401) {
+            handleLogout();
+          }
+        }
       }
     } catch (error) {
       console.error('Auth initialization error:', error);
-      // Clear invalid data
       handleLogout();
     } finally {
       setLoading(false);
+      isInitialized.current = true;
     }
-  }, [verifyToken, handleLogout]);
+  }, [handleLogout]);
 
-  // Verify token with backend
-  const verifyToken = useCallback(async () => {
-    try {
-      const response = await authAPI.getCurrentUser();
-      const currentUser = response.data.user;
-      
-      // Update user data if changed
-      if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
-        setUser(currentUser);
-        localStorage.setItem('user', JSON.stringify(currentUser));
-      }
-    } catch (error) {
-      console.error('Token verification failed:', error);
-      // Token is invalid, logout
-      if (error.response?.status === 401) {
-        handleLogout();
-      }
-    }
-  }, [user, handleLogout]);
+  // Initialize auth state from localStorage
+  useEffect(() => {
+    initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   // Register new user
   const register = useCallback(async (userData) => {
@@ -160,19 +173,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Handle logout cleanup
-  const handleLogout = useCallback(() => {
-    // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    // Clear axios auth header
-    clearAuth();
-
-    // Update state
-    setUser(null);
-    setIsAuthenticated(false);
-  }, []);
 
   // Update user profile
   const updateUser = useCallback((updates) => {
@@ -193,9 +193,12 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: currentUser };
     } catch (error) {
       console.error('Refresh user error:', error);
+      if (error.response?.status === 401) {
+        handleLogout();
+      }
       return { success: false, error: error.message };
     }
-  }, []);
+  }, [handleLogout]);
 
   // Check if user has specific role
   const hasRole = useCallback((role) => {

@@ -34,7 +34,6 @@ const GoogleLoginButton = ({ text }) => {
         onError={() => showNotification('Google login failed', 'error')}
         text={text || "signin_with"}
         shape="pill"
-        width="100%"
       />
     </div>
   );

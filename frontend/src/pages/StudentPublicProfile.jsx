@@ -18,6 +18,7 @@ import CredentialDetails from '../components/credential/CredentialDetails';
 import Button from '../components/shared/Button';
 import BackButton from '../components/shared/BackButton';
 import Avatar from '../components/shared/Avatar';
+import PoweredBy from '../components/shared/PoweredBy';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -257,6 +258,8 @@ const StudentPublicProfile = () => {
                     )}
                 </div>
             </main>
+
+            <PoweredBy className="pb-8" /> 
 
             <CredentialDetails 
                 isOpen={isModalOpen}

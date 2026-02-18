@@ -2,11 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const BackButton = ({ fallbackPath = '/', text = "Back to Home" }) => {
+const BackButton = ({ fallbackPath = '/', text = "Back to Home", force = false }) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        if (window.history.length > 2) {
+        if (!force && window.history.length > 2) {
             navigate(-1);
         } else {
             navigate(fallbackPath);

@@ -2,298 +2,45 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const QRCode = require('qrcode');
 
+// Colors
+const COLORS = {
+  primary: '#6366f1', // Indigo-500
+  dark: '#0f172a',    // Slate-900
+  secondary: '#64748b', // Slate-500
+  border: '#e2e8f0',   // Slate-200
+  white: '#ffffff',
+  lightGray: '#f8fafc', // Slate-50
+  tableHeader: '#f1f5f9', // Slate-100
+  textMain: '#1e293b', // Slate-800
+};
 
-exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
+exports.generateCredentialPDF = async (data, outputPath) => {
   const { 
     type, 
-    studentName, 
-    studentWalletAddress, 
-    university, 
-    issueDate, 
-    credentialId, 
-    transcriptData, 
-    certificationData,
-    verificationUrl,
-    institutionName 
   } = data;
-
-  const { logo, seal, signature } = brandingAssets;
 
   return new Promise(async (resolve, reject) => {
     try {
-      const doc = new PDFDocument({ layout: 'landscape', size: 'A4', margin: 40 });
+      const isTranscript = type === 'TRANSCRIPT';
+      // A4 Size: 595.28 x 841.89 points
+      const doc = new PDFDocument({ 
+        layout: isTranscript ? 'portrait' : 'landscape', 
+        size: 'A4', 
+        margin: 0,
+        bufferPages: true 
+      });
+
       const writeStream = fs.createWriteStream(outputPath);
       doc.pipe(writeStream);
 
-
-      const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
-
-      if (type === 'TRANSCRIPT') {
-
-
-        doc.rect(0, 0, doc.page.width, 100).fill('#f9fafb');
-        doc.fillColor('#000000');
-        let headerY = 30;
-        let logoAdded = false;
-        if (logo) {
-           try {
-             doc.image(logo, 40, 20, { height: 60 });
-             logoAdded = true;
-           } catch (e) {
-             console.warn('Failed to embed logo:', e.message);
-           }
-        }
-        
-        if (logoAdded) {
-           doc.fontSize(24).font('Helvetica-Bold').text(institutionName, 120, headerY);
-        } else {
-           doc.fontSize(24).font('Helvetica-Bold').text(institutionName, 40, headerY);
-        }
-        
-        doc.fontSize(10).font('Helvetica').text('OFFICIAL ACADEMIC TRANSCRIPT', 40, 85, { 
-            width: doc.page.width - 80, 
-            align: 'right' 
-        });
-  
-
-        if (seal) {
-           try {
-             doc.save();
-             doc.opacity(0.1);
-             doc.image(seal, doc.page.width / 2 - 150, doc.page.height / 2 - 150, { width: 300 });
-             doc.restore();
-           } catch (e) {
-              console.warn('Failed to embed watermark seal:', e.message);
-              doc.restore();
-           }
-        }
-  
-        doc.moveDown(4);
-  
-
-        doc.fontSize(10).font('Helvetica-Bold');
-        const leftCol = 40;
-        const rightCol = 400;
-        let infoY = 120;
-        
-        doc.text('STUDENT DETAILS', leftCol, infoY);
-        doc.rect(leftCol, infoY + 15, doc.page.width - 80, 1).fill('#e5e7eb');
-        doc.fillColor('#000');
-        
-        infoY += 30;
-        doc.text(`Name:`, leftCol, infoY).font('Helvetica-Bold').text(studentName, leftCol + 60, infoY);
-        doc.font('Helvetica').text(`Wallet:`, rightCol, infoY).font('Helvetica-Bold').text(studentWalletAddress.substring(0, 10) + '...', rightCol + 60, infoY);
-        
-        infoY += 20;
-        doc.font('Helvetica').text(`Program:`, leftCol, infoY).font('Helvetica-Bold').text(transcriptData?.program || 'N/A', leftCol + 60, infoY);
-        doc.font('Helvetica').text(`ID:`, rightCol, infoY).font('Helvetica-Bold').text(credentialId, rightCol + 60, infoY); 
-  
-        infoY += 20;
-        doc.font('Helvetica').text(`Admitted:`, leftCol, infoY).font('Helvetica-Bold').text(transcriptData?.admissionYear || 'N/A', leftCol + 60, infoY);
-        doc.font('Helvetica').text(`Graduated:`, rightCol, infoY).font('Helvetica-Bold').text(transcriptData?.graduationYear || 'N/A', rightCol + 60, infoY);
-        
-        doc.moveDown(2);
-  
-
-        let tableY = infoY + 40;
-        const colCode = 40;
-        const colTitle = 140;
-        const colGrade = 550;
-        const colCredit = 650;
-  
-
-        doc.rect(colCode - 10, tableY - 5, doc.page.width - 60, 25).fill('#f3f4f6');
-        doc.fillColor('#000');
-  
-        doc.font('Helvetica-Bold').fontSize(10);
-        doc.text('CODE', colCode, tableY);
-        doc.text('COURSE TITLE', colTitle, tableY);
-        doc.text('GRADE', colGrade, tableY);
-        doc.text('CREDITS', colCredit, tableY);
-        
-      // Course List
-        doc.font('Helvetica');
-        let y = tableY + 30;
-        
-        if (transcriptData?.courses && Array.isArray(transcriptData.courses)) {
-          transcriptData.courses.forEach((course, i) => {
-            if (y > doc.page.height - 100) {
-              doc.addPage({ layout: 'landscape', size: 'A4', margin: 40 });
-              y = 50;
-            }
-            
-
-            if (i % 2 === 1) {
-                doc.rect(colCode - 10, y - 5, doc.page.width - 60, 20).fill('#fafafa');
-                doc.fillColor('#000');
-            }
-  
-            doc.text(course.code || '', colCode, y);
-            doc.text(course.name || '', colTitle, y);
-            doc.text(course.grade || '', colGrade, y);
-            doc.text(course.credits || '', colCredit, y);
-            y += 20;
-          });
-        }
-  
-        y += 20;
-        doc.moveTo(40, y).lineTo(doc.page.width - 40, y).strokeColor('#e5e7eb').stroke();
-        
-        // Summary & Footer
-        y += 20;
-        doc.font('Helvetica-Bold').fontSize(12);
-        doc.text(`Cumulative GPA: ${transcriptData?.cgpa || 'N/A'}`, 40, y, { align: 'right', width: doc.page.width - 80 });
-        
-        // Footer section alignment
-        const footerHeight = 80;
-        const footerY = doc.page.height - footerHeight - 20; // 20 padding from bottom
-        const margin = 40;
-
-        // 1. CENTER: QR Code (Bottom Center)
-        const qrSize = 60;
-        const qrX = (doc.page.width - qrSize) / 2;
-        const qrY = footerY;
-
-        doc.fillColor('#000');
-        doc.image(qrCodeDataUrl, qrX, qrY, { width: qrSize });
-        doc.fontSize(8).font('Helvetica').fillColor('#64748b')
-           .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: doc.page.width });
-
-        // 2. LEFT: Issued Date & Info (Bottom Left)
-        const leftInfoY = footerY + 10;
-        doc.fontSize(10).font('Helvetica').fillColor('#1f2937')
-           .text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, margin, leftInfoY);
-        
-        doc.fontSize(8).fillColor('#64748b')
-           .text(`Credential ID: ${credentialId.substring(0, 16)}...`, margin, leftInfoY + 15)
-           .text(`Generated: ${new Date().toLocaleDateString()}`, margin, leftInfoY + 27);
-
-        // 3. RIGHT: Seal & Signature (Bottom Right)
-        const signatureWidth = 160;
-        const signatureX = doc.page.width - margin - signatureWidth;
-        const signatureY = footerY; 
-
-        // Seal behind signature if exists
-        if (seal) {
-            try {
-               doc.save();
-               doc.opacity(0.8);
-               // Place seal slightly adjusted relative to signature area
-               doc.image(seal, signatureX - 20, signatureY - 10, { width: 70 });
-               doc.restore();
-            } catch (e) {
-               console.warn('Failed to embed footer seal:', e.message); 
-            }
-        }
-  
-        if (signature) {
-            try {
-              // Center signature image in the signature area
-              doc.image(signature, signatureX, signatureY, { width: signatureWidth, height: 40, fit: [signatureWidth, 40], align: 'center' });
-            } catch (e) {
-              console.warn('Failed to embed signature:', e.message); 
-            }
-        }
-        
-        // Line for signature
-        const lineY = signatureY + 45;
-        doc.lineWidth(1).strokeColor('#e2e8f0').moveTo(signatureX, lineY).lineTo(signatureX + signatureWidth, lineY).stroke();
-        
-        doc.fontSize(10).font('Helvetica-Bold').fillColor('#1f2937')
-           .text('Authorized Signature', signatureX, lineY + 5, { width: signatureWidth, align: 'center' });
-  
+      if (isTranscript) {
+        await drawTranscript(doc, data);
       } else {
-
-        
-
-        doc.lineWidth(2).strokeColor('#c084fc').rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
-        doc.lineWidth(1).strokeColor('#e9d5ff').rect(25, 25, doc.page.width - 50, doc.page.height - 50).stroke();
-        
-
-        doc.lineWidth(3).strokeColor('#9333ea')
-           .moveTo(30, 60).lineTo(30, 30).lineTo(60, 30).stroke();
-        
-        doc.moveTo(doc.page.width - 60, doc.page.height - 30).lineTo(doc.page.width - 30, doc.page.height - 30).lineTo(doc.page.width - 30, doc.page.height - 60).stroke();
-  
-        // 3. Header & Logo
-        let logoY = 60;
-        if (logo) {
-           try {
-             doc.image(logo, doc.page.width / 2 - 60, logoY, { width: 120 });
-             logoY += 140; 
-           } catch (e) {
-             console.warn('Failed to embed certificate logo:', e.message);
-             logoY += 40;
-           }
-        } else {
-           logoY += 40;
-        }
-        
-        doc.fillColor('#1f2937');
-        doc.fontSize(36).font('Helvetica-Bold').text(institutionName, 0, logoY, { align: 'center' });
-        
-        doc.moveDown(1);
-        doc.fontSize(12).font('Helvetica').text('CERTIFICATE OF COMPLETION', { align: 'center', characterSpacing: 2 });
-        
-
-        doc.moveDown(2);
-        doc.fontSize(16).font('Helvetica-Oblique').text('This is to certify that', { align: 'center', color: '#4b5563' });
-        
-        doc.moveDown(1);
-        doc.fontSize(32).font('Helvetica-Bold').text(studentName, { align: 'center', color: '#111827' });
-        
-        doc.moveDown(0.5);
-        doc.fontSize(12).font('Helvetica').text(`Wallet: ${studentWalletAddress}`, { align: 'center', color: '#6b7280' });
-        
-        doc.moveDown(1.5);
-        doc.fontSize(16).text('Has successfully completed the requirements for', { align: 'center', color: '#4b5563' });
-        
-        doc.moveDown(1);
-        let title = certificationData?.title || 'Program Completion';
-        doc.fontSize(28).font('Helvetica-Bold').text(title, { align: 'center', color: '#bea0ff' }); 
-        
-        if (certificationData?.level) {
-           doc.moveDown(0.5);
-           doc.fontSize(16).font('Helvetica').text(`${certificationData.level}`, { align: 'center', color: '#4b5563' });
-        }
-  
-        // 5. Footer & Signatures
-        const footerY = doc.page.height - 100;
-        const sideMargin = 80;
-        if (seal) {
-            try {
-               doc.image(seal, sideMargin, footerY - 40, { width: 80 });
-            } catch (e) {
-               console.warn('Failed to embed certificate seal:', e.message); 
-            }
-        }
-        doc.fontSize(10).font('Helvetica').fillColor('#374151')
-           .text(`Issued: ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, sideMargin, footerY + 50);
-
-        doc.image(qrCodeDataUrl, doc.page.width / 2 - 30, footerY - 10, { width: 60 });
-        doc.fontSize(8).font('Helvetica').fillColor('#64748b')
-           .text('SCAN TO VERIFY', 0, footerY + 55, { align: 'center', width: doc.page.width });
-        const sigWidth = 150;
-        const sigX = doc.page.width - sideMargin - sigWidth;
-
-        if (signature) {
-            try {
-               doc.image(signature, sigX, footerY - 45, { width: sigWidth, height: 45, fit: [sigWidth, 45] });
-            } catch (e) {
-               console.warn('Failed to embed certificate signature:', e.message); 
-            }
-        }
-        
-        doc.lineWidth(1).strokeColor('#9ca3af').moveTo(sigX, footerY + 5).lineTo(sigX + sigWidth, footerY + 5).stroke();
-        doc.fontSize(11).font('Helvetica-Bold').fillColor('#1f2937')
-           .text('Authorized Signature', sigX, footerY + 15, { width: sigWidth, align: 'center' });
-           
-        doc.fontSize(8).font('Helvetica').fillColor('#9ca3af')
-           .text(`Credential ID: ${credentialId}`, sigX, footerY + 30, { width: sigWidth, align: 'center' });
+        await drawCertificate(doc, data);
       }
-  
+
       doc.end();
-  
+
       writeStream.on('finish', () => resolve());
       writeStream.on('error', (err) => reject(err));
     } catch (error) {
@@ -301,3 +48,314 @@ exports.generateCredentialPDF = async (data, brandingAssets, outputPath) => {
     }
   });
 };
+
+async function drawTranscript(doc, data) {
+  const { 
+    studentName, 
+    studentWalletAddress, 
+    credentialId, 
+    transcriptData, 
+    issueDate,
+    verificationUrl,
+    institutionName,
+    issuerWalletAddress,
+    issuerRegistration
+  } = data;
+
+  const margin = 50;
+  const pageWidth = doc.page.width;
+  const contentWidth = pageWidth - (margin * 2);
+
+  // --- HEADER ---
+  // Background for header
+  doc.rect(0, 0, pageWidth, 120).fill(COLORS.lightGray);
+  
+  // Institution Name
+  let headerContentY = 40;
+  let textX = margin;
+
+  doc.fillColor(COLORS.dark);
+  doc.fontSize(22).font('Helvetica-Bold').text(institutionName, textX, 40);
+  
+  doc.fontSize(10).font('Helvetica').fillColor(COLORS.secondary)
+     .text('OFFICIAL ACADEMIC TRANSCRIPT', textX, 70, { charSpacing: 1 });
+
+  // Right-aligned branding badge
+  const badgeWidth = 120;
+  doc.roundedRect(pageWidth - margin - badgeWidth, 40, badgeWidth, 24, 12)
+     .fill(COLORS.white);
+  doc.fontSize(8).font('Helvetica-Bold').fillColor(COLORS.primary)
+     .text('VERIFIED CREDENTIAL', pageWidth - margin - badgeWidth, 48, { width: badgeWidth, align: 'center' });
+
+  // Header separator
+  doc.lineWidth(2).strokeColor(COLORS.primary).moveTo(0, 118).lineTo(pageWidth, 118).stroke();
+
+
+  // --- STUDENT INFO GRID ---
+  const gridY = 140;
+  const col1X = margin;
+  const col2X = margin + 250;
+
+  doc.fillColor(COLORS.textMain);
+
+  const drawLabelValue = (label, value, x, y) => {
+    doc.fontSize(8).font('Helvetica-Bold').fillColor(COLORS.secondary).text(label.toUpperCase(), x, y);
+    doc.fontSize(11).font('Helvetica').fillColor(COLORS.dark).text(value, x, y + 12);
+  };
+
+  drawLabelValue('Student Name', studentName, col1X, gridY);
+  drawLabelValue('Student ID / Wallet', studentWalletAddress.substring(0, 20) + '...', col2X, gridY);
+
+  drawLabelValue('Program', transcriptData?.program || 'N/A', col1X, gridY + 40);
+  drawLabelValue('Credential ID', credentialId, col2X, gridY + 40);
+
+  drawLabelValue('Admission Year', transcriptData?.admissionYear || 'N/A', col1X, gridY + 80);
+  drawLabelValue('Graduation Year', transcriptData?.graduationYear || 'N/A', col2X, gridY + 80);
+
+  
+  // --- ACADEMIC RECORD TABLE ---
+  let tableY = gridY + 120;
+  
+  // Columns: Code (15%), Title (50%), Grade (15%), Credits (20%)
+  const tableWidth = contentWidth;
+  const col1 = margin;
+  const col2 = margin + (tableWidth * 0.15);
+  const col3 = margin + (tableWidth * 0.65);
+  const col4 = margin + (tableWidth * 0.85);
+
+  // Table Header
+  const rowHeight = 20;
+  doc.rect(margin, tableY, tableWidth, rowHeight).fill(COLORS.tableHeader);
+  
+  doc.fillColor(COLORS.secondary).fontSize(8).font('Helvetica-Bold');
+  const headerTextY = tableY + 6;
+  doc.text('CODE', col1 + 10, headerTextY);
+  doc.text('COURSE TITLE', col2 + 10, headerTextY);
+  doc.text('GRADE', col3 + 10, headerTextY);
+  doc.text('CREDITS', col4 + 10, headerTextY);
+
+  // Table Rows
+  let y = tableY + rowHeight;
+  doc.font('Helvetica').fontSize(9).fillColor(COLORS.textMain);
+
+  if (transcriptData?.courses && Array.isArray(transcriptData.courses)) {
+      transcriptData.courses.forEach((course, index) => {
+          // Check pagination
+          if (y > doc.page.height - 120) {
+              doc.addPage();
+              y = 50; 
+              // Redraw header on new page
+              doc.rect(margin, y, tableWidth, rowHeight).fill(COLORS.tableHeader);
+              doc.fillColor(COLORS.secondary).fontSize(8).font('Helvetica-Bold');
+              const hY = y + 6;
+              doc.text('CODE', col1 + 10, hY);
+              doc.text('COURSE TITLE', col2 + 10, hY);
+              doc.text('GRADE', col3 + 10, hY);
+              doc.text('CREDITS', col4 + 10, hY);
+              y += rowHeight;
+              doc.font('Helvetica').fontSize(9).fillColor(COLORS.textMain);
+          }
+
+          if (index % 2 !== 0) {
+              doc.rect(margin, y, tableWidth, rowHeight).fill(COLORS.lightGray);
+          }
+
+          doc.fillColor(COLORS.textMain);
+          const textY = y + 5;
+          doc.text(course.code, col1 + 10, textY);
+          doc.text(course.name, col2 + 10, textY);
+          doc.font('Helvetica-Bold').text(course.grade, col3 + 10, textY).font('Helvetica');
+          doc.text(course.credits, col4 + 10, textY);
+
+          y += rowHeight;
+      });
+  }
+
+  // Summary Section
+  y += 10;
+  doc.moveTo(margin, y).lineTo(pageWidth - margin, y).strokeColor(COLORS.border).stroke();
+  
+  y += 15;
+  // CGPA Box
+  const cgpaBoxWidth = 150;
+  const cgpaBoxX = pageWidth - margin - cgpaBoxWidth;
+  doc.rect(cgpaBoxX, y, cgpaBoxWidth, 30).fill(COLORS.lightGray);
+  doc.rect(cgpaBoxX, y, cgpaBoxWidth, 30).strokeColor(COLORS.primary).lineWidth(0.5).stroke();
+  
+  doc.fillColor(COLORS.primary).fontSize(10).font('Helvetica-Bold')
+     .text(`Cumulative GPA: ${transcriptData?.cgpa || 'N/A'}`, cgpaBoxX, y + 10, { width: cgpaBoxWidth, align: 'center' });
+
+
+  // --- FOOTER ---
+  const footerHeight = 120;
+  const footerY = doc.page.height - footerHeight;
+
+  // Bottom Footer Elements 
+  // Left: Date
+  doc.fontSize(9).font('Helvetica').fillColor(COLORS.secondary)
+     .text(`Issued On: ${new Date(issueDate).toLocaleDateString()}`, margin, footerY + 40);
+  
+  doc.fontSize(8).text(`Generated via Attestify Protocol`, margin, footerY + 55);
+  
+  if (issuerRegistration) {
+      doc.text(`Reg. No: ${issuerRegistration}`, margin, footerY + 70);
+  }
+  if (issuerWalletAddress) {
+      doc.text(`Issuer Wallet: ${issuerWalletAddress}`, margin, footerY + 85, { width: 250 });
+  }
+
+  // Center: QR Code & Branding Group
+  const qrSize = 50; 
+  let qrY = footerY + 10;
+  
+  if(verificationUrl){
+    try {
+        const qrData = await QRCode.toDataURL(verificationUrl);
+        doc.image(qrData, (pageWidth - qrSize) / 2, qrY, { width: qrSize });
+    } catch (e) { console.warn('QR Code generation failed', e); }
+  }
+  
+  doc.fontSize(7).fillColor(COLORS.secondary)
+     .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: pageWidth });
+
+  // Attestify Branding
+  const brandText = 'attestify.';
+  doc.fontSize(10).font('Helvetica-Bold');
+  const brandWidth = doc.widthOfString(brandText);
+  const brandX = (pageWidth - brandWidth) / 2;
+  const brandY = qrY + qrSize + 20;
+  
+  doc.fillColor(COLORS.dark).text('attestify', brandX, brandY, { continued: true });
+  doc.fillColor(COLORS.primary).text('.');
+
+  // Right: Signature
+  const sigX = pageWidth - margin - 150;
+  doc.lineWidth(1).strokeColor(COLORS.border).moveTo(sigX, footerY + 55).lineTo(sigX + 150, footerY + 55).stroke();
+  doc.fontSize(9).font('Helvetica-Bold').text('Authorized Signature', pageWidth - margin - 130, footerY + 60, { width: 130, align: 'center' });
+
+}
+
+async function drawCertificate(doc, data) {
+  const {
+      studentName,
+      studentWalletAddress,
+      certificationData,
+      issueDate,
+      verificationUrl,
+      institutionName,
+      issuerWalletAddress,
+      issuerRegistration
+  } = data;
+
+  const pageWidth = doc.page.width;
+  const pageHeight = doc.page.height;
+  const margin = 50;
+
+  // --- BORDER ---
+  // Solid border
+  doc.lineWidth(1).strokeColor(COLORS.primary)
+     .rect(35, 35, pageWidth - 70, pageHeight - 70).stroke();
+
+  // Corner decorations
+  const cornerLen = 40;
+  const inset = 35;
+  doc.lineWidth(3).strokeColor(COLORS.primary);
+  
+  // TL
+  doc.moveTo(inset, inset + cornerLen).lineTo(inset, inset).lineTo(inset + cornerLen, inset).stroke();
+  // TR
+  doc.moveTo(pageWidth - inset - cornerLen, inset).lineTo(pageWidth - inset, inset).lineTo(pageWidth - inset, inset + cornerLen).stroke();
+  // BR
+  doc.moveTo(pageWidth - inset, pageHeight - inset - cornerLen).lineTo(pageWidth - inset, pageHeight - inset).lineTo(pageWidth - inset - cornerLen, pageHeight - inset).stroke();
+  // BL
+  doc.moveTo(inset + cornerLen, pageHeight - inset).lineTo(inset, pageHeight - inset).lineTo(inset, pageHeight - inset - cornerLen).stroke();
+
+
+  // --- HEADER ---
+  let cursorY = 80;
+
+  // Institution
+  doc.fillColor(COLORS.dark).font('Helvetica-Bold').fontSize(28)
+     .text(institutionName.toUpperCase(), 0, cursorY, { align: 'center' });
+  
+  cursorY += 45; // Increased from 35
+  doc.fillColor(COLORS.primary).font('Helvetica').fontSize(10)
+     .text('VERIFIED BLOCKCHAIN CREDENTIAL', 0, cursorY, { align: 'center', charSpacing: 2 });
+
+  // --- CONTENT ---
+  cursorY += 60; // Increased from 45
+  doc.fillColor(COLORS.secondary).font('Helvetica-Oblique').fontSize(14)
+     .text('This verifies that', 0, cursorY, { align: 'center' });
+
+  cursorY += 40; // Increased from 30
+  doc.fillColor(COLORS.dark).font('Helvetica-Bold').fontSize(36)
+     .text(studentName, 0, cursorY, { align: 'center' });
+
+  cursorY += 50; // Increased from 30
+  doc.fillColor(COLORS.secondary).font('Helvetica').fontSize(10)
+     .text(studentWalletAddress, 0, cursorY, { align: 'center' });
+
+  cursorY += 35;
+  doc.fillColor(COLORS.secondary).font('Helvetica-Oblique').fontSize(14)
+     .text('Has successfully completed the requirements for', 0, cursorY, { align: 'center' });
+
+  cursorY += 30;
+  const title = certificationData?.title || 'Certification';
+  doc.fillColor(COLORS.primary).font('Helvetica-Bold').fontSize(24)
+     .text(title, 0, cursorY, { align: 'center' });
+
+  if (certificationData?.level) {
+      cursorY += 25;
+      doc.fillColor(COLORS.secondary).font('Helvetica').fontSize(14)
+         .text(certificationData.level, 0, cursorY, { align: 'center' });
+  }
+
+  // --- FOOTER ---
+  const footerY = pageHeight - 130; // Moved down from -150
+
+  // Left Side: Date & Issuer Details
+  doc.fillColor(COLORS.textMain).font('Helvetica-Bold').fontSize(9)
+     .text('DATE ISSUED', 100, footerY + 30);
+  doc.font('Helvetica').fontSize(9)
+     .text(new Date(issueDate).toLocaleDateString(), 100, footerY + 42);
+
+  doc.fontSize(7).fillColor(COLORS.secondary);
+  let detailY = footerY + 60;
+  if (issuerRegistration) {
+      doc.text(`Reg. No: ${issuerRegistration}`, 100, detailY);
+      detailY += 10;
+  }
+  if (issuerWalletAddress) {
+      doc.text(`Issuer Wallet: ${issuerWalletAddress}`, 100, detailY, { width: 220 });
+  }
+
+  // Center: QR Code & Branding Group
+  const qrSize = 50; 
+  let qrY = footerY + 10;
+  
+  if(verificationUrl){
+    try {
+        const qrData = await QRCode.toDataURL(verificationUrl);
+        doc.image(qrData, (pageWidth - qrSize) / 2, qrY, { width: qrSize });
+    } catch (e) { prevConsole.warn('QR Code generation failed', e); }
+  }
+  
+  doc.fontSize(7).fillColor(COLORS.secondary)
+     .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: pageWidth });
+
+  // Attestify branding - Moved to groupings
+  const brandTextCert = 'attestify.';
+  doc.fontSize(10).font('Helvetica-Bold');
+  const brandWidthCert = doc.widthOfString(brandTextCert);
+  const brandXCert = (pageWidth - brandWidthCert) / 2;
+  const brandYCert = qrY + qrSize + 20;
+
+  doc.fillColor(COLORS.dark).text('attestify', brandXCert, brandYCert, { continued: true });
+  doc.fillColor(COLORS.primary).text('.');
+
+  // Right Side: Signature
+  const sigX = pageWidth - 200;
+  doc.lineWidth(1).strokeColor(COLORS.secondary).moveTo(sigX, footerY + 40).lineTo(sigX + 120, footerY + 40).stroke();
+  doc.fontSize(9).font('Helvetica-Bold').text('AUTHORIZED SIGNATURE', sigX, footerY + 50, { width: 120, align: 'center' });
+
+}
