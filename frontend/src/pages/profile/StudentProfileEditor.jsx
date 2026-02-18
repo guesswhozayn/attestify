@@ -278,7 +278,7 @@ const StudentProfileEditor = () => {
                                 <div className="flex flex-col gap-3 min-w-[200px]">
                                     {user?.walletAddress && (
                                         <a 
-                                            href={`/profile/${user.walletAddress}`} 
+                                            href={`/student/${user.walletAddress}`} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-200 text-sm font-bold rounded-full transition-all shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)] active:scale-95 duration-200"
@@ -289,7 +289,7 @@ const StudentProfileEditor = () => {
                                     )}
                                     <Button 
                                         onClick={() => {
-                                            const url = `${window.location.origin}/profile/${user?.walletAddress}`;
+                                            const url = `${window.location.origin}/student/${user?.walletAddress}`;
                                             navigator.clipboard.writeText(url);
                                             showNotification('Profile link copied!', 'success');
                                         }}

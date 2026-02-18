@@ -14,6 +14,7 @@ import {
 import { publicAPI } from '../services/api';
 import Button from '../components/shared/Button';
 import BackButton from '../components/shared/BackButton';
+import PoweredBy from '../components/shared/PoweredBy';
 
 const IssuerPublicProfile = () => {
     const { id, walletAddress } = useParams();
@@ -122,11 +123,7 @@ const IssuerPublicProfile = () => {
                             {/* Logo/Avatar */}
                             <div className="relative shrink-0 group/avatar">
                                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-black border border-white/10 p-4 flex items-center justify-center shadow-2xl relative overflow-hidden">
-                                    {data.details?.branding?.logo ? (
-                                        <img src={data.details.branding.logo} alt={data.name} className="w-full h-full object-contain" />
-                                    ) : (
-                                        <Building2 className="w-12 h-12 text-zinc-700" />
-                                    )}
+                                    <Building2 className="w-12 h-12 text-zinc-700" />
                                 </div>
                                 <div className="absolute -bottom-2 -right-2 bg-gray-900 p-1.5 rounded-full border border-gray-800 z-20">
                                     <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/50">
@@ -216,40 +213,10 @@ const IssuerPublicProfile = () => {
                     </div>
                 </div>
 
-                {/* Cryptographic Seal */}
-                {data.details?.branding?.seal && (
-                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-                        <div className="bg-gradient-to-br from-gray-900/40 to-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none">
-                                <Award className="w-64 h-64" />
-                            </div>
-                            
-                            <div className="flex flex-col md:flex-row gap-8 items-center relative z-10">
-                                <div className="w-32 h-32 shrink-0 bg-white/5 rounded-full p-4 border border-white/10 flex items-center justify-center">
-                                    <img 
-                                        src={data.details.branding.seal} 
-                                        alt="Official Seal" 
-                                        className="w-full h-full object-contain"
-                                    />
-                                </div>
-                                <div className="flex-1 text-center md:text-left">
-                                    <h3 className="text-xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
-                                        <Award className="w-5 h-5 text-purple-400" />
-                                        Cryptographic Seal
-                                    </h3>
-                                    <p className="text-gray-400 text-sm mb-4 max-w-xl">
-                                        This issuer uses a specialized cryptographic seal to sign all issued credentials. This seal ensures authenticity and prevents forgery.
-                                    </p>
-                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono">
-                                        Seal Fingerprint: 0x8f2d...9a1b
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+
 
             </main>
+            <PoweredBy />
         </div>
     );
 };

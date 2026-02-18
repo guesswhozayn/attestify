@@ -14,40 +14,17 @@ const csv = require('csv-parser');
 const pdfService = require('../services/pdfService');
 const asyncHandler = require('../middleware/asyncHandler');
 
-async function ensureLogoCID(branding) {
-  if (branding?.logoCID) return branding.logoCID;
-  if (!branding?.logo) return null;
-
-  if (branding.logo.includes('gateway.pinata.cloud/ipfs/')) {
-    return branding.logo.split('/').pop();
-  }
-
-  if (branding.logo.includes('/uploads/')) {
-    try {
-      const filename = branding.logo.split('/').pop();
-      const localPath = path.join(__dirname, '../../uploads', filename);
-      if (fs.existsSync(localPath)) {
-        const result = await ipfsService.uploadFile(localPath, filename);
-        return result.ipfsHash;
-      }
-    } catch (err) {
-      console.warn('Failed to upload local logo to IPFS for SBT:', err.message);
-    }
-  }
-  return null;
-}
-
 async function prepareSBTMetadata(user, credential, ipfsCID) {
-  const branding = user.issuerDetails?.branding || {};
-  const logoCID = await ensureLogoCID(branding);
-
   const metadata = {
     name: `${credential.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credential.studentName}`,
     description: `A verifiable digital credential issued by ${credential.university} on ${new Date(credential.issueDate).toLocaleDateString()}. Secured by Attestify.`,
-    image: logoCID ? `ipfs://${logoCID}` : null,
-    external_url: `${process.env.FRONTEND_URL}/dashboard`,    attributes: [
+    image: null,
+    external_url: `${process.env.FRONTEND_URL}/dashboard`,
+    attributes: [
       { trait_type: "Degree Type", value: credential.type },
       { trait_type: "Issued By", value: credential.university },
+      { trait_type: "Issuer Wallet", value: user.walletAddress },
+      { trait_type: "Issuer Registration", value: user.issuerDetails?.registrationNumber || "N/A" },
       { trait_type: "Issue Date", value: new Date(credential.issueDate).toISOString().split('T')[0] },
       { trait_type: "PDF Proof", value: `ipfs://${ipfsCID}` },
       { trait_type: "Status", value: "Verified" }
@@ -93,313 +70,36 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     const credentialId = credential._id.toString();
 
 
-    const branding = req.user.issuerDetails?.branding || {};
-    const assets = {
-      logo: null,
-      seal: null,
-      signature: null
-    };
-
-    const fetchImage = async (source, type) => {
-      if (!source) return null;
-      
-
-      if (fs.existsSync(source)) {
-          try {
-              return fs.readFileSync(source);
-          } catch (err) {
-              console.warn(`Failed to read local ${type}:`, err);
-          }
-      }
-
-
-      if (source.includes('/uploads/')) {
-          try {
-
-              const filename = source.split('/uploads/')[1];
-              const localPath = path.join(__dirname, '../../uploads', filename);
-              if (fs.existsSync(localPath)) {
-                  return fs.readFileSync(localPath);
-              }
-          } catch (err) {
-              console.warn(`Failed to resolve local URL ${source}:`, err);
-          }
-      }
-
-      try {
-
-        const url = ipfsService.getIPFSUrl(source);
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-
-        return response.data;
-      } catch (error) {
-        console.warn(`Failed to fetch ${type} asset ${source}:`, error.message);
-        return null;
-      }
-    };
-
-
-    const [logoBuffer, sealBuffer, signatureBuffer] = await Promise.all([
-      fetchImage(branding.logo || branding.logoCID, 'logo'),
-      fetchImage(branding.seal || branding.sealCID, 'seal'),
-      fetchImage(branding.signature || branding.signatureCID, 'signature')
-    ]);
-    
-    assets.logo = logoBuffer;
-    assets.seal = sealBuffer;
-    assets.signature = signatureBuffer;
-
-
-    console.log('Generating PDF for:', studentWalletAddress, 'Type:', type, 'ID:', credentialId);
-    
-
+    // Generate PDF using pdfService
     const uploadsDir = path.join(__dirname, '../../uploads');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
     tempFilePath = path.join(uploadsDir, `cert_${credentialId}_${Date.now()}.pdf`);
-    const doc = new PDFDocument({ layout: 'landscape', size: 'A4', margin: 40 });
-    const writeStream = fs.createWriteStream(tempFilePath);
-    doc.pipe(writeStream);
-
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
     const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
-    const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl);
-
     const institutionName = req.user.issuerDetails?.institutionName || university || 'Attestify University';
+    const issuerWalletAddress = req.user.walletAddress;
+    const issuerRegistration = req.user.issuerDetails?.registrationNumber || '';
 
-    if (type === 'TRANSCRIPT') {
-      doc.rect(0, 0, doc.page.width, 100).fill('#f9fafb');
-      doc.fillColor('#000000'); 
-      let headerY = 30;
-      let logoAdded = false;
-      if (assets.logo) {
-         try {
-           doc.image(assets.logo, 40, 20, { height: 60 });
-           logoAdded = true;
-         } catch (e) {
-           console.warn('Failed to embed logo:', e.message);
-         }
-      }
-      
-      if (logoAdded) {
-         doc.fontSize(24).font('Helvetica-Bold').text(institutionName, 120, headerY);
-      } else {
-         doc.fontSize(24).font('Helvetica-Bold').text(institutionName, 40, headerY);
-      }
-      
-      doc.fontSize(10).font('Helvetica').text('OFFICIAL ACADEMIC TRANSCRIPT', 40, 85, { 
-          width: doc.page.width - 80, 
-          align: 'right' 
-      });
+    await pdfService.generateCredentialPDF({
+        type,
+        studentName,
+        studentWalletAddress,
+        university,
+        issueDate,
+        credentialId,
+        transcriptData: parsedTranscriptData,
+        certificationData: parsedCertificationData,
+        verificationUrl,
+        institutionName,
+        issuerWalletAddress,
+        issuerRegistration
+    }, tempFilePath);
 
+    // Calculate file hash
 
-      if (assets.seal) {
-         try {
-           doc.save();
-           doc.opacity(0.1);
-           doc.image(assets.seal, doc.page.width / 2 - 150, doc.page.height / 2 - 150, { width: 300 });
-           doc.restore();
-         } catch (e) {
-            console.warn('Failed to embed watermark seal:', e.message);
-            doc.restore();
-         }
-      }
-
-      doc.moveDown(4);
-
-
-      doc.fontSize(10).font('Helvetica-Bold');
-      const leftCol = 40;
-      const rightCol = 400;
-      let infoY = 120;
-      
-      doc.text('STUDENT DETAILS', leftCol, infoY);
-      doc.rect(leftCol, infoY + 15, doc.page.width - 80, 1).fill('#e5e7eb');
-      doc.fillColor('#000');
-      
-      infoY += 30;
-      doc.text(`Name:`, leftCol, infoY).font('Helvetica-Bold').text(studentName, leftCol + 60, infoY);
-      doc.font('Helvetica').text(`Wallet:`, rightCol, infoY).font('Helvetica-Bold').text(studentWalletAddress.substring(0, 10) + '...', rightCol + 60, infoY);
-      
-      infoY += 20;
-      doc.font('Helvetica').text(`Program:`, leftCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.program || 'N/A', leftCol + 60, infoY);
-      doc.font('Helvetica').text(`ID:`, rightCol, infoY).font('Helvetica-Bold').text(credentialId, rightCol + 60, infoY);
-      
-      infoY += 20;
-      doc.font('Helvetica').text(`Admitted:`, leftCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.admissionYear || 'N/A', leftCol + 60, infoY);
-      doc.font('Helvetica').text(`Graduated:`, rightCol, infoY).font('Helvetica-Bold').text(parsedTranscriptData?.graduationYear || 'N/A', rightCol + 60, infoY);
-      
-      doc.moveDown(2);
-
-
-      let tableY = infoY + 40;
-      const colCode = 40;
-      const colTitle = 140;
-      const colGrade = 550;
-      const colCredit = 650;
-      const colPoints = 720;
-
-
-      doc.rect(colCode - 10, tableY - 5, doc.page.width - 60, 25).fill('#f3f4f6');
-      doc.fillColor('#000');
-
-      doc.font('Helvetica-Bold').fontSize(10);
-      doc.text('CODE', colCode, tableY);
-      doc.text('COURSE TITLE', colTitle, tableY);
-      doc.text('GRADE', colGrade, tableY);
-      doc.text('CREDITS', colCredit, tableY);
-      
-
-      doc.font('Helvetica');
-      let y = tableY + 30;
-      
-      if (parsedTranscriptData?.courses && Array.isArray(parsedTranscriptData.courses)) {
-        parsedTranscriptData.courses.forEach((course, i) => {
-          if (y > doc.page.height - 100) {
-            doc.addPage({ layout: 'landscape', size: 'A4', margin: 40 });
-            y = 50;
-          }
-          
-
-          if (i % 2 === 1) {
-              doc.rect(colCode - 10, y - 5, doc.page.width - 60, 20).fill('#fafafa');
-              doc.fillColor('#000');
-          }
-
-          doc.text(course.code || '', colCode, y);
-          doc.text(course.name || '', colTitle, y);
-          doc.text(course.grade || '', colGrade, y);
-          doc.text(course.credits || '', colCredit, y);
-          y += 20;
-        });
-      }
-
-      y += 20;
-      doc.moveTo(40, y).lineTo(doc.page.width - 40, y).strokeColor('#e5e7eb').stroke();
-      
-      // Summary & Footer
-      y += 20;
-      doc.font('Helvetica-Bold').fontSize(12);
-      doc.text(`Cumulative GPA: ${parsedTranscriptData?.cgpa || 'N/A'}`, 40, y, { align: 'right', width: doc.page.width - 80 });
-      
-      
-      // Footer Signatures
-      y = doc.page.height - 100;
-      
-      // Date on Left
-      doc.fontSize(10).font('Helvetica').text(`Issued: ${new Date(issueDate).toLocaleDateString()}`, 50, y + 10);
-      doc.fontSize(8).fillColor('#6b7280').text(`Generated: ${new Date().toLocaleDateString()}`, 50, y + 25);
-      doc.fillColor('#000');
-
-      // Seal in Center
-      if (assets.seal) {
-          try {
-             doc.image(assets.seal, doc.page.width / 2 - 40, y - 30, { width: 80 });
-          } catch (e) {
-             console.warn('Failed to embed footer seal:', e.message); 
-          }
-      }
-
-      if (assets.signature) {
-          try {
-            doc.image(assets.signature, doc.page.width - 160, y - 40, { width: 100 });
-          } catch (e) {
-            console.warn('Failed to embed signature:', e.message); 
-          }
-      }
-      doc.moveTo(doc.page.width - 200, y).lineTo(doc.page.width - 50, y).stroke();
-      doc.fontSize(10).font('Helvetica').text('Authorized Signature', doc.page.width - 200, y + 5, { width: 150, align: 'center' });
-
-
-      doc.image(qrCodeDataUrl, doc.page.width - 100, 30, { width: 60 });
-
-    } else {
-      const borderWidth = 20;
-      doc.lineWidth(2).strokeColor('#c084fc').rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
-      doc.lineWidth(1).strokeColor('#e9d5ff').rect(25, 25, doc.page.width - 50, doc.page.height - 50).stroke();
-      doc.lineWidth(3).strokeColor('#9333ea')
-         .moveTo(30, 60).lineTo(30, 30).lineTo(60, 30).stroke();
-      doc.moveTo(doc.page.width - 60, doc.page.height - 30).lineTo(doc.page.width - 30, doc.page.height - 30).lineTo(doc.page.width - 30, doc.page.height - 60).stroke();
-
-      let logoY = 60;
-      if (assets.logo) {
-         try {
-           doc.image(assets.logo, doc.page.width / 2 - 60, logoY, { width: 120 });
-           logoY += 140; 
-         } catch (e) {
-           console.warn('Failed to embed certificate logo:', e.message);
-           logoY += 40;
-         }
-      } else {
-         logoY += 40;
-      }
-      
-      doc.fillColor('#1f2937');
-      doc.fontSize(36).font('Helvetica-Bold').text(institutionName, 0, logoY, { align: 'center' });
-      
-      doc.moveDown(1);
-      doc.fontSize(12).font('Helvetica').text('CERTIFICATE OF COMPLETION', { align: 'center', characterSpacing: 2 });
-      
-
-      doc.moveDown(2);
-      doc.fontSize(16).font('Helvetica-Oblique').text('This is to certify that', { align: 'center', color: '#4b5563' });
-      
-      doc.moveDown(1);
-      doc.fontSize(32).font('Helvetica-Bold').text(studentName, { align: 'center', color: '#111827' });
-      
-      doc.moveDown(0.5);
-      doc.fontSize(12).font('Helvetica').text(`Wallet: ${studentWalletAddress}`, { align: 'center', color: '#6b7280' });
-      
-      doc.moveDown(1.5);
-      doc.fontSize(16).text('Has successfully completed the requirements for', { align: 'center', color: '#4b5563' });
-      
-      doc.moveDown(1);
-      let title = parsedCertificationData?.title || 'Program Completion';
-      doc.fontSize(28).font('Helvetica-Bold').text(title, { align: 'center', color: '#bea0ff' }); // Purple accent
-      
-      if (parsedCertificationData?.level) {
-         doc.moveDown(0.5);
-         doc.fontSize(16).font('Helvetica').text(`${parsedCertificationData.level}`, { align: 'center', color: '#4b5563' });
-      }
-
-
-      
-      const footerY = doc.page.height - 100;
-      doc.fontSize(12).font('Helvetica').fillColor('#374151');
-      doc.text(`Issued: ${new Date(issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, 60, footerY + 10);
-      
-
-      if (assets.seal) {
-          try {
-             doc.image(assets.seal, doc.page.width / 2 - 40, footerY - 40, { width: 80 });
-          } catch (e) {
-             console.warn('Failed to embed certificate seal:', e.message); 
-          }
-      }
-
-      doc.image(qrCodeDataUrl, doc.page.width / 2 - 25, footerY + 50, { width: 50 });
-
-
-      if (assets.signature) {
-          try {
-             doc.image(assets.signature, doc.page.width - 220, footerY - 50, { width: 120 });
-          } catch (e) {
-             console.warn('Failed to embed certificate signature:', e.message); 
-          }
-      }
-      doc.lineWidth(1).strokeColor('#9ca3af').moveTo(doc.page.width - 240, footerY).lineTo(doc.page.width - 60, footerY).stroke();
-      doc.fontSize(10).text('Authorized Signature', doc.page.width - 240, footerY + 10, { width: 180, align: 'center' });
-    }
-
-    doc.end();
-
-    // Wait for PDF to be written
-    await new Promise((resolve, reject) => {
-      writeStream.on('finish', resolve);
-      writeStream.on('error', reject);
-    });
 
     const certificateHash = await hashService.generateSHA256(tempFilePath);
 
@@ -481,9 +181,6 @@ exports.issueCredential = asyncHandler(async (req, res) => {
         const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
         
          if (studentUser && studentUser.email) {
-              const instituteLogo = req.user.issuerDetails?.branding?.logo || 
-                                   (req.user.issuerDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.issuerDetails.branding.logoCID}` : null);
-
               const emailData = {
                  studentName,
                  university: req.user.issuerDetails?.institutionName || university,
@@ -493,8 +190,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
                  ipfsCID: ipfsResult.ipfsHash,
                  certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
                  loginLink: `${process.env.FRONTEND_URL}/login`,
-                 tokenId: credential.tokenId,
-                 instituteLogo: instituteLogo
+                 tokenId: credential.tokenId
               };
               
               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
@@ -562,38 +258,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
   }
 });
 
-const fetchImageFromSource = async (source, type) => {
-  if (!source) return null;
-  
-  if (fs.existsSync(source)) {
-      try {
-          return fs.readFileSync(source);
-      } catch (e) {
-          console.warn(`Failed to read local batch ${type}:`, e);
-      }
-  }
 
-  if (source.includes('/uploads/')) {
-      try {
-          const filename = source.split('/uploads/')[1];
-          const localPath = path.join(__dirname, '../../uploads', filename);
-          if (fs.existsSync(localPath)) {
-              return fs.readFileSync(localPath);
-          }
-      } catch (err) {
-           console.warn(`Failed to resolve local URL batch ${source}:`, err);
-      }
-  }
-
-  try {
-    const url = ipfsService.getIPFSUrl(source);
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    return response.data;
-  } catch (error) {
-    console.warn(`Failed to fetch ${type} asset ${source}:`, error.message);
-    return null;
-  }
-};
 
 exports.batchIssueCredentials = asyncHandler(async (req, res) => {
   const file = req.files && req.files['file'] ? req.files['file'][0] : null;
@@ -616,21 +281,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Failed to parse CSV file', details: parseError.message });
   }
 
-  const branding = req.user.issuerDetails?.branding || {};
-  const assets = { logo: null, seal: null, signature: null };
 
-  try {
-    const [logoBuffer, sealBuffer, signatureBuffer] = await Promise.all([
-      fetchImageFromSource(branding.logo || branding.logoCID, 'logo'),
-      fetchImageFromSource(branding.seal || branding.sealCID, 'seal'),
-      fetchImageFromSource(branding.signature || branding.signatureCID, 'signature')
-    ]);
-    assets.logo = logoBuffer;
-    assets.seal = sealBuffer;
-    assets.signature = signatureBuffer;
-  } catch (assetError) {
-    console.warn('Failed to fetch branding assets for batch:', assetError);
-  }
 
   const summary = {
     total: results.length,
@@ -693,6 +344,9 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       tempFilePath = path.join(uploadsDir, `batch_cert_${credentialId}_${Date.now()}.pdf`);
 
       const institutionName = req.user.issuerDetails?.institutionName || credential.university;
+      const issuerWalletAddress = req.user.walletAddress;
+      const issuerRegistration = req.user.issuerDetails?.registrationNumber || '';
+      
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
 
@@ -706,8 +360,10 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
         transcriptData,
         certificationData,
         verificationUrl,
-        institutionName
-      }, assets, tempFilePath);
+        institutionName,
+        issuerWalletAddress,
+        issuerRegistration
+      }, tempFilePath);
 
       const certificateHash = await hashService.generateSHA256(tempFilePath);
       const ipfsResult = await ipfsService.uploadFile(tempFilePath, `Certificate_${credentialId}.pdf`);
@@ -761,9 +417,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
           const studentUser = await User.findOne({ walletAddress: row.studentWalletAddress.toLowerCase() });
           
           if (studentUser && studentUser.email) {
-              const instituteLogo = req.user.issuerDetails?.branding?.logo || 
-                                   (req.user.issuerDetails?.branding?.logoCID ? `https://gateway.pinata.cloud/ipfs/${req.user.issuerDetails.branding.logoCID}` : null);
-
               const emailData = {
                   studentName: row.studentName,
                   university: req.user.issuerDetails?.institutionName || row.university || 'Attestify',
@@ -773,8 +426,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
                   ipfsCID: ipfsResult.ipfsHash,
                   certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
                   loginLink: `${process.env.FRONTEND_URL}/login`,
-                  tokenId: credential.tokenId,
-                  instituteLogo: instituteLogo
+                  tokenId: credential.tokenId
               };
 
               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useMemo } from 'react';
+import React, { createContext, useState, useContext, useMemo, useCallback } from 'react';
 import Notification from '../components/layout/Notification';
 
 const NotificationContext = createContext(null);
@@ -14,16 +14,16 @@ export const useNotification = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  const showNotification = (message, type = 'success', duration = 5000) => {
+  const showNotification = useCallback((message, type = 'success', duration = 5000) => {
     const id = Date.now();
     const notification = { id, message, type, duration };
     setNotifications(prev => [...prev, notification]);
-  };
+  }, []);
 
   const removeNotification = (id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
-  const value = useMemo(() => ({ showNotification }), []);
+  const value = useMemo(() => ({ showNotification }), [showNotification]);
 
   return (
     <NotificationContext.Provider value={value}>

@@ -27,30 +27,6 @@ const StudentDashboard = () => {
 
   const isMounted = React.useRef(true);
 
-  useEffect(() => {
-    isMounted.current = true;
-    const init = async () => {
-        try {
-           const address = await blockchainService.connectWallet(); 
-           if (isMounted.current) {
-               setWalletAddress(address);
-               if (address) {
-                 fetchCredential(address);
-               } else {
-                 setLoading(false);
-               }
-           }
-        } catch (e) {
-           console.log("Wallet not auto-connected", e);
-           if (isMounted.current) {
-               setLoading(false);
-           }
-        }
-    };
-    init();
-    return () => { isMounted.current = false; };
-  }, [fetchCredential]);
-
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
@@ -98,6 +74,31 @@ const StudentDashboard = () => {
     }
   }, [walletAddress]);
 
+  useEffect(() => {
+    isMounted.current = true;
+    const init = async () => {
+        try {
+           const address = await blockchainService.connectWallet(); 
+           if (isMounted.current) {
+               setWalletAddress(address);
+               if (address) {
+                 fetchCredential(address);
+               } else {
+                 setLoading(false);
+               }
+           }
+        } catch (e) {
+           console.log("Wallet not auto-connected", e);
+           if (isMounted.current) {
+               setLoading(false);
+           }
+        }
+    };
+    init();
+    return () => { isMounted.current = false; };
+  }, [fetchCredential]);
+
+
   const handleShare = useCallback(() => {
     if (!credential || !walletAddress) return;
     const shareUrl = `${window.location.origin}/verify?walletAddress=${walletAddress}`;
@@ -124,7 +125,6 @@ const StudentDashboard = () => {
     }
   }, [fetchCredential]);
 
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
@@ -132,6 +132,8 @@ const StudentDashboard = () => {
       y: e.clientY - rect.top,
     });
   };
+
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   if (loading) {
     return (
@@ -365,7 +367,7 @@ const StudentDashboard = () => {
                     
                     <div className="flex flex-col gap-3">
                        <a 
-                          href={`/profile/${walletAddress}`}
+                          href={`/student/${walletAddress}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black hover:bg-gray-200 text-xs font-black rounded-2xl transition-all shadow-[0_4px_12px_rgba(255,255,255,0.1)] active:scale-[0.98]"
@@ -375,7 +377,7 @@ const StudentDashboard = () => {
                        </a>
                        <button
                           onClick={() => {
-                            const url = `${window.location.origin}/profile/${walletAddress}`;
+                            const url = `${window.location.origin}/student/${walletAddress}`;
                             navigator.clipboard.writeText(url);
                             alert('Profile link copied!');
                           }}

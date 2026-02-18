@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
+import BrandLogo from '../components/shared/BrandLogo';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -264,9 +265,29 @@ const Landing = () => {
                       <div className="mt-8 relative flex-1 min-h-[200px] flex items-center justify-center">
                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent"></div>
                           {/* Static nodes instead of ping */}
-                          <div className="w-4 h-4 rounded-full bg-purple-500 absolute top-1/4 left-1/4 opacity-50"></div>
-                          <div className="w-3 h-3 rounded-full bg-indigo-500 absolute bottom-1/3 right-1/4 opacity-50"></div>
-                          <div className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1/2 right-1/3 opacity-50"></div>
+                          {/* Animated Node 1 */}
+                          <div className="absolute top-1/4 left-1/4">
+                              <span className="relative flex h-4 w-4">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-4 w-4 bg-purple-500"></span>
+                              </span>
+                          </div>
+
+                          {/* Animated Node 2 */}
+                          <div className="absolute bottom-1/3 right-1/4">
+                              <span className="relative flex h-3 w-3">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                              </span>
+                          </div>
+
+                          {/* Animated Node 3 */}
+                          <div className="absolute top-1/2 right-1/3">
+                              <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                              </span>
+                          </div>
                           <Globe className="w-48 h-48 text-white/5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                       </div>
                   </motion.div>
@@ -324,7 +345,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
              <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-                Why <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-400 to-white">Attestify?</span>
+                Why <BrandLogo textSize="text-6xl md:text-8xl" />
              </h2>
              <p className="text-gray-400">The three pillars of the new standard.</p>
           </div>

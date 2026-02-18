@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Activity,
   Box,
@@ -22,32 +22,34 @@ const NetworkStatus = () => {
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Auto-refresh interval (e.g., every 15 seconds)
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 15000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  const hasData = useRef(false);
 
   const fetchData = useCallback(async () => {
     try {
-      if (!data) setLoading(true);
+      if (!hasData.current) setLoading(true);
       else setRefreshing(true);
       
       const response = await networkAPI.getStats();
       if (response.data.success) {
         setData(response.data.stats);
         setError(null);
+        hasData.current = true;
       }
     } catch (err) {
       console.error('Failed to fetch network stats:', err);
       // Only set error if we don't have data yet
-      if (!data) setError('Failed to load network status');
+      if (!hasData.current) setError('Failed to load network status');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [data]);
+  }, []);
+
+  // Initial fetch only
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
 
   if (loading) {
     return (
@@ -118,10 +120,10 @@ const NetworkStatus = () => {
                     <button 
                       onClick={fetchData} 
                       disabled={refreshing}
-                      className={`p-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? 'animate-spin' : 'hover:scale-105 active:scale-95'}`}
+                      className={`p-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? '' : 'hover:scale-105 active:scale-95'}`}
                       title="Refresh Data"
                     >
-                      <RefreshCw className="w-5 h-5" />
+                      <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
             </div>

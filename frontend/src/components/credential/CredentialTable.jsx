@@ -47,7 +47,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
                                 {cred._id ? `#${cred._id.substring(cred._id.length - 8)}` : 'ID-SYSTEM'}
                              </div>
                              {isSBT ? (
-                                <span className="px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[8px] font-black uppercase tracking-widest">SBT Linked</span>
+                                <span className="px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[8px] font-black uppercase tracking-widest">SBT</span>
                              ) : (
                                 <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[8px] font-black uppercase tracking-widest">Standard NFT</span>
                              )}

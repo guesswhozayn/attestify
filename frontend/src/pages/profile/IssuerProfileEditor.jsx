@@ -4,18 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import api, { userAPI } from '../../services/api';
 import { 
-    Building, 
-    Upload, 
-    Trash2,
-    Copy,
-    Shield,
-    FileCheck,
+    Building,
     Edit2,
-    Save,
-    X,
-    ExternalLink,
+    Shield,
     Share2,
     Wallet,
+    Copy,
     Calendar,
     Activity,
     Mail
@@ -25,7 +19,6 @@ import Avatar from '../../components/shared/Avatar';
 
 const IssuerProfileEditor = () => {
     const { user, updateUser } = useAuth();
-    // ... (rest of state initialization unchanged) ...
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -56,16 +49,6 @@ const IssuerProfileEditor = () => {
         registrationNumber: '' 
     });
 
-    // Branding Assets State
-    const [branding, setBranding] = useState({
-        logo: '',
-        seal: '',
-        signature: '',
-        logoCID: '',
-        sealCID: '',
-        signatureCID: ''
-    });
-
     // Initialize Data
     useEffect(() => {
         if (user) {
@@ -74,16 +57,6 @@ const IssuerProfileEditor = () => {
                 about: user.about || '',
                 institutionName: user.issuerDetails?.institutionName || '',
                 registrationNumber: user.issuerDetails?.registrationNumber || ''
-            });
-
-            const brandingData = user.issuerDetails?.branding || {};
-            setBranding({
-                logo: brandingData.logo || '',
-                seal: brandingData.seal || '',
-                signature: brandingData.signature || '',
-                logoCID: brandingData.logoCID || '',
-                sealCID: brandingData.sealCID || '',
-                signatureCID: brandingData.signatureCID || ''
             });
         }
     }, [user]);
@@ -131,63 +104,6 @@ const IssuerProfileEditor = () => {
         } catch (error) {
             console.error('Profile update failed', error);
             showNotification(error.response?.data?.error || 'Failed to update profile', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleFileUpload = async (e, type) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setLoading(true);
-        const formDataPayload = new FormData();
-        const fieldName = type.replace('CID', '');
-        formDataPayload.append(fieldName, file);
-
-        try {
-            const response = await api.post('/user/branding', formDataPayload, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-             
-            if (response.data.success) {
-                updateUser(response.data.user);
-                const newBranding = response.data.user.issuerDetails?.branding || {};
-                setBranding(prev => ({
-                    ...prev,
-                    [fieldName]: newBranding[fieldName] || '',
-                    [type]: newBranding[type] || ''
-                }));
-                showNotification(`${fieldName} uploaded successfully`, 'success');
-            }
-        } catch (error) {
-            console.error('Upload failed', error);
-            showNotification('Failed to upload file', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleFileRemove = async (type) => {
-        if (!window.confirm('Are you sure you want to remove this asset?')) return;
-
-        setLoading(true);
-        const fieldName = type.replace('CID', '');
-        
-        try {
-            const response = await api.delete(`/user/branding/${fieldName}`);
-            if (response.data.success) {
-                updateUser(response.data.user);
-                setBranding(prev => ({
-                    ...prev,
-                    [fieldName]: '',
-                    [type]: ''
-                }));
-                showNotification(`${fieldName} removed successfully`, 'success');
-            }
-        } catch (error) {
-            console.error('Delete failed', error);
-            showNotification('Failed to remove file', 'error');
         } finally {
             setLoading(false);
         }
@@ -344,7 +260,7 @@ const IssuerProfileEditor = () => {
                                 <div className="flex flex-col gap-3 min-w-[200px]">
                                     {user?.walletAddress && (
                                         <a 
-                                            href={`/profile/${user.walletAddress}`} 
+                                            href={`/issuer/wallet/${user.walletAddress}`} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-200 text-sm font-bold rounded-full transition-all shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)] active:scale-95 duration-200"
@@ -355,7 +271,7 @@ const IssuerProfileEditor = () => {
                                     )}
                                     <Button 
                                         onClick={() => {
-                                            const url = `${window.location.origin}/profile/${user?.walletAddress}`;
+                                            const url = `${window.location.origin}/issuer/wallet/${user?.walletAddress}`;
                                             navigator.clipboard.writeText(url);
                                             showNotification('Profile link copied!', 'success');
                                         }}
@@ -375,50 +291,8 @@ const IssuerProfileEditor = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     {/* Left Column: Branding Assets */}
-                    <motion.div 
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                      className="lg:col-span-2 space-y-6"
-                    >
-                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            <FileCheck className="w-5 h-5 text-indigo-400" />
-                            Official Branding Assets
-                         </h2>
-                         <p className="text-gray-400 text-sm -mt-4 mb-4">Upload your official assets. These are pinned to IPFS for immutable verification and will appear on all issued credentials.</p>
-
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <AssetUploader 
-                                title="Institution Logo" 
-                                description="Primary identifier on credentials"
-                                value={branding.logo || branding.logoCID}
-                                onUpload={(e) => handleFileUpload(e, 'logoCID')}
-                                onRemove={() => handleFileRemove('logoCID')}
-                                loading={loading}
-                            />
-                            <AssetUploader 
-                                title="Official Seal" 
-                                description="Watermark for authenticity"
-                                value={branding.seal || branding.sealCID}
-                                onUpload={(e) => handleFileUpload(e, 'sealCID')}
-                                onRemove={() => handleFileRemove('sealCID')}
-                                loading={loading}
-                            />
-                            <div className="md:col-span-2">
-                                <AssetUploader 
-                                    title="Authorized Signature" 
-                                    description="Digital signature for issuer verification"
-                                    value={branding.signature || branding.signatureCID}
-                                    onUpload={(e) => handleFileUpload(e, 'signatureCID')}
-                                    onRemove={() => handleFileRemove('signatureCID')}
-                                    loading={loading}
-                                />
-                            </div>
-                         </div>
-                    </motion.div>
-
-                    {/* Right Column: Institution Stats & Wallet */}
-                    <div className="space-y-8">
+                    {/* Main Content Grid */}
+                    <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Institution Details */}
                         <motion.div 
                             initial={{ opacity: 0, x: 20 }}
@@ -536,73 +410,5 @@ const ProfileCard = ({ icon: LucideIcon, label, value, color, bg, border }) => (
     </div>
   </div>
 );
-
-const AssetUploader = ({ title, description, value, onUpload, onRemove, loading }) => {
-    let imgSrc = null;
-    let isIPFS = false;
-    
-    if (value) {
-        if (value.startsWith('http')) {
-            imgSrc = value;
-        } else {
-            imgSrc = `https://gateway.pinata.cloud/ipfs/${value}`;
-            isIPFS = true;
-        }
-    }
-
-    return (
-        <motion.div 
-            whileHover={{ y: -2 }}
-            className="p-5 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300 backdrop-blur-md group h-full flex flex-col"
-        >
-            <div className="flex justify-between items-start mb-4">
-                <div>
-                    <h4 className="text-sm font-bold text-gray-200 decoration-indigo-500/30 underline decoration-2 underline-offset-4">{title}</h4>
-                    <p className="text-xs text-gray-500 mt-1">{description}</p>
-                </div>
-                {value && (
-                    <button 
-                        onClick={onRemove}
-                        className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                        title="Remove"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                )}
-            </div>
-
-            <div className="relative flex-1 min-h-[160px] w-full border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center transition-all duration-300 hover:border-indigo-500/30 hover:bg-indigo-500/5 group/upload overflow-hidden">
-                {imgSrc ? (
-                    <div className="relative w-full h-full flex items-center justify-center p-4">
-                        <img 
-                            src={imgSrc} 
-                            alt={title} 
-                            className="max-w-full max-h-full object-contain drop-shadow-lg opacity-90 group-hover/upload:opacity-100 transition-opacity" 
-                        />
-                         {isIPFS && (
-                            <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-md text-[10px] text-indigo-300 font-mono border border-indigo-500/30 flex items-center gap-1">
-                                <Shield className="w-3 h-3" /> IPFS
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="p-3 bg-white/[0.05] rounded-full group-hover/upload:scale-110 transition-transform duration-300">
-                             <Upload className="w-5 h-5 text-gray-400 group-hover/upload:text-indigo-400 transition-colors" />
-                        </div>
-                        <span className="text-xs font-medium text-gray-500 group-hover/upload:text-gray-300 transition-colors">Click to upload asset</span>
-                    </div>
-                )}
-
-                <input 
-                    type="file" 
-                    className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed" 
-                    onChange={onUpload}
-                    disabled={!!value || loading}
-                />
-            </div>
-        </motion.div>
-    );
-};
 
 export default IssuerProfileEditor;

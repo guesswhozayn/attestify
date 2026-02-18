@@ -4,6 +4,7 @@ import { Wallet, Search, Building, ArrowRight, Sparkles, CheckCircle, ChevronRig
 import { motion, AnimatePresence } from 'framer-motion';
 import { publicAPI } from '../services/api';
 import BackButton from '../components/shared/BackButton';
+import PoweredBy from '../components/shared/PoweredBy';
 
 const PublicSearch = () => {
     const [query, setQuery] = useState('');
@@ -56,8 +57,8 @@ const PublicSearch = () => {
                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] contrast-150 brightness-150"></div>
             </div>
 
-            <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl w-full space-y-24 py-20">
+            <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+                <div className="max-w-5xl w-full flex flex-col justify-center h-full py-12 gap-8 md:gap-12">
                     
                     {/* Hero Section */}
                     <motion.div 
@@ -71,7 +72,7 @@ const PublicSearch = () => {
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Open Registry Explorer</span>
                         </div>
                         
-                        <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
+                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9]">
                             Explore the <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">
                                 Trust Layer.
@@ -211,6 +212,9 @@ const PublicSearch = () => {
                     </div>
 
 
+
+                    
+                    <PoweredBy className="mt-4" />
                 </div>
             </main>
         </div>

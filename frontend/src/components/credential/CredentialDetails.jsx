@@ -175,10 +175,10 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   {isSBT && (
                     <button 
                       onClick={() => setShowSBTModal(true)}
-                      className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/10"
+                      className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 transition-all hover:scale-105 active:scale-95"
                     >
                       <Shield className="w-3.5 h-3.5" />
-                      SBT PROOF #{credential.tokenId}
+                      SOULBOUND
                     </button>
                   )}
                 </div>
@@ -472,7 +472,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 onClick={downloadCredential}
                 variant="secondary"
                 loading={isDownloading}
-                className="w-full justify-center py-4 font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all"
+                className="w-full justify-center py-4 font-black text-sm uppercase tracking-widest rounded-2xl active:scale-95 transition-all"
                 icon={Download}
               >
                 {isDownloading ? 'Downloading...' : 'Download Evidence'}

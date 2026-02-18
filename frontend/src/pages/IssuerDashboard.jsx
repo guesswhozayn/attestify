@@ -34,28 +34,18 @@ const IssuerDashboard = () => {
     const navigate = useNavigate();
 
     const isMounted = React.useRef(true);
+    const loadingRef = React.useRef(true);
+    const refreshingRef = React.useRef(false);
     
-    useEffect(() => {
-        isMounted.current = true;
-        fetchDashboardData();
-
-        // Auto-refresh every 30 seconds
-        const refreshInterval = setInterval(() => {
-            if (!loading && !refreshing) {
-                fetchDashboardData(true);
-            }
-        }, 30000);
-
-        return () => {
-             isMounted.current = false;
-             clearInterval(refreshInterval);
-        };
-    }, [fetchDashboardData, loading, refreshing]);
-
     const fetchDashboardData = useCallback(async (isRefresh = false) => {
         try {
-            if (isRefresh) setRefreshing(true);
-            else setLoading(true);
+            if (isRefresh) {
+                setRefreshing(true);
+                refreshingRef.current = true;
+            } else {
+                setLoading(true);
+                loadingRef.current = true;
+            }
             
             const [statsResponse, recentResponse] = await Promise.all([
                  credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0, today: 0, thisWeek: 0, verificationRequests: 0, transactionSuccessRate: 100, networkStats: { blockNumber: 0, gasPrice: '0', connected: false } } } }),
@@ -79,9 +69,29 @@ const IssuerDashboard = () => {
             if (isMounted.current) {
                 setLoading(false);
                 setRefreshing(false);
+                loadingRef.current = false;
+                refreshingRef.current = false;
             }
         }
     }, [showNotification]);
+
+    useEffect(() => {
+        isMounted.current = true;
+        fetchDashboardData();
+
+        // Auto-refresh every 30 seconds
+        const refreshInterval = setInterval(() => {
+            if (!loadingRef.current && !refreshingRef.current) {
+                fetchDashboardData(true);
+            }
+        }, 30000);
+
+        return () => {
+             isMounted.current = false;
+             clearInterval(refreshInterval);
+        };
+    }, [fetchDashboardData]);
+
 
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const handleMouseMove = (e) => {
@@ -292,7 +302,7 @@ const IssuerDashboard = () => {
                             transition={{ duration: 0.5, delay: 0.3 }}
                             className="bg-[#0a0a0a] rounded-[2.5rem] p-8 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+                            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                             
                             <h3 className="text-white font-bold mb-6 flex items-center gap-3">
                                 <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
@@ -327,7 +337,7 @@ const IssuerDashboard = () => {
                              transition={{ duration: 0.5, delay: 0.4 }}
                              className="rounded-[2.5rem] bg-[#0c0c0c] border border-white/[0.08] backdrop-blur-xl p-8 space-y-8 group/card overflow-hidden relative"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700"></div>
+                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-white font-bold flex items-center gap-3">

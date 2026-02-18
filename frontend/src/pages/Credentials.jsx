@@ -7,7 +7,7 @@ import RevokeCredentialModal from '../components/credential/RevokeCredentialModa
 import CredentialsStats from '../components/credential/CredentialsStats';
 import CredentialsFilter from '../components/credential/CredentialsFilter';
 import CredentialTable from '../components/credential/CredentialTable';
-import { Plus, Shield, Award, Filter, Search, ArrowRight, BookOpen } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
@@ -30,11 +30,19 @@ const Credentials = () => {
     const { showNotification } = useNotification();
     const isMounted = React.useRef(true);
 
-    useEffect(() => {
-        isMounted.current = true;
-        fetchCredentials();
-        return () => { isMounted.current = false; };
-    }, [fetchCredentials]);
+    const calculateStats = useCallback((docs) => {
+        const total = docs.length;
+        const revoked = docs.filter(d => d.isRevoked).length;
+        const active = total - revoked;
+        const sbtCount = docs.filter(d => !!d.tokenId).length;
+        
+        // Count unique recipients by wallet address or name
+        const uniqueRecipients = new Set(
+            docs.map(d => d.studentWalletAddress || d.studentName)
+        ).size;
+
+        setStats({ total, active, revoked, uniqueRecipients, sbtCount });
+    }, []);
 
     const fetchCredentials = useCallback(async () => {
         try {
@@ -58,21 +66,16 @@ const Credentials = () => {
                 setLoading(false);
             }
         }
-    }, [showNotification]);
+    }, [showNotification, calculateStats]);
 
-    const calculateStats = (docs) => {
-        const total = docs.length;
-        const revoked = docs.filter(d => d.isRevoked).length;
-        const active = total - revoked;
-        const sbtCount = docs.filter(d => !!d.tokenId).length;
-        
-        // Count unique recipients by wallet address or name
-        const uniqueRecipients = new Set(
-            docs.map(d => d.studentWalletAddress || d.studentName)
-        ).size;
+    useEffect(() => {
+        isMounted.current = true;
+        fetchCredentials();
+        return () => { isMounted.current = false; };
+    }, [fetchCredentials]);
 
-        setStats({ total, active, revoked, uniqueRecipients, sbtCount });
-    };
+
+
 
     const handleCredentialUpload = () => {
         fetchCredentials();

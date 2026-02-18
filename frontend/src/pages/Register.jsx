@@ -6,6 +6,8 @@ import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOf
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
+import BrandLogo from '../components/shared/BrandLogo';
+import ShieldLogo from '../components/shared/ShieldLogo';
 import blockchainService from '../services/blockchain';
 
 // Helper component for cleaner inputs
@@ -112,10 +114,8 @@ const Register = () => {
              {/* Logo */}
              <div className="hidden lg:block">
                 <Link to="/" className="inline-flex items-center gap-4 group">
-                   <div className="relative w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
-                      <Shield className="w-10 h-10 text-indigo-400" />
-                   </div>
-                   <span className="text-4xl font-bold tracking-tight text-white">Attestify</span>
+                   <ShieldLogo size="lg" className="shadow-2xl group-hover:scale-110" />
+                   <BrandLogo textSize="text-4xl" />
                 </Link>
              </div>
 
@@ -157,8 +157,8 @@ const Register = () => {
             {/* Mobile Logo */}
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
-                 <Shield className="w-10 h-10 text-indigo-400" />
-                 <span className="text-2xl font-bold tracking-tight">Attestify</span>
+                 <ShieldLogo size="md" className="group-hover:scale-105" />
+                 <BrandLogo textSize="text-2xl" />
               </Link>
            </div>
            

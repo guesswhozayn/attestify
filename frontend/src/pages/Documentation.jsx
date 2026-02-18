@@ -5,6 +5,7 @@ import {
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
   HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight
 } from 'lucide-react';
+import PoweredBy from '../components/shared/PoweredBy';
 
 const sections = [
   { id: 'introduction', label: 'Introduction', icon: BookOpen },
@@ -578,7 +579,8 @@ const Documentation = () => {
               Ethereum mainnet or compatible Layer 2 networks for production use.
             </FAQItem>
           </Section>
-
+          
+          <PoweredBy className="mt-20" />
         </main>
       </div>
 
