@@ -61,6 +61,19 @@ const StudentPublicProfile = () => {
         }
     }, [walletAddress]);
 
+    useEffect(() => {
+        if (error) {
+            navigate('/search', { 
+                state: { 
+                    autoSearch: true, 
+                    query: walletAddress, 
+                    type: 'student' 
+                },
+                replace: true
+            });
+        }
+    }, [error, navigate, walletAddress]);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white relative overflow-hidden">
@@ -76,26 +89,7 @@ const StudentPublicProfile = () => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center text-white relative overflow-hidden">
-                <div className="relative z-10 max-w-md w-full bg-gray-900/40 backdrop-blur-xl border border-white/10 p-12 rounded-3xl shadow-2xl">
-                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20 mx-auto">
-                        <ShieldCheck className="w-10 h-10 text-red-500" />
-                    </div>
-                    <h2 className="text-3xl font-bold mb-4">Profile Not Found</h2>
-                    <p className="text-slate-400 mb-8 leading-relaxed">{error}</p>
-                    <Button 
-                        onClick={() => navigate('/search')}
-                        variant="white"
-                        className="w-full"
-                    >
-                        Back to Search
-                    </Button>
-                </div>
-            </div>
-        );
-    }
+    if (error) return null;
 
     const { student, credentials } = data;
 

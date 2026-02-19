@@ -15,6 +15,7 @@ const Button = ({
   icon: Icon,
   iconClassName = '',
   rounded = '2xl', 
+  noWrapper = false,
 
   ...props 
 }) => {
@@ -75,7 +76,13 @@ const Button = ({
       ) : Icon ? (
         <Icon className={`w-4 h-4 relative z-10 ${iconClassName}`} />
       ) : null}
-      {children && <span className="relative z-10 flex flex-row items-center gap-2">{children}</span>}
+      {children && (
+        noWrapper ? (
+          children
+        ) : (
+          <span className="relative z-10 flex flex-row items-center gap-2">{children}</span>
+        )
+      )}
       
       {/* Premium Shimmer Effect */}
       {(variant === 'primary' || variant === 'premium' || variant === 'success') && !disabled && !loading && (

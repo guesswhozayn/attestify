@@ -111,6 +111,7 @@ const Documentation = () => {
                   onClick={() => scrollTo(s.id)}
                   variant="ghost"
                   rounded="2xl"
+                  noWrapper={true}
                   className={`w-full group !justify-between px-4 py-3 !shadow-none ${
                     activeSection === s.id ? 'text-white' : 'text-gray-500 hover:text-white'
                   }`}
