@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
-import { Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, CheckCircle } from 'lucide-react';
+import TypeSelectionCard from './TypeSelectionCard';
+import { Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, Shield, Activity } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -140,9 +141,6 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-
-
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Issue New Credential" size="xl">
       {loading && (
@@ -164,51 +162,22 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         <div>
            <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-4">Credential Type</label>
            <div className="grid grid-cols-2 gap-4">
-             <Button
+             <TypeSelectionCard 
+               active={credentialType === 'CERTIFICATION'}
                onClick={() => setCredentialType('CERTIFICATION')}
-               variant="ghost"
-               rounded="2xl"
-               className={`relative p-5 !justify-start !shadow-none h-auto transition-all duration-300 text-left group overflow-hidden ${
-                 credentialType === 'CERTIFICATION'
-                   ? 'bg-gradient-to-br from-emerald-900/50 via-teal-900/40 to-gray-900/50 border-emerald-500/50 shadow-emerald-500/10'
-                   : 'bg-white/[0.03] border-white/10'
-               }`}
-             >
-               <div className="flex items-start justify-between mb-3 relative z-10 w-full">
-                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'CERTIFICATION' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' : 'bg-white/10 text-emerald-400 group-hover:bg-white/20'}`}>
-                     <Award className="w-5 h-5" />
-                  </div>
-                  {credentialType === 'CERTIFICATION' && <div className="bg-emerald-500/20 p-1 rounded-full"><CheckCircle className="w-5 h-5 text-emerald-400" /></div>}
-               </div>
-               <h4 className={`font-bold text-lg mb-1 relative z-10 normal-case tracking-normal ${credentialType === 'CERTIFICATION' ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>Certification</h4>
-               <p className="text-xs text-gray-500 group-hover:text-gray-400 relative z-10 font-medium normal-case tracking-normal">For courses, workshops, and skills verification.</p>
-               
-               {/* Background Glow */}
-               {credentialType === 'CERTIFICATION' && <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-500/20 blur-2xl rounded-full"></div>}
-             </Button>
-             
-             <Button
+               icon={Award}
+               title="Certification"
+               description="For courses, workshops, and skills verification."
+               variant="emerald"
+             />
+             <TypeSelectionCard 
+               active={credentialType === 'TRANSCRIPT'}
                onClick={() => setCredentialType('TRANSCRIPT')}
-               variant="ghost"
-               rounded="2xl"
-               className={`relative p-5 !justify-start !shadow-none h-auto transition-all duration-300 text-left group overflow-hidden ${
-                 credentialType === 'TRANSCRIPT'
-                   ? 'bg-gradient-to-br from-indigo-900/50 via-purple-900/40 to-gray-900/50 border-indigo-500/50 shadow-indigo-500/10'
-                   : 'bg-white/[0.03] border-white/10'
-               }`}
-             >
-                <div className="flex items-start justify-between mb-3 relative z-10 w-full">
-                  <div className={`p-2.5 rounded-xl transition-colors duration-300 ${credentialType === 'TRANSCRIPT' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'bg-white/10 text-indigo-400 group-hover:bg-white/20'}`}>
-                     <BookOpen className="w-5 h-5" />
-                  </div>
-                  {credentialType === 'TRANSCRIPT' && <div className="bg-indigo-500/20 p-1 rounded-full"><CheckCircle className="w-5 h-5 text-indigo-400" /></div>}
-               </div>
-               <h4 className={`font-bold text-lg mb-1 relative z-10 normal-case tracking-normal ${credentialType === 'TRANSCRIPT' ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>Transcript</h4>
-               <p className="text-xs text-gray-500 group-hover:text-gray-400 relative z-10 font-medium normal-case tracking-normal">For degrees, diplomas, and comprehensive records.</p>
-               
-               {/* Background Glow */}
-               {credentialType === 'TRANSCRIPT' && <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-indigo-500/20 blur-2xl rounded-full"></div>}
-             </Button>
+               icon={BookOpen}
+               title="Transcript"
+               description="For degrees, diplomas, and comprehensive records."
+               variant="indigo"
+             />
            </div>
         </div>
 
@@ -312,30 +281,35 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                     value={transcriptData.program}
                     onChange={(e) => setTranscriptData({...transcriptData, program: e.target.value})}
                     placeholder="e.g. B.Sc Computer Science"
+                    icon={BookOpen}
                   />
                  <Input
                    label="Department"
                    value={transcriptData.department}
                    onChange={(e) => setTranscriptData({...transcriptData, department: e.target.value})}
                    placeholder="e.g. Engineering"
+                   icon={Building}
                  />
                  <Input
                    label="Admission Year"
                    value={transcriptData.admissionYear}
                    onChange={(e) => setTranscriptData({...transcriptData, admissionYear: e.target.value})}
                    placeholder="Year"
+                   icon={Calendar}
                  />
                  <Input
                    label="Graduation Year"
                    value={transcriptData.graduationYear}
                    onChange={(e) => setTranscriptData({...transcriptData, graduationYear: e.target.value})}
                    placeholder="Year"
+                   icon={Calendar}
                  />
                  <Input
                    label="CGPA / Grade"
                    value={transcriptData.cgpa}
                    onChange={(e) => setTranscriptData({...transcriptData, cgpa: e.target.value})}
                    placeholder="e.g. 3.85"
+                   icon={Award}
                  />
                </div>
                   <div className="border-t border-white/[0.06] pt-6">
@@ -369,13 +343,12 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                         />
                         <Button 
                           onClick={() => removeCourse(index)}
-                          variant="ghost"
+                          variant="danger"
                           rounded="xl"
                           size="sm"
-                          className="!p-2.5 text-gray-500 hover:text-red-400 opacity-60 group-hover:opacity-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                          icon={Trash2}
+                          className="!p-2.5 opacity-60 group-hover:opacity-100"
+                        />
                       </div>
                     ))}
                   </div>
@@ -383,9 +356,10 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                     onClick={addCourse}
                     variant="secondary"
                     size="sm"
+                    icon={Plus}
                     className="mt-4"
                   >
-                    <Plus className="w-4 h-4 mr-2" /> Add Course Record
+                    Add Course Record
                   </Button>
                 </div>
               </div>
@@ -396,6 +370,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                  value={certificationData.title}
                  onChange={(e) => setCertificationData({...certificationData, title: e.target.value})}
                  placeholder="e.g. Advanced React Patterns"
+                 icon={Award}
                />
                <div className="grid grid-cols-2 gap-5">
                  <Input
@@ -403,18 +378,21 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                    value={certificationData.level}
                    onChange={(e) => setCertificationData({...certificationData, level: e.target.value})}
                    placeholder="e.g. Expert"
+                   icon={Shield}
                  />
                  <Input
                    label="Duration"
                    value={certificationData.duration}
                    onChange={(e) => setCertificationData({...certificationData, duration: e.target.value})}
                    placeholder="e.g. 20 Hours"
+                   icon={Calendar}
                  />
                  <Input
                    label="Score"
                    value={certificationData.score}
                    onChange={(e) => setCertificationData({...certificationData, score: e.target.value})}
                    placeholder="e.g. 98/100"
+                   icon={Activity}
                  />
                </div>
                <div>
@@ -445,8 +423,9 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
       </div>
     </div>
-  </Modal>
+</Modal>
   );
 };
+
 
 export default IssueCredentialModal;

@@ -149,7 +149,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 size="lg"
                 className="w-full justify-center"
               >
-                Process Bulk Sync
+                Bulk Sync
               </Button>
           </div>
 

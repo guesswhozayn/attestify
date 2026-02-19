@@ -23,6 +23,7 @@ import {
 import Button from '../../components/shared/Button';
 import Toggle from '../../components/shared/Toggle';
 import Avatar from '../../components/shared/Avatar';
+import Input from '../../components/shared/Input';
 
 const StudentProfileEditor = () => {
     const { user, updateUser } = useAuth();
@@ -203,24 +204,21 @@ const StudentProfileEditor = () => {
                                 <div className="space-y-4 w-full max-w-2xl">
                                     {isEditing ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-1">
-                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Full Name</label>
-                                                <input 
-                                                    value={formData.name}
-                                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                                    className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-bold text-lg"
-                                                    placeholder="Your Name"
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Title / Major</label>
-                                                <input 
-                                                    value={formData.title}
-                                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                                                    className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                                                    placeholder="e.g. Computer Science Student"
-                                                />
-                                            </div>
+                                            <Input 
+                                                label="Full Name"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                placeholder="Your Name"
+                                                icon={User}
+                                                className="font-bold text-lg"
+                                            />
+                                            <Input 
+                                                label="Title / Major"
+                                                value={formData.title}
+                                                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                                placeholder="e.g. Computer Science Student"
+                                                icon={Award}
+                                            />
                                         </div>
                                     ) : (
                                         <div>
@@ -249,14 +247,19 @@ const StudentProfileEditor = () => {
                                     {/* Bio Section */}
                                     <div className="pt-2">
                                          {isEditing ? (
-                                             <div className="space-y-1">
-                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">About</label>
-                                                <textarea 
-                                                    value={formData.about}
-                                                    onChange={(e) => setFormData({...formData, about: e.target.value})}
-                                                    className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all min-h-[100px] resize-none"
-                                                    placeholder="Tell us a bit about yourself..."
-                                                />
+                                             <div className="space-y-2">
+                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-4">About</label>
+                                                <div className="relative group overflow-hidden">
+                                                    <div className="absolute left-0 top-4 w-12 flex justify-center pointer-events-none">
+                                                        <Activity className="w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-200" />
+                                                    </div>
+                                                    <textarea 
+                                                        value={formData.about}
+                                                        onChange={(e) => setFormData({...formData, about: e.target.value})}
+                                                        className="w-full bg-black/40 text-gray-100 pl-12 pr-5 py-3.5 rounded-xl border border-white/10 text-sm placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:bg-black/60 transition-all duration-200 backdrop-blur-md min-h-[120px] resize-none"
+                                                        placeholder="Tell us a bit about yourself..."
+                                                    />
+                                                </div>
                                              </div>
                                          ) : (
                                              <p className="text-gray-300 leading-relaxed text-lg max-w-3xl">
@@ -317,17 +320,13 @@ const StudentProfileEditor = () => {
 
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                  {isEditing ? (
-                                     <div className="p-6 bg-white/[0.02] border border-white/[0.08] rounded-2xl space-y-2 backdrop-blur-sm">
-                                         <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                             <Building className="w-3.5 h-3.5" /> Institution
-                                         </label>
-                                         <input 
-                                            value={formData.university}
-                                            onChange={(e) => setFormData({...formData, university: e.target.value})}
-                                            className="w-full bg-transparent border-b border-white/10 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors font-medium"
-                                            placeholder="University Name"
-                                         />
-                                     </div>
+                                     <Input
+                                         label="Institution"
+                                         value={formData.university}
+                                         onChange={(e) => setFormData({...formData, university: e.target.value})}
+                                         placeholder="University Name"
+                                         icon={Building}
+                                     />
                                  ) : (
                                     <ProfileCard 
                                         icon={Building}
