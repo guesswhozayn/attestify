@@ -1,6 +1,5 @@
-import React from 'react';
-import { CheckCircle, XCircle, ShieldAlert, Award, FileText, ExternalLink, Calendar, User, Activity, Hash, Layers } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, XCircle, ShieldAlert, Award, ExternalLink, Calendar, User, Activity, Hash } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Button from '../shared/Button';
 
 const VerificationResult = ({ result }) => {
@@ -13,7 +12,7 @@ const VerificationResult = ({ result }) => {
   const statusConfig = {
     success: {
       icon: CheckCircle,
-      label: 'IDENTITY_VERIFIED',
+      label: 'IDENTITY VERIFIED',
       subtext: 'Cryptographic Proof Validated',
       borderColor: 'border-emerald-500/30',
       bgColor: 'bg-emerald-500/5',
@@ -24,7 +23,7 @@ const VerificationResult = ({ result }) => {
     },
     revoked: {
       icon: ShieldAlert,
-      label: 'CERTIFICATE_REVOKED',
+      label: 'CREDENTIAL REVOKED',
       subtext: 'Issuer Authority Revocation',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',
@@ -35,7 +34,7 @@ const VerificationResult = ({ result }) => {
     },
     failed: {
       icon: XCircle,
-      label: 'VERIFICATION_FAILED',
+      label: 'VERIFICATION FAILED',
       subtext: 'Integrity Check Failed',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',

@@ -23,11 +23,25 @@ exports.generateCredentialPDF = async (data, outputPath) => {
     try {
       const isTranscript = type === 'TRANSCRIPT';
       // A4 Size: 595.28 x 841.89 points
+      const { 
+        studentWalletAddress, 
+        credentialId, 
+        institutionName 
+      } = data;
+
       const doc = new PDFDocument({ 
         layout: isTranscript ? 'portrait' : 'landscape', 
         size: 'A4', 
         margin: 0,
-        bufferPages: true 
+        bufferPages: true,
+        info: {
+          Title: isTranscript ? `${institutionName} - Academic Transcript` : `${institutionName} - Certification`,
+          Author: institutionName,
+          Subject: studentWalletAddress,
+          Keywords: credentialId,
+          Creator: 'Attestify Protocol',
+          Producer: 'Attestify PDF Engine'
+        }
       });
 
       const writeStream = fs.createWriteStream(outputPath);

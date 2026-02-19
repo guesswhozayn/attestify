@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Wallet, Search, Building, ArrowRight, Sparkles, CheckCircle, ChevronRight, Loader } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Wallet, Search, Building, Sparkles, CheckCircle, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { publicAPI } from '../services/api';
 import Button from '../components/shared/Button';
@@ -13,6 +13,16 @@ const PublicSearch = () => {
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.autoSearch) {
+            const { query: autoQuery, type: autoType } = location.state;
+            setQuery(autoQuery || '');
+            setSearchType(autoType || 'student');
+            setResults([]); // Immediately show the "no records found" view
+        }
+    }, [location.state]);
 
 
     const stats = [
@@ -26,30 +36,41 @@ const PublicSearch = () => {
         if (!query.trim()) return;
 
         const searchTerm = query.trim();
+        setLoading(true);
+        setResults(null);
 
-        if (searchType === 'student') {
-            navigate(`/student/${searchTerm}`);
-        } else {
-            setLoading(true);
-            try {
+        try {
+            if (searchType === 'student') {
+                try {
+                    await publicAPI.getStudentProfile(searchTerm);
+                    navigate(`/student/${searchTerm}`);
+                } catch (error) {
+                    if (error.response?.status === 404) {
+                        setResults([]);
+                    } else {
+                        console.error('Student existence check failed:', error);
+                        // Optional: show a generic error if it's not a 404
+                    }
+                }
+            } else {
                 if (searchTerm.startsWith('0x')) {
                     navigate(`/issuer/wallet/${searchTerm}`);
                 } else {
                     const response = await publicAPI.searchIssuers(searchTerm);
                     setResults(response.data.success ? response.data.issuers : []);
                 }
-            } catch (error) {
-                console.error('Search failed:', error);
-                setResults([]);
-            } finally {
-                setLoading(false);
             }
+        } catch (error) {
+            console.error('Search failed:', error);
+            setResults([]);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="min-h-screen bg-black text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
-            <BackButton />
+            <BackButton fallbackPath="/" text="Back to Home" force={true} />
 
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">

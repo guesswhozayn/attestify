@@ -114,7 +114,7 @@ const VerificationPortal = () => {
                 <Shield className="w-6 h-6 text-indigo-400" />
              </div>
              <div>
-                <h2 className="text-2xl font-black tracking-tighter text-white">SCANNER_MODULE</h2>
+                <h2 className="text-2xl font-black tracking-tighter text-white">SCANNER MODULE</h2>
                 <div className="flex items-center gap-2">
                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">System Ready</span>
@@ -129,7 +129,7 @@ const VerificationPortal = () => {
              
              <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
                 <span className="text-[10px] text-gray-500 uppercase tracking-widest">Live Process Log</span>
-                <span className="text-[10px] text-indigo-400/60 uppercase">Node: SEPOLIA-MAIN</span>
+                <span className="text-[10px] text-indigo-400/60 uppercase">Node: SEPOLIA</span>
              </div>
 
              <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
@@ -215,7 +215,7 @@ const VerificationPortal = () => {
                     </div>
                     
                     <h3 className="text-2xl font-bold text-white mb-2">
-                      {file ? file.name : "DEPOSIT_CERTIFICATE"}
+                      {file ? file.name : "UPLOAD CREDENTIAL"}
                     </h3>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
                       {file ? "Scan Sequence Ready" : "Target: application/pdf"}
@@ -225,8 +225,8 @@ const VerificationPortal = () => {
                   {/* ID Input Zone */}
                   <div className="space-y-4">
                      <div className="flex items-center justify-between px-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Registry ID Input</label>
-                        {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID_CAPTURED</span>)}
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Registry ID</label>
+                        {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID CAPTURED</span>)}
                      </div>
                      <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
@@ -251,7 +251,7 @@ const VerificationPortal = () => {
                     size="xl"
                     className="w-full shadow-indigo-500/20 hover:shadow-indigo-500/40"
                   >
-                    {verifying ? 'Verifying...' : 'Initiate Scan'}
+                    {verifying ? 'Verifying...' : 'Scan'}
                   </Button>
                </div>
             </div>
@@ -264,7 +264,7 @@ const VerificationPortal = () => {
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
-          title="SECURE_OUTPUT_REPORT"
+          title="OUTPUT REPORT"
           size="lg"
       >
           {result && (
