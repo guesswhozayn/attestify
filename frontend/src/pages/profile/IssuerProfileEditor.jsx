@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
 import Avatar from '../../components/shared/Avatar';
+import Input from '../../components/shared/Input';
+import { X, Save } from 'lucide-react';
 
 const IssuerProfileEditor = () => {
     const { user, updateUser } = useAuth();
@@ -204,15 +206,14 @@ const IssuerProfileEditor = () => {
                                 <div className="space-y-4 w-full max-w-2xl">
                                     {isEditing ? (
                                         <div className="space-y-4">
-                                            <div className="space-y-1">
-                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Institution Name</label>
-                                                <input 
-                                                    value={formData.name}
-                                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                                    className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-bold text-lg"
-                                                    placeholder="Integration Name"
-                                                />
-                                            </div>
+                                            <Input 
+                                                label="Institution Name"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                placeholder="Institution Name"
+                                                icon={Building}
+                                                className="font-bold text-lg"
+                                            />
                                         </div>
                                     ) : (
                                         <div>
@@ -234,14 +235,19 @@ const IssuerProfileEditor = () => {
                                     {/* Bio Section */}
                                     <div className="pt-2">
                                          {isEditing ? (
-                                             <div className="space-y-1">
-                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">About</label>
-                                                <textarea 
-                                                    value={formData.about}
-                                                    onChange={(e) => setFormData({...formData, about: e.target.value})}
-                                                    className="w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all min-h-[100px] resize-none"
-                                                    placeholder="Tell us a bit about your institution..."
-                                                />
+                                             <div className="space-y-2">
+                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-4">About</label>
+                                                <div className="relative group overflow-hidden">
+                                                    <div className="absolute left-0 top-4 w-12 flex justify-center pointer-events-none">
+                                                        <Activity className="w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-200" />
+                                                    </div>
+                                                    <textarea 
+                                                        value={formData.about}
+                                                        onChange={(e) => setFormData({...formData, about: e.target.value})}
+                                                        className="w-full bg-black/40 text-gray-100 pl-12 pr-5 py-3.5 rounded-xl border border-white/10 text-sm placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:bg-black/60 transition-all duration-200 backdrop-blur-md min-h-[120px] resize-none"
+                                                        placeholder="Tell us a bit about your institution..."
+                                                    />
+                                                </div>
                                              </div>
                                          ) : (
                                              <p className="text-gray-300 leading-relaxed text-lg max-w-3xl">
