@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
-import UploadCredentialModal from '../components/credential/UploadCredentialModal';
+import IssueCredentialModal from '../components/credential/IssueCredentialModal';
+import BulkIssueModal from '../components/credential/BulkIssueModal';
 import RevokeCredentialModal from '../components/credential/RevokeCredentialModal';
 import CredentialsStats from '../components/credential/CredentialsStats';
 import CredentialsFilter from '../components/credential/CredentialsFilter';
@@ -21,6 +22,7 @@ const Credentials = () => {
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [credentialToRevoke, setCredentialToRevoke] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showBulkModal, setShowBulkModal] = useState(false);
 
     // Filter States
     const [searchQuery, setSearchQuery] = useState('');
@@ -138,7 +140,7 @@ const Credentials = () => {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                             </span>
-                            <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">Institutional Registry</span>
+                            <span className="text-[11px] font-bold text-indigo-300">Institutional Registry</span>
                         </div>
                         
                         <div className="space-y-2">
@@ -157,10 +159,18 @@ const Credentials = () => {
                             onClick={() => setShowUploadModal(true)}
                             variant="primary"
                             icon={Plus}
-                            className="flex-1 lg:flex-none rounded-2xl shadow-2xl shadow-indigo-600/20 px-10 py-5 bg-indigo-600 hover:bg-indigo-500 border-none group overflow-hidden relative"
+                            size="lg"
+                            className="flex-1 lg:flex-none font-bold"
                         >
-                            <span className="relative z-10 font-black uppercase tracking-widest text-sm">Issue New Record</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                            Issue
+                        </Button>
+                        <Button
+                            onClick={() => setShowBulkModal(true)}
+                            variant="outline"
+                            size="lg"
+                            className="flex-1 lg:flex-none font-bold"
+                        >
+                            Bulk Sync
                         </Button>
                     </div>
                 </motion.div>
@@ -185,7 +195,7 @@ const Credentials = () => {
                         statusFilter={statusFilter}
                         setStatusFilter={setStatusFilter}
                         onRefresh={fetchCredentials}
-                        onBulkIssue={() => setShowUploadModal(true)}
+                        loading={loading}
                     />
 
                     <div className="min-h-[600px] px-2">
@@ -200,9 +210,15 @@ const Credentials = () => {
             </main>
 
             {/* Modal Components */}
-            <UploadCredentialModal
+            <IssueCredentialModal
                 isOpen={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
+                onSuccess={handleCredentialUpload}
+            />
+
+            <BulkIssueModal
+                isOpen={showBulkModal}
+                onClose={() => setShowBulkModal(false)}
                 onSuccess={handleCredentialUpload}
             />
 

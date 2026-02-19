@@ -44,12 +44,15 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                 {/* Left: Logo & Toggle */}
                 <div className="flex items-center gap-4">
                     {showSidebarToggle && (
-                        <button 
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            rounded="full"
                             onClick={onToggleSidebar}
-                            className="lg:hidden p-2 -ml-2 text-gray-400 hover:text-white transition-colors"
+                            className="lg:hidden p-2 -ml-2 !px-2 !py-2"
                         >
                             <Menu className="w-5 h-5" />
-                        </button>
+                        </Button>
                     )}
                     
                     <div 
@@ -71,19 +74,16 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                 {/* Center: Desktop Navigation */}
                 <div className="hidden md:flex items-center gap-1">
                     {navLinks.map((link) => (
-                        <button
+                        <Button
                             key={link.path}
                             onClick={() => navigate(link.path)}
-                            className={`
-                                relative px-5 py-2 text-sm font-bold transition-all duration-300 rounded-full flex items-center gap-2
-                                ${isActive(link.path) 
-                                    ? 'text-white bg-white/10 border border-white/10 shadow-inner' 
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                                }
-                            `}
+                            variant={isActive(link.path) ? 'secondary' : 'ghost'}
+                            rounded="full"
+                            size="sm"
+                            className={`px-5 py-2 border-transparent ${isActive(link.path) ? 'border-white/10 shadow-inner' : ''}`}
                         >
                             <link.icon className={`w-4 h-4 ${isActive(link.path) ? 'text-indigo-400' : 'text-gray-500'}`} />
-                            {link.name}
+                            <span className="text-[11px] font-bold">{link.name}</span>
                             {isActive(link.path) && (
                                 <motion.div 
                                     layoutId="nav-active"
@@ -91,41 +91,47 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-3">
                     {showBackSearch && (
-                        <button 
+                        <Button 
                             onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/search')}
-                            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group/back text-xs font-bold uppercase tracking-wider"
+                            variant="secondary"
+                            size="sm"
+                            rounded="full"
+                            className="hidden sm:flex"
                         >
-                            <ArrowLeft className="w-3.5 h-3.5 group-hover/back:-translate-x-1 transition-transform" />
+                            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
                             Return
-                        </button>
+                        </Button>
                     )}
 
                     <div className="h-6 w-[1px] bg-white/5 mx-2 hidden sm:block"></div>
 
                     {user ? (
                         <div className="flex items-center gap-2">
-                            <button 
+                            <Button 
                                 onClick={() => navigate('/dashboard')}
-                                className="relative group/dash flex items-center gap-3 pl-1 pr-4 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                                variant="secondary"
+                                rounded="full"
+                                size="sm"
+                                className="!pl-1.5 !pr-5 !py-1.5 transition-all duration-300 group/dash"
                             >
                                 <Avatar 
                                     src={user.avatar} 
                                     initials={user.name} 
                                     size="sm" 
-                                    className="border-0 shadow-none scale-90 group-hover/dash:scale-100 transition-transform"
+                                    className="border-0 shadow-none scale-100 group-hover/dash:scale-110 transition-transform"
                                 />
-                                <div className="flex flex-col items-start pr-1">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40 group-hover/dash:text-indigo-400 transition-colors">Dashboard</span>
-                                    <span className="text-[11px] font-bold text-white/90 truncate max-w-[80px]">{(user.name || 'User').split(' ')[0]}</span>
+                                <div className="flex flex-col items-start pr-1 gap-0.5">
+                                    <span className="text-[10px] font-bold text-white/40 group-hover/dash:text-indigo-400 transition-colors leading-none">Dashboard</span>
+                                    <span className="text-[10px] font-medium text-white/90 truncate max-w-[100px]">{(user.name || 'User').split(' ')[0]}</span>
                                 </div>
-                            </button>
+                            </Button>
                         </div>
                     ) : (
                         <Button 
@@ -138,13 +144,15 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                         </Button>
                     )}
 
-                    {/* Mobile Menu Toggle */}
-                    <button 
-                        className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+                    <Button 
+                        variant="ghost"
+                        size="sm"
+                        rounded="full"
+                        className="md:hidden !px-2 !py-2"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -158,24 +166,19 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                         className="fixed inset-x-4 top-24 pointer-events-auto md:hidden bg-gray-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 shadow-2xl z-40"
                     >
                         <div className="flex flex-col gap-4">
-                            {navLinks.map((link) => (
-                                <button
+                             {navLinks.map((link) => (
+                                <Button
                                     key={link.path}
                                     onClick={() => {
                                         navigate(link.path);
                                         setIsMobileMenuOpen(false);
                                     }}
-                                    className={`
-                                        flex items-center gap-4 px-4 py-3 rounded-xl transition-all
-                                        ${isActive(link.path) 
-                                            ? 'bg-indigo-600/20 text-white border border-indigo-500/30' 
-                                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                        }
-                                    `}
+                                    variant={isActive(link.path) ? 'primary' : 'ghost'}
+                                    className="w-full justify-start px-4 py-3"
                                 >
                                     <link.icon className={`w-5 h-5 ${isActive(link.path) ? 'text-indigo-400' : ''}`} />
-                                    <span className="font-bold uppercase tracking-wider text-xs">{link.name}</span>
-                                </button>
+                                    <span>{link.name}</span>
+                                </Button>
                             ))}
                         </div>
                     </motion.div>

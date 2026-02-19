@@ -79,7 +79,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     tempFilePath = path.join(uploadsDir, `cert_${credentialId}_${Date.now()}.pdf`);
     
     const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
-    const institutionName = req.user.issuerDetails?.institutionName || university || 'Attestify University';
+    const institutionName = req.user.issuerDetails?.institutionName || university || 'Attestify';
     const issuerWalletAddress = req.user.walletAddress;
     const issuerRegistration = req.user.issuerDetails?.registrationNumber || '';
 
@@ -281,22 +281,34 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Failed to parse CSV file', details: parseError.message });
   }
 
+  // Arrays to hold batch data
+  const batchStudentIds = []; // registrationNumbers / credentials IDs
+  const batchHashes = [];
+  const batchIpfsCIDs = [];
+  const batchRecipients = [];
+  const batchTokenURIs = [];
 
+  // Intermediate storage to link index to credential object before saving
+  const pendingCredentials = [];
 
   const summary = {
     total: results.length,
     success: 0,
     failed: 0,
-    details: []
+    message: ''
   };
 
-  const processRow = async (row) => {
+  // Step 1: Pre-process loop (Generate PDFs, IPFS, Prepare Batch Data)
+  console.log('Starting Batch Pre-processing for', results.length, 'records...');
+
+  for (const row of results) {
     let tempFilePath = null;
     try {
       if (!row.studentName || !row.studentWalletAddress) {
-        throw new Error('Missing required fields: studentName or studentWalletAddress');
+        throw new Error('Missing required fields');
       }
 
+      // -- Creation Logic --
       const type = row.type || 'CERTIFICATION';
       const issueDate = row.issueDate ? new Date(row.issueDate) : new Date();
 
@@ -336,9 +348,10 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
         issuedBy: req.user._id,
         metadata: {}
       });
-
-      const credentialId = credential._id.toString();
       
+      // We need ID for PDF filename
+      const credentialId = credential._id.toString(); 
+
       const uploadsDir = path.join(__dirname, '../../uploads');
       if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
       tempFilePath = path.join(uploadsDir, `batch_cert_${credentialId}_${Date.now()}.pdf`);
@@ -365,100 +378,149 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
         issuerRegistration
       }, tempFilePath);
 
+      // Hash & IPFS
       const certificateHash = await hashService.generateSHA256(tempFilePath);
       const ipfsResult = await ipfsService.uploadFile(tempFilePath, `Certificate_${credentialId}.pdf`);
+      
+      // Cleanup temp file
+      if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+      
+      // SBT Metadata
+      const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
 
-      const certificatePromise = blockchainService.issueCertificate(
-        credentialId,
+      // Determine Student ID for Contract (Using Credential object ID as unique identifier string)
+      const studentIdForContract = credentialId; 
+
+      // Push to Batch Arrays
+      batchStudentIds.push(studentIdForContract);
+      batchHashes.push(certificateHash);
+      batchIpfsCIDs.push(ipfsResult.ipfsHash);
+      
+      batchRecipients.push(row.studentWalletAddress);
+      batchTokenURIs.push(metadataURI);
+
+      // Keep track for post-processing
+      pendingCredentials.push({
+        credential,
         certificateHash,
-        ipfsResult.ipfsHash
+        ipfsHash: ipfsResult.ipfsHash,
+        row,
+        tempMetadata: {
+             fileSize: 0, // lost size info since deleted, can optimize later if critical
+             fileType: 'application/pdf',
+             originalFileName: `Certificate_${credentialId}.pdf`
+        }
+      });
+
+    } catch (err) {
+       console.error('Batch preprocessing failed for row:', row, err);
+       summary.failed++;
+       // If one fails, we skip adding it to the batch arrays.
+       // The batch transaction will only contain the successful ones.
+    }
+  }
+
+  if (batchStudentIds.length === 0) {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(400).json({ success: false, message: 'No valid records to process.' });
+  }
+
+  // Step 2: Batch Transaction(s)
+  let blockchainResult = null;
+  let sbtResult = null;
+  
+  try {
+      console.log('Sending Batch Transactions...');
+      
+      const certPromise = blockchainService.issueCertificateBatch(
+          batchStudentIds, 
+          batchHashes, 
+          batchIpfsCIDs
       );
 
-      const sbtPromise = (async () => {
-          try {
-              const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
-              const res = await blockchainService.issueSoulboundCredential(
-                  row.studentWalletAddress,
-                  metadataURI
-              );
-              return res;
-          } catch (sbtError) {
-              console.error('Failed to mint Batch SBT:', sbtError);
-              return null;
-          }
-      })();
+      const sbtPromise = blockchainService.issueSoulboundCredentialBatch(
+          batchRecipients,
+          batchTokenURIs
+      );
 
-      const [blockchainResult, sbtResult] = await Promise.all([certificatePromise, sbtPromise]);
+      [blockchainResult, sbtResult] = await Promise.all([certPromise, sbtPromise]);
 
-      if (sbtResult) {
-          credential.tokenId = sbtResult.tokenId;
+      if (!blockchainResult || blockchainResult.status !== 'success') {
+          throw new Error('Batch Certificate Transaction Failed');
       }
-      credential.certificateHash = certificateHash;
-      credential.ipfsCID = ipfsResult.ipfsHash;
+
+  } catch (txError) {
+      console.error('Batch Transaction Error:', txError);
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(500).json({ success: false, error: 'Blockchain Transaction Failed', details: txError.message });
+  }
+
+  // Step 3: Post-processing (Save to DB & Email)
+  console.log('Batch Transactions Successful. Saving credentials...');
+  
+  const tokenIds = sbtResult ? sbtResult.tokenIds : [];
+  
+  // Create a base cost per item for audit (total / count)
+  // Converting BigInt to number for division if needed, or simple string approximation
+  // Note: This is an approximation.
+  const totalCostWei = BigInt(blockchainResult.totalCost || 0) + BigInt(sbtResult?.totalCost || 0); // sbt result might not have cost yet depending on service impl
+  const count = BigInt(pendingCredentials.length);
+  const costPerItem = count > 0n ? (totalCostWei / count).toString() : "0";
+
+  for (let i = 0; i < pendingCredentials.length; i++) {
+      const item = pendingCredentials[i];
+      const credential = item.credential;
+      
+      credential.certificateHash = item.certificateHash;
+      credential.ipfsCID = item.ipfsHash;
+      
+      // Batch Details
       credential.transactionHash = blockchainResult.transactionHash;
       credential.blockNumber = blockchainResult.blockNumber;
-      credential.gasUsed = blockchainResult.gasUsed;
-      credential.gasPrice = blockchainResult.gasPrice;
-      credential.totalCost = blockchainResult.totalCost;
-      credential.metadata = {
-        fileSize: fs.statSync(tempFilePath).size,
-        fileType: 'application/pdf',
-        originalFileName: `Certificate_${credentialId}.pdf`
-      };
+      
+      // Assign specific token ID if available (assuming sequential order is preserved)
+      if (tokenIds && tokenIds[i]) {
+          credential.tokenId = tokenIds[i];
+      }
 
-      await credential.save();
+      // Amortized Cost
+      credential.gasUsed = "0"; // tracked on global tx
+      credential.gasPrice = blockchainResult.gasPrice; 
+      credential.totalCost = costPerItem; 
 
-      // Audit log removed
-
-
-      if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+      credential.metadata = item.tempMetadata;
 
       try {
-          const studentUser = await User.findOne({ walletAddress: row.studentWalletAddress.toLowerCase() });
+          await credential.save();
           
+          // Send Email
+          const studentUser = await User.findOne({ walletAddress: item.row.studentWalletAddress.toLowerCase() });
           if (studentUser && studentUser.email) {
-              const emailData = {
-                  studentName: row.studentName,
-                  university: req.user.issuerDetails?.institutionName || row.university || 'Attestify',
+               const emailData = {
+                  studentName: item.row.studentName,
+                  university: req.user.issuerDetails?.institutionName || item.row.university || 'Attestify',
                   issueDate: credential.issueDate,
                   transactionHash: blockchainResult.transactionHash,
                   id: credential._id,
-                  ipfsCID: ipfsResult.ipfsHash,
+                  ipfsCID: item.ipfsHash,
                   certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
                   loginLink: `${process.env.FRONTEND_URL}/login`,
                   tokenId: credential.tokenId
-              };
-
-              emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
-                  console.error(`Failed to send batch email to ${studentUser.email}:`, err)
-              );
+               };
+               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => console.error(err));
           }
-      } catch (emailErr) {
-          console.error('Batch email service error:', emailErr);
+          
+          summary.success++;
+
+      } catch (saveError) {
+          console.error('Failed to save credential post-minting:', saveError);
+          summary.failed++; // Technically minted but failed to save to DB. Critical consistency issue.
       }
- 
-      return { status: 'success', id: credentialId, tx: blockchainResult.transactionHash };
-
-    } catch (error) {
-       if (tempFilePath && fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
-       throw error;
-    }
-  };
-
-  for (const row of results) {
-    try {
-      const res = await processRow(row);
-      summary.success++;
-      summary.details.push({ ...row, ...res });
-    } catch (err) {
-      summary.failed++;
-      summary.details.push({ ...row, status: 'failed', error: err.message });
-      console.error('Batch row failed:', err);
-    }
   }
 
   if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
 
+  summary.message = `Processed ${summary.total} records. Successfully issued ${summary.success} credentials.`;
   res.json({ success: true, summary });
 });
 

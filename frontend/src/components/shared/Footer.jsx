@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Shield, Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 import ShieldLogo from './ShieldLogo';
+import Button from './Button';
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -34,12 +35,16 @@ const Footer = () => {
                   <input 
                     type="email" 
                     placeholder="Enter your email" 
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 h-[46px] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                   />
                 </div>
-                <button className="px-5 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-gray-200 transition-colors">
+                <Button 
+                  variant="white"
+                  size="md"
+                  className="font-bold !h-[46px] min-w-[120px]"
+                >
                   Subscribe
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -48,31 +53,32 @@ const Footer = () => {
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8 pt-2 lg:pt-0">
             <div>
               <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wide">Platform</h4>
-              <ul className="space-y-4 text-sm font-medium text-gray-500">
-                <li><button onClick={() => navigate('/login')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></span> Dashboard</button></li>
-                <li><button onClick={() => navigate('/verify')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></span> Verification</button></li>
-                <li><button onClick={() => navigate('/docs')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></span> Documentation</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></span> API Status</button></li>
+              <ul className="space-y-1 text-sm font-medium text-gray-500">
+                <li><Button onClick={() => navigate('/login')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Dashboard</Button></li>
+                <li><Button onClick={() => navigate('/verify')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Verification</Button></li>
+                <li><Button onClick={() => navigate('/docs')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Documentation</Button></li>
+                <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">API Status</Button></li>
               </ul>
             </div>
 
+
             <div>
               <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wide">Company</h4>
-              <ul className="space-y-4 text-sm font-medium text-gray-500">
-                <li><button onClick={() => navigate('/about')} className="hover:text-indigo-400 transition-colors">About Us</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors">Security</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors">Blog</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors">Contact</button></li>
+              <ul className="space-y-1 text-sm font-medium text-gray-500">
+                <li><Button onClick={() => navigate('/about')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">About Us</Button></li>
+                <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Security</Button></li>
+                <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Blog</Button></li>
+                <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Contact</Button></li>
               </ul>
             </div>
 
             <div className="col-span-2 sm:col-span-1">
               <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wide">Legal</h4>
-              <ul className="space-y-4 text-sm font-medium text-gray-500">
-                <li><button onClick={() => navigate('/privacy')} className="hover:text-indigo-400 transition-colors">Privacy Policy</button></li>
-                <li><button onClick={() => navigate('/terms')} className="hover:text-indigo-400 transition-colors">Terms of Service</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors">Cookie Policy</button></li>
-                <li><button className="hover:text-indigo-400 transition-colors">Security</button></li>
+              <ul className="space-y-1 text-sm font-medium text-gray-500">
+                <li><Button onClick={() => navigate('/privacy')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Privacy Policy</Button></li>
+                <li><Button onClick={() => navigate('/terms')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Terms of Service</Button></li>
+                <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Cookie Policy</Button></li>
+                <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Security</Button></li>
               </ul>
             </div>
           </div>

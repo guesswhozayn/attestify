@@ -68,12 +68,15 @@ const FileUpload = ({
               </p>
             </div>
           </div>
-          <button
+          <Button
             onClick={onClear}
-            className="text-gray-400 hover:text-red-400 transition"
+            variant="ghost"
+            rounded="full"
+            size="sm"
+            className="!p-1 text-gray-400 hover:text-red-400"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
       )}
     </div>

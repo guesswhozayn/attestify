@@ -13,31 +13,40 @@ const Button = ({
   disabled = false,
   className = '',
   icon: Icon,
+  iconClassName = '',
+  rounded = '2xl', 
 
   ...props 
 }) => {
-  const baseStyles = 'font-bold rounded-2xl transition-all duration-300 flex items-center justify-center space-x-2 active:scale-95 disabled:cursor-not-allowed';
+  const baseStyles = 'tracking-wide transition-all duration-300 flex flex-row items-center justify-center gap-2.5 active:scale-95 disabled:cursor-not-allowed group overflow-hidden relative';
+  
+  const roundedStyles = {
+    '2xl': 'rounded-2xl',
+    'full': 'rounded-full',
+    'none': 'rounded-none'
+  };
   
   const variants = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 disabled:bg-indigo-600/20 disabled:text-indigo-400/50',
-    secondary: 'bg-white/5 text-white hover:bg-white/10 border border-white/10 backdrop-blur-md shadow-inner disabled:bg-white/5 disabled:text-gray-600 disabled:border-white/5',
-    white: 'bg-white text-black hover:bg-gray-100 border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] disabled:bg-white/10 disabled:text-gray-500',
-    premium: 'bg-indigo-500 text-white hover:bg-indigo-400 border border-indigo-400/20 shadow-[0_0_30px_rgba(99,102,241,0.3)] shadow-inner hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] disabled:bg-indigo-500/20 disabled:text-indigo-300/30',
-    success: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 disabled:bg-emerald-600/20 disabled:text-emerald-400/50',
+    primary: 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white border border-indigo-400/20 hover:from-indigo-500 hover:to-indigo-600 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 backdrop-blur-sm disabled:opacity-50',
+    secondary: 'bg-white/5 text-white hover:bg-white/10 border border-white/10 backdrop-blur-md shadow-inner disabled:opacity-50',
+    white: 'bg-white text-black hover:bg-gray-100 border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] disabled:opacity-50',
+    premium: 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 border border-indigo-400/20 shadow-[0_0_30px_rgba(99,102,241,0.3)] shadow-inner hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] disabled:opacity-50',
+    success: 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border border-emerald-400/20 hover:from-emerald-500 hover:to-teal-600 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 backdrop-blur-sm disabled:opacity-50',
     danger: 'bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 disabled:opacity-20',
-    outline: 'bg-transparent border border-white/20 text-white hover:bg-white/5 disabled:opacity-20',
+    outline: 'bg-white/5 text-white border border-white/10 backdrop-blur-md hover:bg-white/10 disabled:opacity-20',
     ghost: 'text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-20',
   };
 
   const sizes = {
-    sm: 'px-4 py-2 text-xs',
-    md: 'px-6 py-3 text-sm',
-    lg: 'px-8 py-4 text-base md:text-lg',
-    xl: 'px-10 py-5 text-xl font-black uppercase tracking-[0.2em]',
+    sm: 'px-4 py-1.5 text-xs font-medium',
+    md: 'px-6 py-2.5 text-sm font-medium',
+    lg: 'px-8 py-3.5 text-base md:text-lg font-black',
+    xl: 'px-10 py-5 text-xl font-black tracking-widest',
   };
 
   const variantStyles = variant && variants[variant] ? variants[variant] : '';
-  const combinedClassName = `${baseStyles} ${variantStyles} ${sizes[size]} ${className}`;
+  const roundedClassName = roundedStyles[rounded] || roundedStyles['2xl'];
+  const combinedClassName = `${baseStyles} ${variantStyles} ${sizes[size]} ${roundedClassName} ${className}`;
 
   if (href) {
     return (
@@ -48,8 +57,8 @@ const Button = ({
         className={combinedClassName}
         {...props}
       >
-        {Icon && <Icon className="w-4 h-4" />}
-        <span>{children}</span>
+        {Icon && <Icon className={`w-4 h-4 ${iconClassName}`} />}
+        {children && <span>{children}</span>}
       </a>
     );
   }
@@ -62,11 +71,16 @@ const Button = ({
       {...props}
     >
       {loading ? (
-        <Loader2 className="w-5 h-5 animate-spin" />
+        <Loader2 className={`w-5 h-5 animate-spin relative z-10 ${iconClassName}`} />
       ) : Icon ? (
-        <Icon className="w-4 h-4" />
+        <Icon className={`w-4 h-4 relative z-10 ${iconClassName}`} />
       ) : null}
-      <span>{children}</span>
+      {children && <span className="relative z-10 flex flex-row items-center gap-2">{children}</span>}
+      
+      {/* Premium Shimmer Effect */}
+      {(variant === 'primary' || variant === 'premium' || variant === 'success') && !disabled && !loading && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      )}
     </button>
   );
 };

@@ -8,24 +8,10 @@ import Button from '../components/shared/Button';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 import BrandLogo from '../components/shared/BrandLogo';
 import ShieldLogo from '../components/shared/ShieldLogo';
+import Input from '../components/shared/Input';
 import blockchainService from '../services/blockchain';
 
-// Helper component for cleaner inputs
-const FormInput = ({ label, icon: Icon, type = "text", ...props }) => (
-  <div className="space-y-1.5">
-     <label className="text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider">{label} <span className="text-red-500/70 text-[10px] align-top">*</span></label>
-     <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-           <Icon className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
-        </div>
-        <input
-           type={type}
-           className="block w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
-           {...props}
-        />
-     </div>
-  </div>
-);
+
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -172,20 +158,26 @@ const Register = () => {
              <div 
                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${formData.role === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
              ></div>
-             <button
-               className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${formData.role === 'ISSUER' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+             <Button
+               variant="ghost"
+               rounded="full"
+               size="sm"
+               className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${formData.role === 'ISSUER' ? 'text-white' : 'text-gray-400'}`}
                onClick={() => setFormData({ ...formData, role: 'ISSUER' })}
                type="button"
              >
                Issuer
-             </button>
-             <button
-               className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${formData.role === 'STUDENT' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+             </Button>
+             <Button
+               variant="ghost"
+               rounded="full"
+               size="sm"
+               className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${formData.role === 'STUDENT' ? 'text-white' : 'text-gray-400'}`}
                onClick={() => setFormData({ ...formData, role: 'STUDENT' })}
                type="button"
              >
                Student
-             </button>
+             </Button>
            </div>
 
           {error && (
@@ -199,7 +191,7 @@ const Register = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                {formData.role !== 'ISSUER' && (
-                  <FormInput
+                  <Input
                     label="Full Name"
                     name="name"
                     value={formData.name}
@@ -210,7 +202,7 @@ const Register = () => {
                   />
                )}
                
-               <FormInput
+               <Input
                  label="Email Address"
                  type="email"
                  name="email"
@@ -223,7 +215,7 @@ const Register = () => {
 
                {formData.role === 'ISSUER' ? (
                  <>
-                   <FormInput
+                   <Input
                      label="Organization Name"
                      name="institutionName"
                      value={formData.institutionName}
@@ -233,7 +225,7 @@ const Register = () => {
                      required
                    />
                    <div className="md:col-span-2">
-                     <FormInput
+                     <Input
                        label="Registration / License No"
                        name="registrationNumber"
                        value={formData.registrationNumber}
@@ -243,10 +235,10 @@ const Register = () => {
                        required
                      />
                    </div>
-                   <div className="md:col-span-2 space-y-2">
-                     <div className="flex items-end gap-3">
-                        <div className="flex-1">
-                           <FormInput
+                    <div className="md:col-span-2">
+                       <div className="flex items-end gap-3">
+                         <div className="flex-1">
+                           <Input
                              label="Authorized Wallet Address"
                              name="authorizedWalletAddress"
                              value={formData.authorizedWalletAddress}
@@ -255,20 +247,20 @@ const Register = () => {
                              icon={Lock}
                              required
                            />
-                        </div>
-                        <Button
+                         </div>
+                         <Button
                            type="button"
                            variant="secondary"
                            size="md"
                            onClick={() => handleConnectWallet('authorizedWalletAddress')}
                            icon={Wallet}
                            className="mb-[1px] h-[52px] whitespace-nowrap"
-                        >
+                         >
                            Connect
-                        </Button>
-                     </div>
-                   </div>
-                   <FormInput
+                         </Button>
+                       </div>
+                    </div>
+                   <Input
                      label="Official Email Domain"
                      name="officialEmailDomain"
                      value={formData.officialEmailDomain}
@@ -280,19 +272,20 @@ const Register = () => {
                  </>
                ) : (
                  <>
-                   <FormInput
-                     label="University / Organization"
-                     name="university"
-                     value={formData.university}
-                     onChange={handleChange}
-                     placeholder="Select your issuer/organization"
-                     icon={Building}
-                     required
-                   />
-                   <div className="md:col-span-2 space-y-2">
-                     <div className="flex items-end gap-3">
+                  <>
+                    <Input
+                      label="University / Organization"
+                      name="university"
+                      value={formData.university}
+                      onChange={handleChange}
+                      placeholder="Select your issuer/organization"
+                      icon={Building}
+                      required
+                    />
+                    <div className="md:col-span-2">
+                      <div className="flex items-end gap-3">
                         <div className="flex-1">
-                          <FormInput
+                          <Input
                             label="Wallet Address"
                             name="walletAddress"
                             value={formData.walletAddress}
@@ -312,55 +305,47 @@ const Register = () => {
                         >
                            Connect
                         </Button>
-                     </div>
-                   </div>
+                      </div>
+                    </div>
+                  </>
                  </>
                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-               <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider">Password <span className="text-red-500/70 text-[10px] align-top">*</span></label>
-                  <div className="relative group">
-                     <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
-                     </div>
-                     <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="block w-full pl-12 pr-12 py-3.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
-                        placeholder="••••••••"
-                        required
-                     />
-                     <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
-                     >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                     </button>
-                  </div>
-               </div>
+               <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  icon={Lock}
+                  required
+                  rightAction={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      rounded="full"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="h-10 w-10 !px-0 !py-0 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </Button>
+                  }
+               />
 
-               <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider">Confirm Password <span className="text-red-500/70 text-[10px] align-top">*</span></label>
-                  <div className="relative group">
-                     <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
-                     </div>
-                     <input
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        className="block w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
-                        placeholder="••••••••"
-                        required
-                     />
-                  </div>
-               </div>
+               <Input
+                  label="Confirm Password"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  icon={Lock}
+                  required
+               />
             </div>
 
             <div className="pt-2">

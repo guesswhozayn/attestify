@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/shared/Navbar';
 import { 
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
-  HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight
+  HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight,
+    Copy,
+    ExternalLink
 } from 'lucide-react';
+import Button from '../components/shared/Button';
 import PoweredBy from '../components/shared/PoweredBy';
 
 const sections = [
@@ -103,18 +106,18 @@ const Documentation = () => {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-8 ml-4">Architecture & Docs</p>
             <div className="space-y-1 relative">
               {sections.map(s => (
-                <button
+                <Button
                   key={s.id}
                   onClick={() => scrollTo(s.id)}
-                  className={`w-full group flex items-start justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all relative z-10 text-left ${
-                    activeSection === s.id
-                      ? 'text-white'
-                      : 'text-gray-500 hover:text-white hover:bg-white/5'
+                  variant="ghost"
+                  rounded="2xl"
+                  className={`w-full group !justify-between px-4 py-3 !shadow-none ${
+                    activeSection === s.id ? 'text-white' : 'text-gray-500 hover:text-white'
                   }`}
                 >
                   <div className="flex items-start gap-4">
                     <s.icon className={`w-4 h-4 mt-0.5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600 group-hover:text-indigo-400'} transition-colors flex-shrink-0`} />
-                    <span className="leading-tight">{s.label}</span>
+                    <span className="leading-tight normal-case tracking-normal">{s.label}</span>
                   </div>
                   {activeSection === s.id && (
                     <motion.div 
@@ -124,7 +127,7 @@ const Documentation = () => {
                     />
                   )}
                   <ChevronRight className={`w-3.5 h-3.5 transition-all opacity-0 group-hover:opacity-100 ${activeSection === s.id ? 'opacity-100 translate-x-1 text-indigo-400' : 'translate-x-0'}`} />
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -604,34 +607,38 @@ const Documentation = () => {
             >
               <div className="flex items-center justify-between mb-12">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Navigation</span>
-                <button 
+                <Button 
                   onClick={() => setMobileNavOpen(false)}
-                  className="p-2 rounded-full bg-white/5 border border-white/10"
+                  variant="secondary"
+                  size="sm"
+                  rounded="full"
+                  className="!p-2"
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
 
               <div className="space-y-2">
                 {sections.map((s, idx) => (
-                  <motion.button
+                  <motion.div
                     key={s.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    onClick={() => scrollTo(s.id)}
-                    className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-base font-bold transition-all ${
-                      activeSection === s.id
-                        ? 'bg-indigo-500/10 text-white border border-indigo-500/20'
-                        : 'text-gray-400 hover:text-white border border-transparent'
-                    }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600'}`} />
-                      {s.label}
-                    </div>
-                    {activeSection === s.id && <ChevronRight className="w-4 h-4 text-indigo-400" />}
-                  </motion.button>
+                    <Button
+                      onClick={() => scrollTo(s.id)}
+                      variant={activeSection === s.id ? 'secondary' : 'ghost'}
+                      rounded="2xl"
+                      className="w-full !justify-between px-5 py-4"
+                    >
+                      <div className="flex items-center gap-4">
+                        <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600'}`} />
+                        <span className="normal-case tracking-normal">{s.label}</span>
+                      </div>
+                      {activeSection === s.id && <ChevronRight className="w-4 h-4 text-indigo-400" />}
+                    </Button>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>

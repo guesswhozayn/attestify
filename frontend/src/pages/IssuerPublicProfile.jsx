@@ -84,7 +84,8 @@ const IssuerPublicProfile = () => {
                     <p className="text-slate-400 mb-8 leading-relaxed">{error}</p>
                     <Button 
                         onClick={() => navigate('/search')}
-                        className="w-full bg-white text-black hover:bg-gray-200"
+                        variant="white"
+                        className="w-full"
                     >
                         Back to Search
                     </Button>
@@ -114,7 +115,7 @@ const IssuerPublicProfile = () => {
                      {/* Glow behind card */}
                     <div className="absolute inset-0 bg-indigo-500/10 blur-[60px] -z-10 rounded-full"></div>
 
-                    <div className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
+                    <div className="rounded-3xl p-8 md:p-10 relative overflow-hidden group">
                         
                         {/* Shimmer effect */}
                         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
@@ -149,12 +150,22 @@ const IssuerPublicProfile = () => {
 
                                 {/* Action Buttons */}
                                 <div className="flex items-center justify-center md:justify-start gap-3">
-                                    <Button className="h-10 px-6 bg-white text-black hover:bg-gray-200 rounded-full font-bold text-sm shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
+                                    <Button 
+                                        variant="white"
+                                        rounded="full"
+                                        size="sm"
+                                        className="h-10 px-6 normal-case tracking-normal"
+                                    >
                                         View Credentials
                                     </Button>
-                                    <button className="h-10 w-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-colors">
-                                        <Share2 className="w-4 h-4" />
-                                    </button>
+                                    <Button 
+                                        variant="secondary"
+                                        rounded="full"
+                                        size="sm"
+                                        className="h-10 w-10 !px-0 !py-0 group/share"
+                                    >
+                                        <Share2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -179,12 +190,15 @@ const IssuerPublicProfile = () => {
                             <span className="text-sm text-gray-300 font-mono truncate">
                                 {data.email}
                             </span>
-                            <button 
+                            <Button 
                                 onClick={() => handleCopy(data.email)}
-                                className="text-gray-500 hover:text-white transition-colors"
+                                variant="ghost"
+                                size="sm"
+                                rounded="full"
+                                className="!p-2 text-gray-500 hover:text-white"
                             >
                                 <Copy className="w-4 h-4" />
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
@@ -203,12 +217,15 @@ const IssuerPublicProfile = () => {
                             <span className="text-sm text-gray-300 font-mono truncate">
                                 {data._id}
                             </span>
-                            <button 
+                            <Button 
                                 onClick={() => handleCopy(data._id)}
-                                className="text-gray-500 hover:text-white transition-colors"
+                                variant="ghost"
+                                size="sm"
+                                rounded="full"
+                                className="!p-2 text-gray-500 hover:text-white"
                             >
                                 <Copy className="w-4 h-4" />
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -153,12 +153,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl group/chip">
                       <Hash className="w-3.5 h-3.5 text-zinc-600" />
                       <span className="text-[10px] font-mono text-zinc-400 truncate max-w-[100px]">{credential._id}</span>
-                      <button 
+                      <Button 
                         onClick={() => copyToClipboard(credential._id, 'id')}
-                        className="text-zinc-400 hover:text-white transition-colors ml-1"
+                        variant="ghost"
+                        className="!p-1 text-zinc-400 hover:text-white"
+                        size="sm"
+                        rounded="md"
                       >
                         {copiedField === 'id' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -173,13 +176,14 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     {credential.isRevoked ? 'REVOKED' : 'ON-CHAIN VERIFIED'}
                   </div>
                   {isSBT && (
-                    <button 
+                    <Button 
                       onClick={() => setShowSBTModal(true)}
-                      className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 transition-all hover:scale-105 active:scale-95"
+                      variant="ghost"
+                      className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 shadow-none normal-case"
                     >
                       <Shield className="w-3.5 h-3.5" />
                       SOULBOUND
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -330,9 +334,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                         <span>Transaction Hash</span>
                         <div className="flex items-center gap-2">
                            {copiedField === 'tx' && <span className="text-[8px] text-emerald-400 font-black uppercase">COPIED</span>}
-                           <button onClick={() => copyToClipboard(credential.transactionHash, 'tx')} className="text-zinc-500 hover:text-white transition-colors">
+                           <Button 
+                              onClick={() => copyToClipboard(credential.transactionHash, 'tx')} 
+                              variant="ghost"
+                              className="!p-1 text-zinc-500 hover:text-white"
+                              size="sm"
+                              rounded="md"
+                           >
                               <Copy className="w-3.5 h-3.5" />
-                           </button>
+                           </Button>
                         </div>
                       </label>
                       <div className="text-[10px] font-mono text-zinc-400 break-all p-5 bg-black/40 rounded-2xl border border-white/[0.04] shadow-inner group/hash relative overflow-hidden">
@@ -364,9 +374,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
                         <span>IPFS Content ID</span>
-                        <button onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')} className="text-zinc-500 hover:text-white transition-colors">
+                        <Button 
+                          onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')} 
+                          variant="ghost"
+                          className="!p-1 text-zinc-500 hover:text-white"
+                          size="sm"
+                          rounded="md"
+                        >
                           <Copy className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </label>
                       <div className="text-[10px] font-mono text-zinc-400 break-all p-5 bg-black/40 rounded-2xl border border-white/[0.04] shadow-inner">
                         {credential.ipfsCID}
@@ -376,9 +392,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
                         <span>Certificate Fingerprint</span>
-                        <button onClick={() => copyToClipboard(credential.certificateHash, 'cert')} className="text-zinc-500 hover:text-white transition-colors">
+                        <Button 
+                          onClick={() => copyToClipboard(credential.certificateHash, 'cert')} 
+                          variant="ghost"
+                          className="!p-1 text-zinc-500 hover:text-white"
+                          size="sm"
+                          rounded="md"
+                        >
                           <Copy className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </label>
                       <div className="text-[10px] font-mono text-zinc-400 break-all p-5 bg-black/40 rounded-2xl border border-white/[0.04] shadow-inner">
                         {credential.certificateHash}

@@ -130,6 +130,47 @@ class BlockchainService {
     }
   }
 
+  async issueCertificateBatch(registrationNumbers, certificateHashes, ipfsCIDs) {
+    try {
+      console.log('Issuing BATCH certificates:', { count: registrationNumbers.length });
+
+      const gasEstimate = await this.contract.issueCertificateBatch.estimateGas(
+        registrationNumbers,
+        certificateHashes,
+        ipfsCIDs
+      );
+
+      const nonce = await this.getNonce();
+
+      const tx = await this.contract.issueCertificateBatch(
+        registrationNumbers,
+        certificateHashes,
+        ipfsCIDs,
+        {
+          gasLimit: gasEstimate * 120n / 100n,
+          nonce
+        }
+      );
+
+      console.log('Batch transaction sent:', tx.hash);
+      const receipt = await tx.wait();
+      console.log('Batch transaction confirmed:', receipt.hash);
+
+      return {
+        transactionHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed.toString(),
+        gasPrice: receipt.gasPrice.toString(),
+        totalCost: (receipt.gasUsed * receipt.gasPrice).toString(),
+        status: receipt.status === 1 ? 'success' : 'failed'
+      };
+
+    } catch (error) {
+      console.error('Blockchain batch issue error:', error);
+      throw new Error(`Batch transaction failed: ${error.message}`);
+    }
+  }
+
   async issueSoulboundCredential(to, tokenURI) {
     try {
       console.log('Minting Soulbound Token:', { to, tokenURI });
@@ -147,10 +188,6 @@ class BlockchainService {
 
       const receipt = await tx.wait();
       console.log('Mint confirmed:', receipt.hash);
-
-      // find TokenId from events?
-      // The event is SoulboundMinted(address indexed to, uint256 indexed tokenId, string uri);
-      // We can parse logs if needed, but for now returning receipt is fine.
       
       let tokenId = null;
       for (const log of receipt.logs) {
@@ -175,6 +212,53 @@ class BlockchainService {
     } catch (error) {
       console.error('SBT Mint error:', error);
       throw new Error(`SBT Mint failed: ${error.message}`);
+    }
+  }
+
+  async issueSoulboundCredentialBatch(recipients, tokenURIs) {
+    try {
+        console.log('Minting BATCH Soulbound Tokens:', { count: recipients.length });
+
+        const gasEstimate = await this.contract.safeMintBatch.estimateGas(recipients, tokenURIs);
+        
+        const nonce = await this.getNonce();
+
+        const tx = await this.contract.safeMintBatch(recipients, tokenURIs, {
+            gasLimit: gasEstimate * 120n / 100n,
+            nonce
+        });
+
+        console.log('Batch Mint transaction sent:', tx.hash);
+        const receipt = await tx.wait();
+        console.log('Batch Mint confirmed:', receipt.hash);
+
+        // We can parse logs if we really need all token IDs, 
+        // but typically valid assumption is sequential from start or checked via events.
+        // For simplicity, we'll return the receipt and status.
+        // The contract returns uint256[] but that is the return value of the function call, not transaction receipt.
+        // To get return values from a state-changing function call we'd need to simulate or inspect events.
+
+        // Let's parse all SoulboundMinted events from this receipt
+        const tokenIds = [];
+        for (const log of receipt.logs) {
+            try {
+                const parsedLog = this.contract.interface.parseLog(log);
+                if (parsedLog.name === 'SoulboundMinted') {
+                    tokenIds.push(parsedLog.args.tokenId.toString());
+                }
+            } catch (e) { }
+        }
+
+        return {
+            transactionHash: receipt.hash,
+            tokenIds: tokenIds,
+            blockNumber: receipt.blockNumber,
+            status: receipt.status === 1 ? 'success' : 'failed'
+        };
+
+    } catch (error) {
+        console.error('Batch SBT Mint error:', error);
+        throw new Error(`Batch SBT Mint failed: ${error.message}`);
     }
   }
 

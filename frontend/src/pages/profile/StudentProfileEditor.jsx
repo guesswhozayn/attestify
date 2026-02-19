@@ -21,6 +21,7 @@ import {
     Globe
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
+import Toggle from '../../components/shared/Toggle';
 import Avatar from '../../components/shared/Avatar';
 
 const StudentProfileEditor = () => {
@@ -176,19 +177,10 @@ const StudentProfileEditor = () => {
                   transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                   className="relative bg-white/[0.03] rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl backdrop-blur-xl group"
                 >
-                    {/* Cover Banner */}
-                    <div className="h-56 bg-[#0a0a0a] relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/60 via-purple-900/40 to-black/80"></div>
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.2] mix-blend-overlay"></div>
-                        
-                        {/* Animated Grid Background */}
-                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-
-                        {/* Top Right Blob */}
-                        <div className="absolute top-[-50%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen animate-pulse"></div>
-                    </div>
+                    {/* Cover Banner Removed */}
+                    <div className="h-0 relative overflow-hidden"></div>
             
-                    <div className="px-8 pb-10 flex flex-col md:flex-row items-start gap-8 -mt-20 relative z-10">
+                    <div className="px-8 pb-10 flex flex-col md:flex-row items-start gap-8 pt-10 relative z-10">
                         {/* Avatar */}
                         <div className="relative group/avatar shrink-0">
                              <Avatar 
@@ -275,17 +267,18 @@ const StudentProfileEditor = () => {
                                 </div>
                                 
                                 {/* Actions */}
-                                <div className="flex flex-col gap-3 min-w-[200px]">
+                                 <div className="flex flex-col gap-3 min-w-[200px]">
                                     {user?.walletAddress && (
-                                        <a 
+                                        <Button 
                                             href={`/student/${user.walletAddress}`} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black hover:bg-gray-200 text-sm font-bold rounded-full transition-all shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)] active:scale-95 duration-200"
+                                            variant="white"
+                                            icon={ExternalLink}
+                                            className="w-full h-12 rounded-full shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)]"
                                         >
-                                            <ExternalLink className="w-4 h-4" />
                                             View Public Profile
-                                        </a>
+                                        </Button>
                                     )}
                                     <Button 
                                         onClick={() => {
@@ -404,19 +397,12 @@ const StudentProfileEditor = () => {
                                      </div>
                                      
                                      <div className="flex flex-col items-center gap-3">
-                                         <button
-                                             onClick={() => isEditing && setFormData({...formData, visibility: !formData.visibility})}
+                                         <Toggle 
+                                             enabled={formData.visibility}
+                                             onChange={(val) => isEditing && setFormData({...formData, visibility: val})}
                                              disabled={!isEditing}
-                                             className={`relative inline-flex h-8 w-16 items-center rounded-full transition-all duration-300 focus:outline-none ${!isEditing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${
-                                                 formData.visibility ? 'bg-emerald-500 shadow-[0_0_15px_-3px_rgba(16,185,129,0.5)]' : 'bg-gray-700'
-                                             }`}
-                                         >
-                                             <span
-                                                 className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
-                                                     formData.visibility ? 'translate-x-9' : 'translate-x-1'
-                                                 }`}
-                                             />
-                                         </button>
+                                             label="Public Visibility"
+                                         />
                                          <span className={`text-[10px] font-black uppercase tracking-widest ${formData.visibility ? 'text-emerald-400' : 'text-gray-500'}`}>
                                              {formData.visibility ? 'LIVE ON-CHAIN' : 'HIDDEN'}
                                          </span>
@@ -455,15 +441,16 @@ const StudentProfileEditor = () => {
                              <div className="space-y-4 relative z-10">
                                  <div>
                                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Wallet Address</label>
-                                     <button 
+                                     <Button 
                                         onClick={copyWalletAddress}
-                                        className="w-full text-left group/copy"
+                                        variant="ghost"
+                                        className="w-full !p-0 !bg-transparent !border-none group/copy overflow-visible"
                                      >
-                                         <div className="font-mono text-sm text-gray-300 break-all bg-black/40 p-4 rounded-xl border border-white/10 group-hover/copy:border-emerald-500/30 group-hover/copy:text-white transition-all flex justify-between items-center">
+                                         <div className="w-full font-mono text-sm text-gray-300 break-all bg-black/40 p-4 rounded-xl border border-white/10 group-hover/copy:border-emerald-500/30 group-hover/copy:text-white transition-all flex justify-between items-center text-left">
                                              <span>{user?.walletAddress || "Not Connected"}</span>
                                              <Copy className="w-4 h-4 opacity-0 group-hover/copy:opacity-100 transition-opacity text-emerald-400" />
                                          </div>
-                                     </button>
+                                     </Button>
                                  </div>
                                  
                                  <div className="pt-4 border-t border-white/5">

@@ -26,16 +26,19 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 <ShieldCheck className="w-7 h-7 text-indigo-400" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-white uppercase tracking-[0.1em]">SBT Registry</h3>
-                                <p className="text-[10px] text-indigo-400/60 font-black uppercase tracking-widest mt-1">Immutable Identity Proof</p>
+                                <h3 className="text-xl font-bold text-white">SBT Registry</h3>
+                                <p className="text-[11px] text-indigo-400/60 font-bold mt-1">Immutable Identity Proof</p>
                             </div>
                         </div>
-                        <button 
+                        <Button 
                             onClick={onClose}
-                            className="p-3 hover:bg-white/5 rounded-full text-zinc-500 hover:text-white transition-all active:scale-90"
+                            variant="ghost"
+                            rounded="full"
+                            size="sm"
+                            className="!p-3 text-zinc-500 hover:text-white"
                         >
                             <X className="w-6 h-6" />
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -44,7 +47,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     
                     {/* Status Badge */}
                     <div className="flex justify-center">
-                        <div className={`flex items-center gap-3 px-6 py-2.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em] shadow-lg ${
+                        <div className={`flex items-center gap-3 px-6 py-2.5 rounded-full border text-[11px] font-bold shadow-lg ${
                             credential.isRevoked 
                                 ? 'bg-red-500/10 border-red-500/20 text-red-400' 
                                 : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse'
@@ -79,13 +82,13 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                     <Globe className="w-5 h-5 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Global Network</p>
-                                    <p className="text-sm font-black text-zinc-200">{networkName}</p>
+                                    <p className="text-[10px] font-bold text-zinc-600">Global Network</p>
+                                    <p className="text-sm font-bold text-zinc-200">{networkName}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">
                                 <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
-                                <span className="text-[10px] font-black text-indigo-300 uppercase">Live</span>
+                                <span className="text-[11px] font-bold text-indigo-300">Live</span>
                             </div>
                         </div>
                     </div>
@@ -94,31 +97,35 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     <div className="space-y-4">
                         <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] px-2">Extended Proofs</h4>
                         <div className="grid grid-cols-2 gap-4">
-                            <a 
+                            <Button 
                                 href={etherscanUrl} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex flex-col items-center justify-center p-6 bg-white/[0.02] hover:bg-indigo-500/10 border border-white/[0.04] hover:border-indigo-500/30 rounded-[1.5rem] transition-all group min-w-0 active:scale-95"
+                                variant="ghost"
+                                rounded="2xl"
+                                className="flex-col items-center justify-center p-6 !bg-white/[0.02] hover:!bg-indigo-500/10 border border-white/[0.04] hover:border-indigo-500/30 transition-all !h-auto !shadow-none"
                             >
                                 <ExternalLink className="w-6 h-6 text-zinc-500 group-hover:text-indigo-400 mb-3 transition-colors shrink-0" />
-                                <span className="text-[10px] font-black text-zinc-500 group-hover:text-white text-center uppercase tracking-widest truncate w-full">Explorer</span>
-                            </a>
-                            <a 
+                                <span className="text-[11px] font-bold text-zinc-500 group-hover:text-white text-center truncate w-full">Explorer</span>
+                            </Button>
+                            <Button 
                                 href={ipfsUrl} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex flex-col items-center justify-center p-6 bg-white/[0.02] hover:bg-purple-500/10 border border-white/[0.04] hover:border-purple-500/30 rounded-[1.5rem] transition-all group min-w-0 active:scale-95"
+                                variant="ghost"
+                                rounded="2xl"
+                                className="flex-col items-center justify-center p-6 !bg-white/[0.02] hover:!bg-purple-500/10 border border-white/[0.04] hover:border-purple-500/30 transition-all !h-auto !shadow-none"
                             >
                                 <Share2 className="w-6 h-6 text-zinc-500 group-hover:text-purple-400 mb-3 transition-colors shrink-0" />
                                 <span className="text-[10px] font-black text-zinc-500 group-hover:text-white text-center uppercase tracking-widest truncate w-full">IPFS Hub</span>
-                            </a>
+                            </Button>
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="p-8 bg-white/[0.02] flex justify-center border-t border-white/[0.04]">
-                    <Button onClick={onClose} variant="secondary" className="w-full justify-center py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-black uppercase tracking-widest rounded-2xl active:scale-95 transition-all">
+                    <Button onClick={onClose} variant="secondary" className="w-full justify-center py-4">
                         Exit Registry
                     </Button>
                 </div>
@@ -134,19 +141,22 @@ const DataField = ({ label, value, icon: Icon, isAddress, onCopy }) => (
                 <Icon className="w-5 h-5 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
             </div>
             <div className="min-w-0 space-y-1">
-                <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest truncate">{label}</p>
+                <p className="text-[10px] font-bold text-zinc-600 truncate">{label}</p>
                 <p className={`text-xs font-mono text-zinc-200 break-all leading-relaxed ${isAddress ? 'text-indigo-300/60' : ''}`}>
                     {value}
                 </p>
             </div>
         </div>
-        <button 
+        <Button 
             onClick={onCopy}
-            className="p-3 hover:bg-white/5 rounded-xl text-zinc-600 hover:text-indigo-400 transition-all opacity-0 group-hover:opacity-100 active:scale-90"
+            variant="ghost"
+            rounded="xl"
+            size="sm"
+            className="p-3 text-zinc-600 hover:text-indigo-400 opacity-0 group-hover:opacity-100"
             title={`Copy ${label}`}
         >
             <Copy className="w-5 h-5" />
-        </button>
+        </Button>
     </div>
 );
 

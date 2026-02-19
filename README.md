@@ -404,6 +404,23 @@ Content-Type: multipart/form-data
 }
 ```
 
+#### Batch Issue Credentials
+```http
+POST /api/credentials/batch-issue
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+
+{
+  "file": <csv_file>
+}
+```
+**CSV Format:**
+`studentName,studentWalletAddress,university,issueDate,type,program,department,admissionYear,graduationYear,cgpa,courses,title,level,duration,score,description`
+
+**Benefits:**
+- **Gas Efficient:** Issues multiple credentials in a single blockchain transaction.
+- **Automated:** Generates PDFs, IPFS uploads, and emails for all students automatically.
+
 #### Get All Credentials
 ```http
 GET /api/credentials

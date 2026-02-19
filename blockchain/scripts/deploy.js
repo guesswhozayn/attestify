@@ -61,11 +61,6 @@ async function main() {
   
   console.log("\nDeployment info saved to deployment-info.json");
   console.log("\nDeployment complete!");
-  console.log("\nNext steps:");
-  console.log("1. Copy the contract address to your .env files");
-  console.log("2. Copy the ABI from artifacts/contracts/Attestify.sol/Attestify.json");
-  console.log("3. Update backend/src/config/contractABI.json with the ABI");
-  console.log("4. Update frontend .env with VITE_CONTRACT_ADDRESS");
 }
 
 main()

@@ -2,10 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
+import RefreshButton from '../components/shared/RefreshButton';
+import blockchainService from '../services/blockchain';
 import CredentialDetails from '../components/credential/CredentialDetails';
-import UploadCredentialModal from '../components/credential/UploadCredentialModal';
+import IssueCredentialModal from '../components/credential/IssueCredentialModal';
+import BulkIssueModal from '../components/credential/BulkIssueModal';
 import RecentActivityList from '../components/dashboard/RecentActivityList';
-import { Plus, Shield, Filter, ArrowRight, FileText, TrendingUp, Activity, Users, Award, CheckCircle, Clock, Calendar, Zap, Server, Wifi, RefreshCw } from 'lucide-react';
+import { Plus, Shield, Filter, ArrowRight, FileText, TrendingUp, Activity, Users, Award, CheckCircle, Clock, Calendar, Zap, Server, Wifi } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +30,7 @@ const IssuerDashboard = () => {
     });
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showBulkModal, setShowBulkModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const { showNotification } = useNotification();
@@ -176,14 +180,12 @@ const IssuerDashboard = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.6, delay: 0.3 }}
                         >
-                            <button 
+                            <RefreshButton 
                                 onClick={() => fetchDashboardData(true)}
-                                disabled={refreshing}
-                                className={`p-4 rounded-[2rem] bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? 'animate-spin' : 'hover:scale-105 active:scale-95'}`}
+                                loading={refreshing}
+                                className="bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10"
                                 title="Refresh Dashboard"
-                            >
-                                <RefreshCw className="w-6 h-6" />
-                            </button>
+                            />
                         </motion.div>
                     </div>
                 </motion.div>
@@ -250,10 +252,11 @@ const IssuerDashboard = () => {
                                 </div>
                                 <Button 
                                     variant="outline" 
-                                    className="border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-2xl px-6 text-sm"
+                                    icon={ArrowRight}
+                                    className="border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-2xl px-6 text-sm flex-row-reverse"
                                     onClick={() => navigate('/credentials')}
                                 >
-                                    View All <ArrowRight className="w-4 h-4 ml-2" />
+                                    View All
                                 </Button>
                             </div>
 
@@ -279,7 +282,9 @@ const IssuerDashboard = () => {
                                             Your issuance ledger is empty. Start by creating your first blockchain credential.
                                         </p>
                                         <Button 
-                                        onClick={() => setShowUploadModal(true)}
+                                            onClick={() => {
+                                                setShowUploadModal(true);
+                                            }}
                                         icon={Plus}
                                         variant="success"
                                         className="h-12 px-6"
@@ -316,14 +321,22 @@ const IssuerDashboard = () => {
                                     onClick={() => setShowUploadModal(true)}
                                     variant="primary"
                                     icon={Plus}
-                                    className="w-full justify-center py-4 bg-indigo-600 hover:bg-indigo-500 border-none shadow-xl shadow-indigo-500/20 rounded-2xl"
+                                    className="w-full justify-center py-4 uppercase tracking-widest text-xs"
                                 >
                                     Issue Credential
                                 </Button>
                                 <Button 
+                                    onClick={() => setShowBulkModal(true)}
+                                    variant="outline"
+                                    icon={Users}
+                                    className="w-full justify-center py-4 uppercase tracking-widest text-xs"
+                                >
+                                    Bulk Sync
+                                </Button>
+                                <Button 
                                     onClick={() => navigate('/settings')}
                                     variant="outline"
-                                    className="w-full justify-center py-4 border-white/10 hover:border-white/20 backdrop-blur-md rounded-2xl"
+                                    className="w-full justify-center py-4 uppercase tracking-widest text-xs"
                                 >
                                     Issuer Settings
                                 </Button>
@@ -346,7 +359,7 @@ const IssuerDashboard = () => {
                                     </div>
                                     Network Health
                                 </h3>
-                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'} text-[10px] font-black uppercase tracking-widest border shadow-lg`}>
+                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'} text-[11px] font-bold border shadow-lg`}>
                                     <div className={`w-1.5 h-1.5 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
                                     {stats.networkStats?.connected ? 'Syncing' : 'Isolated'}
                                 </div>
@@ -354,12 +367,12 @@ const IssuerDashboard = () => {
 
                             <div className="grid gap-3">
                                 <div className="p-4 rounded-2xl bg-white/[0.01] border border-white/[0.05] flex justify-between items-center group/item hover:bg-white/[0.03] transition-colors">
-                                    <span className="text-zinc-500 text-[11px] font-bold uppercase tracking-wider">Blockchain</span>
+                                    <span className="text-zinc-500 text-[11px] font-bold">Blockchain</span>
                                     <span className="text-zinc-300 text-xs font-medium">Sepolia Testnet</span>
                                 </div>
 
                                 <div className="p-4 rounded-2xl bg-white/[0.01] border border-white/[0.05] flex justify-between items-center hover:bg-white/[0.03] transition-colors">
-                                    <span className="text-zinc-500 text-[11px] font-bold uppercase tracking-wider">Latest Block</span>
+                                    <span className="text-zinc-500 text-[11px] font-bold">Latest Block</span>
                                     <span className="text-white font-mono text-sm font-bold tracking-tighter">
                                         {stats.networkStats?.blockNumber}
                                     </span>
@@ -367,7 +380,7 @@ const IssuerDashboard = () => {
 
                                 <div className="p-4 rounded-2xl bg-white/[0.01] border border-white/[0.05] flex justify-between items-center hover:bg-white/[0.03] transition-colors">
                                     <div className="flex flex-col">
-                                        <span className="text-zinc-500 text-[11px] font-bold uppercase tracking-wider">Gas Price</span>
+                                        <span className="text-zinc-500 text-[11px] font-bold">Gas Price</span>
                                         <span className="text-[10px] text-zinc-600 mt-0.5">Estimated cost</span>
                                     </div>
                                     <div className="text-right">
@@ -378,7 +391,7 @@ const IssuerDashboard = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <div className="flex justify-between text-[10px] font-bold text-emerald-400/60 uppercase tracking-widest px-1">
+                                <div className="flex justify-between text-[11px] font-bold text-emerald-400/60 px-1">
                                     <span>Success Rate</span>
                                     <span>{stats.transactionSuccessRate}%</span>
                                 </div>
@@ -404,13 +417,21 @@ const IssuerDashboard = () => {
                 </div>
             </main>
 
-            {/* Modal */}
-            <UploadCredentialModal
+            {/* Modals */}
+            <IssueCredentialModal
                 isOpen={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
                 onSuccess={() => {
                     fetchDashboardData();
                     showNotification('Credential issued successfully', 'success');
+                }}
+            />
+
+            <BulkIssueModal
+                isOpen={showBulkModal}
+                onClose={() => setShowBulkModal(false)}
+                onSuccess={() => {
+                    fetchDashboardData();
                 }}
             />
 

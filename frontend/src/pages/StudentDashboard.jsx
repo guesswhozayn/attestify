@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
 import IPFSService from '../services/ipfs';
-import {Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash, RefreshCw } from 'lucide-react';
+import {Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
+import RefreshButton from '../components/shared/RefreshButton';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
 import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
@@ -224,14 +225,11 @@ const StudentDashboard = () => {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex items-center gap-4"
             >
-                <button 
+                <RefreshButton 
                   onClick={() => fetchCredential(walletAddress, true)}
-                  disabled={refreshing}
-                  className={`p-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? 'animate-spin' : 'hover:scale-105 active:scale-95'}`}
+                  loading={refreshing}
                   title="Refresh Dashboard"
-                >
-                  <RefreshCw className="w-5 h-5" />
-                </button>
+                />
             </motion.div>
           </div>
         </motion.div>
@@ -289,7 +287,7 @@ const StudentDashboard = () => {
                        <Award className="w-5 h-5 text-indigo-400" />
                        Recent Credential
                    </h2>
-                   <span className="text-xs font-medium text-gray-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md border border-white/5">Latest Issue</span>
+                   <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded-md border border-white/5">Latest Issue</span>
                </div>
                <DetailedCredentialCard credential={credential} metadata={metadata} />
             </div>
@@ -317,7 +315,7 @@ const StudentDashboard = () => {
                         onClick={handleShare}
                         icon={Share2}
                         variant="primary"
-                        className="w-full justify-center py-4 bg-indigo-600 hover:bg-indigo-500 border-none shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl"
+                        className="w-full justify-center py-4 transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl"
                      >
                         Copy Verification Link
                      </Button>
@@ -351,12 +349,12 @@ const StudentDashboard = () => {
                       </div>
                       Public Identity
                     </h3>
-                    <div className={`px-2.5 py-1 rounded-full text-[9px] font-black tracking-[0.1em] border shadow-lg ${
+                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold border shadow-lg ${
                       user?.preferences?.visibility !== false 
                         ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
                         : 'bg-gray-500/10 border-gray-500/20 text-gray-400'
                     }`}>
-                      {user?.preferences?.visibility !== false ? 'LIVE' : 'HIDDEN'}
+                      {user?.preferences?.visibility !== false ? 'Live' : 'Hidden'}
                     </div>
                   </div>
 
@@ -364,29 +362,30 @@ const StudentDashboard = () => {
                     <p className="text-[11px] text-gray-400 leading-relaxed font-medium">
                       Your verified credentials are {user?.preferences?.visibility !== false ? 'currently visible' : 'currently hidden'} to the public explorer. 
                     </p>
-                    
-                    <div className="flex flex-col gap-3">
-                       <a 
+                      <div className="flex flex-col gap-3">
+                       <Button 
                           href={`/student/${walletAddress}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black hover:bg-gray-200 text-xs font-black rounded-2xl transition-all shadow-[0_4px_12px_rgba(255,255,255,0.1)] active:scale-[0.98]"
+                          variant="white"
+                          icon={ExternalLink}
+                          className="w-full h-12 rounded-2xl"
                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
                           Visit Public Profile
-                       </a>
-                       <button
+                       </Button>
+                       <Button
                           onClick={() => {
                             const url = `${window.location.origin}/student/${walletAddress}`;
                             navigator.clipboard.writeText(url);
                             alert('Profile link copied!');
                           }}
-                          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold rounded-2xl transition-all active:scale-[0.98]"
+                          variant="outline"
+                          icon={Share2}
+                          className="w-full h-12 rounded-2xl"
                        >
-                          <Share2 className="w-3.5 h-3.5 text-indigo-400" />
                           Copy Share Link
-                       </button>
-                    </div>
+                       </Button>
+                     </div>
                   </div>
                </motion.div>
 
@@ -408,16 +407,16 @@ const StudentDashboard = () => {
                   
                   <div className="space-y-6 relative z-10">
                      <div className="space-y-3">
-                        <div className="flex justify-between items-center text-[10px]">
-                           <span className="text-gray-500 font-black uppercase tracking-[0.2em]">Certificate Hash</span>
-                           <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-1 rounded-md text-[9px] font-black border border-emerald-400/20 shadow-lg shadow-emerald-500/10"><CheckCircle className="w-3 h-3" /> VERIFIED</span>
-                        </div>
+                         <div className="flex justify-between text-[11px] font-bold text-emerald-400/60 px-1">
+                            <span>Certificate Hash</span>
+                            <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-1 rounded-md text-[10px] shadow-lg shadow-emerald-500/10"><CheckCircle className="w-3 h-3" /> Verified</span>
+                         </div>
                         <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 cursor-text selection:bg-indigo-500/30">
                            {credential.certificateHash}
                         </div>
                      </div>
                      <div className="space-y-3">
-                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] block">IPFS CID</span>
+                         <span className="text-gray-500 text-[11px] font-bold block">IPFS CID</span>
                          <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300">
                            {credential.ipfsCID}
                         </div>
