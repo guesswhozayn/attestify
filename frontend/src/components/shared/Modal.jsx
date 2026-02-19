@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import Button from './Button';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -57,12 +58,15 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 flex-shrink-0">
           <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
-          <button
+          <Button
             onClick={onClose}
-            className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            variant="ghost"
+            size="sm"
+            rounded="full"
+            className="!p-2 text-gray-400 hover:text-white group"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </Button>
         </div>
 
         {/* Body - Scrollable */}

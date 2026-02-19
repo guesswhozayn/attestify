@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } from 'lucide-react';
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
+import Input from '../components/shared/Input';
 import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 import BrandLogo from '../components/shared/BrandLogo';
 import ShieldLogo from '../components/shared/ShieldLogo';
@@ -117,20 +118,26 @@ const Login = () => {
               <div 
                  className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${selectedRole === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
               ></div>
-              <button
-                 className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${selectedRole === 'ISSUER' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+              <Button
+                 variant="ghost"
+                 rounded="full"
+                 size="sm"
+                 className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${selectedRole === 'ISSUER' ? 'text-white' : 'text-gray-400'}`}
                  onClick={() => setSelectedRole('ISSUER')}
                  type="button"
               >
                  Issuer
-              </button>
-              <button
-                 className={`flex-1 relative z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300 ${selectedRole === 'STUDENT' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+              </Button>
+              <Button
+                 variant="ghost"
+                 rounded="full"
+                 size="sm"
+                 className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${selectedRole === 'STUDENT' ? 'text-white' : 'text-gray-400'}`}
                  onClick={() => setSelectedRole('STUDENT')}
                  type="button"
               >
                  Student
-              </button>
+              </Button>
             </div>
 
             {error && (
@@ -141,50 +148,41 @@ const Login = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider">Email</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
-                  </div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
-                    placeholder={selectedRole === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
-                    required
-                  />
-                </div>
-              </div>
+              <Input
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={selectedRole === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
+                icon={Mail}
+                required
+              />
 
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between ml-4">
-                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Password</label>
-                   <Link to="/forgot-password" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-                     Forgot?
-                   </Link>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
-                  </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-12 pr-12 py-3.5 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all duration-200"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
+              <div className="relative">
+                <Input
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  icon={Lock}
+                  required
+                  rightAction={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      rounded="full"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="h-10 w-10 !px-0 !py-0 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </Button>
+                  }
+                />
+                <Link to="/forgot-password" title="Forgot Password" className="absolute top-0 right-4 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                  Forgot?
+                </Link>
               </div>
 
               <div className="pt-2">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Check, X, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import Button from '../shared/Button';
 
 const Notification = ({ message, type = 'success', onClose, duration = 5000 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -61,15 +62,18 @@ const Notification = ({ message, type = 'success', onClose, duration = 5000 }) =
         </p>
       </div>
 
-      <button 
+      <Button 
         onClick={() => {
            setIsVisible(false);
            setTimeout(onClose, 300);
         }} 
-        className="text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10"
+        variant="ghost"
+        rounded="full"
+        size="sm"
+        className="!p-1 text-gray-400 hover:text-white"
       >
         <X className="w-4 h-4" />
-      </button>
+      </Button>
 
       {/* Progress Bar (Optional, for visual duration indication) */}
       <div className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30 w-full animate-shrink origin-left" style={{ animationDuration: `${duration}ms` }}></div>

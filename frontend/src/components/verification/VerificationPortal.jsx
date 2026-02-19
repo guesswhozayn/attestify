@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Search, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../shared/Button';
+import RefreshButton from '../shared/RefreshButton';
 import { verifyAPI } from '../../services/api';
 import { generateFileHash } from '../../utils/hash';
 import { extractMetadata } from '../../utils/pdf';
@@ -272,14 +273,13 @@ const VerificationPortal = () => {
               
             {/* Footer Actions */}
               <div className="flex justify-center pt-8 border-t border-white/5">
-                  <Button 
+                  <RefreshButton 
                       onClick={() => setShowResultModal(false)}
                       variant="secondary"
                       size="lg"
                       className="px-8 uppercase tracking-widest text-xs font-bold border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-300"
-                  >
-                      System Reset
-                  </Button>
+                      title="System Reset"
+                  />
               </div>
             </div>
           )}

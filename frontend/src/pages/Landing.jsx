@@ -71,10 +71,10 @@ const Landing = () => {
           
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="h-14 px-10 hover:-translate-y-1">
+            <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="hover:-translate-y-1">
               Start Issuing Now
             </Button>
-            <Button onClick={() => navigate('/verify')} variant="secondary" size="lg" className="h-14 px-10 hover:-translate-y-1">
+            <Button onClick={() => navigate('/verify')} variant="secondary" size="lg" className="hover:-translate-y-1">
               Verify Credential
             </Button>
           </div>
@@ -479,10 +479,10 @@ const Landing = () => {
                <h2 className="text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">Ready to secure the future?</h2>
                <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Join the decentralized standard today. Issue, manage, and verify credentials with the power of Ethereum.</p>
                <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="h-14 px-10 hover:-translate-y-1">
+                <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="hover:-translate-y-1">
                     Get Started Free
                 </Button>
-                <Button onClick={() => window.open('mailto:sales@attestify.io')} variant="secondary" size="lg" className="h-14 px-10 hover:-translate-y-1">
+                <Button onClick={() => window.open('mailto:sales@attestify.io')} variant="secondary" size="lg" className="hover:-translate-y-1">
                     Contact Sales
                 </Button>
                </div>

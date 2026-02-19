@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, CheckCircle, Copy } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import Button from '../shared/Button';
 import { useNotification } from '../../context/NotificationContext';
 import Avatar from '../shared/Avatar';
 
@@ -67,7 +68,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             {title}
             {/* Role Badge */}
             {user?.role && (
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                     user.role === 'ISSUER' 
                         ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' 
                         : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
@@ -93,24 +94,39 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
           {/* New Features: Wallet Status */}
           <div className="hidden lg:flex items-center">
             {walletAddress ? (
-                <button 
+                <Button 
                     onClick={copyAddress}
-                    className="flex items-center space-x-2 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full transition-all group backdrop-blur-md shadow-[0_0_15px_-5px_rgba(16,185,129,0.2)]"
+                    variant="ghost"
+                    rounded="full"
+                    size="sm"
+                    className="bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 !shadow-none group/wallet transition-all duration-300"
                 >
                     <div className="relative">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                         <div className="absolute inset-0 bg-emerald-500 rounded-full blur-sm opacity-50"></div>
                     </div>
-                    <span className="text-xs font-mono font-medium text-emerald-400">
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
                         {formatAddress(walletAddress)}
                     </span>
-                    {isCopied ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-emerald-500/50 group-hover:text-emerald-400" />}
-                </button>
+                    {isCopied ? (
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                        <Copy className="w-3.5 h-3.5 text-emerald-500/50 group-hover/wallet:text-emerald-400 transition-colors" />
+                    )}
+                </Button>
             ) : (
-                <div className="flex items-center space-x-2 bg-white/[0.03] border border-white/[0.05] px-4 py-2 rounded-full shadow-sm">
-                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                    <span className="text-xs font-medium text-gray-500">Wallet Disconnected</span>
-                </div>
+                <Button
+                    variant="ghost"
+                    rounded="full"
+                    size="sm"
+                    disabled
+                    className="bg-white/[0.02] border border-white/[0.05] px-4 py-2 opacity-60 cursor-not-allowed !shadow-none"
+                >
+                    <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Disconnected
+                    </span>
+                </Button>
             )}
           </div>
 

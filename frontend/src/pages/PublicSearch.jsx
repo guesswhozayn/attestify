@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Wallet, Search, Building, ArrowRight, Sparkles, CheckCircle, ChevronRight, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { publicAPI } from '../services/api';
+import Button from '../components/shared/Button';
 import BackButton from '../components/shared/BackButton';
 import PoweredBy from '../components/shared/PoweredBy';
 
@@ -99,28 +100,30 @@ const PublicSearch = () => {
                            <div className="relative z-10 flex flex-col md:flex-row gap-4">
                               {/* Type Switcher */}
                               <div className="flex bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 shrink-0">
-                                 <button
+                                 <Button
                                     onClick={() => { setSearchType('student'); setResults(null); }}
-                                    className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
-                                        searchType === 'student' 
-                                        ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' 
-                                        : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                    variant={searchType === 'student' ? 'primary' : 'ghost'}
+                                    rounded="2xl"
+                                    size="sm"
+                                    className={`px-8 py-3 !shadow-none flex items-center gap-2 ${
+                                        searchType === 'student' ? '' : 'text-gray-500'
                                     }`}
                                  >
                                     <Wallet className="w-4 h-4" />
                                     Student
-                                 </button>
-                                 <button
+                                 </Button>
+                                 <Button
                                     onClick={() => { setSearchType('issuer'); setResults(null); }}
-                                    className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
-                                        searchType === 'issuer' 
-                                        ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' 
-                                        : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                    variant={searchType === 'issuer' ? 'primary' : 'ghost'}
+                                    rounded="2xl"
+                                    size="sm"
+                                    className={`px-8 py-3 !shadow-none flex items-center gap-2 ${
+                                        searchType === 'issuer' ? '' : 'text-gray-500'
                                     }`}
                                  >
                                     <Building className="w-4 h-4" />
                                     Issuer
-                                 </button>
+                                 </Button>
                               </div>
 
                               {/* Action Input */}
@@ -135,13 +138,16 @@ const PublicSearch = () => {
                                     placeholder={searchType === 'student' ? "Input Wallet Address (0x...)" : "Search by Institution Name..."}
                                     className="flex-1 bg-transparent border-none text-white placeholder:text-gray-700 focus:outline-none text-lg font-medium"
                                  />
-                                 <button
+                                 <Button
                                     type="submit"
+                                    variant="white"
+                                    size="sm"
                                     disabled={loading || !query}
-                                    className="hidden md:flex h-12 px-8 bg-white text-black hover:bg-gray-200 rounded-2xl font-black text-sm uppercase tracking-widest items-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                                    className="hidden md:flex h-12 px-8 rounded-2xl normal-case tracking-normal"
+                                    loading={loading}
                                  >
-                                    {loading ? <Loader className="w-4 h-4 animate-spin text-black" /> : 'Execute'}
-                                 </button>
+                                    {loading ? 'Executing...' : 'Execute'}
+                                 </Button>
                               </form>
                            </div>
                         </div>

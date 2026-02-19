@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import CredentialRow from '../components/credential/CredentialRow';
-import { Search, Wallet, Shield, RefreshCw } from 'lucide-react';
+import { Search, Wallet, Shield } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
+import Button from '../components/shared/Button';
+import RefreshButton from '../components/shared/RefreshButton';
 import blockchainService from '../services/blockchain';
 import StudentStats from '../components/credential/StudentStats';
 
@@ -123,14 +125,12 @@ const StudentCredentials = () => {
                 </div>
                 
                 <div className="flex items-center gap-4">
-                    <button 
+                    <RefreshButton 
                       onClick={() => fetchCredentials(true)} 
-                      disabled={refreshing}
-                      className={`p-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all ${refreshing ? 'animate-spin' : 'hover:scale-105 active:scale-95'}`}
+                      loading={refreshing}
+                      rounded="xl"
                       title="Refresh Records"
-                    >
-                      <RefreshCw className="w-5 h-5" />
-                    </button>
+                    />
                 </div>
             </div>
         </motion.div>
@@ -151,18 +151,20 @@ const StudentCredentials = () => {
                         {/* Tabs */}
                         <div className="flex p-1 space-x-1 bg-black/20 rounded-xl">
                            {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((tab) => (
-                             <button
+                             <Button
                                key={tab}
                                onClick={() => setActiveTab(tab)}
-                               className={`
-                                 px-4 py-2 text-sm font-medium rounded-lg transition-all
-                                 ${activeTab === tab 
-                                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' 
-                                   : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'}
-                               `}
+                               variant={activeTab === tab ? 'primary' : 'ghost'}
+                               size="sm"
+                               rounded="lg"
+                               className={`px-4 py-2 !shadow-none ${
+                                 activeTab === tab 
+                                   ? 'text-white' 
+                                   : 'text-gray-400'
+                               }`}
                              >
                                {tab === 'all' ? 'All Records' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}
-                             </button>
+                             </Button>
                            ))}
                         </div>
 

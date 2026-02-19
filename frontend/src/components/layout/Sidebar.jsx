@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Grid, FileText, Trash2, User, LogOut, Settings, Activity } from 'lucide-react';
+import { Shield, Grid, FileText, Trash2, User, Activity, Settings, LogOut } from 'lucide-react';
+import Button from '../shared/Button';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
@@ -52,23 +53,25 @@ const Sidebar = () => {
           const active = isActive(item.path);
 
           return (
-            <button
+            <Button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`group relative p-3 rounded-xl transition-all duration-200 w-full flex justify-center ${
+              variant={active ? 'primary' : 'ghost'}
+              rounded="2xl"
+              className={`relative p-3 !shadow-none !justify-center ${
                 active 
-                  ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/25 ring-1 ring-white/10' 
-                  : 'text-gray-400 hover:bg-white/[0.05] hover:text-gray-200'
+                  ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 shadow-indigo-500/25 ring-1 ring-white/10' 
+                  : 'text-gray-400'
               }`}
             >
               <Icon className={`w-6 h-6 ${active ? 'animate-in zoom-in-50 duration-200' : ''}`} />
               
               {/* Tooltip */}
-              <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
+              <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
                 {item.label}
                 <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45"></div>
               </div>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -77,31 +80,35 @@ const Sidebar = () => {
       <div className="relative z-10 flex flex-col space-y-4 w-full px-3 mt-auto">
         <div className="h-px bg-white/[0.06] w-full mx-auto"></div>
         
-        <button
+        <Button
           onClick={() => navigate('/settings')}
-          className={`group relative p-3 rounded-xl transition-all duration-200 w-full flex justify-center ${
+          variant={isActive('/settings') ? 'secondary' : 'ghost'}
+          rounded="2xl"
+          className={`relative p-3 !shadow-none !justify-center ${
             isActive('/settings') 
-              ? 'bg-white/[0.05] text-white border border-white/[0.08]' 
-              : 'text-gray-400 hover:bg-white/[0.05] hover:text-gray-200'
+              ? 'bg-white/[0.05] border border-white/[0.08]' 
+              : 'text-gray-400'
           }`}
         >
           <Settings className={`w-6 h-6 ${isActive('/settings') ? 'animate-spin-slow' : ''}`} />
-          <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
              Settings
              <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45"></div>
           </div>
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={handleLogout}
-          className="group relative p-3 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full flex justify-center"
+          variant="ghost"
+          rounded="2xl"
+          className="relative p-3 !shadow-none !justify-center text-gray-500 hover:bg-red-500/10 hover:text-red-400"
         >
           <LogOut className="w-6 h-6" />
-          <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-red-900/30 text-red-200 text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
+          <div className="absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-red-900/30 text-red-200 text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
              Logout
              <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-red-900/30 transform rotate-45"></div>
           </div>
-        </button>
+        </Button>
       </div>
     </div>
   );

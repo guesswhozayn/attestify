@@ -546,22 +546,22 @@
       "outputs": [
         {
           "internalType": "bytes32",
-          "name": "certificateHash",
+          "name": "",
           "type": "bytes32"
         },
         {
           "internalType": "string",
-          "name": "ipfsCID",
+          "name": "",
           "type": "string"
         },
         {
           "internalType": "uint256",
-          "name": "issuedAt",
+          "name": "",
           "type": "uint256"
         },
         {
           "internalType": "bool",
-          "name": "isRevoked",
+          "name": "",
           "type": "bool"
         }
       ],
@@ -668,6 +668,29 @@
         }
       ],
       "name": "issueCertificate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string[]",
+          "name": "_studentIds",
+          "type": "string[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_certificateHashes",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "_ipfsCIDs",
+          "type": "string[]"
+        }
+      ],
+      "name": "issueCertificateBatch",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -782,6 +805,30 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "uris",
+          "type": "string[]"
+        }
+      ],
+      "name": "safeMintBatch",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "nonpayable",
