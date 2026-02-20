@@ -11,12 +11,11 @@ import StudentCredentials from './pages/StudentCredentials';
 import NetworkStatus from './pages/NetworkStatus';
 import RevokedCredentials from './pages/RevokedCredentials';
 import Settings from './pages/Settings';
-import Profile from './pages/profile';
-import StudentPublicProfile from './pages/StudentPublicProfile';
+import Profile from './pages/Profile';
+import PublicProfile from './pages/PublicProfile';
 import VerifyPage from './pages/Verify';
 import Documentation from './pages/Documentation';
-import PublicSearch from './pages/PublicSearch';
-import IssuerPublicProfile from './pages/IssuerPublicProfile';
+import PublicExplorer from './pages/PublicExplorer';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import About from './pages/About';
@@ -43,10 +42,10 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/search" element={<PublicSearch />} />
-        <Route path="/student/:walletAddress" element={<StudentPublicProfile />} />
-        <Route path="/issuer/:id" element={<IssuerPublicProfile />} />
-        <Route path="/issuer/wallet/:walletAddress" element={<IssuerPublicProfile />} />
+        <Route path="/search" element={<PublicExplorer />} />
+        <Route path="/student/:walletAddress" element={<PublicProfile profileType="student" />} />
+        <Route path="/issuer/:id" element={<PublicProfile profileType="issuer" />} />
+        <Route path="/issuer/wallet/:walletAddress" element={<PublicProfile profileType="issuer" />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route path="/verify" element={<VerifyPage />} />

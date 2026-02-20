@@ -7,7 +7,7 @@ import Button from '../components/shared/Button';
 import BackButton from '../components/shared/BackButton';
 import PoweredBy from '../components/shared/PoweredBy';
 
-const PublicSearch = () => {
+const PublicExplorer = () => {
     const [query, setQuery] = useState('');
     const [searchType, setSearchType] = useState('student'); // 'student' | 'issuer'
     const [results, setResults] = useState(null);
@@ -89,14 +89,14 @@ const PublicSearch = () => {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="text-center"
                     >
-                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 backdrop-blur-xl hover:bg-white/[0.05] transition-all cursor-default">
+                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/3 border border-white/8 mb-8 backdrop-blur-xl hover:bg-white/5 transition-all cursor-default">
                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Open Registry Explorer</span>
                         </div>
                         
                         <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9]">
                             Explore the <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">
+                            <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-300 via-white to-indigo-300 bg-size-[200%_auto] animate-shimmer">
                                 Trust Layer.
                             </span>
                         </h1>
@@ -114,19 +114,19 @@ const PublicSearch = () => {
                         transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
                         className="max-w-4xl mx-auto"
                     >
-                        <div className="bg-[#050505] border border-white/[0.08] rounded-[2.5rem] p-4 shadow-3xl relative overflow-hidden group">
+                        <div className="bg-[#050505] border border-white/8 rounded-[2.5rem] p-4 shadow-3xl relative overflow-hidden group">
                            {/* Subtle Gradient Glow */}
-                           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-emerald-500/5 opacity-50"></div>
+                           <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-emerald-500/5 opacity-50"></div>
                            
                            <div className="relative z-10 flex flex-col md:flex-row gap-4">
                               {/* Type Switcher */}
-                              <div className="flex bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 shrink-0">
+                              <div className="flex bg-white/3 p-1.5 rounded-2xl border border-white/5 shrink-0">
                                  <Button
                                     onClick={() => { setSearchType('student'); setResults(null); }}
                                     variant={searchType === 'student' ? 'primary' : 'ghost'}
                                     rounded="2xl"
                                     size="sm"
-                                    className={`px-8 py-3 !shadow-none flex items-center gap-2 ${
+                                    className={`px-8 py-3 shadow-none! flex items-center gap-2 ${
                                         searchType === 'student' ? '' : 'text-gray-500'
                                     }`}
                                  >
@@ -138,7 +138,7 @@ const PublicSearch = () => {
                                     variant={searchType === 'issuer' ? 'primary' : 'ghost'}
                                     rounded="2xl"
                                     size="sm"
-                                    className={`px-8 py-3 !shadow-none flex items-center gap-2 ${
+                                    className={`px-8 py-3 shadow-none! flex items-center gap-2 ${
                                         searchType === 'issuer' ? '' : 'text-gray-500'
                                     }`}
                                  >
@@ -191,7 +191,7 @@ const PublicSearch = () => {
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: idx * 0.1 }}
                                                     onClick={() => navigate(`/issuer/${inst._id}`)}
-                                                    className="bg-white/[0.03] border border-white/[0.08] hover:border-indigo-500/50 hover:bg-white/[0.06] rounded-3xl p-6 flex items-center gap-6 cursor-pointer transition-all group/res"
+                                                    className="bg-white/3 border border-white/8 hover:border-indigo-500/50 hover:bg-white/6 rounded-3xl p-6 flex items-center gap-6 cursor-pointer transition-all group/res"
                                                 >
                                                     <div className="w-16 h-16 rounded-2xl bg-black border border-white/10 flex items-center justify-center p-3">
                                                         {inst.avatar ? (
@@ -208,7 +208,7 @@ const PublicSearch = () => {
                                                 </motion.div>
                                             ))
                                         ) : (
-                                            <div className="text-center py-10 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                                            <div className="text-center py-10 border border-dashed border-white/10 rounded-3xl bg-white/2">
                                                 <p className="text-gray-500 font-bold uppercase tracking-widest text-xs italic">No matching records found in the current registry.</p>
                                             </div>
                                         )}
@@ -227,7 +227,7 @@ const PublicSearch = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 + 0.4 }}
-                            className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 hover:bg-white/[0.04] transition-colors group text-center md:text-left"
+                            className="bg-white/2 border border-white/5 rounded-3xl p-8 hover:bg-white/4 transition-colors group text-center md:text-left"
                           >
                              <div className={`p-3 rounded-2xl bg-black border border-white/10 inline-flex mb-6 group-hover:scale-110 transition-transform ${stat.color}`}>
                                 <stat.icon className="w-6 h-6" />
@@ -248,4 +248,4 @@ const PublicSearch = () => {
     );
 };
 
-export default PublicSearch;
+export default PublicExplorer;
