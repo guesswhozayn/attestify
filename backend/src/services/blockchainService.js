@@ -6,8 +6,8 @@ const SimpleMutex = require('../utils/mutex');
 
 class BlockchainService {
   constructor() {
-    this.provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
-    this.wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY, this.provider);
+    this.provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL?.trim());
+    this.wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY?.trim(), this.provider);
     this.contract = new ethers.Contract(
       process.env.CONTRACT_ADDRESS,
       contractABI,
