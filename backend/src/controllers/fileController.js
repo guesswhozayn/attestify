@@ -16,6 +16,19 @@ exports.downloadCertificate = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Certificate file not found' });
   }
 
+  // Security Check: Access control
+  const isOwner = req.user && req.user.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isIssuer = req.user && (req.user.role === 'ISSUER' || req.user._id.toString() === credential.issuedBy.toString());
+  
+  // If not owner/issuer, check if profile is public
+  if (!isOwner && !isIssuer) {
+      const User = require('../models/User');
+      const student = await User.findOne({ walletAddress: credential.studentWalletAddress });
+      if (student?.preferences?.visibility === false) {
+          return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
+      }
+  }
+
   const ipfsUrl = ipfsService.getIPFSUrl(credential.ipfsCID);
   
   try {
@@ -42,6 +55,11 @@ exports.getIPFSFile = asyncHandler(async (req, res) => {
 
   if (!cid) {
     return res.status(400).json({ error: 'CID is required' });
+  }
+
+  // Security Check: Only allow authenticated users to proxy IPFS
+  if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required to access IPFS proxy.' });
   }
 
   const ipfsUrl = ipfsService.getIPFSUrl(cid);

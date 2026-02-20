@@ -5,9 +5,15 @@ const path = require('path');
 const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
 dotenv.config();
 
 const app = express();
+
+// Security Headers
+app.use(helmet());
 
 connectDB();
 
@@ -16,9 +22,30 @@ app.use(cors({
   credentials: true
 }));
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // Strict limit for auth routes
+  message: { error: 'Too many login/register attempts, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/', limiter);
+app.use('/api/auth/', authLimiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Only serve avatars publicly. Certificates must be accessed via fileController.
+app.use('/uploads/avatars', express.static(path.join(__dirname, '../uploads/avatars')));
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);

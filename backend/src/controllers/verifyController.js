@@ -135,6 +135,22 @@ exports.checkExists = asyncHandler(async (req, res) => {
     });
   }
 
+  // Security & Privacy Check: Check student visibility preference
+  const User = require('../models/User');
+  const escapedWallet = walletAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const student = await User.findOne({ 
+      walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
+      role: 'STUDENT'
+  });
+
+  if (student?.preferences?.visibility === false) {
+    return res.status(403).json({ 
+        exists: true,
+        isPrivate: true,
+        message: 'This student profile is private. Credentials cannot be viewed publicly.' 
+    });
+  }
+
   res.json({
     exists: true,
     credentials: credentials.map(c => ({

@@ -78,6 +78,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
 
     tempFilePath = path.join(uploadsDir, `cert_${credentialId}_${Date.now()}.pdf`);
     
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
     const institutionName = req.user.issuerDetails?.institutionName || university || 'Attestify';
     const issuerWalletAddress = req.user.walletAddress;
@@ -266,23 +267,8 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'No CSV file provided' });
   }
 
-  const results = [];
-  
-  try {
-    await new Promise((resolve, reject) => {
-      fs.createReadStream(file.path)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', resolve)
-        .on('error', reject);
-    });
-  } catch (parseError) {
-    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-    return res.status(400).json({ error: 'Failed to parse CSV file', details: parseError.message });
-  }
-
   // Arrays to hold batch data
-  const batchStudentIds = []; // registrationNumbers / credentials IDs
+  const batchStudentIds = [];
   const batchHashes = [];
   const batchIpfsCIDs = [];
   const batchRecipients = [];
@@ -292,16 +278,16 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
   const pendingCredentials = [];
 
   const summary = {
-    total: results.length,
+    total: 0,
     success: 0,
     failed: 0,
     message: ''
   };
 
-  // Step 1: Pre-process loop (Generate PDFs, IPFS, Prepare Batch Data)
-  console.log('Starting Batch Pre-processing for', results.length, 'records...');
+  // Pre-process loop (Generate PDFs, IPFS, Prepare Batch Data)
+  console.log('Starting Batch Processing...');
 
-  for (const row of results) {
+  const processRow = async (row) => {
     let tempFilePath = null;
     try {
       if (!row.studentName || !row.studentWalletAddress) {
@@ -349,7 +335,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
         metadata: {}
       });
       
-      // We need ID for PDF filename
       const credentialId = credential._id.toString(); 
 
       const uploadsDir = path.join(__dirname, '../../uploads');
@@ -378,46 +363,46 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
         issuerRegistration
       }, tempFilePath);
 
-      // Hash & IPFS
       const certificateHash = await hashService.generateSHA256(tempFilePath);
       const ipfsResult = await ipfsService.uploadFile(tempFilePath, `Certificate_${credentialId}.pdf`);
       
-      // Cleanup temp file
       if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
       
-      // SBT Metadata
       const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
 
-      // Determine Student ID for Contract (Using Credential object ID as unique identifier string)
-      const studentIdForContract = credentialId; 
-
-      // Push to Batch Arrays
-      batchStudentIds.push(studentIdForContract);
+      batchStudentIds.push(credentialId);
       batchHashes.push(certificateHash);
       batchIpfsCIDs.push(ipfsResult.ipfsHash);
-      
       batchRecipients.push(row.studentWalletAddress);
       batchTokenURIs.push(metadataURI);
 
-      // Keep track for post-processing
       pendingCredentials.push({
         credential,
         certificateHash,
         ipfsHash: ipfsResult.ipfsHash,
         row,
         tempMetadata: {
-             fileSize: 0, // lost size info since deleted, can optimize later if critical
+             fileSize: 0,
              fileType: 'application/pdf',
              originalFileName: `Certificate_${credentialId}.pdf`
         }
       });
-
+      summary.success++;
     } catch (err) {
        console.error('Batch preprocessing failed for row:', row, err);
        summary.failed++;
-       // If one fails, we skip adding it to the batch arrays.
-       // The batch transaction will only contain the successful ones.
     }
+  };
+
+  try {
+    const stream = fs.createReadStream(file.path).pipe(csv());
+    for await (const row of stream) {
+        summary.total++;
+        await processRow(row);
+    }
+  } catch (parseError) {
+    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    return res.status(400).json({ error: 'Failed to process CSV file', details: parseError.message });
   }
 
   if (batchStudentIds.length === 0) {
@@ -550,10 +535,11 @@ exports.getCredentials = asyncHandler(async (req, res) => {
   }
 
   if (search) {
+    const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { studentName: new RegExp(search, 'i') },
-      { studentWalletAddress: new RegExp(search, 'i') },
-      { university: new RegExp(search, 'i') }
+      { studentName: new RegExp(escapedSearch, 'i') },
+      { studentWalletAddress: new RegExp(escapedSearch, 'i') },
+      { university: new RegExp(escapedSearch, 'i') }
     ];
   }
 
@@ -606,8 +592,15 @@ exports.getCredentialById = asyncHandler(async (req, res) => {
 
 exports.getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   const { walletAddress } = req.params;
+  const currentWallet = req.user.walletAddress?.toLowerCase();
+  const targetWallet = walletAddress.toLowerCase();
 
-  const credentials = await Credential.find({ studentWalletAddress: walletAddress.toLowerCase() })
+  // Security check: Only allow the owner or an admin/issuer to view these credentials
+  if (req.user.role !== 'ISSUER' && currentWallet !== targetWallet) {
+    return res.status(403).json({ error: 'Unauthorized access to credentials' });
+  }
+
+  const credentials = await Credential.find({ studentWalletAddress: targetWallet })
     .populate('issuedBy', 'name email university instituteDetails')
     .sort({ createdAt: -1 });
 
@@ -625,6 +618,11 @@ exports.revokeCredential = asyncHandler(async (req, res) => {
 
   if (!credential) {
     return res.status(404).json({ error: 'Credential not found' });
+  }
+
+  // Security Check: Only the original issuer can revoke
+  if (credential.issuedBy.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ error: 'Unauthorized: Only the original issuer can revoke this credential.' });
   }
 
   if (credential.isRevoked) {

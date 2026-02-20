@@ -23,6 +23,13 @@ exports.authenticate = async (req, res, next) => {
       });
     }
 
+    // Version check for revocation
+    if (user.tokenVersion !== decoded.tokenVersion) {
+        return res.status(401).json({ 
+            error: 'Token has been revoked. Please log in again.' 
+        });
+    }
+
     if (!user.isActive) {
       return res.status(403).json({ 
         error: 'Account is deactivated.' 

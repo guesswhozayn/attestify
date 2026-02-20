@@ -10,7 +10,21 @@ exports.updateProfile = asyncHandler(async (req, res) => {
   if (title) updateFields.title = title;
   if (university) updateFields.university = university;
   if (about) updateFields.about = about;
-  if (walletAddress) updateFields.walletAddress = walletAddress;
+  
+  if (walletAddress) {
+      const normalizedWallet = walletAddress.toLowerCase();
+      // Only check if it's different from the current wallet
+      if (normalizedWallet !== req.user.walletAddress?.toLowerCase()) {
+          const existingWallet = await User.findOne({ 
+              walletAddress: { $regex: new RegExp(`^${normalizedWallet}$`, 'i') },
+              _id: { $ne: req.user._id }
+          });
+          if (existingWallet) {
+              return res.status(400).json({ error: 'Wallet address is already associated with another account' });
+          }
+          updateFields.walletAddress = normalizedWallet;
+      }
+  }
   if (req.body.preferences) {
       updateFields.preferences = {
           ...req.user.preferences?.toObject(),
@@ -19,11 +33,8 @@ exports.updateProfile = asyncHandler(async (req, res) => {
   }
   
   if (issuerDetails) {
-      if (issuerDetails.branding) {
-          for (const [key, value] of Object.entries(issuerDetails.branding)) {
-              updateFields[`issuerDetails.branding.${key}`] = value;
-          }
-      }
+      if (issuerDetails.institutionName) updateFields['issuerDetails.institutionName'] = issuerDetails.institutionName;
+      if (issuerDetails.registrationNumber) updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
   }
 
   const user = await User.findByIdAndUpdate(
@@ -58,125 +69,6 @@ exports.uploadAvatar = asyncHandler(async (req, res) => {
     });
 });
 
-exports.updateBranding = asyncHandler(async (req, res) => {
-  try {
-    const files = req.files;
-    const updateFields = {};
-
-    if (!files || Object.keys(files).length === 0) {
-      return res.status(400).json({ error: 'No files uploaded' });
-    }
-
-    const ipfsService = require('../services/ipfsService');
-    const fs = require('fs');
-
-    const processFile = async (fileKey, brandingKey) => {
-      if (files[fileKey] && files[fileKey][0]) {
-        const file = files[fileKey][0];
-        try {
-          const fileUrl = `${req.protocol}://${req.get('host')}/${file.path}`;
-          updateFields[`issuerDetails.branding.${brandingKey}`] = fileUrl;
-        } catch (err) {
-          console.error(`Failed to process ${fileKey}:`, err);
-          if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-        }
-      }
-    };
-
-    await Promise.all([
-      processFile('logo', 'logo'),
-      processFile('seal', 'seal'),
-      processFile('signature', 'signature')
-    ]);
-
-    if (Object.keys(updateFields).length === 0) {
-       return res.status(500).json({ error: 'Failed to process any files' });
-    }
-
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { $set: updateFields },
-      { new: true }
-    );
-
-    res.json({
-      success: true,
-      user
-    });
-
-  } catch (error) {
-    console.error('Update branding error:', error);
-    throw error;
-  }
-});
-
-exports.deleteBranding = asyncHandler(async (req, res) => {
-  try {
-    const { type } = req.params;
-    const allowedTypes = ['logo', 'seal', 'signature'];
-    
-    if (!allowedTypes.includes(type)) {
-      return res.status(400).json({ error: 'Invalid branding type' });
-    }
-
-    const user = await User.findById(req.user._id);
-    if (!user) {
-       return res.status(404).json({ error: 'User not found' });
-    }
-
-    const brandingKey = type;
-    const cidKey = `${type}CID`;
-
-    const brandingPath = user.issuerDetails?.branding?.[brandingKey];
-    const brandingCID = user.issuerDetails?.branding?.[cidKey];
-
-    if (brandingPath) {
-        const fs = require('fs');
-        if (fs.existsSync(brandingPath)) {
-            try {
-                fs.unlinkSync(brandingPath);
-            } catch (err) {
-                console.error('Failed to delete local file:', err);
-            }
-        }
-    }
-
-    if (brandingCID) {
-        const ipfsService = require('../services/ipfsService');
-        try {
-            await ipfsService.unpinFile(brandingCID);
-        } catch (err) {
-            console.error('Failed to unpin file from IPFS:', err);
-        }
-    }
-    
-    const updatePathLocal = `issuerDetails.branding.${brandingKey}`;
-    const updatePathCID = `issuerDetails.branding.${cidKey}`;
-    
-    const updateQuery = { 
-        $unset: { 
-            [updatePathLocal]: "",
-            [updatePathCID]: "" 
-        } 
-    };
-
-    const updatedUser = await User.findByIdAndUpdate(
-        req.user._id,
-        updateQuery,
-        { new: true }
-    );
-
-    res.json({
-        success: true,
-        user: updatedUser
-    });
-
-  } catch (error) {
-    console.error('Delete branding error:', error);
-    throw error;
-  }
-});
-
 exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
     const { walletAddress } = req.params;
 
@@ -184,8 +76,9 @@ exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Wallet address is required' });
     }
 
+    const escapedWallet = walletAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const student = await User.findOne({ 
-        walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
+        walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
         role: 'STUDENT'
     }).select('name avatar university preferences');
 
@@ -199,7 +92,7 @@ exports.getPublicStudentProfile = asyncHandler(async (req, res) => {
     }
 
     const credentials = await Credential.find({
-        studentWalletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') },
+        studentWalletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
         isRevoked: false
     }).select('studentName university issueDate type certificationData transcriptData ipfsCID certificateHash isRevoked');
 
@@ -245,11 +138,12 @@ exports.searchIssuers = asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Search query is required' });
     }
 
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const issuers = await User.find({
         role: 'ISSUER',
         $or: [
-            { name: { $regex: query, $options: 'i' } },
-            { 'issuerDetails.institutionName': { $regex: query, $options: 'i' } }
+            { name: { $regex: escapedQuery, $options: 'i' } },
+            { 'issuerDetails.institutionName': { $regex: escapedQuery, $options: 'i' } }
         ]
     }).select('name avatar issuerDetails.institutionName _id');
 
@@ -271,11 +165,12 @@ exports.getPublicIssuerProfileByWallet = asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Wallet address is required' });
     }
 
+    const escapedWallet = walletAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const issuer = await User.findOne({ 
         role: 'ISSUER',
         $or: [
-            { walletAddress: { $regex: new RegExp(`^${walletAddress}$`, 'i') } },
-            { 'issuerDetails.authorizedWalletAddress': { $regex: new RegExp(`^${walletAddress}$`, 'i') } }
+            { walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') } },
+            { 'issuerDetails.authorizedWalletAddress': { $regex: new RegExp(`^${escapedWallet}$`, 'i') } }
         ]
     }).select('name avatar issuerDetails university about email role createdAt');
 

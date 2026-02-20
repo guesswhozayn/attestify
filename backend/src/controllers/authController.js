@@ -8,9 +8,9 @@ const asyncHandler = require('../middleware/asyncHandler');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const generateToken = (userId, role) => {
+const generateToken = (userId, role, tokenVersion = 0) => {
   return jwt.sign(
-    { userId, role },
+    { userId, role, tokenVersion },
     process.env.JWT_SECRET,
     { expiresIn: JWT_EXPIRY }
   );
@@ -54,6 +54,7 @@ exports.register = asyncHandler(async (req, res) => {
     userData.issuerDetails = {
       institutionName,
       registrationNumber: req.body.registrationNumber,
+      isVerified: false,
       authorizedWalletAddress,
       officialEmailDomain
     };
@@ -62,7 +63,7 @@ exports.register = asyncHandler(async (req, res) => {
 
   const user = await User.create(userData);
 
-  const token = generateToken(user._id, user.role);
+  const token = generateToken(user._id, user.role, user.tokenVersion);
 
   try {
     if (email) {
@@ -88,7 +89,8 @@ exports.register = asyncHandler(async (req, res) => {
       about: user.about,
       isActive: user.isActive,
       issuerDetails: user.issuerDetails,
-      avatar: user.avatar
+      avatar: user.avatar,
+      tokenVersion: user.tokenVersion
     }
   });
 });
@@ -119,7 +121,7 @@ exports.login = asyncHandler(async (req, res) => {
   user.lastLogin = new Date();
   await user.save();
 
-  const token = generateToken(user._id, user.role);
+  const token = generateToken(user._id, user.role, user.tokenVersion);
 
   res.json({
     success: true,
@@ -136,7 +138,8 @@ exports.login = asyncHandler(async (req, res) => {
       isActive: user.isActive,
       studentId: user.studentId,
       issuerDetails: user.issuerDetails,
-      avatar: user.avatar
+      avatar: user.avatar,
+      tokenVersion: user.tokenVersion
     }
   });
 });
@@ -162,7 +165,8 @@ exports.getCurrentUser = asyncHandler(async (req, res) => {
       isActive: user.isActive,
       issuerDetails: user.issuerDetails,
       createdAt: user.createdAt,
-      avatar: user.avatar
+      avatar: user.avatar,
+      tokenVersion: user.tokenVersion
     }
   });
 });
@@ -171,56 +175,7 @@ exports.logout = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
-exports.updateProfile = asyncHandler(async (req, res) => {
-  const { name, university, walletAddress, title, about } = req.body;
-  
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
 
-  if (name) user.name = name;
-  if (university) user.university = university;
-  if (title !== undefined) user.title = title;
-  if (about !== undefined) user.about = about;
-
-  if (user.role === 'ISSUER' && req.body.issuerDetails) {
-    const { branding, authorizedWalletAddress } = req.body.issuerDetails;
-    
-    if (!user.issuerDetails) {
-      user.issuerDetails = {};
-    }
-
-    if (branding) {
-      user.issuerDetails.branding = {
-        ...user.issuerDetails.branding,
-        ...branding
-      };
-    }
-    
-    if (authorizedWalletAddress) {
-      user.issuerDetails.authorizedWalletAddress = authorizedWalletAddress;
-    }
-  }
-
-  await user.save();
-
-  res.json({
-    success: true,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      university: user.university,
-      walletAddress: user.walletAddress,
-      title: user.title,
-      isActive: user.isActive,
-      issuerDetails: user.issuerDetails,
-      avatar: user.avatar
-    }
-  });
-});
 
 exports.changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -236,6 +191,7 @@ exports.changePassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
+  user.tokenVersion += 1; // Invalidate all previous tokens on password change
   await user.save();
 
   res.json({ success: true, message: 'Password updated successfully' });
@@ -272,7 +228,7 @@ exports.googleLogin = asyncHandler(async (req, res) => {
   user.lastLogin = new Date();
   await user.save();
 
-  const appToken = generateToken(user._id, user.role);
+  const appToken = generateToken(user._id, user.role, user.tokenVersion);
 
   res.json({
     success: true,
