@@ -175,8 +175,6 @@ exports.issueCredential = asyncHandler(async (req, res) => {
 
     await credential.save();
 
-    await credential.save();
-
 
     try {
         const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
@@ -649,8 +647,6 @@ exports.revokeCredential = asyncHandler(async (req, res) => {
   credential.revocationGasPrice = blockchainResult.gasPrice;
   credential.revocationTotalCost = blockchainResult.totalCost;
   await credential.save();
-
-  // Audit log removed
 
 
   res.json({

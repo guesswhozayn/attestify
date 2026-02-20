@@ -20,7 +20,6 @@ const NotFound = () => {
     const { user } = useAuth();
 
     const isStudent = user?.role === 'STUDENT';
-    const isIssuer = user?.role === 'ISSUER';
     const path = location.pathname;
 
     // Determine Contextual Content based on Path

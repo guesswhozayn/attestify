@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import api, { userAPI } from '../../services/api';
+import { userAPI } from '../../services/api';
 import { 
     Building,
     Edit2,
@@ -12,7 +12,8 @@ import {
     Copy,
     Calendar,
     Activity,
-    Mail
+    Mail,
+    ExternalLink
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
 import Avatar from '../../components/shared/Avatar';
