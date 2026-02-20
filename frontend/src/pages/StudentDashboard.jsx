@@ -42,6 +42,15 @@ const StudentDashboard = () => {
         return;
       }
 
+      // Security check: Match connected wallet with account wallet
+      if (user?.walletAddress && targetAddress.toLowerCase() !== user.walletAddress.toLowerCase()) {
+          setError(`Wallet mismatch: Connected (${targetAddress.slice(0,6)}...${targetAddress.slice(-4)}) does not match your account wallet.`);
+          setLoading(false);
+          setRefreshing(false);
+          setCredential(null);
+          return;
+      }
+
       const response = await credentialAPI.getByWalletAddress(targetAddress);
       if (!isMounted.current) return;
 
@@ -65,7 +74,12 @@ const StudentDashboard = () => {
     } catch (err) {
       if (isMounted.current) {
           console.error('Error fetching credential:', err);
-          setError('Failed to load your credentials. Please ensure your wallet is connected.');
+          if (err.response?.status === 403) {
+              setError('Unauthorized: You do not have permission to view credentials for this wallet.');
+          } else {
+              setError('Failed to load your credentials. Please ensure your wallet is connected.');
+          }
+          setCredential(null);
       }
     } finally {
       if (isMounted.current) {
@@ -73,7 +87,7 @@ const StudentDashboard = () => {
           setRefreshing(false);
       }
     }
-  }, [walletAddress]);
+  }, [walletAddress, user?.walletAddress]);
 
   useEffect(() => {
     isMounted.current = true;

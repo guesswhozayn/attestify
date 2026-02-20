@@ -9,10 +9,16 @@ if (!fs.existsSync(uploadDir)){
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    if (!fs.existsSync('uploads/')){
-      fs.mkdirSync('uploads/');
+    let subDir = '';
+    if (file.fieldname === 'avatar') subDir = 'avatars/';
+    if (file.fieldname === 'certificate') subDir = 'certificates/';
+    if (file.fieldname === 'file') subDir = 'batch/';
+    
+    const targetDir = `uploads/${subDir}`;
+    if (!fs.existsSync(targetDir)){
+      fs.mkdirSync(targetDir, { recursive: true });
     }
-    cb(null, 'uploads/');
+    cb(null, targetDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -23,18 +29,14 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
   
-  if (file.mimetype.startsWith('image/')) {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/webp') {
     cb(null, true);
-  } else if (file.mimetype === 'text/csv' || 
-             file.mimetype === 'application/csv' || 
-             file.mimetype === 'text/x-csv' || 
-             file.mimetype === 'application/vnd.ms-excel' ||
-             ext === '.csv') {
+  } else if (file.mimetype === 'text/csv' || ext === '.csv') {
     cb(null, true);
   } else if (file.mimetype === 'application/pdf' || ext === '.pdf') {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type! Please upload an image, CSV or PDF file.'), false);
+    cb(new Error('Invalid file type! Please upload an image (JPG, PNG, WEBP), CSV or PDF file.'), false);
   }
 };
 

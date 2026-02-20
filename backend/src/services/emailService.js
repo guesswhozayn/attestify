@@ -22,6 +22,17 @@ class EmailService {
     }
   }
 
+  // Basic HTML sanitization to prevent injection
+  _sanitize(str) {
+    if (!str) return '';
+    return str.toString()
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   // Shared Email Template Wrapper
   _wrapTemplate(title, content) {
     return `
@@ -231,12 +242,12 @@ class EmailService {
       </div>
       
       <h2 style="text-align: center;">Credential Issued</h2>
-      <p style="text-align: center; color: #64748b;">A permanent cryptographic record has been generated for <strong>${data.studentName}</strong>.</p>
+      <p style="text-align: center; color: #64748b;">A permanent cryptographic record has been generated for <strong>${this._sanitize(data.studentName)}</strong>.</p>
       
       <div class="card">
         <div class="detail-row">
           <span class="detail-label">Institution</span>
-          <span class="detail-value">${data.university}</span>
+          <span class="detail-value">${this._sanitize(data.university)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Token ID</span>
@@ -295,7 +306,7 @@ class EmailService {
 
     const content = `
       <h2 style="text-align: center;">Welcome to the Network.</h2>
-      <p style="text-align: center;">The future of decentralized credentialing is here. We're glad to have you, <strong>${name}</strong>.</p>
+      <p style="text-align: center;">The future of decentralized credentialing is here. We're glad to have you, <strong>${this._sanitize(name)}</strong>.</p>
       
       <div class="card">
         <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #ffffff;">Your Account Capabilities:</p>

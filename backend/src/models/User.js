@@ -62,17 +62,10 @@ const userSchema = new mongoose.Schema({
   },
   issuerDetails: {
     institutionName: { type: String, trim: true },
+    isVerified: { type: Boolean, default: false },
     registrationNumber: { type: String, trim: true, unique: true, sparse: true },
     authorizedWalletAddress: { type: String, trim: true },
     officialEmailDomain: { type: String, trim: true },
-    branding: {
-      logo: String,
-      seal: String,
-      signature: String,
-      logoCID: String,
-      sealCID: String,
-      signatureCID: String
-    },
     operationalMetrics: {
       lastActive: Date,
       currentGasBalance: String
@@ -89,6 +82,10 @@ const userSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  tokenVersion: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

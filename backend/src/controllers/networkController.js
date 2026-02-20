@@ -47,8 +47,8 @@ exports.getNetworkStats = asyncHandler(async (req, res) => {
                         type: 1,
                         createdAt: 1,
                         isRevoked: 1,
-                        revokedAt: 1,
-                        studentWalletAddress: 1
+                        revokedAt: 1
+                        // studentWalletAddress removed for privacy
                     }
                 }
             ]
@@ -56,12 +56,15 @@ exports.getNetworkStats = asyncHandler(async (req, res) => {
       }
     ]);
 
-    const counts = stats.counts[0] || { 
+    const statsResult = stats || { counts: [], recent: [] };
+    const counts = (statsResult.counts && statsResult.counts[0]) || { 
         totalIssued: 0, 
         totalRevoked: 0, 
         totalGasUsed: 0, 
         totalCostWei: 0 
     };
+
+    const recent = statsResult.recent || [];
 
     // calculate total cost in ETH
     const totalCostEth = parseFloat(counts.totalCostWei) / 1e18;
@@ -77,10 +80,10 @@ exports.getNetworkStats = asyncHandler(async (req, res) => {
         contract: {
             totalIssued: counts.totalIssued,
             totalRevoked: counts.totalRevoked,
-            totalGasUsed: counts.totalGasUsed.toString(),
+            totalGasUsed: (counts.totalGasUsed || 0).toString(),
             totalCostEth: totalCostEth.toFixed(6)
         },
-        recentTransactions: stats.recent
+        recentTransactions: recent
       }
     });
 

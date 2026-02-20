@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
     ShieldCheck, 
-    Building2, 
     Loader2,
     Share2,
     CheckCircle,
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react';
 import { publicAPI } from '../services/api';
 import Button from '../components/shared/Button';
+import Avatar from '../components/shared/Avatar';
 import BackButton from '../components/shared/BackButton';
 import PoweredBy from '../components/shared/PoweredBy';
 
@@ -117,9 +117,12 @@ const IssuerPublicProfile = () => {
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
                             {/* Logo/Avatar */}
                             <div className="relative shrink-0 group/avatar">
-                                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-black border border-white/10 p-4 flex items-center justify-center shadow-2xl relative overflow-hidden">
-                                    <Building2 className="w-12 h-12 text-zinc-700" />
-                                </div>
+                                <Avatar 
+                                    src={data.avatar} 
+                                    initials={data.details?.institutionName || data.name} 
+                                    size="lg" 
+                                    className="!w-24 !h-24 sm:!w-32 sm:!h-32"
+                                />
                                 <div className="absolute -bottom-2 -right-2 bg-gray-900 p-1.5 rounded-full border border-gray-800 z-20">
                                     <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/50">
                                         <CheckCircle className="w-3.5 h-3.5 text-white" />

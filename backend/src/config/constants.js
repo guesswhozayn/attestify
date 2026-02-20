@@ -1,8 +1,7 @@
 module.exports = {
   ROLES: {
-    SUPER_ADMIN: 'super_admin',
-    ADMIN: 'admin',
-    STUDENT: 'student'
+    ISSUER: 'ISSUER',
+    STUDENT: 'STUDENT'
   },
   
   AUDIT_ACTIONS: {
@@ -23,7 +22,7 @@ module.exports = {
     ALLOWED_TYPES: ['application/pdf']
   },
 
-  JWT_EXPIRY: '7d',
+  JWT_EXPIRY: '1h',
   
   PAGINATION: {
     DEFAULT_PAGE: 1,
