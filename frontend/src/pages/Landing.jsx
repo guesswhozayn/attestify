@@ -482,7 +482,7 @@ const Landing = () => {
                 <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="hover:-translate-y-1">
                     Get Started Free
                 </Button>
-                <Button onClick={() => window.open('mailto:sales@attestify.io')} variant="secondary" size="lg" className="hover:-translate-y-1">
+                <Button onClick={() => window.open('mailto:attestifyteam@gmail.com')} variant="secondary" size="lg" className="hover:-translate-y-1">
                     Contact Sales
                 </Button>
                </div>

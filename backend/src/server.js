@@ -13,7 +13,9 @@ dotenv.config();
 const app = express();
 
 // Security Headers
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 connectDB();
 
