@@ -22,10 +22,3 @@ export const truncateHash = (hash, startChars = 10, endChars = 8) => {
   return `${hash.substring(0, startChars)}...${hash.substring(hash.length - endChars)}`;
 };
 
-export const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-};

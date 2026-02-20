@@ -65,8 +65,6 @@ exports.verifyWithFile = asyncHandler(async (req, res) => {
     credential.lastVerifiedAt = new Date();
     await credential.save();
 
-    await credential.save();
-
 
     if (fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
@@ -238,8 +236,6 @@ exports.verifyByHash = asyncHandler(async (req, res) => {
   credential.verificationCount += 1;
   credential.lastVerifiedAt = new Date();
   await credential.save();
-
-    await credential.save();
 
 
   if (isValidOnChain && hash === credential.certificateHash) {

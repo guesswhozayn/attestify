@@ -18,7 +18,8 @@ import {
     X,
     Share2,
     Copy,
-    Globe
+    Globe,
+    Award
 } from 'lucide-react';
 import Button from '../../components/shared/Button';
 import Toggle from '../../components/shared/Toggle';

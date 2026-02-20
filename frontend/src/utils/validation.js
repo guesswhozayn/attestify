@@ -3,10 +3,6 @@ export const validateEmail = (email) => {
   return regex.test(email);
 };
 
-export const validateStudentId = (id) => {
-  return id && id.length >= 3;
-};
-
 export const validateWalletAddress = (address) => {
   const regex = /^0x[a-fA-F0-9]{40}$/;
   return regex.test(address);

@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
 import RefreshButton from '../components/shared/RefreshButton';
-import blockchainService from '../services/blockchain';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import IssueCredentialModal from '../components/credential/IssueCredentialModal';
 import BulkIssueModal from '../components/credential/BulkIssueModal';
