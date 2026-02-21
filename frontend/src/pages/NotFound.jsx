@@ -19,7 +19,6 @@ const NotFound = () => {
     const location = useLocation();
     const { user } = useAuth();
 
-    const isStudent = user?.role === 'STUDENT';
     const path = location.pathname;
 
     // Determine Contextual Content based on Path
@@ -183,7 +182,7 @@ const NotFound = () => {
                         {user && (
                             <div className="mt-8 pt-8 border-t border-white/5">
                                 <Button 
-                                    onClick={() => navigate(isStudent ? '/student-dashboard' : '/issuer-dashboard')}
+                                    onClick={() => navigate('/dashboard')}
                                     variant="ghost"
                                     icon={LayoutDashboard}
                                     className="text-gray-500 hover:text-white text-[10px] font-black uppercase tracking-[0.3em] group"

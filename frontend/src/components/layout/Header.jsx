@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, Copy } from 'lucide-react';
+import { Search, CheckCircle, Copy, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../shared/Button';
 import { useNotification } from '../../context/NotificationContext';
 import Avatar from '../shared/Avatar';
 
-const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Search...", rightContent }) => {
+const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Search...", rightContent, onMenuClick }) => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
   const [walletAddress, setWalletAddress] = useState(null);
@@ -59,30 +59,25 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   };
 
   return (
-    <div className="sticky top-0 z-30 backdrop-blur-2xl bg-[#030014]/60 border-b border-white/[0.05] px-8 py-4 transition-all duration-300 shadow-[0_4px_30px_-10px_rgba(0,0,0,0.5)]">
-      <div className="flex items-center justify-between">
+    <div className="sticky top-0 z-30 backdrop-blur-2xl bg-[#030014]/60 border-b border-white/[0.05] px-4 md:px-8 py-4 transition-all duration-300 shadow-[0_4px_30px_-10px_rgba(0,0,0,0.5)]">
+      <div className="flex items-center justify-between relative">
         
+        {/* Mobile Menu Button - Appears only on small screens */}
+        <div className="md:hidden">
+            <button 
+                onClick={onMenuClick}
+                className="p-2 -ml-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+                aria-label="Toggle Menu"
+            >
+                <Menu className="w-6 h-6" />
+            </button>
+        </div>
+
         {/* Title Section */}
-        <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400 tracking-tight flex items-center gap-3">
+        <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 whitespace-nowrap text-center md:text-left pointer-events-none md:pointer-events-auto flex flex-col items-center md:items-start">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400 tracking-tight flex items-center justify-center md:justify-start gap-2 md:gap-3 pointer-events-auto">
             {title}
-            {/* Role Badge */}
-            {user?.role && (
-                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                    user.role === 'ISSUER' 
-                        ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' 
-                        : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                }`}>
-                    {user.role === 'ISSUER' ? 'Issuer Nexus' : 'Student Digital Backpack'}
-                </span>
-            )}
           </h1>
-          {user?.role === 'ISSUER' && user?.issuerDetails?.institutionName && (
-             <p className="text-gray-500 text-xs font-medium mt-1 flex items-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2"></span>
-                {user.issuerDetails.institutionName}
-             </p>
-          )}
         </div>
 
         {/* Right Actions */}

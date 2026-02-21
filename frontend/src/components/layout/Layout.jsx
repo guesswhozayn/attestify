@@ -7,12 +7,11 @@ import { useAuth } from '../../context/AuthContext';
 const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   
   // Define routes that should have the Sidebar/Header layout (Dashboard routes)
   const dashboardRoutes = [
       '/dashboard',
-      '/student-dashboard',
-      '/issuer-dashboard',
       '/credentials',
       '/student/credentials',
       '/revoked',
@@ -36,25 +35,22 @@ const Layout = ({ children }) => {
   const getPageTitle = (pathname, role) => {
     switch (pathname) {
       case '/dashboard':
-      case '/issuer-dashboard':
-        return 'Dashboard';
-      case '/student-dashboard':
-        return 'Student Dashboard';
+        return role === 'STUDENT' ? 'Dashboard' : 'Dashboard';
       case '/credentials':
         return 'Credentials';
       case '/student/credentials':
-         return 'My Credentials';
+         return 'Credentials';
       case '/settings':
         return 'Account Settings';
       case '/profile':
-        return role === 'ISSUER' ? 'Issuer Profile' : 'Student Profile';
+        return role === 'ISSUER' ? 'Profile' : 'Profile';
       case '/revoked':
         return 'Revoked Credentials';
       case '/network-status':
         return 'Network Status';
       default:
         // Handle student profile route which might have an ID
-        if (pathname.includes('/student/')) return 'Student Profile';
+        if (pathname.includes('/student/')) return 'Profile';
         return 'Attestify';
     }
   };
@@ -71,10 +67,24 @@ const Layout = ({ children }) => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       </div>
 
-      <Sidebar />
-      <div className="flex-1 ml-20 transition-all duration-300 ease-in-out relative z-10 flex flex-col">
-        <Header title={title} showSearch={false} />
-        <div className="flex-1 flex flex-col min-h-0">
+      <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      
+      {/* Overlay for mobile when sidebar is open */}
+      {isMobileMenuOpen && (
+        <div 
+           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+           onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Main Content Area: padding left 0 on mobile, 20px (w-20) on md+ */}
+      <div className="flex-1 md:ml-20 transition-all duration-300 ease-in-out relative z-10 flex flex-col w-full">
+        <Header 
+          title={title} 
+          showSearch={false} 
+          onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        />
+        <div className="flex-1 flex flex-col min-h-0 w-full overflow-x-hidden">
            {children}
         </div>
       </div>

@@ -49,7 +49,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-6xl md:text-8xl font-bold text-white mb-8 tracking-tighter leading-[1.1]"
+            className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-8 tracking-tighter leading-[1.1]"
           >
             Trust is <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
@@ -70,11 +70,11 @@ const Landing = () => {
           </motion.p>
           
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="hover:-translate-y-1">
+          <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+            <Button onClick={() => navigate('/register')} variant="premium" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
               Start Issuing Now
             </Button>
-            <Button onClick={() => navigate('/verify')} variant="secondary" size="lg" className="hover:-translate-y-1">
+            <Button onClick={() => navigate('/verify')} variant="secondary" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
               Verify Credential
             </Button>
           </div>
@@ -160,7 +160,7 @@ const Landing = () => {
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-20">
-                  <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
+                  <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
                       The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-emerald-300 to-indigo-400">Universal Standard</span>
                   </h2>
                   <p className="text-gray-400 max-w-2xl mx-auto text-xl">
@@ -173,7 +173,7 @@ const Landing = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="grid grid-cols-1 md:grid-cols-3 auto-rows-[300px] gap-6"
+                className="grid grid-cols-1 md:grid-cols-3 auto-rows-auto md:auto-rows-[300px] gap-6"
               >
                   
                   {/* Card 1: Soulbound Identity (Span 2 cols, Span 2 rows) */}
@@ -344,8 +344,8 @@ const Landing = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
-             <h2 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-                Why <BrandLogo textSize="text-6xl md:text-8xl" />
+             <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight flex items-center justify-center gap-2 flex-wrap">
+                Why <BrandLogo textSize="text-5xl sm:text-6xl md:text-8xl" />
              </h2>
              <p className="text-gray-400">The three pillars of the new standard.</p>
           </div>
@@ -371,15 +371,15 @@ const Landing = () => {
                    <Lock className="w-32 h-32 text-indigo-500 rotate-12" />
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                 <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
                    <div className="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mb-6">
                       <Shield className="w-6 h-6 text-indigo-400" />
                    </div>
                    <h3 className="text-2xl font-bold text-white mb-4">Immutable Trust</h3>
-                   <p className="text-gray-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                   <p className="text-gray-400 leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       Once issued, a credential cannot be altered, faked, or deleted. It is cryptographically anchored to the blockchain forever.
                    </p>
-                </div>
+                 </div>
              </motion.div>
 
              {/* Card 2: Sovereign Ownership */}
@@ -396,15 +396,15 @@ const Landing = () => {
                    <Users className="w-32 h-32 text-purple-500 -rotate-12" />
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                 <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-6">
                       <Wallet className="w-6 h-6 text-purple-400" />
                    </div>
                    <h3 className="text-2xl font-bold text-white mb-4">Sovereign Control</h3>
-                   <p className="text-gray-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                   <p className="text-gray-400 leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       Students own their data. No more begging universities for transcripts. Your wallet, your credentials, your future.
                    </p>
-                </div>
+                 </div>
              </motion.div>
 
              {/* Card 3: Instant Verification */}
@@ -421,15 +421,15 @@ const Landing = () => {
                    <Zap className="w-32 h-32 text-emerald-500 rotate-6" />
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                 <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mb-6">
                       <CheckCircle className="w-6 h-6 text-emerald-400" />
                    </div>
                    <h3 className="text-2xl font-bold text-white mb-4">Instant Verification</h3>
-                   <p className="text-gray-400 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                   <p className="text-gray-400 leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       Employers can verify credentials in milliseconds with 100% mathematical certainty. Zero cost, zero friction.
                    </p>
-                </div>
+                 </div>
              </motion.div>
           </motion.div>
         </div>
@@ -445,7 +445,7 @@ const Landing = () => {
             transition={{ duration: 0.8 }}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
           >
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-white/5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:divide-x md:divide-white/5 [&>div:not(:nth-child(2n))]:border-r [&>div:nth-child(2n)]:border-r-0 md:[&>div]:border-r-0 border-white/5">
                   <div className="p-4">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">100k+</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Credentials Issued</div>
@@ -454,11 +454,11 @@ const Landing = () => {
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">50+</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Partner Institutions</div>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 border-t md:border-t-0 border-white/5">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">0s</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Verification Time</div>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 border-t md:border-t-0 border-white/5">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">$0</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Cost to Verify</div>
                   </div>
@@ -476,13 +476,13 @@ const Landing = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto px-4 text-center relative z-10"
            >
-               <h2 className="text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">Ready to secure the future?</h2>
+               <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">Ready to secure the future?</h2>
                <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Join the decentralized standard today. Issue, manage, and verify credentials with the power of Ethereum.</p>
-               <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <Button onClick={() => navigate('/register')} variant="premium" size="lg" className="hover:-translate-y-1">
+               <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6">
+                <Button onClick={() => navigate('/register')} variant="premium" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
                     Get Started Free
                 </Button>
-                <Button onClick={() => window.open('mailto:attestifyteam@gmail.com')} variant="secondary" size="lg" className="hover:-translate-y-1">
+                <Button onClick={() => window.open('mailto:attestifyteam@gmail.com')} variant="secondary" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
                     Contact Sales
                 </Button>
                </div>

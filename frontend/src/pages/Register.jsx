@@ -79,7 +79,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 md:p-8">
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-8">
       
       <BackButton />
 
@@ -107,13 +107,13 @@ const Register = () => {
 
              {/* Slogan */}
              <div className="max-w-xl hidden lg:block">
-                <h1 className="text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
                   The Future of <br/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-purple-300 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                     Academic Trust.
                   </span>
                 </h1>
-                <p className="text-gray-400 text-2xl leading-relaxed">
+                <p className="text-gray-400 text-lg sm:text-xl md:text-2xl leading-relaxed">
                   Join the network. Issue or verify credentials instantly upon Ethereum.
                 </p>
              </div>
@@ -139,7 +139,7 @@ const Register = () => {
         </div>
 
         {/* Right Side: Form (Glass Card) */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
             {/* Mobile Logo */}
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
@@ -189,17 +189,19 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                {formData.role !== 'ISSUER' && (
-                  <Input
-                    label="Full Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="e.g. Alex Johnson"
-                    icon={User}
-                    required
-                  />
+                  <div className="md:col-span-1">
+                      <Input
+                        label="Full Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="e.g. Alex Johnson"
+                        icon={User}
+                        required
+                      />
+                  </div>
                )}
                
                <Input
@@ -283,8 +285,8 @@ const Register = () => {
                       required
                     />
                     <div className="md:col-span-2">
-                      <div className="flex items-end gap-3">
-                        <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                        <div className="flex-1 w-full sm:w-auto">
                           <Input
                             label="Wallet Address"
                             name="walletAddress"
@@ -301,7 +303,7 @@ const Register = () => {
                            size="md"
                            onClick={() => handleConnectWallet('walletAddress')}
                            icon={Wallet}
-                           className="mb-[1px] h-[52px] whitespace-nowrap"
+                           className="mb-[1px] h-[52px] whitespace-nowrap w-full sm:w-auto mt-2 sm:mt-0"
                         >
                            Connect
                         </Button>

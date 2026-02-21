@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn } from 'lucide-react';
+import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Avatar from './Avatar';
@@ -119,7 +119,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                                 variant="secondary"
                                 rounded="full"
                                 size="sm"
-                                className="!pl-1.5 !pr-5 !py-1.5 transition-all duration-300 group/dash"
+                                className="!p-1.5 sm:!pl-1.5 sm:!pr-5 sm:!py-1.5 transition-all duration-300 group/dash"
                             >
                                 <Avatar 
                                     src={user.avatar} 
@@ -127,7 +127,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                                     size="sm" 
                                     className="border-0 shadow-none scale-100 group-hover/dash:scale-110 transition-transform"
                                 />
-                                <div className="flex flex-col items-start pr-1 gap-0.5">
+                                <div className="hidden sm:flex flex-col items-start pr-1 gap-0.5">
                                     <span className="text-[10px] font-bold text-white/40 group-hover/dash:text-indigo-400 transition-colors leading-none">Dashboard</span>
                                     <span className="text-[10px] font-medium text-white/90 truncate max-w-[100px]">{(user.name || 'User').split(' ')[0]}</span>
                                 </div>
@@ -137,10 +137,13 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                         <Button 
                             onClick={() => navigate('/login')}
                             variant="white"
-                            icon={LogIn}
-                            className="hover:scale-105 active:scale-95 transition-all"
+                            className="hover:scale-105 active:scale-95 transition-all !p-2 md:!px-6 md:!py-2.5 rounded-full md:rounded-2xl"
+                            noWrapper
                         >
-                            Sign In
+                            <span className="relative z-10 flex flex-row items-center justify-center">
+                                <User className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
+                                <span className="hidden md:inline font-medium text-sm">Sign In</span>
+                            </span>
                         </Button>
                     )}
 

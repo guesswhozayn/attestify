@@ -34,11 +34,7 @@ const Login = () => {
     const result = await login(email, password, selectedRole);
     
     if (result.success) {
-      if (selectedRole === 'STUDENT') {
-        navigate('/student-dashboard');
-      } else {
-        navigate('/issuer-dashboard');
-      }
+      navigate('/dashboard');
     } else {
       setError(result.error);
     }
@@ -47,7 +43,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-6 md:p-12">
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-12">
       
       <BackButton force={true} fallbackPath="/" />
       
@@ -63,10 +59,10 @@ const Login = () => {
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center">
         
         {/* Left Side: Branding (Free Floating) */}
-        <div className="flex flex-col space-y-8 animate-in slide-in-from-left-8 duration-700">
+        <div className="flex flex-col space-y-8 animate-in slide-in-from-left-8 duration-700 order-last lg:order-first">
              
              {/* Logo */}
-             <div>
+             <div className="hidden lg:block">
                 <Link to="/" className="inline-flex items-center gap-4 group">
                    <ShieldLogo size="lg" className="shadow-2xl group-hover:scale-110" />
                    <BrandLogo textSize="text-4xl" />
@@ -74,20 +70,20 @@ const Login = () => {
              </div>
 
              {/* Slogan */}
-             <div className="max-w-xl">
-                <h1 className="text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
+             <div className="max-w-xl hidden lg:block">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
                   Trust is <br/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-purple-300 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                     Programmable.
                   </span>
                 </h1>
-                <p className="text-gray-400 text-2xl leading-relaxed">
+                <p className="text-gray-400 text-lg sm:text-xl md:text-2xl leading-relaxed">
                   Issue tamper-proof academic credentials on Ethereum. Verifiable instantly, owned forever.
                 </p>
              </div>
 
              {/* Trusted By */}
-             <div className="pt-4">
+             <div className="pt-4 hidden lg:block">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by innovative teams</p>
                 <div className="flex gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                     <div className="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
@@ -107,7 +103,15 @@ const Login = () => {
         </div>
 
         {/* Right Side: Form (Glass Card) */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
+            {/* Mobile Logo */}
+           <div className="lg:hidden pb-8 text-center">
+              <Link to="/" className="inline-flex items-center gap-3 group">
+                 <ShieldLogo size="md" className="group-hover:scale-105" />
+                 <BrandLogo textSize="text-2xl" />
+              </Link>
+           </div>
+
            <div className="mb-8">
              <h2 className="text-2xl font-bold tracking-tight mb-2">Welcome Back</h2>
              <p className="text-gray-400">Sign in to manage your credentials.</p>

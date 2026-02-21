@@ -114,7 +114,7 @@ const IssuerDashboard = () => {
                 <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
             </div>
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 space-y-10">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 relative z-10 space-y-6 md:space-y-10">
                 
                 {/* Welcome Section */}
                 <motion.div 
@@ -122,7 +122,7 @@ const IssuerDashboard = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                     onMouseMove={handleMouseMove}
-                    className="relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/[0.08] p-8 md:p-12 backdrop-blur-3xl group"
+                    className="relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/[0.08] p-6 sm:p-8 md:p-12 backdrop-blur-3xl group"
                 >
                     {/* Spotlight Effect */}
                     <div 
@@ -135,8 +135,8 @@ const IssuerDashboard = () => {
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700"></div>
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay pointer-events-none"></div>
 
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-                        <div className="space-y-6">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">
+                        <div className="space-y-4 md:space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
                             <motion.div 
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -154,11 +154,11 @@ const IssuerDashboard = () => {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                                className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none flex flex-col md:flex-row md:items-center gap-6"
+                                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none flex flex-col items-center md:flex-row md:items-center gap-4 md:gap-6"
                             >
                                 <div className="shrink-0 rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl">
-                                    <div className="w-16 h-16 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500">
-                                        <Shield className="w-8 h-8 text-indigo-400" />
+                                    <div className="w-12 h-12 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500">
+                                        <Shield className="w-6 h-6 text-indigo-400" />
                                     </div>
                                 </div>
                                 <span className="drop-shadow-2xl">Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.issuerDetails?.institutionName || user?.name || 'Issuer'}</span></span>
@@ -168,7 +168,7 @@ const IssuerDashboard = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                                className="text-zinc-400 max-w-xl text-lg leading-relaxed"
+                                className="text-zinc-400 max-w-xl text-base md:text-lg leading-relaxed"
                             >
                                 Manage your institution&apos;s digital footprint. Issue on-chain credentials and monitor network status in real-time.
                             </motion.p>
@@ -178,6 +178,7 @@ const IssuerDashboard = () => {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.6, delay: 0.3 }}
+                            className="flex justify-center md:justify-end"
                         >
                             <RefreshButton 
                                 onClick={() => fetchDashboardData(true)}
@@ -190,10 +191,10 @@ const IssuerDashboard = () => {
                 </motion.div>
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start flex-col-reverse lg:flex-row">
                     
                     {/* Left Column: Stats and Activity */}
-                    <div className="lg:col-span-8 space-y-8">
+                    <div className="lg:col-span-8 space-y-6 md:space-y-8 order-last lg:order-first">
                         {/* Stats Carousel-like Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <StatCard 
@@ -308,7 +309,7 @@ const IssuerDashboard = () => {
                         >
                             <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                             
-                            <h3 className="text-white font-bold mb-6 flex items-center gap-3">
+                            <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-left">
                                 <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
                                     <Plus className="w-4 h-4 text-indigo-400" />
                                 </div>
@@ -320,7 +321,7 @@ const IssuerDashboard = () => {
                                     onClick={() => setShowUploadModal(true)}
                                     variant="primary"
                                     icon={Plus}
-                                    className="w-full justify-center py-4 uppercase tracking-widest text-xs"
+                                    className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
                                 >
                                     Issue Credential
                                 </Button>
@@ -328,14 +329,14 @@ const IssuerDashboard = () => {
                                     onClick={() => setShowBulkModal(true)}
                                     variant="outline"
                                     icon={Users}
-                                    className="w-full justify-center py-4 uppercase tracking-widest text-xs"
+                                    className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
                                 >
                                     Bulk Sync
                                 </Button>
                                 <Button 
                                     onClick={() => navigate('/settings')}
                                     variant="outline"
-                                    className="w-full justify-center py-4 uppercase tracking-widest text-xs"
+                                    className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
                                 >
                                     Issuer Settings
                                 </Button>
@@ -351,7 +352,7 @@ const IssuerDashboard = () => {
                         >
                             <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between mb-4 md:mb-2 text-left">
                                 <h3 className="text-white font-bold flex items-center gap-3">
                                     <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
                                         <Zap className="w-4 h-4 text-emerald-400" />
