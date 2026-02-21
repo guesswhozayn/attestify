@@ -18,7 +18,7 @@ const BackButton = ({ fallbackPath = '/', text = "Back to Home", force = false }
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="fixed top-8 left-8 z-50"
+            className="hidden md:block fixed top-8 left-8 z-50"
         >
             <button 
                 onClick={handleBack}

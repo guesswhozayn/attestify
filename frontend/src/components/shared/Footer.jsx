@@ -29,19 +29,19 @@ const Footer = () => {
             {/* Newsletter */}
             <div className="pt-4">
               <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wide">Stay Updated</h4>
-              <div className="flex gap-2 max-w-md">
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md">
                 <div className="relative flex-1">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input 
                     type="email" 
                     placeholder="Enter your email" 
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 h-[46px] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 h-[46px] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all w-full sm:w-auto"
                   />
                 </div>
                 <Button 
                   variant="white"
                   size="md"
-                  className="font-bold !h-[46px] min-w-[120px]"
+                  className="font-bold !h-[46px] min-w-[120px] w-full sm:w-auto"
                 >
                   Subscribe
                 </Button>

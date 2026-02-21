@@ -59,16 +59,7 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              {user?.role === 'STUDENT' ? <Navigate to="/student-dashboard" /> : <Navigate to="/issuer-dashboard" />}
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/student-dashboard"
-          element={
-            <PrivateRoute allowedRoles={['STUDENT']}>
-              <StudentDashboard />
+              {user?.role === 'STUDENT' ? <StudentDashboard /> : <IssuerDashboard />}
             </PrivateRoute>
           }
         />
@@ -81,16 +72,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        <Route
-          path="/issuer-dashboard"
-          element={
-            <PrivateRoute allowedRoles={['ISSUER']}>
-              <IssuerDashboard />
-            </PrivateRoute>
-          }
-        />
-
         <Route
           path="/credentials"
           element={

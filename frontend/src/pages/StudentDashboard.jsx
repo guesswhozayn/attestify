@@ -191,8 +191,8 @@ const StudentDashboard = () => {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700"></div>
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay pointer-events-none"></div>
           
-          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-            <div className="space-y-6">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">
+            <div className="space-y-4 md:space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
                 <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -210,7 +210,7 @@ const StudentDashboard = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                    className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none flex flex-col md:flex-row md:items-center gap-6"
+                    className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none flex flex-col items-center md:flex-row md:items-center gap-4 md:gap-6"
                 >
                     <div className="shrink-0 rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl">
                         <Avatar 
@@ -237,7 +237,7 @@ const StudentDashboard = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex items-center gap-4"
+                className="flex justify-center md:justify-end"
             >
                 <RefreshButton 
                   onClick={() => fetchCredential(walletAddress, true)}
@@ -318,13 +318,13 @@ const StudentDashboard = () => {
                >
                   <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
                   
-                  <h3 className="text-white font-bold mb-6 flex items-center gap-3 relative z-10">
+                  <h3 className="text-white font-bold mb-6 flex items-center gap-3 relative z-10 text-left">
                      <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
                         <Share2 className="w-4 h-4 text-indigo-400" />
                      </div>
                      Share & Verify
                   </h3>
-                  <div className="space-y-3 relative z-10">
+                  <div className="space-y-3 relative z-10 text-left">
                      <Button 
                         onClick={handleShare}
                         icon={Share2}
@@ -356,7 +356,7 @@ const StudentDashboard = () => {
                >
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
                   
-                  <div className="flex items-center justify-between mb-8 relative z-10">
+                  <div className="flex items-center justify-between mb-8 relative z-10 text-left">
                     <h3 className="text-white font-bold flex items-center gap-3">
                       <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20 group-hover/card:bg-purple-500/20 transition-colors">
                         <Globe className="w-4 h-4 text-purple-400" />
@@ -372,11 +372,11 @@ const StudentDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-6 relative z-10">
+                  <div className="space-y-6 relative z-10 text-left">
                     <p className="text-[11px] text-gray-400 leading-relaxed font-medium">
                       Your verified credentials are {user?.preferences?.visibility !== false ? 'currently visible' : 'currently hidden'} to the public explorer. 
                     </p>
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col w-full gap-3">
                        <Button 
                           href={`/student/${walletAddress}`}
                           target="_blank"
@@ -412,26 +412,26 @@ const StudentDashboard = () => {
                >
                   <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
                   
-                  <h3 className="text-white font-bold mb-8 flex items-center gap-3 relative z-10">
+                  <h3 className="text-white font-bold mb-8 flex items-center gap-3 relative z-10 text-left">
                      <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
                         <Hash className="w-4 h-4 text-emerald-400" />
                      </div>
                      On-Chain Proof
                   </h3>
                   
-                  <div className="space-y-6 relative z-10">
+                  <div className="space-y-6 relative z-10 text-left">
                      <div className="space-y-3">
-                         <div className="flex justify-between text-[11px] font-bold text-emerald-400/60 px-1">
+                         <div className="flex justify-between items-center text-[11px] font-bold text-emerald-400/60 px-1">
                             <span>Certificate Hash</span>
                             <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-1 rounded-md text-[10px] shadow-lg shadow-emerald-500/10"><CheckCircle className="w-3 h-3" /> Verified</span>
                          </div>
-                        <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 cursor-text selection:bg-indigo-500/30">
+                        <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 cursor-text selection:bg-indigo-500/30 text-left">
                            {credential.certificateHash}
                         </div>
                      </div>
                      <div className="space-y-3">
-                         <span className="text-gray-500 text-[11px] font-bold block">IPFS CID</span>
-                         <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300">
+                         <span className="text-gray-500 text-[11px] font-bold block text-left">IPFS CID</span>
+                         <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 text-left">
                            {credential.ipfsCID}
                         </div>
                      </div>
