@@ -13,7 +13,6 @@ const Layout = ({ children }) => {
   const dashboardRoutes = [
       '/dashboard',
       '/credentials',
-      '/student/credentials',
       '/revoked',
       '/settings',
       '/network-status'
@@ -38,8 +37,6 @@ const Layout = ({ children }) => {
         return role === 'STUDENT' ? 'Dashboard' : 'Dashboard';
       case '/credentials':
         return 'Credentials';
-      case '/student/credentials':
-         return 'Credentials';
       case '/settings':
         return 'Account Settings';
       case '/profile':

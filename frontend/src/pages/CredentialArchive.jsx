@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
@@ -8,14 +8,17 @@ import RevokeCredentialModal from '../components/credential/RevokeCredentialModa
 import CredentialsStats from '../components/credential/CredentialsStats';
 import CredentialsFilter from '../components/credential/CredentialsFilter';
 import CredentialTable from '../components/credential/CredentialTable';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
-const Credentials = () => {
+const PAGE_SIZE = 20;
+
+const CredentialArchive = () => {
     const [credentials, setCredentials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0, uniqueRecipients: 0, sbtCount: 0 });
+    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [credentialToRevoke, setCredentialToRevoke] = useState(null);
@@ -25,91 +28,105 @@ const Credentials = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const { showNotification } = useNotification();
-    const isMounted = React.useRef(true);
+    const isMounted = useRef(true);
+    const debounceTimer = useRef(null);
 
-    const calculateStats = useCallback((docs) => {
-        const total = docs.length;
-        const revoked = docs.filter(d => d.isRevoked).length;
-        const active = total - revoked;
-        const sbtCount = docs.filter(d => !!d.tokenId).length;
-        
-        const uniqueRecipients = new Set(
-            docs.map(d => d.studentWalletAddress || d.studentName)
-        ).size;
-
-        setStats({ total, active, revoked, uniqueRecipients, sbtCount });
-    }, []);
-
-    const fetchCredentials = useCallback(async () => {
+    const fetchCredentials = useCallback(async (page = 1, search = searchQuery, type = typeFilter, status = statusFilter) => {
         try {
             setLoading(true);
-            const response = await credentialAPI.getAll();
-            
-            if (isMounted.current) {
-                const docs = response.data.credentials || [];
-                setCredentials(docs);
-                calculateStats(docs);
-            }
+
+            const params = {
+                page,
+                limit: PAGE_SIZE,
+                sortBy: 'createdAt',
+                sortOrder: 'desc',
+            };
+            if (search.trim())            params.search  = search.trim();
+            if (type !== 'all')           params.type    = type;
+            if (status === 'active')      params.revoked = 'false';
+            if (status === 'revoked')     params.revoked = 'true';
+
+            const response = await credentialAPI.getAll(params);
+
+            if (!isMounted.current) return;
+
+            const docs = response.data.credentials || [];
+            setCredentials(docs);
+            setPagination(response.data.pagination || { currentPage: page, totalPages: 1, total: docs.length });
+
         } catch (error) {
             console.error(error);
-            if (isMounted.current) {
-               if (error.response?.status !== 401) {
-                   showNotification('Failed to fetch credentials', 'error');
-               }
+            if (isMounted.current && error.response?.status !== 401) {
+                showNotification('Failed to fetch credentials', 'error');
             }
         } finally {
-            if (isMounted.current) {
-                setLoading(false);
-            }
+            if (isMounted.current) setLoading(false);
         }
-    }, [showNotification, calculateStats]);
+    }, [showNotification]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const fetchStats = useCallback(async () => {
+        try {
+            const response = await credentialAPI.getStats();
+            if (!isMounted.current) return;
+            const s = response.data?.stats;
+            if (s) {
+                setStats({
+                    total: s.total ?? 0,
+                    active: s.active ?? 0,
+                    revoked: s.revoked ?? 0,
+                    uniqueRecipients: 0,
+                    sbtCount: 0
+                });
+            }
+        } catch (e) {
+            console.warn('Stats fetch failed:', e);
+        }
+    }, []);
 
     useEffect(() => {
         isMounted.current = true;
-        fetchCredentials();
+        fetchCredentials(1);
+        fetchStats();
         return () => { isMounted.current = false; };
-    }, [fetchCredentials]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+            fetchCredentials(currentPage, searchQuery, typeFilter, statusFilter);
+        }, 300);
+        return () => clearTimeout(debounceTimer.current);
+    }, [searchQuery, typeFilter, statusFilter, currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
+    const handleFilterChange = (setter) => (value) => {
+        setter(value);
+        setCurrentPage(1);
+    };
 
     const handleCredentialUpload = () => {
-        fetchCredentials();
+        setCurrentPage(1);
+        fetchCredentials(1);
+        fetchStats();
     };
 
     const handleRevokeSuccess = () => {
-        fetchCredentials();
+        fetchCredentials(currentPage);
+        fetchStats();
         setCredentialToRevoke(null);
         if (selectedCredential && selectedCredential._id === credentialToRevoke?._id) {
             setSelectedCredential(null);
         }
     };
 
-    const filteredCredentials = useMemo(() => {
-        return credentials.filter(cred => {
-            const lowerQuery = searchQuery.toLowerCase();
-            const matchesSearch = 
-                cred.studentName?.toLowerCase().includes(lowerQuery) ||
-                cred.studentWalletAddress?.toLowerCase().includes(lowerQuery) ||
-                cred._id?.toLowerCase().includes(lowerQuery) ||
-                cred.courseName?.toLowerCase().includes(lowerQuery);
-
-            if (!matchesSearch) return false;
-            if (typeFilter !== 'all' && cred.type !== typeFilter) return false;
-            if (statusFilter === 'active' && cred.isRevoked) return false;
-            if (statusFilter === 'revoked' && !cred.isRevoked) return false;
-
-            return true;
-        });
-    }, [credentials, searchQuery, typeFilter, statusFilter]);
+    const { currentPage: pg, totalPages } = pagination;
 
     return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
             {/* Dynamic Background Elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-                {/* Main Gradient Orbs */}
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
@@ -179,23 +196,52 @@ const Credentials = () => {
                 >
                     <CredentialsFilter 
                         searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
+                        setSearchQuery={handleFilterChange(setSearchQuery)}
                         typeFilter={typeFilter}
-                        setTypeFilter={setTypeFilter}
+                        setTypeFilter={handleFilterChange(setTypeFilter)}
                         statusFilter={statusFilter}
-                        setStatusFilter={setStatusFilter}
-                        onRefresh={fetchCredentials}
+                        setStatusFilter={handleFilterChange(setStatusFilter)}
+                        onRefresh={() => { setCurrentPage(1); fetchCredentials(1); fetchStats(); }}
                         loading={loading}
                     />
 
                     <div className="min-h-[600px] px-2">
                         <CredentialTable
-                            credentials={filteredCredentials}
+                            credentials={credentials}
                             onView={setSelectedCredential}
                             onRevoke={setCredentialToRevoke}
                             loading={loading}
                         />
                     </div>
+
+                    {/* Pagination Bar */}
+                    {!loading && totalPages > 1 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center justify-center gap-4"
+                        >
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={pg <= 1}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/4 border border-white/8 text-zinc-400 hover:text-white hover:border-indigo-500/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-semibold"
+                            >
+                                <ChevronLeft className="w-4 h-4" /> Prev
+                            </button>
+
+                            <span className="text-zinc-500 text-sm font-medium px-4 py-2 bg-white/2 border border-white/5 rounded-xl tabular-nums">
+                                Page <span className="text-white font-bold">{pg}</span> of <span className="text-white font-bold">{totalPages}</span>
+                            </span>
+
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={pg >= totalPages}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/4 border border-white/8 text-zinc-400 hover:text-white hover:border-indigo-500/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-semibold"
+                            >
+                                Next <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </motion.div>
+                    )}
                 </motion.div>
             </main>
 
@@ -219,7 +265,7 @@ const Credentials = () => {
                         onClose={() => setSelectedCredential(null)}
                         credential={selectedCredential}
                         onUpdate={() => {
-                            fetchCredentials();
+                            fetchCredentials(currentPage);
                             setSelectedCredential(null);
                         }}
                     />
@@ -236,4 +282,4 @@ const Credentials = () => {
     );
 };
 
-export default Credentials;
+export default CredentialArchive;
