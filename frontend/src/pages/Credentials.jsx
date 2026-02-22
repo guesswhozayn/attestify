@@ -157,7 +157,7 @@ const Credentials = () => {
                     <div className="flex items-center gap-4 w-full lg:w-auto">
                         <Button
                             onClick={() => setShowUploadModal(true)}
-                            variant="primary"
+                            variant="white"
                             icon={Plus}
                             size="lg"
                             className="flex-1 lg:flex-none font-bold"

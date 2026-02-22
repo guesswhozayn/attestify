@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Search, BookOpen, CheckCircle, Menu, X, ArrowLeft, LogIn, User } from 'lucide-react';
+import { Shield, Search, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Avatar from './Avatar';
@@ -43,18 +43,6 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                 
                 {/* Left: Logo & Toggle */}
                 <div className="flex items-center gap-4">
-                    {showSidebarToggle && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            rounded="full"
-                            onClick={onToggleSidebar}
-                            className="lg:hidden p-2 -ml-2 !px-2 !py-2"
-                        >
-                            <Menu className="w-5 h-5" />
-                        </Button>
-                    )}
-                    
                     <div 
                         className="flex items-center gap-3 cursor-pointer group/logo" 
                         onClick={() => navigate('/')}
@@ -67,7 +55,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                                 </div>
                             </div>
                         </div>
-                        <BrandLogo textSize="text-xl" className="group-hover/logo:text-indigo-200 transition-colors hidden sm:block" />
+                        <BrandLogo textSize="text-xl" className="group-hover/logo:text-indigo-200 transition-colors" />
                     </div>
                 </div>
 
@@ -137,25 +125,39 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                         <Button 
                             onClick={() => navigate('/login')}
                             variant="white"
-                            className="hover:scale-105 active:scale-95 transition-all !p-2 md:!px-6 md:!py-2.5 rounded-full md:rounded-2xl"
+                            className="hover:scale-105 active:scale-95 transition-all !p-2 md:!px-6 md:!py-2.5 rounded-full md:rounded-2xl !bg-transparent md:!bg-white !text-white md:!text-black"
                             noWrapper
                         >
                             <span className="relative z-10 flex flex-row items-center justify-center">
-                                <User className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
+                                <LogIn className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
                                 <span className="hidden md:inline font-medium text-sm">Sign In</span>
                             </span>
                         </Button>
                     )}
 
-                    <Button 
-                        variant="ghost"
-                        size="sm"
-                        rounded="full"
-                        className="md:hidden !px-2 !py-2"
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    >
-                        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </Button>
+                    {showSidebarToggle && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            rounded="full"
+                            onClick={onToggleSidebar}
+                            className="md:hidden !px-2 !py-2"
+                        >
+                            <AlignRight className="w-6 h-6" />
+                        </Button>
+                    )}
+
+                    {!showSidebarToggle && (
+                        <Button 
+                            variant="ghost"
+                            size="sm"
+                            rounded="full"
+                            className="md:hidden !px-2 !py-2"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        >
+                            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <AlignRight className="w-6 h-6" />}
+                        </Button>
+                    )}
                 </div>
             </div>
 

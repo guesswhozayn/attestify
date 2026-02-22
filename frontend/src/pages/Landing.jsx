@@ -71,7 +71,7 @@ const Landing = () => {
           
           {/* CTA Buttons */}
           <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Button onClick={() => navigate('/register')} variant="premium" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
+            <Button onClick={() => navigate('/register')} variant="white" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
               Start Issuing Now
             </Button>
             <Button onClick={() => navigate('/verify')} variant="secondary" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
@@ -479,7 +479,7 @@ const Landing = () => {
                <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">Ready to secure the future?</h2>
                <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Join the decentralized standard today. Issue, manage, and verify credentials with the power of Ethereum.</p>
                <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6">
-                <Button onClick={() => navigate('/register')} variant="premium" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
+                <Button onClick={() => navigate('/register')} variant="white" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
                     Get Started Free
                 </Button>
                 <Button onClick={() => window.open('mailto:attestifyteam@gmail.com')} variant="secondary" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">

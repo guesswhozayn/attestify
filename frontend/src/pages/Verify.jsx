@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import {motion} from 'framer-motion';
 import BackButton from '../components/shared/BackButton';
 import VerificationPortal from '../components/verification/VerificationPortal';
-import PoweredBy from '../components/shared/PoweredBy';
 
 const VerifyPage = () => {
     // Spotlight Effect State
@@ -49,7 +48,6 @@ const VerifyPage = () => {
             {/* Main Content */}
             <main className="flex-grow relative z-[1] flex flex-col justify-center min-h-screen">
                 <VerificationPortal />
-                <PoweredBy className="fixed bottom-4 left-0 right-0 z-10" />
             </main>
         </div>
     );

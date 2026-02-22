@@ -112,7 +112,7 @@ const VerificationSection = React.memo(({ certificate }) => {
             onClick={handleVerify}
             loading={verifying}
             disabled={verifying || !file}
-            variant="primary"
+            variant="white"
             className="w-full justify-center py-2.5"
             icon={CheckCircle}
           >
