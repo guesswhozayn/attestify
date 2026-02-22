@@ -10,6 +10,7 @@ import BrandLogo from '../components/shared/BrandLogo';
 import ShieldLogo from '../components/shared/ShieldLogo';
 import Input from '../components/shared/Input';
 import blockchainService from '../services/blockchain';
+import GradientBackground from '../components/shared/GradientBackground';
 
 
 
@@ -126,11 +127,7 @@ const Register = () => {
       <BackButton />
 
         {/* Background Elements */}
-       <div className="absolute inset-0 w-full h-full pointer-events-none">
-          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute bottom-[20%] left-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute top-[40%] right-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-       </div>
+       <GradientBackground />
 
       {/* Main Container */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center">

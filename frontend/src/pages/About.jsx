@@ -5,6 +5,8 @@ import BackButton from '../components/shared/BackButton';
 import Footer from '../components/shared/Footer';
 import Button from '../components/shared/Button';
 import { useNavigate } from 'react-router-dom';
+import GradientBackground from '../components/shared/GradientBackground';
+import StatusBadge from '../components/shared/StatusBadge';
 
 const About = () => {
   const navigate = useNavigate();
@@ -22,18 +24,15 @@ const About = () => {
   return (
     <div ref={containerRef} className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
       {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-         <div 
-            className="absolute inset-0 opacity-40 transition-opacity duration-1000"
-            style={{
-              background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.1), transparent 80%)`
-            }}
-          />
-          
-          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-      </div>
+      <GradientBackground fixed />
+
+      {/* Mouse-tracking spotlight overlay */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none opacity-40 transition-opacity duration-1000"
+        style={{
+          background: `radial-gradient(1000px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.1), transparent 80%)`
+        }}
+      />
 
       <BackButton />
 
@@ -46,13 +45,9 @@ const About = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-24"
         >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md mb-8">
-                 <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                 </span>
-                 <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Our Mission</span>
-              </div>
+            <div className="mb-8">
+              <StatusBadge label="Our Mission" />  
+            </div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter leading-tight">
                 Restoring <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 bg-[length:200%_auto] animate-shimmer">Trust</span> in <br />
