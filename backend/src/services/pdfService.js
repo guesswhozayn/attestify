@@ -2,16 +2,15 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const QRCode = require('qrcode');
 
-// Colors
 const COLORS = {
-  primary: '#6366f1', // Indigo-500
-  dark: '#0f172a',    // Slate-900
-  secondary: '#64748b', // Slate-500
-  border: '#e2e8f0',   // Slate-200
+  primary: '#6366f1',
+  dark: '#0f172a',
+  secondary: '#64748b',
+  border: '#e2e8f0',
   white: '#ffffff',
-  lightGray: '#f8fafc', // Slate-50
-  tableHeader: '#f1f5f9', // Slate-100
-  textMain: '#1e293b', // Slate-800
+  lightGray: '#f8fafc',
+  tableHeader: '#f1f5f9',
+  textMain: '#1e293b',
 };
 
 exports.generateCredentialPDF = async (data, outputPath) => {
@@ -22,7 +21,6 @@ exports.generateCredentialPDF = async (data, outputPath) => {
   return new Promise(async (resolve, reject) => {
     try {
       const isTranscript = type === 'TRANSCRIPT';
-      // A4 Size: 595.28 x 841.89 points
       const { 
         studentWalletAddress, 
         credentialId, 
@@ -81,11 +79,8 @@ async function drawTranscript(doc, data) {
   const pageWidth = doc.page.width;
   const contentWidth = pageWidth - (margin * 2);
 
-  // --- HEADER ---
-  // Background for header
   doc.rect(0, 0, pageWidth, 120).fill(COLORS.lightGray);
   
-  // Institution Name
   let headerContentY = 40;
   let textX = margin;
 
@@ -95,18 +90,16 @@ async function drawTranscript(doc, data) {
   doc.fontSize(10).font('Helvetica').fillColor(COLORS.secondary)
      .text('OFFICIAL ACADEMIC TRANSCRIPT', textX, 70, { charSpacing: 1 });
 
-  // Right-aligned branding badge
   const badgeWidth = 120;
   doc.roundedRect(pageWidth - margin - badgeWidth, 40, badgeWidth, 24, 12)
      .fill(COLORS.white);
   doc.fontSize(8).font('Helvetica-Bold').fillColor(COLORS.primary)
      .text('VERIFIED CREDENTIAL', pageWidth - margin - badgeWidth, 48, { width: badgeWidth, align: 'center' });
 
-  // Header separator
   doc.lineWidth(2).strokeColor(COLORS.primary).moveTo(0, 118).lineTo(pageWidth, 118).stroke();
 
 
-  // --- STUDENT INFO GRID ---
+
   const gridY = 140;
   const col1X = margin;
   const col2X = margin + 250;
@@ -128,17 +121,15 @@ async function drawTranscript(doc, data) {
   drawLabelValue('Graduation Year', transcriptData?.graduationYear || 'N/A', col2X, gridY + 80);
 
   
-  // --- ACADEMIC RECORD TABLE ---
   let tableY = gridY + 120;
   
-  // Columns: Code (15%), Title (50%), Grade (15%), Credits (20%)
   const tableWidth = contentWidth;
   const col1 = margin;
   const col2 = margin + (tableWidth * 0.15);
   const col3 = margin + (tableWidth * 0.65);
   const col4 = margin + (tableWidth * 0.85);
 
-  // Table Header
+
   const rowHeight = 20;
   doc.rect(margin, tableY, tableWidth, rowHeight).fill(COLORS.tableHeader);
   
@@ -149,17 +140,15 @@ async function drawTranscript(doc, data) {
   doc.text('GRADE', col3 + 10, headerTextY);
   doc.text('CREDITS', col4 + 10, headerTextY);
 
-  // Table Rows
+
   let y = tableY + rowHeight;
   doc.font('Helvetica').fontSize(9).fillColor(COLORS.textMain);
 
   if (transcriptData?.courses && Array.isArray(transcriptData.courses)) {
       transcriptData.courses.forEach((course, index) => {
-          // Check pagination
           if (y > doc.page.height - 120) {
               doc.addPage();
-              y = 50; 
-              // Redraw header on new page
+              y = 50;
               doc.rect(margin, y, tableWidth, rowHeight).fill(COLORS.tableHeader);
               doc.fillColor(COLORS.secondary).fontSize(8).font('Helvetica-Bold');
               const hY = y + 6;
@@ -186,12 +175,10 @@ async function drawTranscript(doc, data) {
       });
   }
 
-  // Summary Section
   y += 10;
   doc.moveTo(margin, y).lineTo(pageWidth - margin, y).strokeColor(COLORS.border).stroke();
   
   y += 15;
-  // CGPA Box
   const cgpaBoxWidth = 150;
   const cgpaBoxX = pageWidth - margin - cgpaBoxWidth;
   doc.rect(cgpaBoxX, y, cgpaBoxWidth, 30).fill(COLORS.lightGray);
@@ -205,8 +192,6 @@ async function drawTranscript(doc, data) {
   const footerHeight = 120;
   const footerY = doc.page.height - footerHeight;
 
-  // Bottom Footer Elements 
-  // Left: Date
   doc.fontSize(9).font('Helvetica').fillColor(COLORS.secondary)
      .text(`Issued On: ${new Date(issueDate).toLocaleDateString()}`, margin, footerY + 40);
   
@@ -219,11 +204,8 @@ async function drawTranscript(doc, data) {
       doc.text(`Issuer Wallet: ${issuerWalletAddress}`, margin, footerY + 85, { width: 250 });
   }
 
-  // Center: QR Code & Branding Group
   const qrSize = 50; 
   let qrY = footerY + 10;
-  
-  // Use IPFS URL if available, otherwise fallback to verification URL
   const qrTarget = ipfsUrl || verificationUrl;
   
   if(qrTarget){
@@ -236,7 +218,7 @@ async function drawTranscript(doc, data) {
   doc.fontSize(7).fillColor(COLORS.secondary)
      .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: pageWidth });
 
-  // Attestify Branding
+
   const brandText = 'attestify.';
   doc.fontSize(10).font('Helvetica-Bold');
   const brandWidth = doc.widthOfString(brandText);
@@ -246,7 +228,7 @@ async function drawTranscript(doc, data) {
   doc.fillColor(COLORS.dark).text('attestify', brandX, brandY, { continued: true });
   doc.fillColor(COLORS.primary).text('.');
 
-  // Right: Signature
+
   const sigX = pageWidth - margin - 150;
   doc.lineWidth(1).strokeColor(COLORS.border).moveTo(sigX, footerY + 55).lineTo(sigX + 150, footerY + 55).stroke();
   doc.fontSize(9).font('Helvetica-Bold').text('Authorized Signature', pageWidth - margin - 130, footerY + 60, { width: 130, align: 'center' });
@@ -270,8 +252,6 @@ async function drawCertificate(doc, data) {
   const pageHeight = doc.page.height;
   const margin = 50;
 
-  // --- BORDER ---
-  // Solid border
   doc.lineWidth(1).strokeColor(COLORS.primary)
      .rect(35, 35, pageWidth - 70, pageHeight - 70).stroke();
 
@@ -290,10 +270,8 @@ async function drawCertificate(doc, data) {
   doc.moveTo(inset + cornerLen, pageHeight - inset).lineTo(inset, pageHeight - inset).lineTo(inset, pageHeight - inset - cornerLen).stroke();
 
 
-  // --- HEADER ---
   let cursorY = 80;
 
-  // Institution
   doc.fillColor(COLORS.dark).font('Helvetica-Bold').fontSize(28)
      .text(institutionName.toUpperCase(), 0, cursorY, { align: 'center' });
   
@@ -301,8 +279,7 @@ async function drawCertificate(doc, data) {
   doc.fillColor(COLORS.primary).font('Helvetica').fontSize(10)
      .text('VERIFIED BLOCKCHAIN CREDENTIAL', 0, cursorY, { align: 'center', charSpacing: 2 });
 
-  // --- CONTENT ---
-  cursorY += 60; // Increased from 45
+  cursorY += 60;
   doc.fillColor(COLORS.secondary).font('Helvetica-Oblique').fontSize(14)
      .text('This verifies that', 0, cursorY, { align: 'center' });
 
@@ -329,7 +306,7 @@ async function drawCertificate(doc, data) {
          .text(certificationData.level, 0, cursorY, { align: 'center' });
   }
 
-  // --- FOOTER ---
+
   const footerY = pageHeight - 130; // Moved down from -150
 
   // Left Side: Date & Issuer Details
@@ -348,11 +325,8 @@ async function drawCertificate(doc, data) {
       doc.text(`Issuer Wallet: ${issuerWalletAddress}`, 100, detailY, { width: 220 });
   }
 
-  // Center: QR Code & Branding Group
   const qrSize = 50; 
   let qrY = footerY + 10;
-  
-  // Use IPFS URL if available, otherwise fallback to verification URL
   const qrTarget = ipfsUrl || verificationUrl;
   
   if(qrTarget){
@@ -365,7 +339,7 @@ async function drawCertificate(doc, data) {
   doc.fontSize(7).fillColor(COLORS.secondary)
      .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: pageWidth });
 
-  // Attestify branding - Moved to groupings
+
   const brandTextCert = 'attestify.';
   doc.fontSize(10).font('Helvetica-Bold');
   const brandWidthCert = doc.widthOfString(brandTextCert);
@@ -375,7 +349,7 @@ async function drawCertificate(doc, data) {
   doc.fillColor(COLORS.dark).text('attestify', brandXCert, brandYCert, { continued: true });
   doc.fillColor(COLORS.primary).text('.');
 
-  // Right Side: Signature
+
   const sigX = pageWidth - 200;
   doc.lineWidth(1).strokeColor(COLORS.secondary).moveTo(sigX, footerY + 40).lineTo(sigX + 120, footerY + 40).stroke();
   doc.fontSize(9).font('Helvetica-Bold').text('AUTHORIZED SIGNATURE', sigX, footerY + 50, { width: 120, align: 'center' });

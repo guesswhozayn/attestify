@@ -13,18 +13,15 @@ import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
 const Credentials = () => {
-    // Data States
     const [credentials, setCredentials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0, uniqueRecipients: 0, sbtCount: 0 });
 
-    // UI States
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [credentialToRevoke, setCredentialToRevoke] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showBulkModal, setShowBulkModal] = useState(false);
 
-    // Filter States
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -38,7 +35,6 @@ const Credentials = () => {
         const active = total - revoked;
         const sbtCount = docs.filter(d => !!d.tokenId).length;
         
-        // Count unique recipients by wallet address or name
         const uniqueRecipients = new Set(
             docs.map(d => d.studentWalletAddress || d.studentName)
         ).size;
@@ -91,10 +87,8 @@ const Credentials = () => {
         }
     };
 
-    // Filter Logic
     const filteredCredentials = useMemo(() => {
         return credentials.filter(cred => {
-            // Search Filter
             const lowerQuery = searchQuery.toLowerCase();
             const matchesSearch = 
                 cred.studentName?.toLowerCase().includes(lowerQuery) ||
@@ -103,11 +97,7 @@ const Credentials = () => {
                 cred.courseName?.toLowerCase().includes(lowerQuery);
 
             if (!matchesSearch) return false;
-
-            // Type Filter
             if (typeFilter !== 'all' && cred.type !== typeFilter) return false;
-
-            // Status Filter
             if (statusFilter === 'active' && cred.isRevoked) return false;
             if (statusFilter === 'revoked' && !cred.isRevoked) return false;
 

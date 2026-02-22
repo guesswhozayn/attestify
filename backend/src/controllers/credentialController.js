@@ -70,7 +70,6 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     const credentialId = credential._id.toString();
 
 
-    // Generate PDF using pdfService
     const uploadsDir = path.join(__dirname, '../../uploads');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
@@ -98,9 +97,6 @@ exports.issueCredential = asyncHandler(async (req, res) => {
         issuerWalletAddress,
         issuerRegistration
     }, tempFilePath);
-
-    // Calculate file hash
-
 
     const certificateHash = await hashService.generateSHA256(tempFilePath);
 
@@ -265,14 +261,12 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'No CSV file provided' });
   }
 
-  // Arrays to hold batch data
   const batchStudentIds = [];
   const batchHashes = [];
   const batchIpfsCIDs = [];
   const batchRecipients = [];
   const batchTokenURIs = [];
 
-  // Intermediate storage to link index to credential object before saving
   const pendingCredentials = [];
 
   const summary = {
@@ -282,7 +276,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
     message: ''
   };
 
-  // Pre-process loop (Generate PDFs, IPFS, Prepare Batch Data)
   console.log('Starting Batch Processing...');
 
   const processRow = async (row) => {
@@ -292,7 +285,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
         throw new Error('Missing required fields');
       }
 
-      // -- Creation Logic --
       const type = row.type || 'CERTIFICATION';
       const issueDate = row.issueDate ? new Date(row.issueDate) : new Date();
 
@@ -408,7 +400,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       return res.status(400).json({ success: false, message: 'No valid records to process.' });
   }
 
-  // Step 2: Batch Transaction(s)
   let blockchainResult = null;
   let sbtResult = null;
   
@@ -438,15 +429,11 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       return res.status(500).json({ success: false, error: 'Blockchain Transaction Failed', details: txError.message });
   }
 
-  // Step 3: Post-processing (Save to DB & Email)
   console.log('Batch Transactions Successful. Saving credentials...');
   
   const tokenIds = sbtResult ? sbtResult.tokenIds : [];
   
-  // Create a base cost per item for audit (total / count)
-  // Converting BigInt to number for division if needed, or simple string approximation
-  // Note: This is an approximation.
-  const totalCostWei = BigInt(blockchainResult.totalCost || 0) + BigInt(sbtResult?.totalCost || 0); // sbt result might not have cost yet depending on service impl
+  const totalCostWei = BigInt(blockchainResult.totalCost || 0) + BigInt(sbtResult?.totalCost || 0);
   const count = BigInt(pendingCredentials.length);
   const costPerItem = count > 0n ? (totalCostWei / count).toString() : "0";
 
@@ -457,17 +444,14 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       credential.certificateHash = item.certificateHash;
       credential.ipfsCID = item.ipfsHash;
       
-      // Batch Details
       credential.transactionHash = blockchainResult.transactionHash;
       credential.blockNumber = blockchainResult.blockNumber;
       
-      // Assign specific token ID if available (assuming sequential order is preserved)
       if (tokenIds && tokenIds[i]) {
           credential.tokenId = tokenIds[i];
       }
 
-      // Amortized Cost
-      credential.gasUsed = "0"; // tracked on global tx
+      credential.gasUsed = "0";
       credential.gasPrice = blockchainResult.gasPrice; 
       credential.totalCost = costPerItem; 
 
@@ -476,7 +460,6 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
       try {
           await credential.save();
           
-          // Send Email
           const studentUser = await User.findOne({ walletAddress: item.row.studentWalletAddress.toLowerCase() });
           if (studentUser && studentUser.email) {
                const emailData = {
@@ -593,7 +576,6 @@ exports.getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   const currentWallet = req.user.walletAddress?.toLowerCase();
   const targetWallet = walletAddress.toLowerCase();
 
-  // Security check: Only allow the owner or an admin/issuer to view these credentials
   if (req.user.role !== 'ISSUER' && currentWallet !== targetWallet) {
     return res.status(403).json({ error: 'Unauthorized access to credentials' });
   }
@@ -618,7 +600,6 @@ exports.revokeCredential = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Credential not found' });
   }
 
-  // Security Check: Only the original issuer can revoke
   if (credential.issuedBy.toString() !== req.user._id.toString()) {
     return res.status(403).json({ error: 'Unauthorized: Only the original issuer can revoke this credential.' });
   }

@@ -4,10 +4,8 @@ const blockchainService = require('../services/blockchainService');
 
 exports.getNetworkStats = asyncHandler(async (req, res) => {
   try {
-    // 1. Get Real-time Blockchain Data
     const networkStats = await blockchainService.getNetworkStats();
     
-    // 2. Aggregate Database Stats
     const [stats] = await Credential.aggregate([
       {
         $facet: {
@@ -66,7 +64,6 @@ exports.getNetworkStats = asyncHandler(async (req, res) => {
 
     const recent = statsResult.recent || [];
 
-    // calculate total cost in ETH
     const totalCostEth = parseFloat(counts.totalCostWei) / 1e18;
 
     res.json({

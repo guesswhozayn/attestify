@@ -6,6 +6,7 @@ import { publicAPI } from '../services/api';
 import Button from '../components/shared/Button';
 import BackButton from '../components/shared/BackButton';
 import PoweredBy from '../components/shared/PoweredBy';
+import { getAvatarSrc } from '../utils/avatarUtils';
 
 const PublicExplorer = () => {
     const [query, setQuery] = useState('');
@@ -193,12 +194,12 @@ const PublicExplorer = () => {
                                                     onClick={() => navigate(`/issuer/${inst._id}`)}
                                                     className="bg-white/3 border border-white/8 hover:border-indigo-500/50 hover:bg-white/6 rounded-3xl p-6 flex items-center gap-6 cursor-pointer transition-all group/res"
                                                 >
-                                                    <div className="w-16 h-16 rounded-2xl bg-black border border-white/10 flex items-center justify-center p-3">
-                                                        {inst.avatar ? (
-                                                            <img src={inst.avatar} alt={inst.name} className="w-full h-full object-contain" />
-                                                        ) : (
-                                                            <Building className="w-7 h-7 text-gray-500 group-hover/res:text-indigo-400" />
-                                                        )}
+                                                    <div className="w-16 h-16 rounded-2xl bg-black border border-white/10 flex items-center justify-center overflow-hidden">
+                                                        <img
+                                                            src={getAvatarSrc(inst.avatar, inst.name)}
+                                                            alt={inst.name}
+                                                            className="w-full h-full object-cover"
+                                                        />
                                                     </div>
                                                     <div className="flex-1">
                                                        <h4 className="text-xl font-bold text-white group-hover/res:text-indigo-300 transition-colors">{inst.name}</h4>

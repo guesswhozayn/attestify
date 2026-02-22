@@ -32,12 +32,8 @@ const VerificationSection = React.memo(({ certificate }) => {
     try {
       console.log('Verifying certificate with ID:', certificate._id);
       
-      // Compute hash client-side to match VerificationPortal workflow
       const fileHash = await generateFileHash(file);
-      console.log('Computed Hash:', fileHash);
       
-      // Verify by hash (more robust than file upload)
-      // We pass certificate._id as the identifier (studentWalletAddress param)
       const response = await verifyAPI.verifyByHash(certificate._id, fileHash);
       
       setResult(response.data);
@@ -45,7 +41,6 @@ const VerificationSection = React.memo(({ certificate }) => {
 
     } catch (error) {
        console.error(error);
-       // If error response has data, use it
        if (error.response?.data) {
            setResult(error.response.data);
        } else {
