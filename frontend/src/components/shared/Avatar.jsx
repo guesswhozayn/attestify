@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Camera, Loader2 } from 'lucide-react';
+import { getAvatarSrc } from '../../utils/avatarUtils';
 
 
 const Avatar = ({ 
@@ -35,23 +36,24 @@ const Avatar = ({
       {/* 4. Static Glass Container */}
       <div className="absolute inset-0 rounded-full bg-black/60 border border-white/10 overflow-hidden flex items-center justify-center">
         
-        {src ? (
-          <img 
-            src={src} 
-            alt={alt || "Avatar"} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/50 to-purple-900/50">
-            {initials ? (
-              <span className={`font-bold text-white tracking-widest ${size === 'sm' ? 'text-xs' : size === 'lg' || size === 'xl' ? 'text-3xl' : 'text-lg'}`}>
-                {initials.substring(0, 2).toUpperCase()}
-              </span>
-            ) : (
-              <User className="text-white/50 w-1/2 h-1/2" />
-            )}
-          </div>
-        )}
+        {/* Avatar Image */}
+        <img
+          src={getAvatarSrc(src, initials)}
+          alt={alt || initials || 'Avatar'}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.nextSibling.style.display = 'flex';
+          }}
+        />
+        {/* Last-resort fallback icon (hidden unless img errors) */}
+        <div
+          className="w-full h-full items-center justify-center bg-gradient-to-br from-indigo-900/50 to-purple-900/50"
+          style={{ display: 'none' }}
+        >
+          <User className="text-white/50 w-1/2 h-1/2" />
+        </div>
 
         {/* 5. Upload Overlay (if editable) */}
         {editable && (

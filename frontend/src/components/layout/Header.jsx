@@ -11,7 +11,6 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   const [walletAddress, setWalletAddress] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
   
-  // Detect Wallet
   useEffect(() => {
     const detectWallet = async () => {
         if (typeof window.ethereum !== 'undefined') {
@@ -28,7 +27,6 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
 
     detectWallet();
 
-    // Listen for account changes
     if (typeof window.ethereum !== 'undefined') {
         window.ethereum.on('accountsChanged', (accounts) => {
             if (accounts.length > 0) {
@@ -39,9 +37,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
         });
     }
 
-    return () => {
-        // Cleanup listener if possible (optional for this scope)
-    };
+    return () => {};
   }, []);
 
   const copyAddress = () => {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { publicAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { getAvatarSrc } from '../utils/avatarUtils';
 import {
     ShieldCheck,
     Building2,
@@ -167,7 +168,7 @@ const PublicProfile = ({ profileType }) => {
                             {/* Avatar */}
                             <div className="relative shrink-0 rounded-full">
                                 <Avatar
-                                    src={isIssuer ? issuer.avatar : student?.avatar}
+                                    src={getAvatarSrc(isIssuer ? issuer.avatar : student?.avatar, displayName)}
                                     initials={displayName}
                                     size="lg"
                                 />

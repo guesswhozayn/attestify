@@ -40,7 +40,6 @@ const validateIssuerEmail = (email, officialEmailDomain) => {
 
   const emailDomain = emailLower.substring(atIndex + 1); // e.g. "university.edu"
 
-  // Check against free provider list
   if (FREE_EMAIL_PROVIDERS.has(emailDomain)) {
     return {
       valid: false,
@@ -48,9 +47,7 @@ const validateIssuerEmail = (email, officialEmailDomain) => {
     };
   }
 
-  // Validate that the email domain matches officialEmailDomain
   if (officialEmailDomain) {
-    // Normalize declared domain: strip leading '@' or whitespace
     const declaredDomain = officialEmailDomain.toLowerCase().trim().replace(/^@/, '');
 
     if (emailDomain !== declaredDomain) {
@@ -85,7 +82,6 @@ exports.register = asyncHandler(async (req, res) => {
     walletAddress
   } = req.body;
 
-  // ── Issuer-specific email domain validation ──────────────────────────────
   if (role === 'ISSUER') {
     const emailCheck = validateIssuerEmail(email, officialEmailDomain);
     if (!emailCheck.valid) {

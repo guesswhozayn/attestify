@@ -2,11 +2,8 @@ import { motion } from 'framer-motion';
 import { Shield, Award, Calendar, ExternalLink, Cpu } from 'lucide-react';
 
 const CredentialBadge = ({ credential, onClick, index = 0 }) => {
-    // Determine icon based on credential type or issuer
-    // For now, using generic icons, but could mapping based on issuer name
     const isSBT = !!credential.tokenId;
-    
-    // Animation variants
+
     const item = {
         hidden: { opacity: 0, scale: 0.8, y: 20 },
         show: { 

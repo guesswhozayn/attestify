@@ -30,7 +30,6 @@ const StudentCredentials = () => {
             const response = await credentialAPI.getByWalletAddress(walletAddress);
             const docs = response.data.credentials || [];
             
-            // Calculate Stats
             const total = docs.length;
             const revokedCount = docs.filter(d => d.isRevoked).length;
             const active = total - revokedCount;
