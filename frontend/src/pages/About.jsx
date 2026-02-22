@@ -199,8 +199,6 @@ const About = () => {
         </motion.div>
 
       </main>
-
-      <Footer />
     </div>
   );
 };

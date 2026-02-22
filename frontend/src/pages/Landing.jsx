@@ -200,7 +200,7 @@ const Landing = () => {
                       </div>
                       
                       {/* Visual: Abstract Identity */}
-                      <div className="mt-8 relative h-64 w-full rounded-xl border border-white/10 bg-black/50 overflow-hidden group-hover:scale-[1.02] transition-transform duration-500 flex items-center justify-center">
+                      <div className="mt-8 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
                           {/* Holographic Card Effect */}
                           <div className="relative w-[320px] h-[200px] rounded-xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden shadow-2xl group/card">
                               
