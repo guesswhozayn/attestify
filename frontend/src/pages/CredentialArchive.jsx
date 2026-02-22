@@ -19,17 +19,14 @@ const CredentialArchive = () => {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ total: 0, active: 0, revoked: 0, uniqueRecipients: 0, sbtCount: 0 });
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
-
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [credentialToRevoke, setCredentialToRevoke] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showBulkModal, setShowBulkModal] = useState(false);
-
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
-
     const { showNotification } = useNotification();
     const isMounted = useRef(true);
     const debounceTimer = useRef(null);

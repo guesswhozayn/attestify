@@ -1,18 +1,3 @@
-/**
- * SectionHeader
- * Centered large heading + subtitle for marketing page sections.
- *
- * Props:
- *   prefix    {string}  Plain text before the gradient highlight. Optional.
- *   highlight {string}  The gradient-coloured word/phrase.
- *   suffix    {string}  Plain text after the highlight. Optional.
- *   subtitle  {string}  Smaller grey paragraph below heading.
- *   gradient  {string}  Tailwind gradient classes for the highlight span.
- *                       Defaults to indigo→emerald→indigo.
- *   mb        {string}  Bottom margin class on wrapper. Defaults to 'mb-20'.
- *   children  {React.ReactNode}  Rendered instead of the default h-tag when
- *                       full custom heading markup is needed.
- */
 const SectionHeader = ({
   prefix,
   highlight,

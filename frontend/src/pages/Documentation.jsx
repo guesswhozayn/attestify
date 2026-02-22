@@ -3,10 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/shared/Navbar';
 import { 
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
-  HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight,
-    Copy,
-    ExternalLink
-} from 'lucide-react';
+  HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight } from 'lucide-react';
 import Button from '../components/shared/Button';
 import PoweredBy from '../components/shared/PoweredBy';
 

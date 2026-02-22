@@ -1,11 +1,3 @@
-/**
- * GradientBackground
- * Renders the three ambient gradient orbs used on every page.
- *
- * Props:
- *   fixed  {boolean}  Use position:fixed (good for interactive mouse-tracking pages).
- *                     Defaults to false (absolute positioning).
- */
 const GradientBackground = ({ fixed = false }) => {
   const posClass = fixed ? 'fixed' : 'absolute';
 

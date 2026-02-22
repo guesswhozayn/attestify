@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } from 'lucide-react';
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, FileText } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import CredentialRow from '../credential/CredentialRow';
 
 const RecentActivityList = ({ credentials, onCredentialClick, loading }) => {

@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import Header from '../components/layout/Header';
 import Button from '../components/shared/Button';
-import RefreshButton from '../components/shared/RefreshButton';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import IssueCredentialModal from '../components/credential/IssueCredentialModal';
 import BulkIssueModal from '../components/credential/BulkIssueModal';
 import RecentActivityList from '../components/dashboard/RecentActivityList';
-import { Plus, Shield, Filter, ArrowRight, FileText, TrendingUp, Activity, Users, Award, CheckCircle, Clock, Calendar, Zap, Server, Wifi } from 'lucide-react';
+import { Plus, Shield, Filter, ArrowRight, FileText, Users, Award, CheckCircle, Clock, Calendar, Zap} from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -37,7 +35,6 @@ const IssuerDashboard = () => {
     const { showNotification } = useNotification();
     const { user } = useAuth();
     const navigate = useNavigate();
-
     const isMounted = React.useRef(true);
     const loadingRef = React.useRef(true);
     const refreshingRef = React.useRef(false);

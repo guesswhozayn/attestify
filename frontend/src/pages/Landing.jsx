@@ -1,6 +1,5 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Search, Globe, Zap, Building, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building} from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
@@ -91,7 +90,7 @@ const Landing = () => {
                       <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
                       <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
                    </div>
-                   <div className="mx-auto w-1/3 h-5 bg-white/5 rounded-md text-[10px] flex items-center justify-center text-gray-500 font-mono">attestify.io/dashboard</div>
+                   <div className="mx-auto w-1/3 h-5 bg-white/5 rounded-md text-[10px] flex items-center justify-center text-gray-500 font-mono">attestify.co/dashboard</div>
                 </div>
                 
                 {/* Mock Dashboard Content */}
@@ -166,7 +165,7 @@ const Landing = () => {
                 className="grid grid-cols-1 md:grid-cols-3 auto-rows-auto md:auto-rows-[300px] gap-6"
               >
                   
-                  {/* Card 1: Soulbound Identity (Span 2 cols, Span 2 rows) */}
+                  {/* Card 1: Soulbound Identity */}
                   <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -231,7 +230,7 @@ const Landing = () => {
                       </div>
                   </motion.div>
 
-                  {/* Card 2: Global Network (Span 1 col, Span 2 rows) */}
+                  {/* Card 2: Global Network */}
                   <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -254,7 +253,6 @@ const Landing = () => {
                       {/* Visual: Globe/Network */}
                       <div className="mt-8 relative flex-1 min-h-[200px] flex items-center justify-center">
                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent"></div>
-                          {/* Static nodes instead of ping */}
                           {/* Animated Node 1 */}
                           <div className="absolute top-1/4 left-1/4">
                               <span className="relative flex h-4 w-4">
@@ -282,7 +280,7 @@ const Landing = () => {
                       </div>
                   </motion.div>
 
-                  {/* Card 3: Instant Issuance (Span 1 col, Span 1 row) */}
+                  {/* Card 3: Instant Issuance */}
                    <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -300,7 +298,7 @@ const Landing = () => {
                       </p>
                    </motion.div>
 
-                  {/* Card 4: Cryptographic Truth (Span 2 cols, Span 1 row) */}
+                  {/* Card 4: Cryptographic Truth */}
                    <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -326,7 +324,7 @@ const Landing = () => {
           </div>
       </div>
 
-      {/* How It Works - Cyberpunk Process */}
+      {/* How It Works */}
       <div className="py-32 relative bg-black overflow-hidden">
         {/* Background circuit pattern */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay"></div>
@@ -437,20 +435,20 @@ const Landing = () => {
             transition={{ duration: 0.8 }}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
           >
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:divide-x md:divide-white/5 [&>div:not(:nth-child(2n))]:border-r [&>div:nth-child(2n)]:border-r-0 md:[&>div]:border-r-0 border-white/5">
-                  <div className="p-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 text-center">
+                  <div className="p-8 border-r border-white/5">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">100k+</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Credentials Issued</div>
                   </div>
-                  <div className="p-4">
+                  <div className="p-8 md:border-r border-white/5">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">50+</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Partner Institutions</div>
                   </div>
-                  <div className="p-4 border-t md:border-t-0 border-white/5">
+                  <div className="p-8 border-t border-r border-white/5 md:border-t-0">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">0s</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Verification Time</div>
                   </div>
-                  <div className="p-4 border-t md:border-t-0 border-white/5">
+                  <div className="p-8 border-t border-white/5 md:border-t-0">
                       <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">$0</div>
                       <div className="text-gray-500 font-medium uppercase tracking-widest text-xs">Cost to Verify</div>
                   </div>

@@ -6,12 +6,11 @@ const Notification = ({ message, type = 'success', onClose, duration = 5000 }) =
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Small delay to trigger entry animation
     setTimeout(() => setIsVisible(true), 10);
 
     const timer = setTimeout(() => {
-      setIsVisible(false); // Trigger exit animation
-      setTimeout(onClose, 300); // Wait for animation to finish before unmounting
+      setIsVisible(false);
+      setTimeout(onClose, 300);
     }, duration);
 
     return () => clearTimeout(timer);
@@ -75,7 +74,7 @@ const Notification = ({ message, type = 'success', onClose, duration = 5000 }) =
         <X className="w-4 h-4" />
       </Button>
 
-      {/* Progress Bar (Optional, for visual duration indication) */}
+      {/* Progress Bar (for visual duration indication) */}
       <div className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30 w-full animate-shrink origin-left" style={{ animationDuration: `${duration}ms` }}></div>
     </div>
   );
