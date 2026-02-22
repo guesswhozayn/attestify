@@ -120,28 +120,22 @@ const Login = () => {
             {/* Role Toggle Switch */}
             <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
               <div 
-                 className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${selectedRole === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
+                 className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner rounded-full transition-all duration-300 ease-out ${selectedRole === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
               ></div>
-              <Button
-                 variant="ghost"
-                 rounded="full"
-                 size="sm"
-                 className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${selectedRole === 'ISSUER' ? 'text-white' : 'text-gray-400'}`}
+              <button
+                 className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'ISSUER' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
                  onClick={() => setSelectedRole('ISSUER')}
                  type="button"
               >
                  Issuer
-              </Button>
-              <Button
-                 variant="ghost"
-                 rounded="full"
-                 size="sm"
-                 className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${selectedRole === 'STUDENT' ? 'text-white' : 'text-gray-400'}`}
+              </button>
+              <button
+                 className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'STUDENT' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
                  onClick={() => setSelectedRole('STUDENT')}
                  type="button"
               >
                  Student
-              </Button>
+              </button>
             </div>
 
             {error && (

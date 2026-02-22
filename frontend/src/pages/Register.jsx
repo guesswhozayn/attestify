@@ -13,6 +13,26 @@ import blockchainService from '../services/blockchain';
 
 
 
+// Free provider blocklist (mirrors backend list for instant client-side feedback)
+const FREE_EMAIL_PROVIDERS = new Set([
+  'gmail.com', 'googlemail.com',
+  'yahoo.com', 'yahoo.co.uk', 'yahoo.co.in', 'ymail.com',
+  'hotmail.com', 'hotmail.co.uk',
+  'outlook.com', 'outlook.in',
+  'live.com', 'live.co.uk',
+  'msn.com',
+  'icloud.com', 'me.com', 'mac.com',
+  'aol.com',
+  'protonmail.com', 'protonmail.ch', 'pm.me',
+  'zoho.com',
+  'mail.com', 'email.com',
+  'inbox.com',
+  'gmx.com', 'gmx.net', 'gmx.de',
+  'tutanota.com', 'tuta.io',
+  'fastmail.com',
+  'yandex.com', 'yandex.ru',
+]);
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -62,6 +82,28 @@ const Register = () => {
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters');
       return;
+    }
+
+    // Client-side issuer email validation (mirrors backend rules)
+    if (formData.role === 'ISSUER') {
+      const emailDomain = formData.email.toLowerCase().split('@')[1] || '';
+
+      if (FREE_EMAIL_PROVIDERS.has(emailDomain)) {
+        setError(
+          `Issuers must register with an organizational email address. Free providers (Gmail, Yahoo, Outlook, etc.) are not accepted.`
+        );
+        return;
+      }
+
+      if (formData.officialEmailDomain) {
+        const declaredDomain = formData.officialEmailDomain.toLowerCase().trim().replace(/^@/, '');
+        if (emailDomain !== declaredDomain) {
+          setError(
+            `Your email domain (@${emailDomain}) doesn't match your declared Official Email Domain (@${declaredDomain}).`
+          );
+          return;
+        }
+      }
     }
 
     setLoading(true);
@@ -156,28 +198,22 @@ const Register = () => {
            {/* Role Toggle */}
            <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
              <div 
-               className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-indigo-600 rounded-full shadow-lg transition-all duration-300 ease-out ${formData.role === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
+               className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner rounded-full transition-all duration-300 ease-out ${formData.role === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
              ></div>
-             <Button
-               variant="ghost"
-               rounded="full"
-               size="sm"
-               className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${formData.role === 'ISSUER' ? 'text-white' : 'text-gray-400'}`}
+             <button
+               className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${formData.role === 'ISSUER' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
                onClick={() => setFormData({ ...formData, role: 'ISSUER' })}
                type="button"
              >
                Issuer
-             </Button>
-             <Button
-               variant="ghost"
-               rounded="full"
-               size="sm"
-               className={`flex-1 relative z-10 py-2.5 normal-case tracking-normal !shadow-none ${formData.role === 'STUDENT' ? 'text-white' : 'text-gray-400'}`}
+             </button>
+             <button
+               className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${formData.role === 'STUDENT' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
                onClick={() => setFormData({ ...formData, role: 'STUDENT' })}
                type="button"
              >
                Student
-             </Button>
+             </button>
            </div>
 
           {error && (
@@ -204,16 +240,24 @@ const Register = () => {
                   </div>
                )}
                
-               <Input
-                 label="Email Address"
-                 type="email"
-                 name="email"
-                 value={formData.email}
-                 onChange={handleChange}
-                 placeholder={formData.role === 'ISSUER' ? "issuer@university.edu" : "student@university.edu"}
-                 icon={Mail}
-                 required
-               />
+               <div className={formData.role === 'ISSUER' ? 'md:col-span-1' : ''}>
+                 <Input
+                   label="Email Address"
+                   type="email"
+                   name="email"
+                   value={formData.email}
+                   onChange={handleChange}
+                   placeholder={formData.role === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
+                   icon={Mail}
+                   required
+                 />
+                 {formData.role === 'ISSUER' && (
+                   <p className="mt-1.5 text-xs text-amber-400/80 flex items-center gap-1.5 px-1">
+                     <span className="inline-block w-1 h-1 rounded-full bg-amber-400/80 shrink-0" />
+                     Must use your institution&apos;s official email. Free providers (Gmail, Outlook, etc.) are not accepted.
+                   </p>
+                 )}
+               </div>
 
                {formData.role === 'ISSUER' ? (
                  <>
@@ -285,8 +329,8 @@ const Register = () => {
                       required
                     />
                     <div className="md:col-span-2">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
-                        <div className="flex-1 w-full sm:w-auto">
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1">
                           <Input
                             label="Wallet Address"
                             name="walletAddress"
@@ -303,7 +347,7 @@ const Register = () => {
                            size="md"
                            onClick={() => handleConnectWallet('walletAddress')}
                            icon={Wallet}
-                           className="mb-[1px] h-[52px] whitespace-nowrap w-full sm:w-auto mt-2 sm:mt-0"
+                           className="mb-[1px] h-[52px] whitespace-nowrap"
                         >
                            Connect
                         </Button>

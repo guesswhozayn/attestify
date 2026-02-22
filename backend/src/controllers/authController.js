@@ -8,6 +8,62 @@ const asyncHandler = require('../middleware/asyncHandler');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// Free/personal email provider blocklist — issuers must use an org email
+const FREE_EMAIL_PROVIDERS = new Set([
+  'gmail.com', 'googlemail.com',
+  'yahoo.com', 'yahoo.co.uk', 'yahoo.co.in', 'ymail.com',
+  'hotmail.com', 'hotmail.co.uk',
+  'outlook.com', 'outlook.in',
+  'live.com', 'live.co.uk',
+  'msn.com',
+  'icloud.com', 'me.com', 'mac.com',
+  'aol.com',
+  'protonmail.com', 'protonmail.ch', 'pm.me',
+  'zoho.com',
+  'mail.com', 'email.com',
+  'inbox.com',
+  'gmx.com', 'gmx.net', 'gmx.de',
+  'tutanota.com', 'tuta.io',
+  'fastmail.com',
+  'yandex.com', 'yandex.ru',
+]);
+
+/**
+ * Validate issuer email against domain rules:
+ * 1. Must not be from a free/personal provider
+ * 2. Must match the declared officialEmailDomain
+ */
+const validateIssuerEmail = (email, officialEmailDomain) => {
+  const emailLower = email.toLowerCase().trim();
+  const atIndex = emailLower.lastIndexOf('@');
+  if (atIndex === -1) return { valid: false, error: 'Invalid email format.' };
+
+  const emailDomain = emailLower.substring(atIndex + 1); // e.g. "university.edu"
+
+  // Check against free provider list
+  if (FREE_EMAIL_PROVIDERS.has(emailDomain)) {
+    return {
+      valid: false,
+      error: `Issuers must register with an organizational email address. Free email providers (e.g. Gmail, Yahoo, Outlook) are not accepted. Please use your institution's official email.`
+    };
+  }
+
+  // Validate that the email domain matches officialEmailDomain
+  if (officialEmailDomain) {
+    // Normalize declared domain: strip leading '@' or whitespace
+    const declaredDomain = officialEmailDomain.toLowerCase().trim().replace(/^@/, '');
+
+    if (emailDomain !== declaredDomain) {
+      return {
+        valid: false,
+        error: `Your email domain (@${emailDomain}) does not match the declared Official Email Domain (@${declaredDomain}). Please use an email from your institution's domain.`
+      };
+    }
+  }
+
+  return { valid: true };
+};
+
 const generateToken = (userId, role, tokenVersion = 0) => {
   return jwt.sign(
     { userId, role, tokenVersion },
@@ -28,6 +84,14 @@ exports.register = asyncHandler(async (req, res) => {
     officialEmailDomain,
     walletAddress
   } = req.body;
+
+  // ── Issuer-specific email domain validation ──────────────────────────────
+  if (role === 'ISSUER') {
+    const emailCheck = validateIssuerEmail(email, officialEmailDomain);
+    if (!emailCheck.valid) {
+      return res.status(400).json({ error: emailCheck.error });
+    }
+  }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {

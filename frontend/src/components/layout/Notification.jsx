@@ -46,9 +46,9 @@ const Notification = ({ message, type = 'success', onClose, duration = 5000 }) =
         fixed top-4 right-4 z-50 
         flex items-start space-x-3 
         p-4 rounded-xl border backdrop-blur-md shadow-2xl 
-        max-w-md w-full md:w-auto transition-all duration-300 ease-in-out transform
+        w-[calc(100vw-2rem)] sm:w-auto sm:max-w-md transition-all duration-300 ease-in-out transform
         ${styles[type]}
-        ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
+        ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0'}
       `}
       role="alert"
     >
