@@ -115,8 +115,8 @@ const Settings = () => {
                   onClick={handlePasswordChange}
                   loading={loading}
                   size="lg"
-                  variant="primary"
-                  className="w-full md:w-auto shadow-lg shadow-indigo-500/20 px-8 py-3 rounded-full"
+                  variant="white"
+                  className="w-full md:w-auto px-8 py-3 rounded-full"
                 >
                   Update Password
                 </Button>

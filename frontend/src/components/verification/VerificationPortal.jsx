@@ -9,6 +9,7 @@ import { extractMetadata } from '../../utils/pdf';
 import Modal from '../shared/Modal';
 import { useLocation } from 'react-router-dom';
 import VerificationResult from './VerificationResult';
+import PoweredBy from '../shared/PoweredBy';
 
 const VerificationPortal = () => {
   const [file, setFile] = useState(null);
@@ -99,168 +100,176 @@ const VerificationPortal = () => {
   return (
     <div className="flex flex-col items-center justify-center p-6 w-full max-w-7xl mx-auto min-h-screen">
       
-      {/* HUD Scanner Wrapper */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full">
-        
-        {/* Left: Terminal Console */}
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="lg:col-span-5 flex flex-col space-y-6"
-        >
-          <div className="flex items-center gap-4 mb-4">
-             <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-                <Shield className="w-6 h-6 text-indigo-400" />
-             </div>
-             <div>
-                <h2 className="text-2xl font-black tracking-tighter text-white">SCANNER MODULE</h2>
-                <div className="flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                   <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">System Ready</span>
-                </div>
-             </div>
-          </div>
 
-          <div className="flex-1 bg-black/40 border border-white/10 rounded-3xl p-6 font-mono overflow-hidden flex flex-col min-h-[400px] backdrop-blur-xl relative">
-             <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
-                <Search className="w-24 h-24" />
+      {/* Unified Scanner Container */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full max-w-3xl relative"
+      >
+        {/* Animated Laser Line */}
+        {verifying && (
+            <motion.div 
+              initial={{ top: '0%' }}
+              animate={{ top: '100%' }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,1)] z-20 pointer-events-none rounded-full"
+            />
+        )}
+
+        <div className="relative bg-[#050505] border border-white/10 rounded-[3rem] p-6 sm:p-10 shadow-3xl overflow-hidden flex flex-col gap-8">
+           {/* Background Technical Grid */}
+           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none opacity-50"></div>
+           
+           {/* Header Area */}
+           <div className="relative z-10 flex items-center justify-between border-b border-white/5 pb-6">
+              <div className="flex items-center gap-4">
+                 <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                    <Shield className="w-6 h-6 text-indigo-400" />
+                 </div>
+                 <div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tighter text-white">SCANNER MODULE</h2>
+                    <div className="flex items-center gap-2">
+                       <div className={`w-2 h-2 rounded-full ${verifying ? 'bg-indigo-500' : 'bg-emerald-500'} animate-pulse`}></div>
+                       <span className={`text-[10px] font-black uppercase tracking-widest ${verifying ? 'text-indigo-500' : 'text-emerald-500'}`}>
+                          {verifying ? 'Processing...' : 'System Ready'}
+                       </span>
+                    </div>
+                 </div>
+              </div>
+              {/* Optional right-side graphic or node indicator could go here */}
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Target Node</span>
+                <span className="text-[10px] font-mono text-indigo-400">SEPOLIA</span>
+              </div>
+           </div>
+
+           {/* Input Section */}
+           <div className="relative z-10 space-y-8">
+              {/* Upload Zone */}
+              <div 
+                className={`relative border-2 border-dashed rounded-[2rem] p-8 sm:p-12 text-center transition-all duration-500 cursor-pointer group/zone ${
+                   file 
+                   ? 'border-emerald-500/40 bg-emerald-500/5' 
+                   : 'border-white/5 bg-white/[0.01] hover:border-indigo-500/40 hover:bg-indigo-500/5'
+                }`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  ref={fileInputRef}
+                />
+                
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 transition-all duration-500 shadow-2xl ${
+                   file ? 'bg-emerald-500 text-white' : 'bg-black border border-white/10 text-gray-500 group-hover/zone:border-indigo-500/50 group-hover/zone:text-indigo-400'
+                }`}>
+                  <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
+                </div>
+                
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate px-4">
+                  {file ? file.name : "UPLOAD CREDENTIAL"}
+                </h3>
+                <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-gray-500">
+                  {file ? "Scan Sequence Ready" : "Target format: application/pdf"}
+                </p>
+              </div>
+
+              {/* ID Input */}
+              <div className="space-y-3">
+                 <div className="flex items-center justify-between px-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Registry ID</label>
+                    {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID CAPTURED</span>)}
+                 </div>
+                 <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                       <Search className="h-5 w-5 text-gray-600 group-focus-within/input:text-indigo-400 transition-colors" />
+                    </div>
+                    <input
+                       type="text"
+                       placeholder="0x..."
+                       value={walletAddress}
+                       onChange={(e) => setWalletAddress(e.target.value)}
+                       className="block w-full pl-14 pr-6 py-5 bg-black/50 border border-white/5 focus:border-indigo-500/30 rounded-2xl text-white placeholder-gray-800 transition-all font-mono text-sm sm:text-base outline-none shadow-inner"
+                    />
+                 </div>
+              </div>
+
+              {/* Action Button */}
+              <Button
+                onClick={handleVerify}
+                loading={verifying}
+                disabled={verifying || (!file && !walletAddress)}
+                variant="white"
+                size="xl"
+                className="w-full hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                {verifying ? 'Running Cryptographic Verification...' : 'Scan'}
+              </Button>
+           </div>
+
+           {/* Integrated Terminal Log */}
+           <div className="relative z-10 bg-black/80 border border-white/5 rounded-2xl p-5 font-mono overflow-hidden flex flex-col h-48 sm:h-56 mt-4 shadow-inner">
+             {/* Subtle Terminal Watermark */}
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
+                <Search className="w-32 h-32" />
              </div>
              
-             <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Live Process Log</span>
-                <span className="text-[10px] text-indigo-400/60 uppercase">Node: SEPOLIA</span>
+             <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
+                <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Process Log</span>
+                <div className="flex gap-1.5">
+                   <div className="w-2 h-2 rounded-full bg-red-500/40 border border-red-500/20"></div>
+                   <div className="w-2 h-2 rounded-full bg-yellow-500/40 border border-yellow-500/20"></div>
+                   <div className="w-2 h-2 rounded-full bg-emerald-500/40 border border-emerald-500/20"></div>
+                </div>
              </div>
 
-             <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
+             <div className="flex-1 overflow-y-auto space-y-2.5 custom-scrollbar pr-2 pb-2">
                 {feed.length === 0 ? (
-                   <div className="h-full flex flex-col items-center justify-center opacity-20 italic space-y-4">
-                      <div className="w-px h-12 bg-gradient-to-b from-white to-transparent"></div>
-                      <p className="text-xs">Waiting for input stream...</p>
+                   <div className="h-full flex flex-col items-center justify-center opacity-30 italic">
+                      <p className="text-[11px] text-gray-400">Awaiting user input stream...</p>
                    </div>
                 ) : (
                    feed.map((item, idx) => (
                       <motion.div 
                         key={idx}
-                        initial={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, x: -5 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-xs flex gap-3"
+                        className="text-[11px] leading-relaxed flex gap-3"
                       >
-                         <span className="text-indigo-500/50 shrink-0">[{item.time}]</span>
-                         <span className={`break-all ${
-                            item.type === 'error' ? 'text-red-400' :
-                            item.type === 'success' ? 'text-emerald-400' :
+                         <span className="text-indigo-500/50 shrink-0 select-none">[{item.time}]</span>
+                         <span className={`break-words ${
+                            item.type === 'error' ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]' :
+                            item.type === 'success' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.2)]' :
                             item.type === 'warning' ? 'text-yellow-400' : 'text-gray-300'
                          }`}>
-                            {item.type === 'error' ? '× ' : item.type === 'success' ? '✓ ' : '• '}
+                            <span className="select-none inline-block w-4">
+                                {item.type === 'error' ? '×' : item.type === 'success' ? '✓' : '›'}
+                            </span>
                             {item.message}
                          </span>
                       </motion.div>
                    ))
                 )}
                 {verifying && (
-                   <div className="flex items-center gap-2 text-xs text-indigo-400 animate-pulse">
-                      <span>•</span>
-                      <span>Processing input...</span>
+                   <div className="flex items-center gap-2 text-[11px] text-indigo-400 animate-pulse mt-2">
+                      <span className="select-none inline-block w-4">›</span>
+                      <span>Processing buffer...</span>
                    </div>
                 )}
              </div>
-          </div>
-        </motion.div>
+           </div>
+           
+           {/* Branding Footer */}
+           <div className="pt-2">
+              <PoweredBy className="opacity-60" />
+           </div>
 
-        {/* Right: Security Portal Input */}
-        <motion.div 
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:col-span-7"
-        >
-          <div className="relative group/scanner">
-            {/* Animated Laser Line */}
-            {verifying && (
-               <motion.div 
-                  initial={{ top: '0%' }}
-                  animate={{ top: '100%' }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,1)] z-20 pointer-events-none"
-               />
-            )}
-
-            <div className="relative bg-[#050505] border border-white/10 rounded-[3rem] p-10 shadow-3xl overflow-hidden">
-               {/* Background Technical Grid */}
-               <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none opacity-50"></div>
-               
-               <div className="relative z-10 space-y-12">
-                  {/* Upload Scanner Zone */}
-                  <div 
-                    className={`relative border-2 border-dashed rounded-[2rem] p-12 text-center transition-all duration-500 cursor-pointer group/zone ${
-                       file 
-                       ? 'border-emerald-500/40 bg-emerald-500/5' 
-                       : 'border-white/5 bg-white/[0.01] hover:border-indigo-500/40 hover:bg-indigo-500/5'
-                    }`}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      ref={fileInputRef}
-                    />
-                    
-                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 transition-all duration-500 shadow-2xl ${
-                       file ? 'bg-emerald-500 text-white' : 'bg-black border border-white/10 text-gray-500 group-hover/zone:border-indigo-500/50 group-hover/zone:text-indigo-400'
-                    }`}>
-                      <Upload className="w-10 h-10" />
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {file ? file.name : "UPLOAD CREDENTIAL"}
-                    </h3>
-                    <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
-                      {file ? "Scan Sequence Ready" : "Target: application/pdf"}
-                    </p>
-                  </div>
-
-                  {/* ID Input Zone */}
-                  <div className="space-y-4">
-                     <div className="flex items-center justify-between px-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Registry ID</label>
-                        {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID CAPTURED</span>)}
-                     </div>
-                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                           <Search className="h-5 w-5 text-gray-700" />
-                        </div>
-                        <input
-                           type="text"
-                           placeholder="0x..."
-                           value={walletAddress}
-                           onChange={(e) => setWalletAddress(e.target.value)}
-                           className="block w-full pl-14 pr-6 py-6 bg-black border border-white/5 rounded-2xl text-white placeholder-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all font-mono text-base"
-                        />
-                     </div>
-                  </div>
-
-                  {/* Main Action Trigger */}
-                  <Button
-                    onClick={handleVerify}
-                    loading={verifying}
-                    disabled={verifying || (!file && !walletAddress)}
-                    variant="premium"
-                    size="xl"
-                    className="w-full shadow-indigo-500/20 hover:shadow-indigo-500/40"
-                  >
-                    {verifying ? 'Verifying...' : 'Scan'}
-                  </Button>
-               </div>
-            </div>
-          </div>
-        </motion.div>
-
-      </div>
-
-      {/* Result Modal */}
+        </div>
+      </motion.div>
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}

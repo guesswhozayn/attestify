@@ -145,7 +145,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 onClick={handleBatchUpload}
                 loading={loading}
                 disabled={!batchFile || loading}
-                variant="primary"
+                variant="white"
                 size="lg"
                 className="w-full justify-center"
               >

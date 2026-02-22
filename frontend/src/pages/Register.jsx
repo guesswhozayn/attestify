@@ -353,7 +353,7 @@ const Register = () => {
             <div className="pt-2">
                <Button
                  type="submit"
-                 variant="premium"
+                 variant="white"
                  size="lg"
                  loading={loading}
                  disabled={loading}

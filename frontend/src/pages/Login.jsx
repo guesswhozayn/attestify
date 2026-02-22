@@ -194,7 +194,7 @@ const Login = () => {
                    type="submit"
                    loading={loading}
                    disabled={loading}
-                   variant="premium"
+                   variant="white"
                    size="lg"
                    className="w-full"
                  >

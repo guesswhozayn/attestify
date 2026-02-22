@@ -319,7 +319,7 @@ const IssuerDashboard = () => {
                             <div className="space-y-4">
                                 <Button 
                                     onClick={() => setShowUploadModal(true)}
-                                    variant="primary"
+                                    variant="white"
                                     icon={Plus}
                                     className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
                                 >

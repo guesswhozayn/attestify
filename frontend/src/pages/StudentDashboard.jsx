@@ -328,7 +328,7 @@ const StudentDashboard = () => {
                      <Button 
                         onClick={handleShare}
                         icon={Share2}
-                        variant="primary"
+                        variant="white"
                         className="w-full justify-center py-4 transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl"
                      >
                         Copy Verification Link

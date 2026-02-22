@@ -7,7 +7,7 @@ const Button = ({
   href,
   target,
   rel,
-  variant = 'primary', 
+  variant = 'white', 
   size = 'md',
   loading = false,
   disabled = false,
@@ -28,10 +28,8 @@ const Button = ({
   };
   
   const variants = {
-    primary: 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white border border-indigo-400/20 hover:from-indigo-500 hover:to-indigo-600 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 backdrop-blur-sm disabled:opacity-50',
     secondary: 'bg-white/5 text-white hover:bg-white/10 border border-white/10 backdrop-blur-md shadow-inner disabled:opacity-50',
     white: 'bg-white text-black hover:bg-gray-100 border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] disabled:opacity-50',
-    premium: 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 border border-indigo-400/20 shadow-[0_0_30px_rgba(99,102,241,0.3)] shadow-inner hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] disabled:opacity-50',
     success: 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border border-emerald-400/20 hover:from-emerald-500 hover:to-teal-600 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 backdrop-blur-sm disabled:opacity-50',
     danger: 'bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 disabled:opacity-20',
     outline: 'bg-white/5 text-white border border-white/10 backdrop-blur-md hover:bg-white/10 disabled:opacity-20',
@@ -85,7 +83,7 @@ const Button = ({
       )}
       
       {/* Premium Shimmer Effect */}
-      {(variant === 'primary' || variant === 'premium' || variant === 'success') && !disabled && !loading && (
+      {variant === 'success' && !disabled && !loading && (
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
       )}
     </button>
