@@ -12,7 +12,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const menuItems = [
     { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['ISSUER', 'STUDENT'] },
     { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['ISSUER'] },
-    { icon: FileText, path: '/student/credentials', label: 'Credentials', roles: ['STUDENT'] },
+    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['STUDENT'] },
     { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] },
     { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
     { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] },
