@@ -6,6 +6,9 @@ import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import BrandLogo from '../components/shared/BrandLogo';
+import GradientBackground from '../components/shared/GradientBackground';
+import StatusBadge from '../components/shared/StatusBadge';
+import SectionHeader from '../components/shared/SectionHeader';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -17,30 +20,20 @@ const Landing = () => {
 
       {/* Hero Section */}
       <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-40 overflow-hidden">
-        {/* Dynamic Background Elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
-            {/* Main Gradient Orbs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-            <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-            <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-            
-            {/* Grid Pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-        </div>
+        <GradientBackground />
+
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           {/* Status Badge */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md mb-8 cursor-default hover:bg-indigo-500/20 transition-colors"
+            className="mb-8"
           >
-             <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-             </span>
-             <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Live on Sepolia Testnet</span>
+            <StatusBadge label="Live on Sepolia Testnet" className="hover:bg-indigo-500/20 transition-colors cursor-default" />
           </motion.div>
           
           {/* Main Heading */}
@@ -159,14 +152,11 @@ const Landing = () => {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="text-center mb-20">
-                  <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
-                      The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-emerald-300 to-indigo-400">Universal Standard</span>
-                  </h2>
-                  <p className="text-gray-400 max-w-2xl mx-auto text-xl">
-                      Attestify isn&apos;t just a platform. It&apos;s a new primitive for digital trust.
-                  </p>
-              </div>
+              <SectionHeader
+                prefix="The"
+                highlight="Universal Standard"
+                subtitle="Attestify isn't just a platform. It's a new primitive for digital trust."
+              />
 
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -343,12 +333,14 @@ const Landing = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-24">
-             <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight flex items-center justify-center gap-2 flex-wrap">
-                Why <BrandLogo textSize="text-5xl sm:text-6xl md:text-8xl" />
-             </h2>
-             <p className="text-gray-400">The three pillars of the new standard.</p>
-          </div>
+          <SectionHeader
+            subtitle="The three pillars of the new standard."
+            mb="mb-24"
+          >
+            <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight flex items-center justify-center gap-2 flex-wrap">
+              Why <BrandLogo textSize="text-5xl sm:text-6xl md:text-8xl" />
+            </h2>
+          </SectionHeader>
           
           <motion.div 
             initial={{ opacity: 0 }}

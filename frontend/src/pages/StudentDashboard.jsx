@@ -5,12 +5,14 @@ import blockchainService from '../services/blockchain';
 import IPFSService from '../services/ipfs';
 import {Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
-import RefreshButton from '../components/shared/RefreshButton';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
 import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
 import StudentStats from '../components/credential/StudentStats';
 import Avatar from '../components/shared/Avatar';
+import GradientBackground from '../components/shared/GradientBackground';
+import WelcomeHeroCard from '../components/shared/WelcomeHeroCard';
+import EmptyState from '../components/shared/EmptyState';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -140,16 +142,6 @@ const StudentDashboard = () => {
     }
   }, [fetchCredential]);
 
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
-
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
   if (loading) {
     return (
       <div className="min-h-screen bg-transparent">
@@ -160,93 +152,36 @@ const StudentDashboard = () => {
     );
   }
 
-    return (
+  return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-            {/* Dynamic Background Elements */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-                {/* Main Gradient Orbs */}
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-            </div>
+            {/* Dynamic Background */}
+            <GradientBackground />
 
             <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
         
         {/* Welcome Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          onMouseMove={handleMouseMove}
-          className="relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/[0.08] p-8 md:p-12 backdrop-blur-3xl group"
-        >
-          {/* Spotlight Effect */}
-          <div 
-            className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-            style={{
-              background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99, 102, 241, 0.06), transparent 80%)`
-            }}
-          />
-
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700"></div>
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay pointer-events-none"></div>
-          
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">
-            <div className="space-y-4 md:space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
-                <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md cursor-default"
-                >
-                     <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                     </span>
-                     <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Student Vault</span>
-                </motion.div>
-                
-                <motion.h1 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                    className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none flex flex-col items-center md:flex-row md:items-center gap-4 md:gap-6"
-                >
-                    <div className="shrink-0 rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl">
-                        <Avatar 
-                            src={user?.avatar} 
-                            initials={user?.name} 
-                            size="md" 
-                            className="ring-0"
-                        />
-                    </div>
-                    <span className="drop-shadow-2xl">Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">{user?.name?.split(' ')[0] || 'Student'}</span></span>
-                </motion.h1>
-                
-                <motion.p 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    className="text-gray-400 max-w-xl text-lg leading-relaxed"
-                >
-                    Your decentralized academic record is ready. Manage your on-chain credentials and share them with the world securely.
-                </motion.p>
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex justify-center md:justify-end"
-            >
-                <RefreshButton 
-                  onClick={() => fetchCredential(walletAddress, true)}
-                  loading={refreshing}
-                  title="Refresh Dashboard"
-                />
-            </motion.div>
-          </div>
-        </motion.div>
+        <WelcomeHeroCard
+          badge="Student Vault"
+          title={
+            <>
+              Welcome,{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">
+                {user?.name?.split(' ')[0] || 'Student'}
+              </span>
+            </>
+          }
+          subtitle="Your decentralized academic record is ready. Manage your on-chain credentials and share them with the world securely."
+          avatar={
+            <Avatar
+              src={user?.avatar}
+              initials={user?.name}
+              size="md"
+              className="ring-0"
+            />
+          }
+          onRefresh={() => fetchCredential(walletAddress, true)}
+          refreshing={refreshing}
+        />
 
         {/* Stats Section */}
         {walletAddress && <StudentStats stats={stats} />}
@@ -275,16 +210,16 @@ const StudentDashboard = () => {
 
         {/* Content Area */}
         {!walletAddress ? (
-           <EmptyState 
+           <EmptyState
              icon={Wallet}
-             title="Wallet Not Connected" 
-             message="Connect your Ethereum wallet to access your academic credential vault." 
+             title="Wallet Not Connected"
+             message="Connect your Ethereum wallet to access your academic credential vault."
            />
         ) : !credential ? (
-           <EmptyState 
-             icon={FileText} 
-             title="No Credentials Found" 
-             message="You haven't received any credentials yet. Once issued by an issuer, they will appear here instantly." 
+           <EmptyState
+             icon={FileText}
+             title="No Credentials Found"
+             message="You haven't received any credentials yet. Once issued by an issuer, they will appear here instantly."
            />
         ) : (
           <motion.div 
@@ -436,7 +371,7 @@ const StudentDashboard = () => {
                         </div>
                      </div>
                   </div>
-               </motion.div>
+                </motion.div>
 
             </div>
           </motion.div>
@@ -445,23 +380,5 @@ const StudentDashboard = () => {
     </div>
   );
 };
-
-const EmptyState = ({ icon: Icon, title, message }) => (
-   <motion.div 
-     initial={{ opacity: 0, y: 20 }}
-     animate={{ opacity: 1, y: 0 }}
-     transition={{ duration: 0.5, ease: "easeOut" }}
-     className="flex flex-col items-center justify-center py-24 px-8 bg-[#0a0a0a] border border-white/[0.06] border-dashed rounded-[2.5rem] text-center backdrop-blur-3xl group relative overflow-hidden"
-   >
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.02] to-transparent pointer-events-none"></div>
-      <div className="w-24 h-24 bg-white/[0.03] rounded-3xl flex items-center justify-center mb-8 shadow-2xl ring-1 ring-white/10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative z-10">
-         <Icon className="w-10 h-10 text-gray-500 group-hover:text-indigo-400 transition-colors" />
-      </div>
-      <h3 className="text-3xl font-bold text-white mb-4 tracking-tight relative z-10">{title}</h3>
-      <p className="text-gray-500 max-w-md mx-auto leading-relaxed text-lg font-medium relative z-10">{message}</p>
-      
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] -mb-32 pointer-events-none transition-colors group-hover:bg-indigo-500/10"></div>
-   </motion.div>
-);
 
 export default StudentDashboard;
