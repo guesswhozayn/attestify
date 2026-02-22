@@ -1,17 +1,13 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 
-/**
- * A specialized selection card for credential types.
- * Encapsulates complex layout, selection states, and premium effects.
- */
 const TypeSelectionCard = ({ 
     active, 
     onClick, 
     icon: Icon, 
     title, 
     description,
-    variant = 'emerald' // 'emerald' or 'indigo'
+    variant = 'emerald'
 }) => {
     const activeStyles = {
         emerald: 'bg-gradient-to-br from-emerald-900/50 via-teal-900/40 to-gray-900/50 border-emerald-500/50 shadow-emerald-500/10',

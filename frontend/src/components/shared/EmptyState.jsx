@@ -1,15 +1,4 @@
 import { motion } from 'framer-motion';
-
-/**
- * EmptyState
- * A full-width dashed card shown when a list or data set is empty.
- *
- * Props:
- *   icon      {React.ComponentType}  Lucide icon component.
- *   title     {string}               Bold heading.
- *   message   {string}               Descriptive sub-text.
- *   children  {React.ReactNode}      Optional CTA button(s).
- */
 const EmptyState = ({ icon: Icon, title, message, children }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}

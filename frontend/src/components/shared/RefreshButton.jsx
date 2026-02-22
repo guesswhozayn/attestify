@@ -2,10 +2,6 @@ import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import Button from './Button';
 
-/**
- * A specialized button for refresh/sync actions.
- * Encapsulates the rotation logic and default styling.
- */
 const RefreshButton = ({ 
     loading = false, 
     onClick, 

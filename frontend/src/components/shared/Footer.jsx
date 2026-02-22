@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import BrandLogo from './BrandLogo';
 import ShieldLogo from './ShieldLogo';
 import Button from './Button';
