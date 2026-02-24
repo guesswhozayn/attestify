@@ -35,7 +35,7 @@ async function prepareSBTMetadata(user, credential, ipfsCID) {
   return `ipfs://${result.ipfsHash}`;
 }
 
-exports.issueCredential = asyncHandler(async (req, res) => {
+const issueCredential = asyncHandler(async (req, res) => {
   let tempFilePath = null;
   let tempImagePath = null;
 
@@ -172,28 +172,24 @@ exports.issueCredential = asyncHandler(async (req, res) => {
     await credential.save();
 
 
-    try {
-        const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
-        
-         if (studentUser && studentUser.email) {
-              const emailData = {
-                 studentName,
-                 university: req.user.issuerDetails?.institutionName || university,
-                 issueDate,
-                 transactionHash: blockchainResult.transactionHash,
-                 id: credential._id,
-                 ipfsCID: ipfsResult.ipfsHash,
-                 certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
-                 loginLink: `${process.env.FRONTEND_URL}/login`,
-                 tokenId: credential.tokenId
-              };
-              
-              emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
-                 console.error('Failed to send issuance email:', err)
-              );
-         }
-    } catch (emailError) {
-        console.error('Email service error during issuance:', emailError);
+    const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
+    
+    if (studentUser && studentUser.email) {
+      const emailData = {
+        studentName,
+        university: req.user.issuerDetails?.institutionName || university,
+        issueDate,
+        transactionHash: blockchainResult.transactionHash,
+        id: credential._id,
+        ipfsCID: ipfsResult.ipfsHash,
+        certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
+        loginLink: `${process.env.FRONTEND_URL}/login`,
+        tokenId: credential.tokenId
+      };
+      
+      emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+        console.error(`[EmailService] Failed to send issuance email to ${studentUser.email}:`, err)
+      );
     }
 
     if (fs.existsSync(tempFilePath)) {
@@ -255,7 +251,7 @@ exports.issueCredential = asyncHandler(async (req, res) => {
 
 
 
-exports.batchIssueCredentials = asyncHandler(async (req, res) => {
+const batchIssueCredentials = asyncHandler(async (req, res) => {
   const file = req.files && req.files['file'] ? req.files['file'][0] : null;
   if (!file) {
     return res.status(400).json({ error: 'No CSV file provided' });
@@ -473,7 +469,9 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
                   loginLink: `${process.env.FRONTEND_URL}/login`,
                   tokenId: credential.tokenId
                };
-               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => console.error(err));
+               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+                 console.error(`[EmailService] Failed to send batch issuance email to ${studentUser.email}:`, err)
+               );
           }
           
           summary.success++;
@@ -490,7 +488,7 @@ exports.batchIssueCredentials = asyncHandler(async (req, res) => {
   res.json({ success: true, summary });
 });
 
-exports.getCredentials = asyncHandler(async (req, res) => {
+const getCredentials = asyncHandler(async (req, res) => {
   const { 
     page = 1, 
     limit = 20, 
@@ -549,7 +547,7 @@ exports.getCredentials = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getCredentialById = asyncHandler(async (req, res) => {
+const getCredentialById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const credential = await Credential.findById(id)
@@ -571,7 +569,7 @@ exports.getCredentialById = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
+const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   const { walletAddress } = req.params;
   const currentWallet = req.user.walletAddress?.toLowerCase();
   const targetWallet = walletAddress.toLowerCase();
@@ -590,7 +588,7 @@ exports.getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   });
 });
 
-exports.revokeCredential = asyncHandler(async (req, res) => {
+const revokeCredential = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
 
@@ -638,7 +636,7 @@ exports.revokeCredential = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getStats = asyncHandler(async (req, res) => {
+const getStats = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const isIssuer = req.user.role === 'ISSUER';
   
@@ -719,7 +717,7 @@ exports.getStats = asyncHandler(async (req, res) => {
   });
 });
 
-exports.verifyCredential = asyncHandler(async (req, res) => {
+const verifyCredential = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const credential = await Credential.findById(id)
@@ -752,3 +750,14 @@ exports.verifyCredential = asyncHandler(async (req, res) => {
     credential: result
   });
 });
+
+module.exports = {
+  issueCredential,
+  batchIssueCredentials,
+  getCredentials,
+  getCredentialById,
+  getCredentialsByStudentWallet,
+  revokeCredential,
+  getStats,
+  verifyCredential
+};

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Search, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, User } from 'lucide-react';
+import { Shield, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, Rocket } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Avatar from './Avatar';
@@ -23,8 +23,8 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
     }, []);
 
     const navLinks = [
-        { name: 'Public Explorer', path: '/search', icon: Search },
         { name: 'Docs', path: '/docs', icon: BookOpen },
+        { name: 'Partners', path: '/partnership-guide', icon: Rocket },
         { name: 'Verify', path: '/verify', icon: CheckCircle },
     ];
 
@@ -49,13 +49,13 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                     >
                         <div className="relative">
                             <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover/logo:opacity-50 transition-opacity duration-500"></div>
-                            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover/logo:scale-110 transition-transform duration-300">
+                            <div className="relative w-10 h-10 rounded-full bg-linear-to-br from-gray-900 to-black p-px border border-white/10 group-hover/logo:scale-110 transition-transform duration-300">
                                 <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
                                     <Shield className="w-5 h-5 text-indigo-400 group-hover/logo:text-white transition-colors" />
                                 </div>
                             </div>
                         </div>
-                        <BrandLogo textSize="text-xl" className="group-hover/logo:text-indigo-200 transition-colors" />
+                        <BrandLogo textSize="text-xl" className="text-white group-hover/logo:text-indigo-200 transition-colors" />
                     </div>
                 </div>
 
@@ -71,11 +71,11 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             className={`px-5 py-2 border-transparent ${isActive(link.path) ? 'border-white/10 shadow-inner' : ''}`}
                         >
                             <link.icon className={`w-4 h-4 ${isActive(link.path) ? 'text-indigo-400' : 'text-gray-500'}`} />
-                            <span className="text-[11px] font-bold">{link.name}</span>
+                            <span className={`text-[11px] font-bold ${isActive(link.path) ? 'text-white' : 'text-gray-300'}`}>{link.name}</span>
                             {isActive(link.path) && (
                                 <motion.div 
                                     layoutId="nav-active"
-                                    className="absolute inset-0 rounded-full border border-indigo-500/50 pointer-events-none"
+                                    className="absolute inset-0 rounded-full pointer-events-none"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
@@ -87,18 +87,18 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                 <div className="flex items-center gap-3">
                     {showBackSearch && (
                         <Button 
-                            onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/search')}
+                            onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/')}
                             variant="secondary"
                             size="sm"
                             rounded="full"
-                            className="hidden sm:flex"
+                            className="hidden sm:flex text-white"
                         >
                             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
                             Return
                         </Button>
                     )}
 
-                    <div className="h-6 w-[1px] bg-white/5 mx-2 hidden sm:block"></div>
+                    <div className="h-6 w-px bg-white/5 mx-2 hidden sm:block"></div>
 
                     {user ? (
                         <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                                 variant="secondary"
                                 rounded="full"
                                 size="sm"
-                                className="!p-1.5 sm:!pl-1.5 sm:!pr-5 sm:!py-1.5 transition-all duration-300 group/dash"
+                                className="p-1.5! sm:pl-1.5! sm:pr-5! sm:py-1.5! transition-all duration-300 group/dash"
                             >
                                 <Avatar 
                                     src={user.avatar} 
@@ -125,7 +125,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                         <Button 
                             onClick={() => navigate('/login')}
                             variant="white"
-                            className="hover:scale-105 active:scale-95 transition-all !p-2 md:!px-6 md:!py-2.5 rounded-full md:rounded-2xl !bg-transparent md:!bg-white !text-white md:!text-black"
+                            className="hover:scale-105 active:scale-95 transition-all p-2! md:px-6! md:py-2.5! rounded-full md:rounded-2xl bg-transparent! md:bg-white! text-white! md:text-black!"
                             noWrapper
                         >
                             <span className="relative z-10 flex flex-row items-center justify-center">
@@ -141,7 +141,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             size="sm"
                             rounded="full"
                             onClick={onToggleSidebar}
-                            className="md:hidden !px-2 !py-2"
+                            className="md:hidden px-2! py-2!"
                         >
                             <AlignRight className="w-6 h-6" />
                         </Button>
@@ -152,7 +152,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             variant="ghost"
                             size="sm"
                             rounded="full"
-                            className="md:hidden !px-2 !py-2"
+                            className="md:hidden px-2! py-2!"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         >
                             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <AlignRight className="w-6 h-6" />}

@@ -4,7 +4,7 @@ const blockchainService = require('../services/blockchainService');
 const fs = require('fs');
 const { AUDIT_ACTIONS } = require('../config/constants');
 const asyncHandler = require('../middleware/asyncHandler');
-exports.verifyWithFile = asyncHandler(async (req, res) => {
+const verifyWithFile = asyncHandler(async (req, res) => {
   let tempFilePath = null;
 
   try {
@@ -119,7 +119,7 @@ exports.verifyWithFile = asyncHandler(async (req, res) => {
   }
 });
 
-exports.checkExists = asyncHandler(async (req, res) => {
+const checkExists = asyncHandler(async (req, res) => {
   const { walletAddress } = req.params;
 
   const credentials = await Credential.find({ studentWalletAddress: walletAddress })
@@ -164,7 +164,7 @@ exports.checkExists = asyncHandler(async (req, res) => {
   });
 });
 
-exports.verifyByHash = asyncHandler(async (req, res) => {
+const verifyByHash = asyncHandler(async (req, res) => {
   const { studentWalletAddress, hash } = req.body;
 
   if (!studentWalletAddress || !hash) {
@@ -262,3 +262,9 @@ exports.verifyByHash = asyncHandler(async (req, res) => {
     });
   }
 });
+
+module.exports = {
+  verifyWithFile,
+  checkExists,
+  verifyByHash
+};

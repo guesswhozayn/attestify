@@ -1,5 +1,6 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building} from 'lucide-react';
+import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
@@ -8,6 +9,8 @@ import BrandLogo from '../components/shared/BrandLogo';
 import GradientBackground from '../components/shared/GradientBackground';
 import StatusBadge from '../components/shared/StatusBadge';
 import SectionHeader from '../components/shared/SectionHeader';
+import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
+
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -96,7 +99,7 @@ const Landing = () => {
                 {/* Mock Dashboard Content */}
                 <div className="p-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                    {/* Card 1 */}
-                   <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-6 rounded-2xl">
+                   <div className="bg-linear-to-br from-white/5 to-white/2 border border-white/10 p-6 rounded-2xl">
                       <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-4">
                         <Users className="w-5 h-5 text-indigo-400" />
                       </div>
@@ -104,7 +107,7 @@ const Landing = () => {
                       <div className="h-8 w-16 bg-white/10 rounded"></div>
                    </div>
                    {/* Card 2 */}
-                   <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-6 rounded-2xl">
+                   <div className="bg-linear-to-br from-white/5 to-white/2 border border-white/10 p-6 rounded-2xl">
                       <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
                         <FileCheck className="w-5 h-5 text-emerald-400" />
                       </div>
@@ -112,7 +115,7 @@ const Landing = () => {
                       <div className="h-8 w-16 bg-white/10 rounded"></div>
                    </div>
                    {/* Card 3 */}
-                   <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-6 rounded-2xl">
+                   <div className="bg-linear-to-br from-white/5 to-white/2 border border-white/10 p-6 rounded-2xl">
                       <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
                         <Shield className="w-5 h-5 text-purple-400" />
                       </div>
@@ -194,12 +197,12 @@ const Landing = () => {
                           <div className="relative w-[320px] h-[200px] rounded-xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden shadow-2xl group/card">
                               
                               {/* Background Gradient Mesh */}
-                              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-black"></div>
+                              <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 via-purple-500/5 to-black"></div>
 
                               {/* Card Content */}
                               <div className="relative z-10 p-6 flex flex-col justify-between h-full">
                                   <div className="flex justify-between items-start">
-                                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 p-[1px]">
+                                      <div className="w-12 h-12 rounded-full bg-linear-to-br from-indigo-400 to-purple-600 p-[1px]">
                                           <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
                                               <Users className="w-6 h-6 text-white" />
                                           </div>
@@ -456,27 +459,55 @@ const Landing = () => {
           </motion.div>
       </div>
 
-      {/* Final CTA */}
+      {/* Final CTA / Pilot Onboarding */}
       <div className="py-32 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto px-4 text-center relative z-10"
-           >
-               <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">Ready to secure the future?</h2>
-               <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Join the decentralized standard today. Issue, manage, and verify credentials with the power of Ethereum.</p>
-               <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6">
-                <Button onClick={() => navigate('/register')} variant="white" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
-                    Get Started Free
-                </Button>
-                <Button onClick={() => window.open('mailto:attestifyteam@gmail.com')} variant="secondary" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
-                    Contact Sales
-                </Button>
+           
+           <div className="max-w-7xl mx-auto px-4 relative z-10">
+               <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="text-center mb-20"
+               >
+                   <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">
+                     Ready to pioneer the future?
+                   </h2>
+                   <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                     Join the Attestify Pilot Program. We are partnering with forward-thinking institutions 
+                     to define the global standard for digital trust.
+                   </p>
+               </motion.div>
+
+               {/* Pilot Integration Hub */}
+               <div className="mb-20">
+                  <PilotIntegrationHub />
                </div>
-           </motion.div>
+
+               <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="flex flex-row flex-wrap items-center justify-center gap-4 sm:gap-6 px-4"
+               >
+                  <Button 
+                    onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Pilot Program Inquiry')} 
+                    variant="white" 
+                    className="hover:-translate-y-1 px-5! py-2.5! sm:px-10! sm:py-4! text-xs sm:text-lg font-black w-auto shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  >
+                      Apply for Pilot
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/partnership-guide')} 
+                    variant="secondary" 
+                    className="hover:-translate-y-1 px-5! py-2.5! sm:px-10! sm:py-4! text-xs sm:text-lg font-black w-auto border-white/10"
+                  >
+                      View Partnership Guide
+                  </Button>
+               </motion.div>
+           </div>
       </div>
 
       {/* Footer */}
