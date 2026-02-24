@@ -56,6 +56,7 @@ const Footer = () => {
               <ul className="space-y-1 text-sm font-medium text-gray-500">
                 <li><Button onClick={() => navigate('/login')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Dashboard</Button></li>
                 <li><Button onClick={() => navigate('/verify')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Verification</Button></li>
+                <li><Button onClick={() => navigate('/pricing')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Pricing</Button></li>
                 <li><Button onClick={() => navigate('/docs')} variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">Documentation</Button></li>
                 <li><Button variant="ghost" size="sm" className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none">API Status</Button></li>
               </ul>

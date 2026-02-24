@@ -66,6 +66,22 @@ const userSchema = new mongoose.Schema({
     registrationNumber: { type: String, trim: true, unique: true, sparse: true },
     authorizedWalletAddress: { type: String, trim: true },
     officialEmailDomain: { type: String, trim: true },
+    plan: {
+      type: String,
+      enum: ['STARTER', 'PRO', 'ENTERPRISE'],
+      default: 'STARTER'
+    },
+    certificatesIssued: {
+      type: Number,
+      default: 0
+    },
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    subscriptionStatus: { 
+      type: String, 
+      enum: ['active', 'past_due', 'canceled', 'unpaid', 'incomplete', 'incomplete_expired', 'trialing'],
+      default: 'incomplete'
+    },
     operationalMetrics: {
       lastActive: Date,
       currentGasBalance: String

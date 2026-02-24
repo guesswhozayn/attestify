@@ -79,7 +79,8 @@ const register = asyncHandler(async (req, res) => {
     institutionName,
     authorizedWalletAddress,
     officialEmailDomain,
-    walletAddress
+    walletAddress,
+    plan
   } = req.body;
 
   if (role === 'ISSUER') {
@@ -116,7 +117,9 @@ const register = asyncHandler(async (req, res) => {
       registrationNumber: req.body.registrationNumber,
       isVerified: false,
       authorizedWalletAddress,
-      officialEmailDomain
+      officialEmailDomain,
+      plan: 'STARTER',
+      certificatesIssued: 0
     };
     userData.name = institutionName;
   }

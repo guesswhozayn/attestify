@@ -207,6 +207,16 @@ export const networkAPI = {
 
 
 // ============================================
+// Payment APIs
+// ============================================
+export const paymentAPI = {
+  // Create checkout session
+  createCheckoutSession: async () => {
+    return api.post('/payment/create-checkout-session');
+  }
+};
+
+// ============================================
 // User APIs
 // ============================================
 export const userAPI = {

@@ -40,6 +40,14 @@ const issueCredential = asyncHandler(async (req, res) => {
   let tempImagePath = null;
 
   try {
+    const plan = req.user.issuerDetails?.plan || 'STARTER';
+    const issued = req.user.issuerDetails?.certificatesIssued || 0;
+    const limit = plan === 'ENTERPRISE' ? Infinity : (plan === 'PRO' ? 500 : 5);
+
+    if (issued + 1 > limit) {
+      return res.status(403).json({ error: `Issuance limit reached for ${plan} plan. Limit: ${limit}, Current: ${issued}. Please upgrade your plan.` });
+    }
+
     const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
     const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
 
@@ -170,6 +178,9 @@ const issueCredential = asyncHandler(async (req, res) => {
     };
 
     await credential.save();
+
+    req.user.issuerDetails.certificatesIssued = (req.user.issuerDetails.certificatesIssued || 0) + 1;
+    await req.user.save();
 
 
     const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
@@ -380,15 +391,29 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
     }
   };
 
+  let rows = [];
   try {
     const stream = fs.createReadStream(file.path).pipe(csv());
     for await (const row of stream) {
-        summary.total++;
-        await processRow(row);
+        rows.push(row);
     }
   } catch (parseError) {
     if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
     return res.status(400).json({ error: 'Failed to process CSV file', details: parseError.message });
+  }
+
+  const plan = req.user.issuerDetails?.plan || 'STARTER';
+  const issued = req.user.issuerDetails?.certificatesIssued || 0;
+  const limit = plan === 'ENTERPRISE' ? Infinity : (plan === 'PRO' ? 500 : 5);
+
+  if (issued + rows.length > limit) {
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      return res.status(403).json({ error: `Batch issuance exceeds limit for ${plan} plan. Limit: ${limit}, Current: ${issued}, Attempted: ${rows.length}. Please upgrade your plan.` });
+  }
+
+  for (const row of rows) {
+      summary.total++;
+      await processRow(row);
   }
 
   if (batchStudentIds.length === 0) {
@@ -483,6 +508,11 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
   }
 
   if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+
+  if (summary.success > 0) {
+      req.user.issuerDetails.certificatesIssued = (req.user.issuerDetails.certificatesIssued || 0) + summary.success;
+      await req.user.save();
+  }
 
   summary.message = `Processed ${summary.total} records. Successfully issued ${summary.success} credentials.`;
   res.json({ success: true, summary });
