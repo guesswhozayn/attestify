@@ -17,7 +17,7 @@ const CredentialRow = ({ credential, onClick }) => {
     return (
         <div 
             onClick={onClick}
-            className="group relative flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-[2rem] bg-white/[0.01] hover:bg-white/[0.04] border border-white/[0.04] hover:border-white/10 transition-all duration-500 cursor-pointer overflow-hidden active:scale-[0.99] mb-4"
+            className="group relative flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-4xl bg-white/1 hover:bg-white/4 border border-white/4 hover:border-white/10 transition-all duration-500 cursor-pointer overflow-hidden active:scale-[0.99] mb-4"
         >
             {/* Background Glow */}
             <div className={`absolute -right-20 -top-20 w-64 h-64 bg-${accentColor}-500/5 blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`}></div>
@@ -58,7 +58,7 @@ const CredentialRow = ({ credential, onClick }) => {
                         Recipient Identity
                     </span>
                     <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/30 transition-colors">
+                         <div className="w-8 h-8 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/30 transition-colors">
                             {credential.studentImage ? (
                                 <img src={credential.studentImage} alt="User" className="w-full h-full object-cover" />
                             ) : (

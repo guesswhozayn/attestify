@@ -59,15 +59,13 @@ const credentialRoutes = require('./routes/credentials');
 const verifyRoutes = require('./routes/verify');
 const userRoutes = require('./routes/user');
 const networkRoutes = require('./routes/network');
-const publicRoutes = require('./routes/public');
 const fileRoutes = require('./routes/files');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/credentials', credentialRoutes);
 app.use('/api/verify', verifyRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/network', networkRoutes);
-app.use('/api/public', publicRoutes);
 app.use('/api/files', fileRoutes);
 
 app.get('/health', (req, res) => {

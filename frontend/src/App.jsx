@@ -4,8 +4,8 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
+import ScrollToTop from './components/shared/ScrollToTop';
 
-// Lazy-loaded pages — each is a separate JS chunk, only downloaded on first visit
 const Landing           = lazy(() => import('./pages/Landing'));
 const Login             = lazy(() => import('./pages/Login'));
 const Register          = lazy(() => import('./pages/Register'));
@@ -17,16 +17,14 @@ const NetworkStatus     = lazy(() => import('./pages/NetworkStatus'));
 const RevokedCredentials= lazy(() => import('./pages/RevokedCredentials'));
 const Settings          = lazy(() => import('./pages/Settings'));
 const Profile           = lazy(() => import('./pages/Profile'));
-const PublicProfile     = lazy(() => import('./pages/PublicProfile'));
 const VerifyPage        = lazy(() => import('./pages/Verify'));
 const Documentation     = lazy(() => import('./pages/Documentation'));
-const PublicExplorer    = lazy(() => import('./pages/PublicExplorer'));
 const About             = lazy(() => import('./pages/About'));
 const PrivacyPolicy     = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService    = lazy(() => import('./pages/TermsOfService'));
 const NotFound          = lazy(() => import('./pages/NotFound'));
+const PartnershipGuide  = lazy(() => import('./pages/PartnershipGuide'));
 
-// Full-screen fallback shown while a lazy page chunk is loading
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
     <LoadingSpinner size="lg" text="Loading..." />
@@ -49,21 +47,19 @@ function App() {
 
   return (
     <Layout>
+      <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Landing />} />
-          <Route path="/search" element={<PublicExplorer />} />
-          <Route path="/student/:walletAddress" element={<PublicProfile profileType="student" />} />
-          <Route path="/issuer/:id" element={<PublicProfile profileType="issuer" />} />
-          <Route path="/issuer/wallet/:walletAddress" element={<PublicProfile profileType="issuer" />} />
+          <Route path="/verify" element={<VerifyPage />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
-          <Route path="/verify" element={<VerifyPage />} />
           <Route path="/docs" element={<Documentation />} />
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/partnership-guide" element={<PartnershipGuide />} />
 
           {/* Protected Routes */}
           <Route

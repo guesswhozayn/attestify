@@ -1,11 +1,9 @@
-const GradientBackground = ({ fixed = false }) => {
-  const posClass = fixed ? 'fixed' : 'absolute';
-
+const GradientBackground = ({ className = '' }) => {
   return (
-    <div className={`${posClass} inset-0 z-0 pointer-events-none overflow-hidden`}>
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen" />
-      <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen" />
-      <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen" />
+    <div className={`fixed inset-0 overflow-hidden pointer-events-none -z-10 ${className}`}>
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px]" />
+      <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] bg-emerald-500/10 rounded-full blur-[100px]" />
     </div>
   );
 };

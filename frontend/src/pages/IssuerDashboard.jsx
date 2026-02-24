@@ -96,7 +96,7 @@ const IssuerDashboard = () => {
 
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
+        <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
             {/* Dynamic Background */}
             <GradientBackground />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 relative z-10 space-y-6 md:space-y-10">
@@ -108,7 +108,7 @@ const IssuerDashboard = () => {
                   title={
                     <>
                       Welcome,{' '}
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">
+                      <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-300 via-white to-indigo-300 bg-size-[200%_auto] animate-shimmer">
                         {user?.issuerDetails?.institutionName || user?.name || 'Issuer'}
                       </span>
                     </>
@@ -177,7 +177,7 @@ const IssuerDashboard = () => {
 
                             <div className="min-h-[300px]">
                                 {loading ? (
-                                    <div className="flex flex-col items-center justify-center h-full p-20 bg-[#0a0a0a] border border-white/[0.05] rounded-[2.5rem] border-dashed">
+                                    <div className="flex flex-col items-center justify-center h-full p-20 bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] border-dashed">
                                         <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
                                         <div className="text-zinc-500 font-medium animate-pulse">Scanning chain...</div>
                                     </div>
@@ -211,9 +211,9 @@ const IssuerDashboard = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="bg-[#0a0a0a] rounded-[2.5rem] p-8 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
+                            className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                             
                             <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-left">
                                 <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
@@ -254,9 +254,9 @@ const IssuerDashboard = () => {
                              initial={{ opacity: 0, x: 20 }}
                              animate={{ opacity: 1, x: 0 }}
                              transition={{ duration: 0.5, delay: 0.4 }}
-                             className="rounded-[2.5rem] bg-[#0c0c0c] border border-white/[0.08] backdrop-blur-xl p-8 space-y-8 group/card overflow-hidden relative"
+                             className="rounded-4xl bg-[#0c0c0c] border border-white/8 backdrop-blur-xl p-8 space-y-8 group/card overflow-hidden relative"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                             <div className="flex items-center justify-between mb-4 md:mb-2 text-left">
                                 <h3 className="text-white font-bold flex items-center gap-3">
@@ -272,19 +272,19 @@ const IssuerDashboard = () => {
                             </div>
 
                             <div className="grid gap-3">
-                                <div className="p-4 rounded-2xl bg-white/[0.01] border border-white/[0.05] flex justify-between items-center group/item hover:bg-white/[0.03] transition-colors">
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center group/item hover:bg-white/10 transition-colors">
                                     <span className="text-zinc-500 text-[11px] font-bold">Blockchain</span>
                                     <span className="text-zinc-300 text-xs font-medium">Sepolia Testnet</span>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-white/[0.01] border border-white/[0.05] flex justify-between items-center hover:bg-white/[0.03] transition-colors">
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition-colors">
                                     <span className="text-zinc-500 text-[11px] font-bold">Latest Block</span>
                                     <span className="text-white font-mono text-sm font-bold tracking-tighter">
                                         {stats.networkStats?.blockNumber}
                                     </span>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-white/[0.01] border border-white/[0.05] flex justify-between items-center hover:bg-white/[0.03] transition-colors">
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition-colors">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-500 text-[11px] font-bold">Gas Price</span>
                                         <span className="text-[10px] text-zinc-600 mt-0.5">Estimated cost</span>
@@ -301,19 +301,19 @@ const IssuerDashboard = () => {
                                     <span>Success Rate</span>
                                     <span>{stats.transactionSuccessRate}%</span>
                                 </div>
-                                <div className="w-full bg-white/[0.05] h-1.5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5 shadow-inner">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${stats.transactionSuccessRate}%` }}
                                         transition={{ duration: 1.5, ease: "easeOut" }}
-                                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                        className="h-full bg-linear-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                                     ></motion.div>
                                 </div>
                             </div>
                         </motion.div>
 
                         {/* Recent Success Card */}
-                        <div className="p-6 rounded-[2.5rem] bg-indigo-500/5 border border-indigo-500/10 text-center">
+                        <div className="p-6 rounded-4xl bg-indigo-500/5 border border-indigo-500/10 text-center">
                             <span className="text-indigo-400 text-xs font-bold block mb-2">Network Verification</span>
                             <p className="text-zinc-500 text-[11px] leading-relaxed">
                                 All issued credentials are cryptographic proofs stored on the Ethereum blockchain.

@@ -16,9 +16,7 @@ import {
     Edit2,
     Save,
     X,
-    Share2,
     Copy,
-    Globe,
     Award
 } from 'lucide-react';
 import Button from '../components/shared/Button';
@@ -60,8 +58,7 @@ const Profile = () => {
         university: '',
         about: '',
         institutionName: '',
-        registrationNumber: '',
-        visibility: true
+        registrationNumber: ''
     });
 
     // Initialize/Sync Form Data
@@ -73,8 +70,7 @@ const Profile = () => {
                 university: user.university || '',
                 about: user.about || '',
                 institutionName: user.issuerDetails?.institutionName || user.name || '',
-                registrationNumber: user.issuerDetails?.registrationNumber || '',
-                visibility: user.preferences?.visibility !== false
+                registrationNumber: user.issuerDetails?.registrationNumber || ''
             });
         }
     }, [user]);
@@ -122,9 +118,6 @@ const Profile = () => {
             } else {
                 payload.title = formData.title;
                 payload.university = formData.university;
-                payload.preferences = {
-                    visibility: formData.visibility
-                };
             }
 
             const response = await userAPI.updateProfile(payload);
@@ -308,37 +301,7 @@ const Profile = () => {
                                          )}
                                     </div>
                                 </div>
-                                
-                                {/* Actions */}
-                                 <div className="flex flex-col gap-3 min-w-[200px]">
-                                    {user?.walletAddress && (
-                                        <Button 
-                                            href={isIssuer ? `/issuer/wallet/${user.walletAddress}` : `/student/${user.walletAddress}`} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            variant="white"
-                                            icon={ExternalLink}
-                                            className="w-full h-12 rounded-full shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.6)]"
-                                        >
-                                            View Public Profile
-                                        </Button>
-                                    )}
-                                    <Button 
-                                        onClick={() => {
-                                            const url = isIssuer 
-                                                ? `${window.location.origin}/issuer/wallet/${user?.walletAddress}`
-                                                : `${window.location.origin}/student/${user?.walletAddress}`;
-                                            navigator.clipboard.writeText(url);
-                                            showNotification('Profile link copied!', 'success');
-                                        }}
-                                        variant="outline"
-                                        icon={Share2}
-                                        className="w-full"
-                                    >
-                                        Share Profile
-                                    </Button>
-                                </div>
-                            </div>
+                                                           </div>
                         </div>
                     </div>
                 </motion.div>
@@ -412,45 +375,6 @@ const Profile = () => {
                              </div>
                         </motion.div>
 
-                        {/* Visibility (Role shared or student specific?) */}
-                        {!isIssuer && (
-                            <motion.div 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
-                            className="space-y-6"
-                            >
-                                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <Globe className="w-5 h-5 text-purple-400" />
-                                    Public Profile Settings
-                                </h2>
-
-                                <div className="p-6 bg-white/3 border border-white/8 rounded-3xl backdrop-blur-xl relative overflow-hidden group">
-                                    <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] -ml-16 -mt-16 pointer-events-none group-hover:bg-purple-500/10 transition-colors duration-500"></div>
-                                    
-                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-                                        <div className="flex-1 text-center md:text-left">
-                                            <h3 className="text-lg font-bold text-white mb-2">Public Visibility</h3>
-                                            <p className="text-gray-400 text-sm leading-relaxed">
-                                                When enabled, your academic profile and verified credentials will be visible to anyone with your public profile link.
-                                            </p>
-                                        </div>
-                                        
-                                        <div className="flex flex-col items-center gap-3">
-                                            <Toggle 
-                                                enabled={formData.visibility}
-                                                onChange={(val) => isEditing && setFormData({...formData, visibility: val})}
-                                                disabled={!isEditing}
-                                                label="Public Visibility"
-                                            />
-                                            <span className={`text-[10px] font-black uppercase tracking-widest ${formData.visibility ? 'text-emerald-400' : 'text-gray-500'}`}>
-                                                {formData.visibility ? 'LIVE ON-CHAIN' : 'HIDDEN'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
                     </div>
 
                     {/* Blockchain Identity */}

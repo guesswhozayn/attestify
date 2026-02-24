@@ -39,7 +39,7 @@ const WelcomeHeroCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
       onMouseMove={handleMouseMove}
-      className={`relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/[0.08] p-8 md:p-12 backdrop-blur-3xl group ${className}`}
+      className={`relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/8 shadow-none p-8 md:p-12 backdrop-blur-3xl group ${className}`}
     >
       {/* Spotlight Effect */}
       <div
@@ -74,7 +74,7 @@ const WelcomeHeroCard = ({
             className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none flex flex-col items-center md:flex-row md:items-center gap-4 md:gap-6"
           >
             {avatar && (
-              <div className="shrink-0 rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-2xl">
+              <div className="shrink-0 rounded-full p-1.5 bg-linear-to-tr from-indigo-500 to-purple-500 shadow-2xl">
                 {avatar}
               </div>
             )}

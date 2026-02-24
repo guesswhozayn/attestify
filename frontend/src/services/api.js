@@ -212,22 +212,22 @@ export const networkAPI = {
 export const userAPI = {
   // Get user profile
   getProfile: async () => {
-    return api.get('/user/profile');
+    return api.get('/users/profile');
   },
 
   // Update profile
   updateProfile: async (data) => {
-    return api.put('/user/profile', data);
+    return api.put('/users/profile', data);
   },
 
   // Change password
   changePassword: async (data) => {
-    return api.put('/user/password', data);
+    return api.put('/users/password', data);
   },
 
   // Upload avatar
   uploadAvatar: async (formData) => {
-    return api.post('/user/avatar', formData, {
+    return api.post('/users/avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -287,30 +287,6 @@ export const fileAPI = {
   }
 };
 
-// ============================================
-// Public APIs
-// ============================================
-export const publicAPI = {
-  // Get public student profile
-  getStudentProfile: async (walletAddress) => {
-    return api.get(`/public/student/${walletAddress}`);
-  },
-
-  // Search issuers
-  searchIssuers: async (query) => {
-    return api.get(`/public/issuers/search`, { params: { query } });
-  },
-
-  // Get issuer profile by ID
-  getIssuerProfile: async (id) => {
-    return api.get(`/public/issuer/${id}`);
-  },
-
-  // Get issuer profile by Wallet
-  getIssuerProfileByWallet: async (walletAddress) => {
-    return api.get(`/public/issuer/wallet/${walletAddress}`);
-  }
-};
 
 // ============================================
 // Export default api instance

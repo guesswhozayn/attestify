@@ -3,7 +3,7 @@ const ipfsService = require('../services/ipfsService');
 const axios = require('axios');
 const asyncHandler = require('../middleware/asyncHandler');
 
-exports.downloadCertificate = asyncHandler(async (req, res) => {
+const downloadCertificate = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const credential = await Credential.findById(id);
@@ -50,7 +50,7 @@ exports.downloadCertificate = asyncHandler(async (req, res) => {
   }
 });
 
-exports.getIPFSFile = asyncHandler(async (req, res) => {
+const getIPFSFile = asyncHandler(async (req, res) => {
   const { cid } = req.params;
 
   if (!cid) {
@@ -78,3 +78,8 @@ exports.getIPFSFile = asyncHandler(async (req, res) => {
     res.status(502).json({ error: 'Failed to retrieve file from IPFS' });
   }
 });
+
+module.exports = {
+  downloadCertificate,
+  getIPFSFile
+};

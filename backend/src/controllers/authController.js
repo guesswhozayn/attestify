@@ -69,7 +69,7 @@ const generateToken = (userId, role, tokenVersion = 0) => {
   );
 };
 
-exports.register = asyncHandler(async (req, res) => {
+const register = asyncHandler(async (req, res) => {
   const {
     name,
     email,
@@ -125,14 +125,10 @@ exports.register = asyncHandler(async (req, res) => {
 
   const token = generateToken(user._id, user.role, user.tokenVersion);
 
-  try {
-    if (email) {
-      emailService.sendWelcomeEmail(email, user.name).catch(err => 
-        console.error('Failed to send welcome email:', err)
-      );
-    }
-  } catch (emailError) {
-    console.error('Email service error:', emailError);
+  if (email) {
+    emailService.sendWelcomeEmail(email, user.name).catch(err => 
+      console.error(`[EmailService] Failed to send welcome email to ${email}:`, err)
+    );
   }
 
   res.status(201).json({
@@ -155,7 +151,7 @@ exports.register = asyncHandler(async (req, res) => {
   });
 });
 
-exports.login = asyncHandler(async (req, res) => {
+const login = asyncHandler(async (req, res) => {
   const { email, password, selectedRole } = req.body;
 
   const user = await User.findOne({ email }).select('+password');
@@ -204,7 +200,7 @@ exports.login = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getCurrentUser = asyncHandler(async (req, res) => {
+const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   
   if (!user) {
@@ -231,13 +227,11 @@ exports.getCurrentUser = asyncHandler(async (req, res) => {
   });
 });
 
-exports.logout = asyncHandler(async (req, res) => {
+const logout = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
-
-
-exports.changePassword = asyncHandler(async (req, res) => {
+const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   
   const user = await User.findById(req.user._id).select('+password');
@@ -257,7 +251,7 @@ exports.changePassword = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Password updated successfully' });
 });
 
-exports.googleLogin = asyncHandler(async (req, res) => {
+const googleLogin = asyncHandler(async (req, res) => {
   const { token } = req.body;
   
   const ticket = await client.verifyIdToken({
@@ -308,3 +302,12 @@ exports.googleLogin = asyncHandler(async (req, res) => {
     }
   });
 });
+
+module.exports = {
+  register,
+  login,
+  getCurrentUser,
+  logout,
+  changePassword,
+  googleLogin
+};

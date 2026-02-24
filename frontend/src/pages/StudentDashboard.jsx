@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
 import IPFSService from '../services/ipfs';
-import {Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
+import { Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
@@ -165,12 +165,11 @@ const StudentDashboard = () => {
           title={
             <>
               Welcome,{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300 bg-[length:200%_auto] animate-shimmer">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-500 dark:from-indigo-300 dark:via-white dark:to-indigo-300 bg-size-[200%_auto] animate-shimmer">
                 {user?.name?.split(' ')[0] || 'Student'}
               </span>
             </>
           }
-          subtitle="Your decentralized academic record is ready. Manage your on-chain credentials and share them with the world securely."
           avatar={
             <Avatar
               src={user?.avatar}
@@ -192,11 +191,11 @@ const StudentDashboard = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-xl"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm mb-6"
             >
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-red-500/10 rounded-lg">
-                   <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
+                   <ShieldAlert className="w-5 h-5 text-red-500 shrink-0" />
                 </div>
                 <span className="text-red-200 font-medium">{error}</span>
               </div>
@@ -236,7 +235,7 @@ const StudentDashboard = () => {
                        <Award className="w-5 h-5 text-indigo-400" />
                        Recent Credential
                    </h2>
-                   <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded-md border border-white/5">Latest Issue</span>
+                   <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded-md border border-white/5 shadow-sm dark:shadow-none">Latest Issue</span>
                </div>
                <DetailedCredentialCard credential={credential} metadata={metadata} />
             </div>
@@ -249,9 +248,9 @@ const StudentDashboard = () => {
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-                 className="bg-[#0a0a0a] rounded-[2rem] p-8 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
+                 className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 shadow-sm dark:shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
                >
-                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                   
                   <h3 className="text-white font-bold mb-6 flex items-center gap-3 relative z-10 text-left">
                      <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
@@ -282,70 +281,15 @@ const StudentDashboard = () => {
                   </p>
                </motion.div>
 
-               {/* Public Profile Status Card */}
-                <motion.div 
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
-                 className="bg-[#0a0a0a] rounded-[2rem] p-8 border border-white/[0.08] shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
-               >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
-                  
-                  <div className="flex items-center justify-between mb-8 relative z-10 text-left">
-                    <h3 className="text-white font-bold flex items-center gap-3">
-                      <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20 group-hover/card:bg-purple-500/20 transition-colors">
-                        <Globe className="w-4 h-4 text-purple-400" />
-                      </div>
-                      Public Identity
-                    </h3>
-                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold border shadow-lg ${
-                      user?.preferences?.visibility !== false 
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                        : 'bg-gray-500/10 border-gray-500/20 text-gray-400'
-                    }`}>
-                      {user?.preferences?.visibility !== false ? 'Live' : 'Hidden'}
-                    </div>
-                  </div>
-
-                  <div className="space-y-6 relative z-10 text-left">
-                    <p className="text-[11px] text-gray-400 leading-relaxed font-medium">
-                      Your verified credentials are {user?.preferences?.visibility !== false ? 'currently visible' : 'currently hidden'} to the public explorer. 
-                    </p>
-                      <div className="flex flex-col w-full gap-3">
-                       <Button 
-                          href={`/student/${walletAddress}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          variant="white"
-                          icon={ExternalLink}
-                          className="w-full h-12 rounded-2xl"
-                       >
-                          Visit Public Profile
-                       </Button>
-                       <Button
-                          onClick={() => {
-                            const url = `${window.location.origin}/student/${walletAddress}`;
-                            navigator.clipboard.writeText(url);
-                            alert('Profile link copied!');
-                          }}
-                          variant="outline"
-                          icon={Share2}
-                          className="w-full h-12 rounded-2xl"
-                       >
-                          Copy Share Link
-                       </Button>
-                     </div>
-                  </div>
-               </motion.div>
 
                {/* Blockchain Proof Card */}
                 <motion.div 
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-                 className="bg-[#0a0a0a] rounded-[2rem] p-8 border border-white/[0.08] backdrop-blur-xl relative overflow-hidden group/card shadow-2xl"
+                 className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 backdrop-blur-xl relative overflow-hidden group/card shadow-sm dark:shadow-2xl"
                >
-                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/[0.03] to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                   
                   <h3 className="text-white font-bold mb-8 flex items-center gap-3 relative z-10 text-left">
                      <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
@@ -358,15 +302,15 @@ const StudentDashboard = () => {
                      <div className="space-y-3">
                          <div className="flex justify-between items-center text-[11px] font-bold text-emerald-400/60 px-1">
                             <span>Certificate Hash</span>
-                            <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-1 rounded-md text-[10px] shadow-lg shadow-emerald-500/10"><CheckCircle className="w-3 h-3" /> Verified</span>
+                            <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-1 rounded-md text-[10px] shadow-sm dark:shadow-lg shadow-emerald-500/10"><CheckCircle className="w-3 h-3" /> Verified</span>
                          </div>
-                        <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 cursor-text selection:bg-indigo-500/30 text-left">
+                        <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/5 break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 cursor-text selection:bg-indigo-500/30 text-left">
                            {credential.certificateHash}
                         </div>
                      </div>
                      <div className="space-y-3">
                          <span className="text-gray-500 text-[11px] font-bold block text-left">IPFS CID</span>
-                         <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/[0.06] break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 text-left">
+                         <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/5 break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 text-left">
                            {credential.ipfsCID}
                         </div>
                      </div>

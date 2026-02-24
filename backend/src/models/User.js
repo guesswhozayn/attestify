@@ -73,7 +73,6 @@ const userSchema = new mongoose.Schema({
   },
   preferences: {
     notifications: { type: Boolean, default: true },
-    visibility: { type: Boolean, default: true },
     tfa: { type: Boolean, default: false }
   },
   lastLogin: {

@@ -3,7 +3,6 @@
 @layer base {
   html, body {
     @apply bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden;
-    scroll-behavior: smooth;
   }
 }
 

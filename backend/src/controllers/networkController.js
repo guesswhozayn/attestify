@@ -2,7 +2,7 @@ const asyncHandler = require('../middleware/asyncHandler');
 const Credential = require('../models/Credential');
 const blockchainService = require('../services/blockchainService');
 
-exports.getNetworkStats = asyncHandler(async (req, res) => {
+const getNetworkStats = asyncHandler(async (req, res) => {
   try {
     const networkStats = await blockchainService.getNetworkStats();
     
@@ -93,3 +93,7 @@ exports.getNetworkStats = asyncHandler(async (req, res) => {
     });
   }
 });
+
+module.exports = {
+  getNetworkStats
+};
