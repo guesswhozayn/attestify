@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet } from 'lucide-react';
@@ -35,6 +35,10 @@ const FREE_EMAIL_PROVIDERS = new Set([
 ]);
 
 const Register = () => {
+  const [searchParams] = useSearchParams();
+  const urlRole = searchParams.get('role');
+  const urlPlan = searchParams.get('plan');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,13 +50,14 @@ const Register = () => {
     authorizedWalletAddress: '', // Initialize for issuer
     officialEmailDomain: '', // Initialize for issuer
     institutionName: '', // Initialize for issuer
-    role: 'ISSUER', // Default role
+    role: (urlRole === 'STUDENT' || urlRole === 'ISSUER') ? urlRole : 'ISSUER', 
+    plan: ['STARTER', 'PRO', 'ENTERPRISE'].includes(urlPlan?.toUpperCase()) ? urlPlan.toUpperCase() : 'STARTER',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -112,6 +117,24 @@ const Register = () => {
     const result = await register(formData);
     
     if (result.success) {
+      if (formData.plan === 'PRO') {
+         setLoading(true);
+         const loginResult = await login(formData.email, formData.password, formData.role);
+         if (loginResult.success) {
+            try {
+               const { paymentAPI } = await import('../services/api');
+               const checkoutRes = await paymentAPI.createCheckoutSession();
+               if (checkoutRes.data && checkoutRes.data.url) {
+                 window.location.assign(checkoutRes.data.url);
+                 return;
+               }
+            } catch(e) {
+               console.error('Failed to create checkout session', e);
+               showNotification('Registration successful but failed to start payment. Please login to upgrade.', 'warning');
+            }
+         }
+      }
+
       showNotification('Registration successful! Please login to continue.', 'success');
       navigate('/login');
     } else {
@@ -258,6 +281,18 @@ const Register = () => {
 
                {formData.role === 'ISSUER' ? (
                  <>
+                   <div className="md:col-span-2 mb-2 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between">
+                     <div>
+                       <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Selected Plan</span>
+                       <span className="text-xl font-bold text-white flex items-center gap-2">
+                         {formData.plan === 'STARTER' ? 'Starter' : formData.plan === 'PRO' ? 'Pro' : 'Enterprise'}
+                         {formData.plan === 'STARTER' && <span className="text-xs py-1 px-2 rounded-full bg-green-500/20 text-green-400">Free</span>}
+                       </span>
+                     </div>
+                     <Link to="/pricing" className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+                       Change Plan
+                     </Link>
+                   </div>
                    <Input
                      label="Organization Name"
                      name="institutionName"
