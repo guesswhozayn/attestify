@@ -1,6 +1,5 @@
 const Credential = require('../models/Credential');
 const User = require('../models/User');
-
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const hashService = require('../services/hashService');
