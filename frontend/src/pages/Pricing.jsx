@@ -44,7 +44,7 @@ const Pricing = () => {
     },
     {
       name: 'Pro',
-      price: '$49',
+      price: '$149',
       interval: '/month',
       description: 'Ideal for growing organizations and academic institutions.',
       icon: Zap,
