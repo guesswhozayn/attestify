@@ -1,9 +1,7 @@
-import { Link } from 'react-router-dom';
 import { Check, X, Shield, Zap, Building2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { paymentAPI } from '../services/api';
 import Button from '../components/shared/Button';
-import BrandLogo from '../components/shared/BrandLogo';
 import GradientBackground from '../components/shared/GradientBackground';
 import BackButton from '../components/shared/BackButton';
 import { useNotification } from '../context/NotificationContext';
