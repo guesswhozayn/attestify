@@ -90,6 +90,11 @@ export const authAPI = {
     return api.post('/auth/google', { token });
   },
 
+  // Complete Google Registration
+  googleCompleteRegistration: async (data) => {
+    return api.post('/auth/google/complete', data);
+  },
+
   // Get current user
   getCurrentUser: async () => {
     return api.get('/auth/me');

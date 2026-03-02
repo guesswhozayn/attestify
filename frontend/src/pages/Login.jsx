@@ -204,7 +204,13 @@ const Login = () => {
                <div className="h-px bg-white/5 flex-1"></div>
             </div>
 
-            <GoogleLoginButton text="signin_with" className="w-full justify-center py-3.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold transition-all" />
+            <GoogleLoginButton 
+              text="signin_with" 
+              onRequiresCompletion={(googleData) => {
+                navigate('/register', { state: { googleData, requiresCompletion: true } });
+              }}
+              className="w-full justify-center py-3.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold transition-all" 
+            />
             
             <p className="mt-8 text-center text-gray-400 text-sm">
               New to Attestify?{' '}
