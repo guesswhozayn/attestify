@@ -6,6 +6,7 @@ import {
   HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight } from 'lucide-react';
 import Button from '../components/shared/Button';
 import PoweredBy from '../components/shared/PoweredBy';
+import BackgroundEffects from '../components/shared/BackgroundEffects';
 
 const sections = [
   { id: 'introduction', label: 'Introduction', icon: BookOpen },
@@ -650,27 +651,6 @@ const Documentation = () => {
 };
 
 /* ========== Reusable Sub-Components ========== */
-
-const BackgroundEffects = React.memo(({ scrollY }) => (
-  <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-    {/* Static Backdrop Gradient instead of dynamic spotlight */}
-    <div className="absolute inset-0 bg-indigo-500/5 transition-opacity duration-1000" />
-    
-    <div 
-      className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"
-      style={{ transform: `translateY(${scrollY * 0.15}px) translateX(${scrollY * 0.05}px)` }}
-    ></div>
-    <div 
-      className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"
-      style={{ transform: `translateY(${scrollY * 0.08}px) translateX(${scrollY * -0.05}px)` }}
-    ></div>
-    <div 
-      className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"
-      style={{ transform: `translateY(${scrollY * 0.12}px)` }}
-    ></div>
-  </div>
-));
-BackgroundEffects.displayName = 'BackgroundEffects';
 
 const Section = React.memo(({ id, title, icon: Icon, children }) => (
   <motion.section 

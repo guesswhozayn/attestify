@@ -2,7 +2,7 @@ import { Check, X, Shield, Zap, Building2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { paymentAPI } from '../services/api';
 import Button from '../components/shared/Button';
-import GradientBackground from '../components/shared/GradientBackground';
+import BackgroundEffects from '../components/shared/BackgroundEffects';
 import BackButton from '../components/shared/BackButton';
 import { useNotification } from '../context/NotificationContext';
 
@@ -81,7 +81,7 @@ const Pricing = () => {
 
   return (
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-black text-white selection:bg-indigo-500/30 font-sans relative scroll-smooth scrollbar-hide">
-      <GradientBackground />
+      <BackgroundEffects />
       
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
