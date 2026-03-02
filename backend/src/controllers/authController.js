@@ -2,11 +2,8 @@ const User = require('../models/User');
 
 const jwt = require('jsonwebtoken');
 const { JWT_EXPIRY } = require('../config/constants');
-const { OAuth2Client } = require('google-auth-library');
 const emailService = require('../services/emailService');
 const asyncHandler = require('../middleware/asyncHandler');
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Free/personal email provider blocklist — issuers must use an org email
 const FREE_EMAIL_PROVIDERS = new Set([
@@ -254,166 +251,12 @@ const changePassword = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Password updated successfully' });
 });
 
-const googleLogin = asyncHandler(async (req, res) => {
-  const { token } = req.body;
-  
-  const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  const payload = ticket.getPayload();
-  const { email, name, picture, sub: googleId } = payload;
 
-  let user = await User.findOne({ email });
-
-  if (user) {
-    if (!user.googleId) {
-      user.googleId = googleId;
-      user.avatar = picture;
-      await user.save();
-    }
-  } else {
-    // Progressive Profiling: Return Google info so frontend can complete registration
-    return res.status(200).json({
-      success: true,
-      requiresCompletion: true,
-      googleData: {
-        email,
-        name,
-        googleId,
-        avatar: picture,
-        token // Return the original token to be verified again on completion
-      }
-    });
-  }
-
-  if (!user.isActive) {
-    return res.status(403).json({ error: 'Account is deactivated' });
-  }
-
-  user.lastLogin = new Date();
-  await user.save();
-
-  const appToken = generateToken(user._id, user.role, user.tokenVersion);
-
-  res.json({
-    success: true,
-    token: appToken,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      university: user.university,
-      walletAddress: user.walletAddress,
-      title: user.title,
-      about: user.about,
-      isActive: user.isActive,
-      issuerDetails: user.issuerDetails,
-      avatar: user.avatar
-    }
-  });
-});
-
-const googleCompleteRegistration = asyncHandler(async (req, res) => {
-  const {
-    token, // Original Google token
-    role,
-    university,
-    institutionName,
-    authorizedWalletAddress,
-    officialEmailDomain,
-    walletAddress,
-    plan,
-    registrationNumber
-  } = req.body;
-
-  // 1. Verify Google Token again to ensure data integrity
-  const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  const payload = ticket.getPayload();
-  const { email, name, picture, sub: googleId } = payload;
-  
-  if (role === 'ISSUER') {
-    const emailCheck = validateIssuerEmail(email, officialEmailDomain);
-    if (!emailCheck.valid) {
-      return res.status(400).json({ error: emailCheck.error });
-    }
-  }
-
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ error: 'Email already registered' });
-  }
-
-  if (walletAddress) {
-    const existingWallet = await User.findOne({ walletAddress });
-    if (existingWallet) {
-      return res.status(400).json({ error: 'Wallet address already registered' });
-    }
-  }
-
-  const userData = {
-    name, // from Google
-    email, // from Google
-    googleId, // from Google
-    avatar: picture, // from Google
-    role: role || 'STUDENT',
-    university,
-    walletAddress
-  };
-
-  if (role === 'ISSUER') {
-    userData.issuerDetails = {
-      institutionName,
-      registrationNumber,
-      isVerified: false,
-      authorizedWalletAddress,
-      officialEmailDomain,
-      plan: 'STARTER',
-      certificatesIssued: 0
-    };
-    userData.name = institutionName || name;
-  }
-
-  const user = await User.create(userData);
-
-  const appToken = generateToken(user._id, user.role, user.tokenVersion);
-
-  if (email) {
-    emailService.sendWelcomeEmail(email, user.name).catch(err => 
-      console.error(`[EmailService] Failed to send welcome email to ${email}:`, err)
-    );
-  }
-
-  res.status(201).json({
-    success: true,
-    token: appToken,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      university: user.university,
-      walletAddress: user.walletAddress,
-      title: user.title,
-      about: user.about,
-      isActive: user.isActive,
-      issuerDetails: user.issuerDetails,
-      avatar: user.avatar,
-      tokenVersion: user.tokenVersion
-    }
-  });
-});
 
 module.exports = {
   register,
   login,
   getCurrentUser,
   logout,
-  changePassword,
-  googleLogin,
-  googleCompleteRegistration
+  changePassword
 };

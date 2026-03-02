@@ -5,7 +5,6 @@ import { Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } from 'luci
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
-import GoogleLoginButton from '../components/shared/GoogleLoginButton';
 import BrandLogo from '../components/shared/BrandLogo';
 import ShieldLogo from '../components/shared/ShieldLogo';
 
@@ -197,20 +196,6 @@ const Login = () => {
                  </Button>
               </div>
             </form>
-
-            <div className="my-6 flex items-center gap-4">
-               <div className="h-px bg-white/5 flex-1"></div>
-               <span className="text-gray-500 text-xs font-medium uppercase tracking-widest">Or</span>
-               <div className="h-px bg-white/5 flex-1"></div>
-            </div>
-
-            <GoogleLoginButton 
-              text="signin_with" 
-              onRequiresCompletion={(googleData) => {
-                navigate('/register', { state: { googleData, requiresCompletion: true } });
-              }}
-              className="w-full justify-center py-3.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold transition-all" 
-            />
             
             <p className="mt-8 text-center text-gray-400 text-sm">
               New to Attestify?{' '}
