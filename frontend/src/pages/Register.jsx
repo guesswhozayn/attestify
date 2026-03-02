@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet } from 'lucide-react';
@@ -36,12 +36,16 @@ const FREE_EMAIL_PROVIDERS = new Set([
 
 const Register = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const urlRole = searchParams.get('role');
   const urlPlan = searchParams.get('plan');
 
+  const incomingGoogleData = location.state?.googleData;
+  const isIncomingCompletion = location.state?.requiresCompletion;
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: incomingGoogleData?.name || '',
+    email: incomingGoogleData?.email || '',
     password: '',
     confirmPassword: '',
     university: '',
@@ -57,7 +61,11 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const { register, login } = useAuth();
+  // Google Completion State
+  const [isGoogleCompletion, setIsGoogleCompletion] = useState(isIncomingCompletion || false);
+  const [googleToken, setGoogleToken] = useState(incomingGoogleData?.token || null);
+  
+  const { register, login, googleCompleteRegistration } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -80,14 +88,16 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    if (!isGoogleCompletion) {
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
 
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
+      if (formData.password.length < 8) {
+        setError('Password must be at least 8 characters');
+        return;
+      }
     }
 
     // Client-side issuer email validation (mirrors backend rules)
@@ -114,13 +124,15 @@ const Register = () => {
 
     setLoading(true);
 
-    const result = await register(formData);
-    
-    if (result.success) {
-      if (formData.plan === 'PRO') {
-         setLoading(true);
-         const loginResult = await login(formData.email, formData.password, formData.role);
-         if (loginResult.success) {
+    if (isGoogleCompletion) {
+      // 1. Google OAuth Progressive Registration
+      const result = await googleCompleteRegistration({
+        ...formData,
+        token: googleToken
+      });
+      
+      if (result.success) {
+        if (formData.plan === 'PRO') {
             try {
                const { paymentAPI } = await import('../services/api');
                const checkoutRes = await paymentAPI.createCheckoutSession();
@@ -130,18 +142,57 @@ const Register = () => {
                }
             } catch(e) {
                console.error('Failed to create checkout session', e);
-               showNotification('Registration successful but failed to start payment. Please login to upgrade.', 'warning');
+               showNotification('Registration successful but failed to start payment. Please upgrade from dashboard.', 'warning');
             }
-         }
+        }
+        showNotification('Registration completed successfully! Welcome to Attestify.', 'success');
+        navigate('/dashboard');
+      } else {
+        setError(result.error);
       }
-
-      showNotification('Registration successful! Please login to continue.', 'success');
-      navigate('/login');
     } else {
-      setError(result.error);
+      // 2. Standard Email/Password Registration
+      const result = await register(formData);
+      
+      if (result.success) {
+        if (formData.plan === 'PRO') {
+           setLoading(true);
+           const loginResult = await login(formData.email, formData.password, formData.role);
+           if (loginResult.success) {
+              try {
+                 const { paymentAPI } = await import('../services/api');
+                 const checkoutRes = await paymentAPI.createCheckoutSession();
+                 if (checkoutRes.data && checkoutRes.data.url) {
+                   window.location.assign(checkoutRes.data.url);
+                   return;
+                 }
+              } catch(e) {
+                 console.error('Failed to create checkout session', e);
+                 showNotification('Registration successful but failed to start payment. Please login to upgrade.', 'warning');
+              }
+           }
+        }
+
+        showNotification('Registration successful! Please login to continue.', 'success');
+        navigate('/login');
+      } else {
+        setError(result.error);
+      }
     }
     
     setLoading(false);
+  };
+
+  const handleRequiresCompletion = (googleData) => {
+    setIsGoogleCompletion(true);
+    setGoogleToken(googleData.token);
+    setFormData(prev => ({
+      ...prev,
+      name: googleData.name,
+      email: googleData.email,
+    }));
+    setError('');
+    showNotification('Almost there! Please complete your profile.', 'success');
   };
 
   return (
@@ -211,8 +262,12 @@ const Register = () => {
            </div>
            
            <div className="mb-8">
-             <h2 className="text-2xl font-bold tracking-tight mb-2">Create Account</h2>
-             <p className="text-gray-400">Join the decentralized trust network.</p>
+             <h2 className="text-2xl font-bold tracking-tight mb-2">
+               {isGoogleCompletion ? 'Complete Your Profile' : 'Create Account'}
+             </h2>
+             <p className="text-gray-400">
+               {isGoogleCompletion ? "You're almost done! Please fill in these required details." : "Join the decentralized trust network."}
+             </p>
            </div>
             
            {/* Role Toggle */}
@@ -255,6 +310,7 @@ const Register = () => {
                         onChange={handleChange}
                         placeholder="e.g. Alex Johnson"
                         icon={User}
+                        disabled={isGoogleCompletion}
                         required
                       />
                   </div>
@@ -269,6 +325,7 @@ const Register = () => {
                    onChange={handleChange}
                    placeholder={formData.role === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
                    icon={Mail}
+                   disabled={isGoogleCompletion}
                    required
                  />
                  {formData.role === 'ISSUER' && (
@@ -390,41 +447,43 @@ const Register = () => {
                )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-               <Input
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  icon={Lock}
-                  required
-                  rightAction={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      rounded="full"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="h-10 w-10 !px-0 !py-0 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </Button>
-                  }
-               />
+            {!isGoogleCompletion && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                 <Input
+                    label="Password"
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    icon={Lock}
+                    required
+                    rightAction={
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        rounded="full"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="h-10 w-10 !px-0 !py-0 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </Button>
+                    }
+                 />
 
-               <Input
-                  label="Confirm Password"
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  icon={Lock}
-                  required
-               />
-            </div>
+                 <Input
+                    label="Confirm Password"
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    icon={Lock}
+                    required
+                 />
+              </div>
+            )}
 
             <div className="pt-2">
                <Button
@@ -441,13 +500,21 @@ const Register = () => {
             </div>
           </form>
 
-          <div className="my-6 flex items-center gap-4">
-             <div className="h-px bg-white/5 flex-1"></div>
-             <span className="text-gray-500 text-xs font-medium uppercase tracking-widest">Or continue with</span>
-             <div className="h-px bg-white/5 flex-1"></div>
-          </div>
+          {!isGoogleCompletion && (
+            <>
+              <div className="my-6 flex items-center gap-4">
+                 <div className="h-px bg-white/5 flex-1"></div>
+                 <span className="text-gray-500 text-xs font-medium uppercase tracking-widest">Or continue with</span>
+                 <div className="h-px bg-white/5 flex-1"></div>
+              </div>
 
-          <GoogleLoginButton text="signup_with" className="w-full justify-center py-3.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold transition-all" />
+              <GoogleLoginButton 
+                text="signup_with" 
+                onRequiresCompletion={handleRequiresCompletion}
+                className="w-full justify-center py-3.5 bg-white text-black hover:bg-gray-200 rounded-xl font-bold transition-all" 
+              />
+            </>
+          )}
 
           <p className="mt-8 text-center text-gray-400 text-sm">
             Already have an account?{' '}

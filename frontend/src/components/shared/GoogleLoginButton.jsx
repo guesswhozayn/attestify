@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 
-const GoogleLoginButton = ({ text }) => {
+const GoogleLoginButton = ({ text, onRequiresCompletion, className }) => {
   const navigate = useNavigate();
   const { googleLogin } = useAuth();
   const { showNotification } = useNotification();
@@ -14,6 +14,10 @@ const GoogleLoginButton = ({ text }) => {
       const result = await googleLogin(credential);
 
       if (result.success) {
+         if (result.requiresCompletion && onRequiresCompletion) {
+            onRequiresCompletion(result.googleData);
+            return;
+         }
          showNotification('Login successful', 'success');
          navigate('/dashboard'); 
       } else {
@@ -26,7 +30,7 @@ const GoogleLoginButton = ({ text }) => {
   };
 
   return (
-    <div className="w-full flex justify-center py-2">
+    <div className={`w-full flex justify-center py-2 ${className || ''}`}>
       <GoogleLogin
         onSuccess={handleSuccess}
         onError={() => showNotification('Google login failed', 'error')}
