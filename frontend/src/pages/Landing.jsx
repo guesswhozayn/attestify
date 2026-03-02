@@ -6,7 +6,7 @@ import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import BrandLogo from '../components/shared/BrandLogo';
-import GradientBackground from '../components/shared/GradientBackground';
+import BackgroundEffects, { useScrollY } from '../components/shared/BackgroundEffects';
 import StatusBadge from '../components/shared/StatusBadge';
 import SectionHeader from '../components/shared/SectionHeader';
 import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
@@ -15,14 +15,16 @@ import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
 const Landing = () => {
   const navigate = useNavigate();
 
+  const scrollY = useScrollY();
+
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative">
+      <BackgroundEffects scrollY={scrollY} />
       
       <Navbar />
 
       {/* Hero Section */}
       <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-40 overflow-hidden">
-        <GradientBackground />
 
         {/* Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
