@@ -12,7 +12,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../shared/Button';
 
-const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
+const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
     const isRevoked = cred.isRevoked;
     const isSBT = !!cred.tokenId;
     const isTranscript = cred.type === 'TRANSCRIPT';
@@ -26,7 +26,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ delay: idx * 0.05, duration: 0.5 }}
             onClick={() => onView(cred)}
-            className="group relative bg-[#0b0b0b] border border-white/[0.04] hover:border-white/10 rounded-[2rem] p-5 lg:p-6 transition-all duration-500 cursor-pointer overflow-hidden mb-4 active:scale-[0.99] shadow-lg hover:shadow-2xl"
+            className="group relative bg-[#0b0b0b] border border-white/4 hover:border-white/10 rounded-4xl p-5 lg:p-6 transition-all duration-500 cursor-pointer overflow-hidden mb-4 active:scale-[0.99] shadow-lg hover:shadow-2xl"
         >
             {/* Background Accent */}
             <div className={`absolute -right-24 -top-24 w-80 h-80 bg-${accentColor}-500/[0.03] blur-[120px] pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity`}></div>
@@ -35,7 +35,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
             <div className="hidden lg:flex lg:flex-row lg:items-center gap-8 relative z-10">
                 {/* Section 1: Credential Identification */}
                 <div className="lg:w-[35%] flex items-center gap-5">
-                    <div className={`p-4 rounded-[1.5rem] bg-${accentColor}-500/10 border border-${accentColor}-500/20 group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
+                    <div className={`p-4 rounded-3xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
                         <Icon className={`w-8 h-8 text-${accentColor}-400`} />
                     </div>
                     <div className="flex flex-col min-w-0">
@@ -44,7 +44,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
                             {cred.transcriptData?.program || cred.certificationData?.title || cred.courseName || cred.degreeName || 'Untitled Record'}
                         </h3>
                         <div className="flex items-center gap-2 mt-2">
-                             <div className="px-2 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[9px] font-mono text-zinc-500">
+                             <div className="px-2 py-0.5 rounded-lg bg-white/4 border border-white/8 text-[9px] font-mono text-zinc-500">
                                 {cred._id ? `#${cred._id.substring(cred._id.length - 8)}` : 'ID-SYSTEM'}
                              </div>
                              {isSBT ? (
@@ -58,7 +58,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
 
                 {/* Section 2: Recipient Data */}
                 <div className="lg:w-[25%] flex items-center gap-4 border-l lg:border-white/5 lg:pl-8">
-                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/20 transition-colors">
+                     <div className="w-10 h-10 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/20 transition-colors">
                         {cred.studentImage ? (
                             <img src={cred.studentImage} alt="User" className="w-full h-full object-cover" />
                         ) : (
@@ -118,7 +118,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
                                 }}
                                 variant="ghost"
                                 rounded="2xl"
-                                className="!p-3 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 border-transparent hover:border-red-500/20"
+                                className="p-3! text-zinc-500 hover:text-red-400 hover:bg-red-500/10 border-transparent hover:border-red-500/20"
                                 title="Invalidate Record"
                             >
                                 <ShieldAlert className="w-5 h-5" />
@@ -135,7 +135,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
             <div className="flex flex-col lg:hidden relative z-10 space-y-4">
                 
                 {/* Mobile Header: Icon, Title, Status */}
-                <div className="flex items-start justify-between gap-3 border-b border-white/[0.04] pb-4">
+                <div className="flex items-start justify-between gap-3 border-b border-white/4 pb-4">
                     <div className="flex items-center gap-3">
                         <div className={`p-2.5 rounded-xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 shrink-0`}>
                             <Icon className={`w-5 h-5 text-${accentColor}-400`} />
@@ -157,9 +157,9 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
                 </div>
 
                 {/* Mobile Identity Block */}
-                <div className="flex items-center justify-between bg-white/[0.01] rounded-xl border border-white/[0.02] p-3">
+                <div className="flex items-center justify-between bg-white/1 rounded-xl border border-white/2 p-3">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
                             {cred.studentImage ? (
                                 <img src={cred.studentImage} alt="User" className="w-full h-full object-cover" />
                             ) : (
@@ -213,7 +213,7 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
                                 }}
                                 variant="ghost"
                                 rounded="xl"
-                                className="!p-2 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 border-transparent hover:border-red-500/20"
+                                className="p-2! text-zinc-400 hover:text-red-400 hover:bg-red-500/10 border-transparent hover:border-red-500/20"
                             >
                                 <ShieldAlert className="w-4 h-4" />
                             </Button>
@@ -224,13 +224,14 @@ const CredentialTableRow = ({ cred, idx, onView, onRevoke }) => {
             </div>
         </motion.div>
     );
-};
+});
+CredentialTableRow.displayName = 'CredentialTableRow';
 
 const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
     
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center py-32 bg-black/20 rounded-[3rem] border border-white/[0.04] border-dashed">
+            <div className="flex flex-col items-center justify-center py-32 bg-black/20 rounded-[3rem] border border-white/4 border-dashed">
                 <div className="relative">
                     <div className="w-16 h-16 border-4 border-indigo-500/10 rounded-full"></div>
                     <div className="absolute top-0 w-16 h-16 border-t-4 border-indigo-500 rounded-full animate-spin"></div>
@@ -242,8 +243,8 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
 
     if (credentials.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-32 text-center bg-[#0a0a0a] rounded-[3rem] border border-dashed border-white/[0.06] shadow-2xl group transition-all">
-                <div className="w-24 h-24 bg-white/[0.02] rounded-[2rem] flex items-center justify-center mb-8 border border-white/[0.05] group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+            <div className="flex flex-col items-center justify-center py-32 text-center bg-[#0a0a0a] rounded-[3rem] border border-dashed border-white/6 shadow-2xl group transition-all">
+                <div className="w-24 h-24 bg-white/2 rounded-4xl flex items-center justify-center mb-8 border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
                     <FileText className="w-10 h-10 text-zinc-800 group-hover:text-indigo-500/40 transition-colors" />
                 </div>
                 <h3 className="text-2xl font-black text-white mb-3">No Records Identified</h3>
@@ -275,4 +276,5 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
     );
 };
 
+CredentialTable.displayName = 'CredentialTable';
 export default React.memo(CredentialTable);

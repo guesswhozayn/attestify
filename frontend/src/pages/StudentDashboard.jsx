@@ -28,6 +28,24 @@ const StudentDashboard = () => {
     return credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData;
   }, [credential]);
 
+  const welcomeTitle = useMemo(() => (
+    <>
+      Welcome,{' '}
+      <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-500 dark:from-indigo-300 dark:via-white dark:to-indigo-300 bg-size-[200%_auto] animate-shimmer">
+        {user?.name?.split(' ')[0] || 'Student'}
+      </span>
+    </>
+  ), [user?.name]);
+
+  const welcomeAvatar = useMemo(() => (
+    <Avatar
+      src={user?.avatar}
+      initials={user?.name}
+      size="md"
+      className="ring-0"
+    />
+  ), [user?.avatar, user?.name]);
+
   const isMounted = React.useRef(true);
 
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
@@ -162,22 +180,8 @@ const StudentDashboard = () => {
         {/* Welcome Section */}
         <WelcomeHeroCard
           badge="Student Vault"
-          title={
-            <>
-              Welcome,{' '}
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-500 dark:from-indigo-300 dark:via-white dark:to-indigo-300 bg-size-[200%_auto] animate-shimmer">
-                {user?.name?.split(' ')[0] || 'Student'}
-              </span>
-            </>
-          }
-          avatar={
-            <Avatar
-              src={user?.avatar}
-              initials={user?.name}
-              size="md"
-              className="ring-0"
-            />
-          }
+          title={welcomeTitle}
+          avatar={welcomeAvatar}
           onRefresh={() => fetchCredential(walletAddress, true)}
           refreshing={refreshing}
         />

@@ -20,9 +20,9 @@ import {
     Award
 } from 'lucide-react';
 import Button from '../components/shared/Button';
-import Toggle from '../components/shared/Toggle';
 import Avatar from '../components/shared/Avatar';
 import Input from '../components/shared/Input';
+import AccountLayout from '../components/layout/AccountLayout';
 
 const Profile = () => {
     const { user, updateUser } = useAuth();
@@ -144,41 +144,32 @@ const Profile = () => {
     };
 
     return (
-      <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden relative">
-        
-        {/* Background Elements */}
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-            <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-            <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-        </div>
-
-        <div className="relative z-10 p-6 lg:p-10 max-w-7xl mx-auto space-y-8 pb-20">
-            
-            {/* Header Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4"
-            >
+      <AccountLayout>
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8"
+        >
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
                 <div>
-                   <h1 className="text-3xl font-bold text-white tracking-tight mb-2">
-                       {isIssuer ? 'Institution Profile' : 'My Identity'}
+                   <h1 className="text-2xl font-black text-white tracking-widest uppercase">
+                       {isIssuer ? 'Institution Profile' : 'User Profile'}
                    </h1>
-                   <p className="text-gray-400">
-                       {isIssuer 
-                        ? 'Manage your institution\'s public profile and branding assets.' 
-                        : 'Manage your public academic profile and blockchain identity.'}
-                   </p>
+                   <div className="flex items-center gap-2 mt-1">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                          {isIssuer ? 'Verified' : 'Active'}
+                      </p>
+                   </div>
                 </div>
                 <div className="flex gap-3">
                    {isEditing ? (
                        <>
                            <Button 
                                 onClick={() => setIsEditing(false)}
-                                variant="secondary"
+                                variant="ghost"
                                 icon={X}
+                                className="text-zinc-500 hover:text-white"
                            >
                                 Cancel
                            </Button>
@@ -187,6 +178,7 @@ const Profile = () => {
                                 loading={loading}
                                 variant="success"
                                 icon={Save}
+                                className="shadow-lg shadow-emerald-500/20"
                            >
                                 Save Changes
                            </Button>
@@ -194,280 +186,228 @@ const Profile = () => {
                    ) : (
                        <Button 
                            onClick={() => setIsEditing(true)}
-                           variant="secondary"
+                           variant="outline"
                            icon={Edit2}
+                           className="border-white/5 bg-white/5 hover:bg-white/10"
                        >
                            Edit Profile
                        </Button>
                    )}
                 </div>
-            </motion.div>
+            </div>
 
-            <div className="space-y-8">
-                {/* Profile Hero Card */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                  className="relative bg-white/3 rounded-3xl overflow-hidden border border-white/8 shadow-2xl backdrop-blur-xl group"
-                >
-                    <div className="px-8 pb-10 flex flex-col md:flex-row items-start gap-8 pt-10 relative z-10">
-                        {/* Avatar */}
-                        <div className="relative group/avatar shrink-0 mx-auto md:mx-0">
-                             <Avatar 
-                                 src={user?.avatar} 
-                                 initials={user?.name} 
-                                 size="xl" 
-                                 editable={true} 
-                                 uploading={uploading} 
-                                 onUpload={handleAvatarUpload}
-                             />
-                             <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md p-1.5 rounded-full ring-4 ring-black/50 border border-white/10 shadow-lg" title={isIssuer ? "Verified Issuer" : "Identity Verified"}>
-                                {isIssuer ? (
-                                    <Shield className="w-6 h-6 text-indigo-400 fill-indigo-400/10" />
-                                ) : (
-                                    <BadgeCheck className="w-6 h-6 text-emerald-400 fill-emerald-400/10" />
-                                )}
-                             </div>
-                        </div>
+            {/* Profile Hero Card */}
+            <div className="relative bg-[#0a0a0a] rounded-4xl p-8 md:p-12 border border-white/4 shadow-2xl overflow-hidden group">
+                <div className="absolute inset-0 bg-linear-to-br from-indigo-500/2 to-transparent pointer-events-none"></div>
                 
-                        {/* Name & Role */}
-                        <div className="flex-1 w-full pt-4 md:pt-24 space-y-6">
-                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                                <div className="space-y-4 w-full max-w-2xl text-center md:text-left">
-                                    {isEditing ? (
-                                        <div className={`grid grid-cols-1 ${!isIssuer ? 'md:grid-cols-2' : ''} gap-4`}>
-                                            <div className="space-y-4">
-                                                <Input 
-                                                    label={isIssuer ? "Institution Name" : "Full Name"}
-                                                    value={formData.name}
-                                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                                    placeholder={isIssuer ? "Institution Name" : "Your Name"}
-                                                    icon={isIssuer ? Building : User}
-                                                    className="font-bold text-lg"
-                                                />
-                                                {isIssuer && (
-                                                    <div className="space-y-2 text-left">
-                                                        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-4">Institution Registered Name</label>
-                                                        <Input
-                                                            value={formData.registrationNumber}
-                                                            onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})}
-                                                            placeholder="Registration Number"
-                                                            icon={Building}
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {!isIssuer && (
-                                                <Input 
-                                                    label="Title / Major"
-                                                    value={formData.title}
-                                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                                                    placeholder="e.g. Computer Science Student"
-                                                    icon={Award}
-                                                />
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-                                                {user?.name || (isIssuer ? "Institution Name" : "Student")}
-                                            </h1>
-                                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${isIssuer ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'} backdrop-blur-md uppercase tracking-wide`}>
-                                                    {isIssuer ? 'Verified Issuer' : 'Verified Student'}
-                                                </span>
-                                                {!isIssuer && user?.title && (
-                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-300 border border-purple-500/20 backdrop-blur-md uppercase tracking-wide">
-                                                        {user.title}
-                                                    </span>
-                                                )}
-                                                <span className="text-gray-400 flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/5 font-medium">
-                                                    <Mail className="w-3.5 h-3.5" />
-                                                    {user?.email}
-                                                </span>
-                                            </div>
+                <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-10">
+                    {/* Avatar Container */}
+                    <div className="relative shrink-0">
+                        <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                        <Avatar 
+                            src={user?.avatar} 
+                            initials={user?.name} 
+                            size="xl" 
+                            editable={true} 
+                            uploading={uploading} 
+                            onUpload={handleAvatarUpload}
+                            className="ring-1 ring-white/10"
+                        />
+                        <div className="absolute -bottom-2 -right-2 bg-black border border-white/10 p-2 rounded-2xl shadow-xl">
+                            {isIssuer ? (
+                                <Shield className="w-6 h-6 text-indigo-400" />
+                            ) : (
+                                <BadgeCheck className="w-6 h-6 text-emerald-400" />
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Info Section */}
+                    <div className="flex-1 w-full space-y-6">
+                        {isEditing ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Input 
+                                    label={isIssuer ? "Institution Name" : "Display Name"}
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    icon={isIssuer ? Building : User}
+                                />
+                                {!isIssuer && (
+                                    <Input 
+                                        label="Academic Title"
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                        icon={Award}
+                                    />
+                                )}
+                                {isIssuer && (
+                                    <Input
+                                        label="Registration Number"
+                                        value={formData.registrationNumber}
+                                        onChange={(e) => setFormData({...formData, registrationNumber: e.target.value})}
+                                        icon={Shield}
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-center md:text-left">
+                                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4 leading-none">
+                                    {user?.name || (isIssuer ? "Institution" : "Identity")}
+                                </h2>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                    <div className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full flex items-center gap-2">
+                                        <Mail className="w-3.5 h-3.5 text-zinc-500" />
+                                        <span className="text-xs font-black text-zinc-300 uppercase tracking-widest">{user?.email}</span>
+                                    </div>
+                                    {!isIssuer && user?.title && (
+                                        <div className="px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-black text-indigo-400 uppercase tracking-widest">
+                                            {user.title}
                                         </div>
                                     )}
-
-                                    {/* About Section */}
-                                    <div className="pt-2">
-                                         {isEditing ? (
-                                             <div className="space-y-2 text-left">
-                                                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-4">About</label>
-                                                <div className="relative group overflow-hidden">
-                                                    <div className="absolute left-0 top-4 w-12 flex justify-center pointer-events-none">
-                                                        <Activity className="w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-200" />
-                                                    </div>
-                                                    <textarea 
-                                                        value={formData.about}
-                                                        onChange={(e) => setFormData({...formData, about: e.target.value})}
-                                                        className="w-full bg-black/40 text-gray-100 pl-12 pr-5 py-3.5 rounded-xl border border-white/10 text-sm placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:bg-black/60 transition-all duration-200 backdrop-blur-md min-h-[120px] resize-none"
-                                                        placeholder={isIssuer ? "Tell us a bit about your institution..." : "Tell us a bit about yourself..."}
-                                                    />
-                                                </div>
-                                             </div>
-                                         ) : (
-                                             <p className="text-gray-300 leading-relaxed text-lg max-w-3xl">
-                                                {user?.about || (isIssuer ? "No institution description added yet." : "No bio added yet.")}
-                                             </p>
-                                         )}
-                                    </div>
                                 </div>
-                                                           </div>
+                            </div>
+                        )}
+
+                        <div className="h-px bg-white/4 w-full"></div>
+
+                        {/* Bio/About */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Activity className="w-4 h-4 text-zinc-600" />
+                                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Biography</span>
+                            </div>
+                            {isEditing ? (
+                                <textarea 
+                                    value={formData.about}
+                                    onChange={(e) => setFormData({...formData, about: e.target.value})}
+                                    className="w-full bg-white/2 text-zinc-100 p-6 rounded-3xl border border-white/10 text-sm focus:outline-none focus:border-indigo-500/50 transition-all min-h-[150px] resize-none"
+                                    placeholder="Write a brief description..."
+                                />
+                            ) : (
+                                <p className="text-zinc-400 leading-relaxed font-medium text-lg max-w-2xl text-center md:text-left">
+                                    {user?.about || (isIssuer ? "The institutional profile description is currently empty." : "Your digital identity bio has not been initialized.")}
+                                </p>
+                            )}
                         </div>
                     </div>
-                </motion.div>
-        
-                {/* Details Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    {/* Role-specific Details column */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <motion.div 
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                          className="space-y-6"
-                        >
-                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                {isIssuer ? <Building className="w-5 h-5 text-purple-400" /> : <User className="w-5 h-5 text-indigo-400" />}
-                                {isIssuer ? "Institution Details" : "Academic Details"}
-                             </h2>
-
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 {isEditing && !isIssuer ? (
-                                     <Input
-                                         label="Institution"
-                                         value={formData.university}
-                                         onChange={(e) => setFormData({...formData, university: e.target.value})}
-                                         placeholder="University Name"
-                                         icon={Building}
-                                     />
-                                 ) : (
-                                    <ProfileCard 
-                                        icon={Building}
-                                        label={isIssuer ? "Registration ID" : "Institution"}
-                                        value={isIssuer ? (formData.registrationNumber || 'N/A') : user?.university}
-                                        color="text-purple-400"
-                                        bg="bg-purple-500/10"
-                                        border="border-purple-500/20"
-                                    />
-                                 )}
-
-                                 <ProfileCard 
-                                    icon={Calendar}
-                                    label="Member Since"
-                                    value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    }) : 'N/A'}
-                                    color="text-amber-400"
-                                    bg="bg-amber-500/10"
-                                    border="border-amber-500/20"
-                                />
-                                
-                                <ProfileCard 
-                                    icon={Activity}
-                                    label="Account Status"
-                                    value={user?.isActive ? 'Active' : 'Inactive'}
-                                    color="text-emerald-400"
-                                    bg="bg-emerald-500/10"
-                                    border="border-emerald-500/20"
-                                />
-
-                                <ProfileCard 
-                                    icon={Shield}
-                                    label="Verification Level"
-                                    value={isIssuer ? "Institutional (Tier 1)" : "Level 2 (Verified)"}
-                                    color="text-blue-400"
-                                    bg="bg-blue-500/10"
-                                    border="border-blue-500/20"
-                                />
-
-                                {isIssuer && (
-                                    <ProfileCard 
-                                        icon={Award}
-                                        label="Current Plan"
-                                        value={user?.issuerDetails?.plan || 'STARTER'}
-                                        color="text-indigo-400"
-                                        bg="bg-indigo-500/10"
-                                        border="border-indigo-500/20"
-                                    />
-                                )}
-                             </div>
-                        </motion.div>
-
-                    </div>
-
-                    {/* Blockchain Identity */}
-                    <motion.div 
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-                      className="space-y-6"
-                    >
-                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            <Wallet className="w-5 h-5 text-emerald-400" />
-                            Blockchain Identity
-                         </h2>
-                         
-                         <div className="bg-[#050505] rounded-3xl p-6 border border-white/8 shadow-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-colors duration-500">
-                             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors duration-500"></div>
-                             
-                             <div className="flex justify-between items-start mb-8 relative z-10">
-                                 <div className="p-3 bg-white/5 rounded-xl border border-white/5">
-                                     <Wallet className="w-6 h-6 text-emerald-400" />
-                                 </div>
-                                 <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
-                                     <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-                                     Active
-                                 </div>
-                             </div>
-
-                             <div className="space-y-4 relative z-10">
-                                 <div>
-                                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Wallet Address</label>
-                                     <Button 
-                                        onClick={copyWalletAddress}
-                                        variant="ghost"
-                                        className="w-full p-0! bg-transparent! border-none! group/copy overflow-visible"
-                                     >
-                                         <div className="w-full font-mono text-sm text-gray-300 break-all bg-black/40 p-4 rounded-xl border border-white/10 group-hover/copy:border-emerald-500/30 group-hover/copy:text-white transition-all flex justify-between items-center text-left">
-                                             <span>{user?.walletAddress || connectedAddress || "Not Connected"}</span>
-                                             <Copy className="w-4 h-4 opacity-0 group-hover/copy:opacity-100 transition-opacity text-emerald-400" />
-                                         </div>
-                                     </Button>
-                                 </div>
-                                 
-                                 <div className="pt-4 border-t border-white/5">
-                                     <div className="flex justify-between items-center text-sm">
-                                         <span className="text-gray-400">Network</span>
-                                         <span className="font-bold text-white flex items-center gap-2">
-                                             <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                                             Sepolia Testnet
-                                         </span>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                    </motion.div>
                 </div>
             </div>
-        </div>
-      </div>
+
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Academic/Institutional Details */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="flex items-center gap-3 px-2">
+                        <div className="p-2 bg-indigo-500/10 rounded-lg">
+                            <Shield className={`w-4 h-4 ${isIssuer ? 'text-purple-400' : 'text-indigo-400'}`} />
+                        </div>
+                        <h3 className="text-sm font-black text-white uppercase tracking-widest">{isIssuer ? 'Institutional Details' : 'Account Details'}</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {isEditing && !isIssuer ? (
+                            <Input
+                                label="Learning Institution"
+                                value={formData.university}
+                                onChange={(e) => setFormData({...formData, university: e.target.value})}
+                                icon={Building}
+                            />
+                        ) : (
+                            <ProfileCard 
+                                icon={Building}
+                                label={isIssuer ? "Registration ID" : "Institution"}
+                                value={isIssuer ? (formData.registrationNumber || 'None') : (user?.university || 'None')}
+                                color="text-indigo-400"
+                            />
+                        )}
+
+                        <ProfileCard 
+                            icon={Calendar}
+                            label="Joined"
+                            value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
+                                year: 'numeric', month: 'long', day: 'numeric'
+                            }) : 'Pending'}
+                            color="text-emerald-400"
+                        />
+                        
+                        <ProfileCard 
+                            icon={Activity}
+                            label="Status"
+                            value={user?.isActive ? 'Active' : 'Inactive'}
+                            color="text-blue-400"
+                        />
+
+                        {isIssuer && (
+                            <ProfileCard 
+                                icon={Award}
+                                label="Plan Tier"
+                                value={user?.issuerDetails?.plan || 'STARTER'}
+                                color="text-purple-400"
+                            />
+                        )}
+                    </div>
+                </div>
+
+                {/* Blockchain Passport Section */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 px-2">
+                        <div className="p-2 bg-emerald-500/10 rounded-lg">
+                            <Wallet className="w-4 h-4 text-emerald-400" />
+                        </div>
+                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Wallet Connection</h3>
+                    </div>
+                    
+                    <div className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/4 shadow-2xl relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-500">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[60px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors duration-500"></div>
+                        
+                        <div className="flex justify-between items-start mb-10 relative z-10">
+                            <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 transition-transform group-hover:scale-110">
+                                <Wallet className="w-6 h-6 text-emerald-400" />
+                            </div>
+                            <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                                Connected
+                            </div>
+                        </div>
+
+                        <div className="space-y-6 relative z-10">
+                            <div>
+                                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest block mb-3">Wallet Address</label>
+                                <button 
+                                   onClick={copyWalletAddress}
+                                   className="w-full text-left group/copy focus:outline-none"
+                                >
+                                    <div className="w-full font-mono text-[11px] text-zinc-400 break-all bg-black p-5 rounded-2xl border border-white/5 group-hover/copy:border-emerald-500/30 group-hover/copy:text-emerald-300 transition-all flex justify-between items-center h-20">
+                                        <span className="flex-1 pr-4 leading-relaxed font-bold uppercase">{user?.walletAddress || connectedAddress || "Not Linked"}</span>
+                                        <Copy className="w-4 h-4 opacity-0 group-hover/copy:opacity-100 transition-opacity shrink-0" />
+                                    </div>
+                                </button>
+                            </div>
+                            
+                            <div className="pt-6 border-t border-white/4 flex justify-between items-center">
+                                <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest leading-none">Network</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                                    <span className="text-xs font-black text-zinc-300 uppercase tracking-widest">Sepolia Testnet</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+      </AccountLayout>
     );
 };
 
-const ProfileCard = ({ icon: LucideIcon, label, value, color, bg, border }) => (
-  <div className="flex items-start space-x-4 p-5 bg-white/2 rounded-2xl border border-white/6 hover:bg-white/4 hover:border-white/10 transition-all duration-300 backdrop-blur-md group h-full">
-    <div className={`p-3 rounded-xl border transition-colors ${bg} ${border} group-hover:bg-opacity-20`}>
+const ProfileCard = ({ icon: LucideIcon, label, value, color }) => (
+  <div className="flex items-center gap-5 p-6 bg-[#0a0a0a] rounded-4xl border border-white/4 hover:bg-white/2 hover:border-white/10 transition-all duration-300 group">
+    <div className={`p-4 rounded-2xl bg-white/2 border border-white/5 transition-all group-hover:scale-110 group-hover:bg-white/5 group-hover:border-white/10`}>
       <LucideIcon className={`w-5 h-5 ${color}`} />
     </div>
-    <div>
-      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">{label}</h4>
-      <p className="text-gray-200 font-bold break-all">{value || 'Not set'}</p>
+    <div className="min-w-0">
+      <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">{label}</h4>
+      <p className="text-zinc-200 font-black tracking-tight text-sm truncate uppercase">{value || 'NOT_SET'}</p>
     </div>
   </div>
 );

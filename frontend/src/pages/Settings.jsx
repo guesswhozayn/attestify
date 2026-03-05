@@ -5,6 +5,7 @@ import Button from '../components/shared/Button';
 import { Lock } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import api from '../services/api';
+import AccountLayout from '../components/layout/AccountLayout';
 
 const Settings = () => {
   const { showNotification } = useNotification();
@@ -43,89 +44,117 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-          {/* Main Gradient Orbs */}
-          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-      </div>
-      <main className="p-6 lg:p-10 max-w-4xl mx-auto space-y-8 relative z-10">
-        
-        {/* Page Header */}
-         <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-         >
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Security Settings</h1>
-            <p className="text-gray-400">Manage your password and account security.</p>
-         </motion.div>
-
+    <AccountLayout>
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-          className="bg-white/[0.02] border border-white/[0.06] rounded-3xl p-8 md:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8"
         >
-          {/* Background Decor */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/5 rounded-full blur-[80px] pointer-events-none -mr-20 -mt-20"></div>
-
-          {/* Security Content */}
-          <div className="space-y-8 max-w-2xl relative z-10">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-2 bg-red-500/10 rounded-lg">
-                    <Lock className="w-5 h-5 text-red-400" />
+            {/* Page Header */}
+            <div className="px-2">
+                <h1 className="text-2xl font-black text-white tracking-widest uppercase mb-1">Account Settings</h1>
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Secure session</p>
                 </div>
-                <h3 className="text-xl font-bold text-white">Change Password</h3>
-              </div>
-              
-              <div className="space-y-6">
-                <Input
-                  label="Current Password"
-                  type="password"
-                  value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  icon={Lock}
-                  placeholder="••••••••"
+            </div>
+
+            <div className="bg-[#0a0a0a] border border-white/4 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group">
+              {/* Background Decor */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/2 rounded-full blur-[100px] pointer-events-none group-hover:bg-red-500/5 transition-colors duration-700"></div>
+
+              {/* Security Content */}
+              <div className="space-y-10 max-w-3xl relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
+                        <Lock className="w-6 h-6 text-indigo-400" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-white tracking-tight">Change Password</h3>
+                        <p className="text-zinc-500 text-xs font-medium">Update your account password.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-8">
+                    <Input
+                      label="Current Password"
+                      type="password"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                      icon={Lock}
+                      placeholder="••••••••"
+                    />
+                    
+                    <div className="h-px bg-white/4 w-full"></div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <Input
+                          label="New Password"
+                          type="password"
+                          value={passwordData.newPassword}
+                          onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                          icon={Lock}
+                          placeholder="••••••••"
+                        />
+                        <Input
+                          label="Confirm Password"
+                          type="password"
+                          value={passwordData.confirmPassword}
+                          onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                          icon={Lock}
+                          placeholder="••••••••"
+                        />
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-white/4">
+                    <Button
+                      onClick={handlePasswordChange}
+                      loading={loading}
+                      size="lg"
+                      variant="white"
+                      className="w-full md:w-auto px-12 py-4 rounded-full uppercase tracking-widest text-[11px] font-black shadow-xl shadow-white/5"
+                    >
+                      Update Password
+                    </Button>
+                  </div>
+                </div>
+            </div>
+
+            {/* Account Health / Info Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <SecurityInfoCard 
+                    label="Encryption" 
+                    value="AES-256" 
+                    status="Active" 
+                    color="text-emerald-400"
                 />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      label="New Password"
-                      type="password"
-                      value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      icon={Lock}
-                      placeholder="••••••••"
-                    />
-                    <Input
-                      label="Confirm New Password"
-                      type="password"
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      icon={Lock}
-                      placeholder="••••••••"
-                    />
-                </div>
-              </div>
-
-              <div className="pt-8">
-                <Button
-                  onClick={handlePasswordChange}
-                  loading={loading}
-                  size="lg"
-                  variant="white"
-                  className="w-full md:w-auto px-8 py-3 rounded-full"
-                >
-                  Update Password
-                </Button>
-              </div>
+                <SecurityInfoCard 
+                    label="Last Update" 
+                    value="14 days ago" 
+                    status="Verified" 
+                    color="text-indigo-400"
+                />
+                <SecurityInfoCard 
+                    label="Security" 
+                    value="Secure" 
+                    status="Active" 
+                    color="text-blue-400"
+                />
             </div>
         </motion.div>
-      </main>
-    </div>
+    </AccountLayout>
   );
 };
+
+const SecurityInfoCard = ({ label, value, status, color }) => (
+    <div className="p-6 bg-[#0a0a0a] border border-white/4 rounded-3xl hover:border-white/10 transition-colors group">
+        <h4 className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">{label}</h4>
+        <div className="flex justify-between items-end">
+            <p className="text-white font-black tracking-tight">{value}</p>
+            <span className={`text-[9px] font-black ${color} opacity-60 group-hover:opacity-100 transition-opacity`}>{status}</span>
+        </div>
+    </div>
+);
 
 export default Settings;

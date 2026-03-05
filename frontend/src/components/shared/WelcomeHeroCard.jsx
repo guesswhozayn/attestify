@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import StatusBadge from './StatusBadge';
 import RefreshButton from './RefreshButton';
@@ -108,4 +108,5 @@ const WelcomeHeroCard = ({
   );
 };
 
-export default WelcomeHeroCard;
+WelcomeHeroCard.displayName = 'WelcomeHeroCard';
+export default React.memo(WelcomeHeroCard);
