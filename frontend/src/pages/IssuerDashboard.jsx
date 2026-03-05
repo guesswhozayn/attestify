@@ -4,6 +4,7 @@ import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import IssueCredentialModal from '../components/credential/IssueCredentialModal';
 import BulkIssueModal from '../components/credential/BulkIssueModal';
+import UpgradePlanModal from '../components/dashboard/UpgradePlanModal';
 import RecentActivityList from '../components/dashboard/RecentActivityList';
 import { Plus, Shield, Filter, ArrowRight, FileText, Users, Award, CheckCircle, Clock, Calendar, Zap} from 'lucide-react';
 import { credentialAPI } from '../services/api';
@@ -30,6 +31,7 @@ const IssuerDashboard = () => {
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showBulkModal, setShowBulkModal] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const { showNotification } = useNotification();
@@ -296,7 +298,7 @@ const IssuerDashboard = () => {
                             
                             {user?.issuerDetails?.plan !== 'ENTERPRISE' && (
                                 <Button 
-                                    onClick={() => navigate('/pricing')}
+                                    onClick={() => setShowUpgradeModal(true)}
                                     variant="outline"
                                     className="w-full justify-center text-xs py-2 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10"
                                 >
@@ -392,6 +394,14 @@ const IssuerDashboard = () => {
             <BulkIssueModal
                 isOpen={showBulkModal}
                 onClose={() => setShowBulkModal(false)}
+                onSuccess={() => {
+                    fetchDashboardData();
+                }}
+            />
+
+            <UpgradePlanModal
+                isOpen={showUpgradeModal}
+                onClose={() => setShowUpgradeModal(false)}
                 onSuccess={() => {
                     fetchDashboardData();
                 }}
