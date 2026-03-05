@@ -19,8 +19,11 @@ app.use(helmet({
 
 connectDB();
 
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+const normalizedOrigin = allowedOrigin.endsWith('/') ? allowedOrigin.slice(0, -1) : allowedOrigin;
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [normalizedOrigin, `${normalizedOrigin}/`],
   credentials: true
 }));
 
