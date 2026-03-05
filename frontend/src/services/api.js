@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 // API Configuration
 let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 if (!API_BASE_URL.endsWith('/api')) {
@@ -74,9 +73,6 @@ api.interceptors.response.use(
   }
 );
 
-// ============================================
-// Authentication APIs
-// ============================================
 export const authAPI = {
   // Register new user
   register: async (userData) => {
@@ -104,9 +100,6 @@ export const authAPI = {
   }
 };
 
-// ============================================
-// Credential APIs
-// ============================================
 export const credentialAPI = {
   // Issue new credential
   issue: async (formData) => {
@@ -164,9 +157,6 @@ export const credentialAPI = {
   }
 };
 
-// ============================================
-// Verification APIs
-// ============================================
 export const verifyAPI = {
   // Verify certificate with file upload
   verifyWithFile: async (formData) => {
@@ -193,9 +183,6 @@ export const verifyAPI = {
   }
 };
 
-// ============================================
-// Network Status APIs
-// ============================================
 export const networkAPI = {
   // Get network stats
   getStats: async () => {
@@ -204,19 +191,7 @@ export const networkAPI = {
 };
 
 
-// ============================================
-// Payment APIs
-// ============================================
-export const paymentAPI = {
-  // Create checkout session
-  createCheckoutSession: async () => {
-    return api.post('/payment/create-checkout-session');
-  }
-};
 
-// ============================================
-// User APIs
-// ============================================
 export const userAPI = {
   // Get user profile
   getProfile: async () => {
@@ -243,35 +218,13 @@ export const userAPI = {
   }
 };
 
-// ============================================
-// Statistics APIs
-// ============================================
 export const statsAPI = {
   // Get dashboard stats (Using audit controller)
   getDashboard: async () => {
     return api.get('/audit/dashboard-stats');
   },
-
-  // Other stats endpoints not yet implemented in backend
-  /*
-  getCertificates: async (params = {}) => {
-    return api.get('/stats/certificates', { params });
-  },
-  getUsers: async () => {
-    return api.get('/stats/users');
-  },
-  getBlockchain: async () => {
-    return api.get('/stats/blockchain');
-  },
-  getGasMetrics: async (params = {}) => {
-    return api.get('/stats/gas', { params });
-  }
-  */
 };
 
-// ============================================
-// File APIs
-// ============================================
 export const fileAPI = {
   // Download certificate
   downloadCertificate: async (id) => {
@@ -295,15 +248,7 @@ export const fileAPI = {
   }
 };
 
-
-// ============================================
-// Export default api instance
-// ============================================
 export default api;
-
-// ============================================
-// Helper functions
-// ============================================
 
 // Set auth token
 export const setAuthToken = (token) => {
