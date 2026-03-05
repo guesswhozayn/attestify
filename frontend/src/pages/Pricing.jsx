@@ -1,6 +1,5 @@
 import { Check, X, Shield, Zap, Building2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { paymentAPI } from '../services/api';
 import Button from '../components/shared/Button';
 import BackgroundEffects from '../components/shared/BackgroundEffects';
 import BackButton from '../components/shared/BackButton';
@@ -12,15 +11,7 @@ const Pricing = () => {
 
   const handleUpgrade = async (planName) => {
     if (planName === 'Pro') {
-      try {
-        const checkoutRes = await paymentAPI.createCheckoutSession();
-        if (checkoutRes.data && checkoutRes.data.url) {
-          window.location.assign(checkoutRes.data.url);
-        }
-      } catch (err) {
-        console.error('Failed to initiate checkout', err);
-        showNotification('Failed to start checkout process.', 'error');
-      }
+      showNotification('Online plan upgrades are currently disabled. Please contact support.', 'info');
     }
   };
 

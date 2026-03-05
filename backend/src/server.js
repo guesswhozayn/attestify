@@ -43,15 +43,6 @@ const authLimiter = rateLimit({
 app.use('/api/', limiter);
 app.use('/api/auth/', authLimiter);
 
-// --- Stripe Webhook Endpoint ---
-// Stripe requires the raw body to construct the event and verify the signature.
-// It must be placed BEFORE app.use(express.json()).
-const paymentController = require('./controllers/paymentController');
-app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
-  req.rawBody = req.body;
-  next();
-}, paymentController.webhook);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -69,7 +60,6 @@ const verifyRoutes = require('./routes/verify');
 const userRoutes = require('./routes/user');
 const networkRoutes = require('./routes/network');
 const fileRoutes = require('./routes/files');
-const paymentRoutes = require('./routes/payment');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/credentials', credentialRoutes);
@@ -77,7 +67,6 @@ app.use('/api/verify', verifyRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/network', networkRoutes);
 app.use('/api/files', fileRoutes);
-app.use('/api/payment', paymentRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ 

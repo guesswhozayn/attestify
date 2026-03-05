@@ -58,7 +58,8 @@ const Profile = () => {
         university: '',
         about: '',
         institutionName: '',
-        registrationNumber: ''
+        registrationNumber: '',
+        plan: ''
     });
 
     // Initialize/Sync Form Data
@@ -70,7 +71,8 @@ const Profile = () => {
                 university: user.university || '',
                 about: user.about || '',
                 institutionName: user.issuerDetails?.institutionName || user.name || '',
-                registrationNumber: user.issuerDetails?.registrationNumber || ''
+                registrationNumber: user.issuerDetails?.registrationNumber || '',
+                plan: user.issuerDetails?.plan || 'STARTER'
             });
         }
     }, [user]);
@@ -113,7 +115,8 @@ const Profile = () => {
             if (isIssuer) {
                 payload.issuerDetails = {
                     institutionName: formData.name, // Usually name is institution name for issuers
-                    registrationNumber: formData.registrationNumber
+                    registrationNumber: formData.registrationNumber,
+                    plan: formData.plan
                 };
             } else {
                 payload.title = formData.title;
@@ -237,14 +240,38 @@ const Profile = () => {
                                 <div className="space-y-4 w-full max-w-2xl text-center md:text-left">
                                     {isEditing ? (
                                         <div className={`grid grid-cols-1 ${!isIssuer ? 'md:grid-cols-2' : ''} gap-4`}>
-                                            <Input 
-                                                label={isIssuer ? "Institution Name" : "Full Name"}
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                                placeholder={isIssuer ? "Institution Name" : "Your Name"}
-                                                icon={isIssuer ? Building : User}
-                                                className="font-bold text-lg"
-                                            />
+                                            <div className="space-y-4">
+                                                <Input 
+                                                    label={isIssuer ? "Institution Name" : "Full Name"}
+                                                    value={formData.name}
+                                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                    placeholder={isIssuer ? "Institution Name" : "Your Name"}
+                                                    icon={isIssuer ? Building : User}
+                                                    className="font-bold text-lg"
+                                                />
+                                                {isIssuer && (
+                                                    <div className="space-y-2 text-left">
+                                                        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-4">Subscription Plan</label>
+                                                        <div className="relative group">
+                                                            <div className="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center pointer-events-none">
+                                                                <Award className="w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-200" />
+                                                            </div>
+                                                            <select
+                                                                value={formData.plan}
+                                                                onChange={(e) => setFormData({...formData, plan: e.target.value})}
+                                                                className="w-full bg-black/40 text-gray-100 pl-12 pr-10 py-3.5 rounded-xl border border-white/10 text-sm appearance-none focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:bg-black/60 transition-all duration-200 backdrop-blur-md cursor-pointer"
+                                                            >
+                                                                <option value="STARTER" className="bg-gray-900">Starter</option>
+                                                                <option value="PRO" className="bg-gray-900">Pro</option>
+                                                                <option value="ENTERPRISE" className="bg-gray-900">Enterprise</option>
+                                                            </select>
+                                                            <div className="absolute right-4 top-0 bottom-0 flex items-center pointer-events-none">
+                                                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                             {!isIssuer && (
                                                 <Input 
                                                     label="Title / Major"
@@ -372,6 +399,17 @@ const Profile = () => {
                                     bg="bg-blue-500/10"
                                     border="border-blue-500/20"
                                 />
+
+                                {isIssuer && (
+                                    <ProfileCard 
+                                        icon={Award}
+                                        label="Current Plan"
+                                        value={user?.issuerDetails?.plan || 'STARTER'}
+                                        color="text-indigo-400"
+                                        bg="bg-indigo-500/10"
+                                        border="border-indigo-500/20"
+                                    />
+                                )}
                              </div>
                         </motion.div>
 

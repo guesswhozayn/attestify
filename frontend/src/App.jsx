@@ -25,8 +25,6 @@ const TermsOfService    = lazy(() => import('./pages/TermsOfService'));
 const NotFound          = lazy(() => import('./pages/NotFound'));
 const PartnershipGuide  = lazy(() => import('./pages/PartnershipGuide'));
 const Pricing           = lazy(() => import('./pages/Pricing'));
-const PaymentSuccess    = lazy(() => import('./pages/PaymentSuccess'));
-const PaymentCancel     = lazy(() => import('./pages/PaymentCancel'));
 
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -64,8 +62,6 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/payment/cancel" element={<PaymentCancel />} />
 
           {/* Protected Routes */}
           <Route

@@ -75,13 +75,6 @@ const userSchema = new mongoose.Schema({
       type: Number,
       default: 0
     },
-    stripeCustomerId: { type: String },
-    stripeSubscriptionId: { type: String },
-    subscriptionStatus: { 
-      type: String, 
-      enum: ['active', 'past_due', 'canceled', 'unpaid', 'incomplete', 'incomplete_expired', 'trialing'],
-      default: 'incomplete'
-    },
     operationalMetrics: {
       lastActive: Date,
       currentGasBalance: String
