@@ -75,6 +75,8 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     }));
   };
 
+  const [quotaError, setQuotaError] = useState(false);
+  
   const handleSubmit = async () => {
     if (!formData.studentName || !formData.studentWalletAddress || !formData.university || 
         !formData.issueDate) {
@@ -82,6 +84,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       return;
     }
 
+    setQuotaError(false);
     setLoading(true);
 
     try {
@@ -135,7 +138,11 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
     } catch (error) {
        console.error(error);
-      showNotification(error.response?.data?.error || 'Failed to issue credential', 'error');
+       if (error.response?.status === 403 && error.response?.data?.error?.includes('limit reached')) {
+          setQuotaError(error.response.data.error);
+       } else {
+          showNotification(error.response?.data?.error || 'Failed to issue credential', 'error');
+       }
     } finally {
       setLoading(false);
     }
@@ -153,6 +160,25 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                 </p>
             </div>
         </div>
+      )}
+
+      {quotaError && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 mb-6 flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-3">
+                  <Shield className="w-6 h-6 text-red-400" />
+              </div>
+              <h4 className="text-red-400 font-bold mb-2 text-lg">Issuance Limit Reached</h4>
+              <p className="text-red-400/80 text-sm mb-4">
+                 Your institution has reached the maximum number of credentials allowed on your current plan.
+              </p>
+              <Button 
+                onClick={() => window.location.assign('/pricing')} 
+                variant="white"
+                className="w-full justify-center text-red-600 font-bold shadow-lg"
+              >
+                  Upgrade Plan to Issue More
+              </Button>
+          </div>
       )}
 
       <div className="relative group flex flex-col">

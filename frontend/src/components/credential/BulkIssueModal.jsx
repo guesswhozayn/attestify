@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
-import { Upload, Loader2, FileText, Download, CheckCircle } from 'lucide-react';
+import { Upload, Loader2, FileText, Download, CheckCircle, Shield } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -11,12 +11,15 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
   const [batchFile, setBatchFile] = useState(null);
   const [batchSummary, setBatchSummary] = useState(null);
 
+  const [quotaError, setQuotaError] = useState(false);
+
   const handleBatchUpload = async () => {
     if (!batchFile) {
       showNotification('Please select a CSV file', 'error');
       return;
     }
 
+    setQuotaError(false);
     setLoading(true);
     const formData = new FormData();
     formData.append('file', batchFile);
@@ -40,7 +43,11 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
       }
     } catch (error) {
       console.error(error);
-      showNotification('Batch upload failed', 'error');
+      if (error.response?.status === 403 && error.response?.data?.error?.includes('exceeds limit')) {
+          setQuotaError(error.response.data.error);
+      } else {
+          showNotification(error.response?.data?.error || 'Batch upload failed', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -83,6 +90,25 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 </p>
             </div>
         </div>
+      )}
+
+      {quotaError && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 mb-6 flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-3">
+                  <Shield className="w-6 h-6 text-red-400" />
+              </div>
+              <h4 className="text-red-400 font-bold mb-2 text-lg">Issuance Limit Reached</h4>
+              <p className="text-red-400/80 text-sm mb-4">
+                 {quotaError}
+              </p>
+              <Button 
+                onClick={() => window.location.assign('/pricing')} 
+                variant="white"
+                className="w-full justify-center text-red-600 font-bold shadow-lg"
+              >
+                  Upgrade Plan to Issue More
+              </Button>
+          </div>
       )}
 
       <div className="space-y-6">
