@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
@@ -40,6 +40,21 @@ const IssuerDashboard = () => {
     const isMounted = React.useRef(true);
     const loadingRef = React.useRef(true);
     const refreshingRef = React.useRef(false);
+
+    const welcomeTitle = useMemo(() => (
+      <>
+        Welcome,{' '}
+        <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-300 via-white to-indigo-300 bg-size-[200%_auto] animate-shimmer">
+          {user?.issuerDetails?.institutionName || user?.name || 'Issuer'}
+        </span>
+      </>
+    ), [user?.issuerDetails?.institutionName, user?.name]);
+
+    const welcomeAvatar = useMemo(() => (
+      <div className="w-12 h-12 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500">
+        <Shield className="w-6 h-6 text-indigo-400" />
+      </div>
+    ), []);
     
     const fetchDashboardData = useCallback(async (isRefresh = false) => {
         try {
@@ -107,20 +122,9 @@ const IssuerDashboard = () => {
                 {/* Welcome Section */}
                 <WelcomeHeroCard
                   badge="Issuer Command"
-                  title={
-                    <>
-                      Welcome,{' '}
-                      <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-300 via-white to-indigo-300 bg-size-[200%_auto] animate-shimmer">
-                        {user?.issuerDetails?.institutionName || user?.name || 'Issuer'}
-                      </span>
-                    </>
-                  }
+                  title={welcomeTitle}
                   subtitle="Manage your institution's digital footprint. Issue on-chain credentials and monitor network status in real-time."
-                  avatar={
-                    <div className="w-12 h-12 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500">
-                      <Shield className="w-6 h-6 text-indigo-400" />
-                    </div>
-                  }
+                  avatar={welcomeAvatar}
                   onRefresh={() => fetchDashboardData(true)}
                   refreshing={refreshing}
                 />
