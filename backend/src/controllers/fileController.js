@@ -18,7 +18,7 @@ const downloadCertificate = asyncHandler(async (req, res) => {
 
   // Security Check: Access control
   const isOwner = req.user && req.user.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
-  const isIssuer = req.user && (req.user.role === 'ISSUER' || req.user._id.toString() === credential.issuedBy.toString());
+  const isIssuer = req.user && req.user.role === 'ISSUER' && req.user._id.toString() === credential.issuedBy.toString();
   
   // If not owner/issuer, check if profile is public
   if (!isOwner && !isIssuer) {

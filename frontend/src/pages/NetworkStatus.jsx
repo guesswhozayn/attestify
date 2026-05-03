@@ -221,9 +221,9 @@ const NetworkStatus = () => {
                     {/* Right: Wallet & Status */}
                     <div className="flex items-center justify-between sm:justify-end gap-6 pl-14 sm:pl-0">
                         <div className="text-right hidden sm:block">
-                             <div className="text-xs text-gray-500 mb-1">Student Wallet</div>
+                             <div className="text-xs text-gray-500 mb-1">Type</div>
                              <div className="font-mono text-sm text-gray-300">
-                                {tx.studentWalletAddress ? `${tx.studentWalletAddress.substring(0, 6)}...${tx.studentWalletAddress.substring(tx.studentWalletAddress.length - 4)}` : '-'}
+                                {tx.type || '-'}
                              </div>
                         </div>
 

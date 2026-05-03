@@ -48,8 +48,14 @@ const issueCredential = asyncHandler(async (req, res) => {
     }
 
     const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
+    const normalizedStudentWallet = studentWalletAddress?.toLowerCase().trim();
     const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
 
+    // 1. Validation: No future dates
+    const parsedIssueDate = new Date(issueDate);
+    if (parsedIssueDate > new Date()) {
+      return res.status(400).json({ error: 'Issue date cannot be in the future.' });
+    }
 
     let parsedTranscriptData = transcriptData;
     let parsedCertificationData = certificationData;
@@ -63,16 +69,20 @@ const issueCredential = asyncHandler(async (req, res) => {
 
 
     const credential = new Credential({
-      studentWalletAddress,
+      studentWalletAddress: normalizedStudentWallet,
       studentName,
       university,
-      issueDate: new Date(issueDate),
+      issueDate: parsedIssueDate,
       type,
       transcriptData: parsedTranscriptData,
       certificationData: parsedCertificationData,
       issuedBy: req.user._id,
       metadata: {}
     });
+
+    // 2. Pre-Save to DB (Ensures we have a record before we touch the blockchain)
+    // We save without transactionHash and ipfsCID first.
+    await credential.save();
 
     const credentialId = credential._id.toString();
 
@@ -93,9 +103,9 @@ const issueCredential = asyncHandler(async (req, res) => {
     await pdfService.generateCredentialPDF({
         type,
         studentName,
-        studentWalletAddress,
+        studentWalletAddress: normalizedStudentWallet,
         university,
-        issueDate,
+        issueDate: parsedIssueDate,
         credentialId,
         transcriptData: parsedTranscriptData,
         certificationData: parsedCertificationData,
@@ -144,11 +154,11 @@ const issueCredential = asyncHandler(async (req, res) => {
 
             const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
             
-            const res = await blockchainService.issueSoulboundCredential(
-                studentWalletAddress,
+            const sbtRes = await blockchainService.issueSoulboundCredential(
+                normalizedStudentWallet,
                 metadataURI
             );
-            return res;
+            return sbtRes;
         } catch (sbtError) {
             console.error('Failed to mint SBT:', sbtError);
             return null;
@@ -176,6 +186,7 @@ const issueCredential = asyncHandler(async (req, res) => {
       originalFileName: `Certificate_${credentialId}.pdf`
     };
 
+    // 3. Final Save (Updates with blockchain and IPFS data)
     await credential.save();
 
     req.user.issuerDetails.certificatesIssued = (req.user.issuerDetails.certificatesIssued || 0) + 1;
@@ -319,11 +330,18 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
          };
       }
 
+      const normalizedWallet = row.studentWalletAddress?.toLowerCase().trim();
+      const parsedIssueDate = row.issueDate ? new Date(row.issueDate) : new Date();
+
+      if (parsedIssueDate > new Date()) {
+          throw new Error('Issue date cannot be in the future');
+      }
+
       const credential = new Credential({
-        studentWalletAddress: row.studentWalletAddress,
+        studentWalletAddress: normalizedWallet,
         studentName: row.studentName,
         university: req.user.issuerDetails?.institutionName || row.university || 'Attestify University',
-        issueDate: issueDate,
+        issueDate: parsedIssueDate,
         type,
         transcriptData,
         certificationData,
@@ -347,7 +365,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
       await pdfService.generateCredentialPDF({
         type,
         studentName: credential.studentName,
-        studentWalletAddress: credential.studentWalletAddress,
+        studentWalletAddress: normalizedWallet,
         university: credential.university,
         issueDate: credential.issueDate,
         credentialId,
@@ -369,7 +387,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
       batchStudentIds.push(credentialId);
       batchHashes.push(certificateHash);
       batchIpfsCIDs.push(ipfsResult.ipfsHash);
-      batchRecipients.push(row.studentWalletAddress);
+      batchRecipients.push(normalizedWallet);
       batchTokenURIs.push(metadataURI);
 
       pendingCredentials.push({
@@ -387,6 +405,9 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
     } catch (err) {
        console.error('Batch preprocessing failed for row:', row, err);
        summary.failed++;
+       if (tempFilePath && fs.existsSync(tempFilePath)) {
+           fs.unlinkSync(tempFilePath);
+       }
     }
   };
 
@@ -477,9 +498,23 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
       credential.metadata = item.tempMetadata;
 
-      try {
-          await credential.save();
-          
+      // Retry save up to 3 times — the credential is already minted on-chain,
+      // so failing to persist to MongoDB is a critical consistency issue.
+      let saved = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+              await credential.save();
+              saved = true;
+              break;
+          } catch (saveError) {
+              console.error(`[BatchSave] Attempt ${attempt}/3 failed for credential ${credential._id}:`, saveError.message);
+              if (attempt < 3) {
+                  await new Promise(r => setTimeout(r, 500 * attempt)); // backoff: 500ms, 1s
+              }
+          }
+      }
+
+      if (saved) {
           const studentUser = await User.findOne({ walletAddress: item.row.studentWalletAddress.toLowerCase() });
           if (studentUser && studentUser.email) {
                const emailData = {
@@ -500,9 +535,39 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
           
           summary.success++;
 
-      } catch (saveError) {
-          console.error('Failed to save credential post-minting:', saveError);
-          summary.failed++; // Technically minted but failed to save to DB. Critical consistency issue.
+      } else {
+          // CRITICAL: On-chain credential exists but MongoDB record was not saved.
+          // Log all data needed for manual reconciliation.
+          console.error(`[CRITICAL] Credential minted on-chain but NOT saved to DB. Manual reconciliation required.`, {
+              credentialId: credential._id.toString(),
+              studentWallet: item.row.studentWalletAddress,
+              studentName: item.row.studentName,
+              certificateHash: item.certificateHash,
+              ipfsCID: item.ipfsHash,
+              transactionHash: blockchainResult.transactionHash,
+              blockNumber: blockchainResult.blockNumber,
+              tokenId: credential.tokenId || null
+          });
+
+          try {
+              const logPath = path.join(__dirname, '../../logs/batch_reconciliation.log');
+              fs.mkdirSync(path.dirname(logPath), { recursive: true });
+              fs.appendFileSync(logPath, JSON.stringify({
+                  timestamp: new Date().toISOString(),
+                  credentialId: credential._id.toString(),
+                  studentWallet: item.row.studentWalletAddress,
+                  studentName: item.row.studentName,
+                  certificateHash: item.certificateHash,
+                  ipfsCID: item.ipfsHash,
+                  transactionHash: blockchainResult.transactionHash,
+                  tokenId: credential.tokenId || null,
+                  fullCredentialData: credential.toObject()
+              }) + '\n');
+          } catch (logErr) {
+              console.error('[CRITICAL] Failed to write reconciliation log:', logErr);
+          }
+
+          summary.failed++;
       }
   }
 
@@ -559,7 +624,7 @@ const getCredentials = asyncHandler(async (req, res) => {
     .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
     .limit(limit * 1)
     .skip((page - 1) * limit)
-    .populate('issuedBy', 'name email university instituteDetails')
+    .populate('issuedBy', 'name email university issuerDetails')
     .lean();
 
   const count = await Credential.countDocuments(query);
@@ -580,11 +645,22 @@ const getCredentialById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const credential = await Credential.findById(id)
-    .populate('issuedBy', 'name email university instituteDetails')
+    .populate('issuedBy', 'name email university issuerDetails')
     .populate('revokedBy', 'name email');
 
   if (!credential) {
     return res.status(404).json({ error: 'Credential not found' });
+  }
+
+  // Security Check: Access control
+  const isOwner = req.user && req.user.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isIssuer = req.user && req.user.role === 'ISSUER' && req.user._id.toString() === credential.issuedBy._id.toString();
+
+  if (!isOwner && !isIssuer) {
+      const student = await User.findOne({ walletAddress: credential.studentWalletAddress });
+      if (student?.preferences?.visibility === false) {
+          return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
+      }
   }
 
   const ipfsUrl = ipfsService.getIPFSUrl(credential.ipfsCID);
@@ -600,15 +676,23 @@ const getCredentialById = asyncHandler(async (req, res) => {
 
 const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   const { walletAddress } = req.params;
-  const currentWallet = req.user.walletAddress?.toLowerCase();
-  const targetWallet = walletAddress.toLowerCase();
+  const currentWallet = req.user.walletAddress?.toLowerCase().trim();
+  const targetWallet = walletAddress.toLowerCase().trim();
 
   if (req.user.role !== 'ISSUER' && currentWallet !== targetWallet) {
     return res.status(403).json({ error: 'Unauthorized access to credentials' });
   }
 
+  // Security Check: If issuer is querying a different student, check student's visibility preference
+  if (req.user.role === 'ISSUER' && currentWallet !== targetWallet) {
+      const student = await User.findOne({ walletAddress: targetWallet });
+      if (student?.preferences?.visibility === false) {
+          return res.status(403).json({ error: 'Unauthorized: This student profile is private.' });
+      }
+  }
+
   const credentials = await Credential.find({ studentWalletAddress: targetWallet })
-    .populate('issuedBy', 'name email university instituteDetails')
+    .populate('issuedBy', 'name email university issuerDetails')
     .sort({ createdAt: -1 });
 
   res.json({
@@ -621,14 +705,18 @@ const revokeCredential = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
 
-  const credential = await Credential.findById(id);
+  const credential = await Credential.findById(id).populate('issuedBy');
 
   if (!credential) {
     return res.status(404).json({ error: 'Credential not found' });
   }
 
-  if (credential.issuedBy.toString() !== req.user._id.toString()) {
-    return res.status(403).json({ error: 'Unauthorized: Only the original issuer can revoke this credential.' });
+  // Use Wallet Address for ownership check to handle cases where Issuer accounts are deleted/re-registered
+  const issuerWallet = credential.issuedBy?.walletAddress?.toLowerCase();
+  const currentWallet = req.user.walletAddress?.toLowerCase();
+
+  if (issuerWallet !== currentWallet) {
+    return res.status(403).json({ error: 'Unauthorized: Only the original issuer wallet can revoke this credential.' });
   }
 
   if (credential.isRevoked) {
@@ -704,7 +792,7 @@ const getStats = asyncHandler(async (req, res) => {
     .select('studentName university createdAt type')
     .lean();
 
-  const walletAddress = req.user.instituteDetails?.authorizedWalletAddress || req.user.walletAddress;
+  const walletAddress = req.user.issuerDetails?.authorizedWalletAddress || req.user.walletAddress;
   let gasBalance = '0.00';
   
   if (walletAddress) {
@@ -750,7 +838,7 @@ const verifyCredential = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const credential = await Credential.findById(id)
-    .populate('issuedBy', 'name university email instituteDetails')
+    .populate('issuedBy', 'name university email issuerDetails')
     .lean();
 
   if (!credential) {
@@ -766,7 +854,7 @@ const verifyCredential = asyncHandler(async (req, res) => {
 
   const result = {
     ...credential,
-    institutionName: credential.issuedBy?.instituteDetails?.institutionName || credential.university || 'Attestify Institution',
+    institutionName: credential.issuedBy?.issuerDetails?.institutionName || credential.university || 'Attestify Institution',
     blockchainProof: blockchainData ? {
       hashMatch: blockchainData.certificateHash === credential.certificateHash,
       onChain: true,

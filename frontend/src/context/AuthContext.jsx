@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useMemo, useCallback } from 'react';
-import { authAPI, setAuthToken, clearAuth } from '../services/api';
+import { authAPI, clearAuth } from '../services/api';
 
 // Create the Auth Context
 const AuthContext = createContext(null);
@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }) => {
       const userData = localStorage.getItem('user');
 
       if (token && userData) {
-        // Set token in axios headers
-        setAuthToken(token);
+        // Token is read from localStorage by the axios request interceptor,
+        // so no explicit header setup needed here.
 
         // Parse user data
         const parsedUser = JSON.parse(userData);
@@ -106,12 +106,9 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.login({ email, password, selectedRole: role });
       const { token, user: loggedInUser } = response.data;
 
-      // Save to localStorage
+      // Save to localStorage — the axios request interceptor reads from here automatically.
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(loggedInUser));
-
-      // Set token in axios headers
-      setAuthToken(token);
 
       // Update state
       setUser(loggedInUser);

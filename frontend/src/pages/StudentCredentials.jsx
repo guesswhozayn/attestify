@@ -23,6 +23,8 @@ const StudentCredentials = () => {
     const { showNotification } = useNotification();
     const [walletAddress, setWalletAddress] = useState(user?.walletAddress);
 
+    const [searchQuery, setSearchQuery] = useState('');
+
     const fetchCredentials = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
@@ -38,12 +40,6 @@ const StudentCredentials = () => {
             setStats({ total, active, sbtCount, uniqueIssuers });
 
             setCredentials(docs);
-            
-            let filtered = docs;
-            if (activeTab !== 'all') {
-                filtered = docs.filter(doc => doc.type === activeTab);
-            }
-            setFilteredCredentials(filtered);
         } catch (error) {
             console.error('Failed to fetch credentials:', error);
             showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
@@ -51,7 +47,7 @@ const StudentCredentials = () => {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [walletAddress, activeTab, showNotification]);
+    }, [walletAddress, showNotification]);
 
     useEffect(() => {
         const init = async () => {
@@ -74,17 +70,29 @@ const StudentCredentials = () => {
         } else {
             setLoading(false);
         }
-    }, [walletAddress, activeTab, fetchCredentials]);
+    }, [walletAddress, fetchCredentials]);
 
+    useEffect(() => {
+        let filtered = credentials;
+        
+        if (activeTab !== 'all') {
+            filtered = filtered.filter(doc => doc.type === activeTab);
+        }
+        
+        if (searchQuery) {
+            const lower = searchQuery.toLowerCase();
+            filtered = filtered.filter(cred =>
+                cred.studentName.toLowerCase().includes(lower) ||
+                (cred.university && cred.university.toLowerCase().includes(lower)) ||
+                (cred.certificateHash && cred.certificateHash.toLowerCase().includes(lower))
+            );
+        }
+        
+        setFilteredCredentials(filtered);
+    }, [credentials, activeTab, searchQuery]);
 
     const handleSearch = (query) => {
-        const lower = query.toLowerCase();
-        const filtered = credentials.filter(cred =>
-            cred.studentName.toLowerCase().includes(lower) ||
-            (cred.university && cred.university.toLowerCase().includes(lower)) ||
-            (cred.certificateHash && cred.certificateHash.toLowerCase().includes(lower))
-        );
-        setFilteredCredentials(filtered);
+        setSearchQuery(query);
     };
 
 

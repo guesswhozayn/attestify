@@ -58,12 +58,10 @@ const credentialSchema = new mongoose.Schema({
   },
   ipfsCID: {
     type: String,
-    required: [true, 'IPFS CID is required'],
     trim: true
   },
   transactionHash: {
     type: String,
-    required: [true, 'Transaction hash is required'],
     trim: true
   },
   blockNumber: {

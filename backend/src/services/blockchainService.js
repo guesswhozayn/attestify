@@ -73,6 +73,7 @@ class BlockchainService {
       };
 
     } catch (error) {
+      this.currentNonce = null; // Reset nonce on failure to re-sync with network
       console.error('Blockchain issue error:', error);
       throw new Error(`Blockchain transaction failed: ${error.message}`);
     }
@@ -100,6 +101,7 @@ class BlockchainService {
       };
 
     } catch (error) {
+      this.currentNonce = null;
       console.error('Blockchain revoke error:', error);
       throw new Error(`Revocation failed: ${error.message}`);
     }
@@ -141,6 +143,7 @@ class BlockchainService {
       };
 
     } catch (error) {
+      this.currentNonce = null;
       console.error('Blockchain batch issue error:', error);
       throw new Error(`Batch transaction failed: ${error.message}`);
     }
@@ -185,6 +188,7 @@ class BlockchainService {
       };
 
     } catch (error) {
+      this.currentNonce = null;
       console.error('SBT Mint error:', error);
       throw new Error(`SBT Mint failed: ${error.message}`);
     }
@@ -232,6 +236,7 @@ class BlockchainService {
         };
 
     } catch (error) {
+        this.currentNonce = null;
         console.error('Batch SBT Mint error:', error);
         throw new Error(`Batch SBT Mint failed: ${error.message}`);
     }
@@ -256,6 +261,7 @@ class BlockchainService {
          status: 'revoked'
        };
     } catch (error) {
+       this.currentNonce = null;
        console.error('SBT Revoke error:', error);
        throw new Error(`SBT Revoke failed: ${error.message}`);
     }

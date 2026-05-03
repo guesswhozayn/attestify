@@ -111,9 +111,8 @@ const Profile = () => {
 
             if (isIssuer) {
                 payload.issuerDetails = {
-                    institutionName: formData.name, // Usually name is institution name for issuers
-                    registrationNumber: formData.registrationNumber,
-                    plan: user.issuerDetails?.plan || 'STARTER'
+                    institutionName: formData.name,
+                    registrationNumber: formData.registrationNumber
                 };
             } else {
                 payload.title = formData.title;

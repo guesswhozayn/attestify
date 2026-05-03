@@ -5,58 +5,6 @@ const { JWT_EXPIRY } = require('../config/constants');
 const emailService = require('../services/emailService');
 const asyncHandler = require('../middleware/asyncHandler');
 
-// Free/personal email provider blocklist — issuers must use an org email
-const FREE_EMAIL_PROVIDERS = new Set([
-  'gmail.com', 'googlemail.com',
-  'yahoo.com', 'yahoo.co.uk', 'yahoo.co.in', 'ymail.com',
-  'hotmail.com', 'hotmail.co.uk',
-  'outlook.com', 'outlook.in',
-  'live.com', 'live.co.uk',
-  'msn.com',
-  'icloud.com', 'me.com', 'mac.com',
-  'aol.com',
-  'protonmail.com', 'protonmail.ch', 'pm.me',
-  'zoho.com',
-  'mail.com', 'email.com',
-  'inbox.com',
-  'gmx.com', 'gmx.net', 'gmx.de',
-  'tutanota.com', 'tuta.io',
-  'fastmail.com',
-  'yandex.com', 'yandex.ru',
-]);
-
-/**
- * Validate issuer email against domain rules:
- * 1. Must not be from a free/personal provider
- * 2. Must match the declared officialEmailDomain
- */
-const validateIssuerEmail = (email, officialEmailDomain) => {
-  const emailLower = email.toLowerCase().trim();
-  const atIndex = emailLower.lastIndexOf('@');
-  if (atIndex === -1) return { valid: false, error: 'Invalid email format.' };
-
-  const emailDomain = emailLower.substring(atIndex + 1); // e.g. "university.edu"
-
-  if (FREE_EMAIL_PROVIDERS.has(emailDomain)) {
-    return {
-      valid: false,
-      error: `Issuers must register with an organizational email address. Free email providers (e.g. Gmail, Yahoo, Outlook) are not accepted. Please use your institution's official email.`
-    };
-  }
-
-  if (officialEmailDomain) {
-    const declaredDomain = officialEmailDomain.toLowerCase().trim().replace(/^@/, '');
-
-    if (emailDomain !== declaredDomain) {
-      return {
-        valid: false,
-        error: `Your email domain (@${emailDomain}) does not match the declared Official Email Domain (@${declaredDomain}). Please use an email from your institution's domain.`
-      };
-    }
-  }
-
-  return { valid: true };
-};
 
 const generateToken = (userId, role, tokenVersion = 0) => {
   return jwt.sign(
@@ -75,55 +23,63 @@ const register = asyncHandler(async (req, res) => {
     university,
     institutionName,
     authorizedWalletAddress,
-    officialEmailDomain,
+    registrationNumber,
     walletAddress,
     plan
   } = req.body;
 
-  if (role === 'ISSUER') {
-    const emailCheck = validateIssuerEmail(email, officialEmailDomain);
-    if (!emailCheck.valid) {
-      return res.status(400).json({ error: emailCheck.error });
-    }
-  }
+  const normalizedEmail = email?.toLowerCase().trim();
+  const normalizedWallet = walletAddress?.toLowerCase().trim();
 
-  const existingUser = await User.findOne({ email });
+  // 1. Email Check
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     return res.status(400).json({ error: 'Email already registered' });
   }
 
-  if (walletAddress) {
-    const existingWallet = await User.findOne({ walletAddress });
+  // 2. Wallet Check
+  if (normalizedWallet) {
+    const existingWallet = await User.findOne({ walletAddress: normalizedWallet });
     if (existingWallet) {
       return res.status(400).json({ error: 'Wallet address already registered' });
     }
   }
 
+  // 3. Registration Number Check (for Issuers)
+  if (role === 'ISSUER' && registrationNumber) {
+    const existingReg = await User.findOne({ 'issuerDetails.registrationNumber': registrationNumber });
+    if (existingReg) {
+      return res.status(400).json({ error: 'Registration number already in use by another institution.' });
+    }
+  }
+
   const userData = {
     name,
-    email,
+    email: normalizedEmail,
     password,
     role: role || 'STUDENT',
     university,
-    walletAddress
+    walletAddress: normalizedWallet
   };
 
   if (role === 'ISSUER') {
+    const validPlans = ['STARTER', 'PRO', 'ENTERPRISE'];
+    const selectedPlan = (plan && validPlans.includes(plan.toUpperCase())) 
+      ? plan.toUpperCase() 
+      : 'STARTER';
+
     userData.issuerDetails = {
       institutionName,
-      registrationNumber: req.body.registrationNumber,
-      isVerified: false,
+      registrationNumber,
+      isVerified: true,
       authorizedWalletAddress,
-      officialEmailDomain,
-      plan: 'STARTER',
+      plan: selectedPlan,
       certificatesIssued: 0
     };
     userData.name = institutionName;
   }
 
   const user = await User.create(userData);
-
-  const token = generateToken(user._id, user.role, user.tokenVersion);
 
   if (email) {
     emailService.sendWelcomeEmail(email, user.name).catch(err => 
@@ -133,7 +89,7 @@ const register = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    token,
+    message: 'Registration successful. Please log in.',
     user: {
       id: user._id,
       name: user.name,
@@ -145,16 +101,20 @@ const register = asyncHandler(async (req, res) => {
       about: user.about,
       isActive: user.isActive,
       issuerDetails: user.issuerDetails,
-      avatar: user.avatar,
-      tokenVersion: user.tokenVersion
+      avatar: user.avatar
     }
   });
 });
 
 const login = asyncHandler(async (req, res) => {
   const { email, password, selectedRole } = req.body;
+  const normalizedEmail = email?.toLowerCase().trim();
 
-  const user = await User.findOne({ email }).select('+password');
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Please provide both email and password' });
+  }
+
+  const user = await User.findOne({ email: normalizedEmail }).select('+password');
   
   if (!user) {
     return res.status(401).json({ error: 'Invalid email or password' });
@@ -192,7 +152,6 @@ const login = asyncHandler(async (req, res) => {
       title: user.title,
       about: user.about,
       isActive: user.isActive,
-      studentId: user.studentId,
       issuerDetails: user.issuerDetails,
       avatar: user.avatar,
       tokenVersion: user.tokenVersion

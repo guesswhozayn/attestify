@@ -20,9 +20,10 @@ export const NotificationProvider = ({ children }) => {
     setNotifications(prev => [...prev, notification]);
   }, []);
 
-  const removeNotification = (id) => {
+  const removeNotification = useCallback((id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  }, []);
+
   const value = useMemo(() => ({ showNotification }), [showNotification]);
 
   return (
@@ -32,10 +33,11 @@ export const NotificationProvider = ({ children }) => {
         {notifications.map(notification => (
           <Notification
             key={notification.id}
+            id={notification.id}
             message={notification.message}
             type={notification.type}
             duration={notification.duration}
-            onClose={() => removeNotification(notification.id)}
+            onClose={removeNotification}
           />
         ))}
       </div>

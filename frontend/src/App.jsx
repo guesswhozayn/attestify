@@ -54,6 +54,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/verify" element={<VerifyPage />} />
+          <Route path="/verify/:id" element={<VerifyPage />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
           <Route path="/docs" element={<Documentation />} />

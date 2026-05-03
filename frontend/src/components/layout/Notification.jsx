@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Check, X, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import Button from '../shared/Button';
 
-const Notification = ({ message, type = 'success', onClose, duration = 5000 }) => {
+const Notification = ({ id, message, type = 'success', onClose, duration = 5000 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -10,7 +10,7 @@ const Notification = ({ message, type = 'success', onClose, duration = 5000 }) =
 
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300);
+      setTimeout(() => onClose(id), 300);
     }, duration);
 
     return () => clearTimeout(timer);
@@ -64,7 +64,7 @@ const Notification = ({ message, type = 'success', onClose, duration = 5000 }) =
       <Button 
         onClick={() => {
            setIsVisible(false);
-           setTimeout(onClose, 300);
+           setTimeout(() => onClose(id), 300);
         }} 
         variant="ghost"
         rounded="full"
