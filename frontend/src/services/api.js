@@ -131,16 +131,6 @@ export const credentialAPI = {
     return api.post(`/credentials/${id}/revoke`, { reason });
   },
 
-  // Update credential
-  update: async (id, data) => {
-    return api.put(`/credentials/${id}`, data);
-  },
-
-  // Delete credential
-  delete: async (id) => {
-    return api.delete(`/credentials/${id}`);
-  },
-
   // Batch upload
   batchUpload: async (formData) => {
     return api.post('/credentials/batch-issue', formData, {
@@ -175,11 +165,6 @@ export const verifyAPI = {
   // Verify by hash
   verifyByHash: async (studentWalletAddress, hash) => {
     return api.post('/verify/hash', { studentWalletAddress, hash });
-  },
-
-  // Get verification history
-  getHistory: async (params = {}) => {
-    return api.get('/verify/history', { params });
   }
 };
 
@@ -189,8 +174,6 @@ export const networkAPI = {
     return api.get('/network/stats');
   }
 };
-
-
 
 export const userAPI = {
   // Get user profile
@@ -218,13 +201,6 @@ export const userAPI = {
   }
 };
 
-export const statsAPI = {
-  // Get dashboard stats (Using audit controller)
-  getDashboard: async () => {
-    return api.get('/audit/dashboard-stats');
-  },
-};
-
 export const fileAPI = {
   // Download certificate
   downloadCertificate: async (id) => {
@@ -236,13 +212,6 @@ export const fileAPI = {
   // Get IPFS file
   getIPFSFile: async (cid) => {
     return api.get(`/files/ipfs/${cid}`, {
-      responseType: 'blob'
-    });
-  },
-
-  // Generate QR code
-  generateQR: async (data) => {
-    return api.post('/files/qr', data, {
       responseType: 'blob'
     });
   }

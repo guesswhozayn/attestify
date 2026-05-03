@@ -470,8 +470,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                </p>
             </div>
 
-            {/* Authority Authentication */}
-            {['ISSUER', 'ADMIN'].includes(user?.role) && !credential.isRevoked && (
+            {user?.role === 'ISSUER' && user?.id === (credential.issuedBy?._id || credential.issuedBy) && !credential.isRevoked && (
                <div className="bg-[#0b0b0b] border border-red-500/10 rounded-[2rem] p-8 shadow-2xl">
                   <h4 className="text-[10px] font-black text-red-400/60 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                     <ShieldAlert className="w-4 h-4" />

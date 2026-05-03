@@ -150,7 +150,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={selectedRole === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
+                placeholder={selectedRole === 'ISSUER' ? "admin@organization.com" : "student@example.com"}
                 icon={Mail}
                 required
               />
@@ -177,9 +177,6 @@ const Login = () => {
                     </Button>
                   }
                 />
-                <Link to="/forgot-password" title="Forgot Password" className="absolute top-0 right-4 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-                  Forgot?
-                </Link>
               </div>
 
               <div className="pt-2">

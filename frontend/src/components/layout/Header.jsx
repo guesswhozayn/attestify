@@ -27,17 +27,23 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
 
     detectWallet();
 
+    const handleAccountsChanged = (accounts) => {
+        if (accounts.length > 0) {
+            setWalletAddress(accounts[0]);
+        } else {
+            setWalletAddress(null);
+        }
+    };
+
     if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.on('accountsChanged', (accounts) => {
-            if (accounts.length > 0) {
-                setWalletAddress(accounts[0]);
-            } else {
-                setWalletAddress(null);
-            }
-        });
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
     }
 
-    return () => {};
+    return () => {
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        }
+    };
   }, []);
 
   const copyAddress = () => {

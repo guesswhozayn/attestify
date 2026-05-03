@@ -21,10 +21,9 @@ const RevokedCredentials = () => {
   const fetchRevokedCredentials = async () => {
     try {
       setLoading(true);
-      const response = await credentialAPI.getAll({ revoked: true });
+      const response = await credentialAPI.getAll({ revoked: 'true' });
       if (isMounted.current) {
-          const revoked = response.data.credentials?.filter(c => c.isRevoked) || [];
-          setCredentials(revoked);
+          setCredentials(response.data.credentials || []);
       }
     } catch (error) {
       if (isMounted.current) {

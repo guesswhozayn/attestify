@@ -7,7 +7,7 @@ import { verifyAPI } from '../../services/api';
 import { generateFileHash } from '../../utils/hash';
 import { extractMetadata } from '../../utils/pdf';
 import Modal from '../shared/Modal';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import VerificationResult from './VerificationResult';
 import PoweredBy from '../shared/PoweredBy';
 
@@ -21,13 +21,18 @@ const VerificationPortal = () => {
   const fileInputRef = useRef(null);
   
   const location = useLocation();
+  const { id: urlId } = useParams();
 
   const addFeedItem = (message, type = 'info') => {
     setFeed(prev => [...prev, { message, type, time: new Date().toLocaleTimeString() }]);
   };
 
   useEffect(() => {
-    if (location.search) {
+    // Priority: route param > query param
+    if (urlId) {
+        setWalletAddress(urlId);
+        addFeedItem(`Auto-detected ID from URL: ${urlId.substring(0, 10)}...`, 'success');
+    } else if (location.search) {
         const params = new URLSearchParams(location.search);
         const credentialId = params.get('credentialId') || params.get('registrationNumber');
         if (credentialId) {
@@ -35,7 +40,7 @@ const VerificationPortal = () => {
             addFeedItem(`Auto-detected ID from URL: ${credentialId.substring(0, 10)}...`, 'success');
         }
     }
-  }, [location.search]);
+  }, [urlId, location.search]);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -202,7 +207,7 @@ const VerificationPortal = () => {
               <Button
                 onClick={handleVerify}
                 loading={verifying}
-                disabled={verifying || (!file && !walletAddress)}
+                disabled={verifying || !walletAddress}
                 variant="white"
                 size="xl"
                 className="w-full hover:scale-[1.02] active:scale-[0.98] transition-all"

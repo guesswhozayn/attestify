@@ -12,11 +12,16 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (about) updateFields.about = about;
   
   if (walletAddress) {
-      const normalizedWallet = walletAddress.toLowerCase();
+      if (req.user.role === 'ISSUER') {
+          return res.status(400).json({ error: 'Institutional wallet addresses cannot be changed through the profile. Please contact support for administrative wallet migration.' });
+      }
+
+      const normalizedWallet = walletAddress.toLowerCase().trim();
       // Only check if it's different from the current wallet
       if (normalizedWallet !== req.user.walletAddress?.toLowerCase()) {
+          const escapedWallet = normalizedWallet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           const existingWallet = await User.findOne({ 
-              walletAddress: { $regex: new RegExp(`^${normalizedWallet}$`, 'i') },
+              walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
               _id: { $ne: req.user._id }
           });
           if (existingWallet) {
@@ -57,9 +62,28 @@ const updateProfile = asyncHandler(async (req, res) => {
   });
 });
 
+const fs = require('fs');
+const path = require('path');
+
 const uploadAvatar = asyncHandler(async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'Please upload a file' });
+    }
+
+    // Delete old avatar to prevent storage bloat
+    if (req.user.avatar) {
+        try {
+            const urlParts = req.user.avatar.split('/uploads/avatars/');
+            if (urlParts.length === 2) {
+                const oldFilename = urlParts[1];
+                const oldPath = path.join(__dirname, '../../uploads/avatars', oldFilename);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to delete old avatar:', err);
+        }
     }
 
     const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;

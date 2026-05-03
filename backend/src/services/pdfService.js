@@ -333,7 +333,7 @@ async function drawCertificate(doc, data) {
     try {
         const qrData = await QRCode.toDataURL(qrTarget);
         doc.image(qrData, (pageWidth - qrSize) / 2, qrY, { width: qrSize });
-    } catch (e) { prevConsole.warn('QR Code generation failed', e); }
+    } catch (e) { console.warn('QR Code generation failed', e); }
   }
   
   doc.fontSize(7).fillColor(COLORS.secondary)

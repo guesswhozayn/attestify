@@ -13,26 +13,6 @@ import GradientBackground from '../components/shared/GradientBackground';
 
 
 
-// Free provider blocklist (mirrors backend list for instant client-side feedback)
-const FREE_EMAIL_PROVIDERS = new Set([
-  'gmail.com', 'googlemail.com',
-  'yahoo.com', 'yahoo.co.uk', 'yahoo.co.in', 'ymail.com',
-  'hotmail.com', 'hotmail.co.uk',
-  'outlook.com', 'outlook.in',
-  'live.com', 'live.co.uk',
-  'msn.com',
-  'icloud.com', 'me.com', 'mac.com',
-  'aol.com',
-  'protonmail.com', 'protonmail.ch', 'pm.me',
-  'zoho.com',
-  'mail.com', 'email.com',
-  'inbox.com',
-  'gmx.com', 'gmx.net', 'gmx.de',
-  'tutanota.com', 'tuta.io',
-  'fastmail.com',
-  'yandex.com', 'yandex.ru',
-]);
-
 const Register = () => {
   const [searchParams] = useSearchParams();
   const urlRole = searchParams.get('role');
@@ -47,7 +27,6 @@ const Register = () => {
     registrationNumber: '', // Required for Issuer
     walletAddress: '', // Initialize for student
     authorizedWalletAddress: '', // Initialize for issuer
-    officialEmailDomain: '', // Initialize for issuer
     institutionName: '', // Initialize for issuer
     role: (urlRole === 'STUDENT' || urlRole === 'ISSUER') ? urlRole : 'ISSUER', 
     plan: ['STARTER', 'PRO', 'ENTERPRISE'].includes(urlPlan?.toUpperCase()) ? urlPlan.toUpperCase() : 'STARTER',
@@ -87,28 +66,6 @@ const Register = () => {
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters');
       return;
-    }
-
-    // Client-side issuer email validation (mirrors backend rules)
-    if (formData.role === 'ISSUER') {
-      const emailDomain = formData.email.toLowerCase().split('@')[1] || '';
-
-      if (FREE_EMAIL_PROVIDERS.has(emailDomain)) {
-        setError(
-          `Issuers must register with an organizational email address. Free providers (Gmail, Yahoo, Outlook, etc.) are not accepted.`
-        );
-        return;
-      }
-
-      if (formData.officialEmailDomain) {
-        const declaredDomain = formData.officialEmailDomain.toLowerCase().trim().replace(/^@/, '');
-        if (emailDomain !== declaredDomain) {
-          setError(
-            `Your email domain (@${emailDomain}) doesn't match your declared Official Email Domain (@${declaredDomain}).`
-          );
-          return;
-        }
-      }
     }
 
     setLoading(true);
@@ -255,16 +212,10 @@ const Register = () => {
                    name="email"
                    value={formData.email}
                    onChange={handleChange}
-                   placeholder={formData.role === 'ISSUER' ? "admin@university.edu" : "student@university.edu"}
+                   placeholder={formData.role === 'ISSUER' ? "admin@organization.com" : "student@example.com"}
                    icon={Mail}
                    required
                  />
-                 {formData.role === 'ISSUER' && (
-                   <p className="mt-1.5 text-xs text-amber-400/80 flex items-center gap-1.5 px-1">
-                     <span className="inline-block w-1 h-1 rounded-full bg-amber-400/80 shrink-0" />
-                     Must use your institution&apos;s official email. Free providers (Gmail, Outlook, etc.) are not accepted.
-                   </p>
-                 )}
                </div>
 
                {formData.role === 'ISSUER' ? (
@@ -326,15 +277,6 @@ const Register = () => {
                          </Button>
                        </div>
                     </div>
-                   <Input
-                     label="Official Email Domain"
-                     name="officialEmailDomain"
-                     value={formData.officialEmailDomain}
-                     onChange={handleChange}
-                     placeholder="@university.edu"
-                     icon={Mail}
-                     required
-                   />
                  </>
                ) : (
                  <>

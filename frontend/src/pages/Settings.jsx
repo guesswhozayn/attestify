@@ -4,7 +4,7 @@ import Input from '../components/shared/Input';
 import Button from '../components/shared/Button';
 import { Lock } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
-import api from '../services/api';
+import { userAPI } from '../services/api';
 import AccountLayout from '../components/layout/AccountLayout';
 
 const Settings = () => {
@@ -23,14 +23,14 @@ const Settings = () => {
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-        showNotification('Password must be at least 6 characters', 'error');
+    if (passwordData.newPassword.length < 8) {
+        showNotification('Password must be at least 8 characters', 'error');
         return;
     }
 
     setLoading(true);
     try {
-        await api.put('/user/password', {
+        await userAPI.changePassword({
             currentPassword: passwordData.currentPassword,
             newPassword: passwordData.newPassword,
         });

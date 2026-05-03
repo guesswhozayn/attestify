@@ -87,17 +87,19 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       credentials: '/api/credentials',
       verify: '/api/verify',
-      admin: '/api/admin',
-      network: '/api/network'
+      users: '/api/users',
+      network: '/api/network',
+      files: '/api/files'
     }
   });
 });
 
-app.use(errorHandler);
-
+// 404 catch-all must come before errorHandler
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

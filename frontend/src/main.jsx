@@ -5,8 +5,6 @@ import { NotificationProvider } from './context/NotificationContext';
 import App from './App';
 import './index.css';
 
-import './index.css';
-
 ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>

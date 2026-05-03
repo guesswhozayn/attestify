@@ -53,6 +53,7 @@ const userSchema = new mongoose.Schema({
   walletAddress: {
     type: String,
     trim: true,
+    lowercase: true,
     match: [/^0x[a-fA-F0-9]{40}$/, 'Invalid wallet address']
   },
 
@@ -62,10 +63,9 @@ const userSchema = new mongoose.Schema({
   },
   issuerDetails: {
     institutionName: { type: String, trim: true },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     registrationNumber: { type: String, trim: true, unique: true, sparse: true },
     authorizedWalletAddress: { type: String, trim: true },
-    officialEmailDomain: { type: String, trim: true },
     plan: {
       type: String,
       enum: ['STARTER', 'PRO', 'ENTERPRISE'],
@@ -82,7 +82,8 @@ const userSchema = new mongoose.Schema({
   },
   preferences: {
     notifications: { type: Boolean, default: true },
-    tfa: { type: Boolean, default: false }
+    tfa: { type: Boolean, default: false },
+    visibility: { type: Boolean, default: true }
   },
   lastLogin: {
     type: Date

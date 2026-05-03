@@ -272,7 +272,7 @@ const CredentialArchive = () => {
             <RevokeCredentialModal 
                 isOpen={!!credentialToRevoke}
                 onClose={() => setCredentialToRevoke(null)}
-                credentialId={credentialToRevoke?._id}
+                credential={credentialToRevoke}
                 onSuccess={handleRevokeSuccess}
             />
         </div>
