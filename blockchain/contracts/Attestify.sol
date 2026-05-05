@@ -47,8 +47,6 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         authorizedIssuers[msg.sender] = true;
     }
     
-    // --- Credential Management ---
-
     function issueCertificate(string memory _studentId, bytes32 _certificateHash, string memory _ipfsCID) public onlyAuthorized nonReentrant {
         _issueSingle(_studentId, _certificateHash, _ipfsCID);
     }
@@ -85,8 +83,6 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         emit CredentialRevoked(_studentId, block.timestamp, msg.sender);
     }
 
-    // --- Soulbound Token Management ---
-
     function safeMint(address to, string memory uri) public onlyAuthorized returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _mintSingle(to, tokenId, uri);
@@ -116,8 +112,6 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         emit SoulboundRevoked(tokenId);
     }
     
-    // --- Overrides ---
-
     function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
         address from = _ownerOf(tokenId);
         // Only allow minting (from == 0) and burning (to == 0)
@@ -126,8 +120,6 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         }
         return super._update(to, tokenId, auth);
     }
-
-    // --- View Functions ---
 
     function getCredential(string memory _studentId) public view credentialExists(_studentId) returns (bytes32, string memory, uint256, bool) {
         Credential memory cred = credentials[_studentId];

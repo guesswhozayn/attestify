@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
@@ -8,17 +8,82 @@ import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 
+const getInitialFormData = (user) => ({
+  studentName: '',
+  studentWalletAddress: '',
+  university: user?.issuerDetails?.institutionName || user?.name || '',
+  issueDate: '',
+  studentImage: '',
+});
+
+const INITIAL_TRANSCRIPT = {
+  program: '',
+  department: '',
+  admissionYear: '',
+  graduationYear: '',
+  cgpa: '',
+  courses: []
+};
+
+const INITIAL_CERTIFICATION = {
+  title: '',
+  description: '',
+  level: '',
+  duration: '',
+  score: ''
+};
+
 const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   const { showNotification } = useNotification();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    studentName: '',
-    studentWalletAddress: '',
-    university: user?.issuerDetails?.institutionName || user?.name || '',
-    issueDate: '',
-    studentImage: '',
-  });
+  const [formData, setFormData] = useState(() => getInitialFormData(user));
+  const [credentialType, setCredentialType] = useState('CERTIFICATION');
+  const [transcriptData, setTranscriptData] = useState({ ...INITIAL_TRANSCRIPT });
+  const [certificationData, setCertificationData] = useState({ ...INITIAL_CERTIFICATION });
+  const [quotaError, setQuotaError] = useState(false);
+
+  // Track object URL to prevent memory leaks
+  const imagePreviewUrl = useRef(null);
+
+  // Create/revoke object URLs properly
+  useEffect(() => {
+    // Revoke previous URL to free memory
+    if (imagePreviewUrl.current) {
+      URL.revokeObjectURL(imagePreviewUrl.current);
+      imagePreviewUrl.current = null;
+    }
+
+    // Create new URL if we have a file
+    if (formData.studentImage && formData.studentImage instanceof File) {
+      imagePreviewUrl.current = URL.createObjectURL(formData.studentImage);
+    }
+
+    return () => {
+      if (imagePreviewUrl.current) {
+        URL.revokeObjectURL(imagePreviewUrl.current);
+        imagePreviewUrl.current = null;
+      }
+    };
+  }, [formData.studentImage]);
+
+  // Reset all form state when modal closes
+  const resetForm = useCallback(() => {
+    setFormData(getInitialFormData(user));
+    setCredentialType('CERTIFICATION');
+    setTranscriptData({ ...INITIAL_TRANSCRIPT });
+    setCertificationData({ ...INITIAL_CERTIFICATION });
+    setQuotaError(false);
+  }, [user]);
+
+  // Reset form when modal closes (user cancels or after success)
+  useEffect(() => {
+    if (!isOpen) {
+      // Small delay to let the close animation play before resetting
+      const timer = setTimeout(resetForm, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, resetForm]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,23 +102,6 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       }
     }
   };
-
-  const [credentialType, setCredentialType] = useState('CERTIFICATION'); // 'TRANSCRIPT' or 'CERTIFICATION'
-  const [transcriptData, setTranscriptData] = useState({
-    program: '',
-    department: '',
-    admissionYear: '',
-    graduationYear: '',
-    cgpa: '',
-    courses: [] 
-  });
-  const [certificationData, setCertificationData] = useState({
-    title: '',
-    description: '',
-    level: '',
-    duration: '',
-    score: ''
-  });
 
   const addCourse = () => {
     setTranscriptData(prev => ({
@@ -75,8 +123,6 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     }));
   };
 
-  const [quotaError, setQuotaError] = useState(false);
-  
   const handleSubmit = async () => {
     if (!formData.studentName || !formData.studentWalletAddress || !formData.university || 
         !formData.issueDate) {
@@ -95,7 +141,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       formDataToSend.append('issueDate', formData.issueDate);
       formDataToSend.append('type', credentialType);
       
-      if (formData.studentImage) {
+      if (formData.studentImage && formData.studentImage instanceof File) {
         formDataToSend.append('studentImage', formData.studentImage);
       }
       
@@ -110,31 +156,6 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       showNotification('Credential issued successfully! Transaction confirmed.', 'success');
       onSuccess(response.data.credential);
       onClose();
-      
-      // Reset form
-      setFormData({
-        studentName: '',
-        studentWalletAddress: '',
-        university: user?.issuerDetails?.institutionName || user?.name || '',
-        issueDate: '',
-        studentImage: null,
-      });
-      setCredentialType('CERTIFICATION');
-      setTranscriptData({
-        program: '',
-        department: '',
-        admissionYear: '',
-        graduationYear: '',
-        cgpa: '',
-        courses: []
-      });
-      setCertificationData({
-        title: '',
-        description: '',
-        level: '',
-        duration: '',
-        score: ''
-      });
 
     } catch (error) {
        console.error(error);
@@ -150,8 +171,9 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Issue New Credential" size="xl">
+      {/* Loading Overlay — positioned relative to modal body */}
       {loading && (
-        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all rounded-3xl">
+        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all rounded-2xl">
             <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl flex flex-col items-center max-w-sm w-full">
                 <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
                 <h3 className="text-white text-lg font-bold mb-2">Processing Transaction</h3>
@@ -258,10 +280,10 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
              <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-3">Profile Image</label>
              <div className="flex items-center space-x-4 p-4 bg-black/20 border border-white/10 rounded-2xl border-dashed hover:border-indigo-500/30 transition-colors group">
                <div className="flex-shrink-0">
-                  {formData.studentImage ? (
+                  {formData.studentImage && formData.studentImage instanceof File ? (
                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
                         <img 
-                          src={URL.createObjectURL(formData.studentImage)} 
+                          src={imagePreviewUrl.current} 
                           alt="Preview" 
                           className="w-full h-full object-cover"
                         />
@@ -426,7 +448,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                  <textarea
                    value={certificationData.description}
                    onChange={(e) => setCertificationData({...certificationData, description: e.target.value})}
-                   className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 h-28 resize-none text-sm placeholder-gray-600 transition-all text-base"
+                   className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 h-28 resize-none text-sm placeholder-gray-600 transition-all"
                    placeholder="Briefly describe the skills validated by this certification..."
                  />
                </div>
@@ -449,7 +471,8 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
       </div>
     </div>
-</Modal>
+
+  </Modal>
   );
 };
 

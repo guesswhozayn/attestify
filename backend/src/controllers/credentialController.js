@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Credential = require('../models/Credential');
 const User = require('../models/User');
 const blockchainService = require('../services/blockchainService');
@@ -67,24 +68,9 @@ const issueCredential = asyncHandler(async (req, res) => {
       console.warn('Failed to parse JSON data', e);
     }
 
-
-    const credential = new Credential({
-      studentWalletAddress: normalizedStudentWallet,
-      studentName,
-      university,
-      issueDate: parsedIssueDate,
-      type,
-      transcriptData: parsedTranscriptData,
-      certificationData: parsedCertificationData,
-      issuedBy: req.user._id,
-      metadata: {}
-    });
-
-    // 2. Pre-Save to DB (Ensures we have a record before we touch the blockchain)
-    // We save without transactionHash and ipfsCID first.
-    await credential.save();
-
-    const credentialId = credential._id.toString();
+    // Generate a stable _id upfront so we can reference the credential ID
+    // in the PDF without needing a pre-save.
+    const credentialId = new mongoose.Types.ObjectId().toString();
 
 
     const uploadsDir = path.join(__dirname, '../../uploads');
@@ -139,9 +125,16 @@ const issueCredential = asyncHandler(async (req, res) => {
       }
     }
 
-
-    const tokenURI = `ipfs://${ipfsResult.ipfsHash}`;
-    
+    // Build a temporary credential object for SBT metadata generation
+    // (not saved yet — we need blockchain data first)
+    const credentialData = {
+      _id: credentialId,
+      studentWalletAddress: normalizedStudentWallet,
+      studentName,
+      university,
+      issueDate: parsedIssueDate,
+      type,
+    };
 
     const certificatePromise = blockchainService.issueCertificate(
       credentialId, 
@@ -151,8 +144,7 @@ const issueCredential = asyncHandler(async (req, res) => {
 
     const sbtPromise = (async () => {
         try {
-
-            const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
+            const metadataURI = await prepareSBTMetadata(req.user, credentialData, ipfsResult.ipfsHash);
             
             const sbtRes = await blockchainService.issueSoulboundCredential(
                 normalizedStudentWallet,
@@ -168,32 +160,40 @@ const issueCredential = asyncHandler(async (req, res) => {
 
     const [blockchainResult, sbtResult] = await Promise.all([certificatePromise, sbtPromise]);
 
+    // Single atomic save with ALL required fields populated
+    const credential = new Credential({
+      _id: credentialId,
+      studentWalletAddress: normalizedStudentWallet,
+      studentName,
+      university,
+      issueDate: parsedIssueDate,
+      type,
+      transcriptData: parsedTranscriptData,
+      certificationData: parsedCertificationData,
+      issuedBy: req.user._id,
+      studentImage: studentImageUrl,
+      certificateHash,
+      ipfsCID: ipfsResult.ipfsHash,
+      transactionHash: blockchainResult.transactionHash,
+      blockNumber: blockchainResult.blockNumber,
+      gasUsed: blockchainResult.gasUsed,
+      gasPrice: blockchainResult.gasPrice,
+      totalCost: blockchainResult.totalCost,
+      tokenId: sbtResult?.tokenId || undefined,
+      metadata: {
+        fileSize: fs.statSync(tempFilePath).size,
+        fileType: 'application/pdf',
+        originalFileName: `Certificate_${credentialId}.pdf`
+      }
+    });
 
-    if (sbtResult) {
-        credential.tokenId = sbtResult.tokenId;
-    }
-    credential.studentImage = studentImageUrl;
-    credential.certificateHash = certificateHash;
-    credential.ipfsCID = ipfsResult.ipfsHash;
-    credential.transactionHash = blockchainResult.transactionHash;
-    credential.blockNumber = blockchainResult.blockNumber;
-    credential.gasUsed = blockchainResult.gasUsed;
-    credential.gasPrice = blockchainResult.gasPrice;
-    credential.totalCost = blockchainResult.totalCost;
-    credential.metadata = {
-      fileSize: fs.statSync(tempFilePath).size,
-      fileType: 'application/pdf',
-      originalFileName: `Certificate_${credentialId}.pdf`
-    };
-
-    // 3. Final Save (Updates with blockchain and IPFS data)
     await credential.save();
 
     req.user.issuerDetails.certificatesIssued = (req.user.issuerDetails.certificatesIssued || 0) + 1;
     await req.user.save();
 
 
-    const studentUser = await User.findOne({ walletAddress: studentWalletAddress });
+    const studentUser = await User.findOne({ walletAddress: normalizedStudentWallet });
     
     if (studentUser && studentUser.email) {
       const emailData = {

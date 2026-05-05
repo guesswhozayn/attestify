@@ -391,7 +391,6 @@ const IssuerDashboard = () => {
                 onClose={() => setShowUploadModal(false)}
                 onSuccess={() => {
                     fetchDashboardData();
-                    showNotification('Credential issued successfully', 'success');
                 }}
             />
 
