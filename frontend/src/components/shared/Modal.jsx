@@ -70,7 +70,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
         </div>
 
         {/* Body - Scrollable */}
-        <div className="p-6 overflow-y-auto overflow-x-hidden scrollbar-hide custom-scrollbar">
+        <div className="p-6 overflow-y-auto overflow-x-hidden scrollbar-hide">
           {children}
         </div>
       </div>

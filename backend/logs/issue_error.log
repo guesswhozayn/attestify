@@ -1,0 +1,12 @@
+2026-05-04T23:51:55.564Z - ValidationError: Credential validation failed: certificateHash: Certificate hash is required
+    at Document.invalidate (/home/zayn/development/attestify/backend/node_modules/mongoose/lib/document.js:3362:32)
+    at /home/zayn/development/attestify/backend/node_modules/mongoose/lib/document.js:3123:17
+    at /home/zayn/development/attestify/backend/node_modules/mongoose/lib/schemaType.js:1446:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:84:11)
+
+2026-05-04T23:59:27.736Z - ValidationError: Credential validation failed: certificateHash: Certificate hash is required
+    at Document.invalidate (/home/zayn/development/attestify/backend/node_modules/mongoose/lib/document.js:3362:32)
+    at /home/zayn/development/attestify/backend/node_modules/mongoose/lib/document.js:3123:17
+    at /home/zayn/development/attestify/backend/node_modules/mongoose/lib/schemaType.js:1446:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:84:11)
+
