@@ -5,7 +5,6 @@
   "main": "hardhat.config.js",
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
     "verify": "hardhat run scripts/verify.js --network sepolia",

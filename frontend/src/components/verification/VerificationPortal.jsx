@@ -19,7 +19,7 @@ const VerificationPortal = () => {
   const [showResultModal, setShowResultModal] = useState(false);
   const [feed, setFeed] = useState([]);
   const fileInputRef = useRef(null);
-  
+
   const location = useLocation();
   const { id: urlId } = useParams();
 
@@ -28,7 +28,7 @@ const VerificationPortal = () => {
   };
 
   useEffect(() => {
-    // Priority: route param > query param
+
     if (urlId) {
         setWalletAddress(urlId);
         addFeedItem(`Auto-detected ID from URL: ${urlId.substring(0, 10)}...`, 'success');
@@ -47,7 +47,7 @@ const VerificationPortal = () => {
     if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.name.endsWith('.pdf'))) {
       setFile(selectedFile);
       addFeedItem(`File loaded: ${selectedFile.name}`, 'info');
-      
+
       try {
         const extractedId = await extractMetadata(selectedFile);
         if (extractedId) {
@@ -68,26 +68,26 @@ const VerificationPortal = () => {
     setVerifying(true);
     setResult(null);
     setFeed([]);
-    
+
     addFeedItem("Initializing verification sequence...", "info");
-    
+
     try {
       let response;
       if (file && walletAddress) {
         addFeedItem("Generating cryptographic file hash...", "info");
         const fileHash = await generateFileHash(file);
         addFeedItem(`Hash: ${fileHash.substring(0, 32)}...`, "info");
-        
+
         addFeedItem("Querying Ethereum smart contracts...", "info");
         response = await verifyAPI.verifyByHash(walletAddress, fileHash);
       } else if (walletAddress) {
         addFeedItem(`Checking registry for ID: ${walletAddress.substring(0, 10)}...`, "info");
         response = await verifyAPI.checkExists(walletAddress);
       }
-      
+
       addFeedItem("Validating digital signatures...", "info");
       addFeedItem("Verification sequence completed.", "success");
-      
+
       setResult(response.data);
       setTimeout(() => setShowResultModal(true), 800);
     } catch {
@@ -104,18 +104,16 @@ const VerificationPortal = () => {
 
   return (
     <div className="flex flex-col items-center justify-center p-6 w-full max-w-7xl mx-auto min-h-screen">
-      
 
-      {/* Unified Scanner Container */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         className="w-full max-w-3xl relative"
       >
-        {/* Animated Laser Line */}
+
         {verifying && (
-            <motion.div 
+            <motion.div
               initial={{ top: '0%' }}
               animate={{ top: '100%' }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -124,10 +122,9 @@ const VerificationPortal = () => {
         )}
 
         <div className="relative bg-[#050505] border border-white/10 rounded-[3rem] p-6 sm:p-10 shadow-3xl overflow-hidden flex flex-col gap-8">
-           {/* Background Technical Grid */}
+
            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none opacity-50"></div>
-           
-           {/* Header Area */}
+
            <div className="relative z-10 flex items-center justify-between border-b border-white/5 pb-6">
               <div className="flex items-center gap-4">
                  <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
@@ -143,20 +140,19 @@ const VerificationPortal = () => {
                     </div>
                  </div>
               </div>
-              {/* Optional right-side graphic or node indicator could go here */}
+
               <div className="hidden sm:flex flex-col items-end">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Target Node</span>
                 <span className="text-[10px] font-mono text-indigo-400">SEPOLIA</span>
               </div>
            </div>
 
-           {/* Input Section */}
            <div className="relative z-10 space-y-8">
-              {/* Upload Zone */}
-              <div 
+
+              <div
                 className={`relative border-2 border-dashed rounded-[2rem] p-8 sm:p-12 text-center transition-all duration-500 cursor-pointer group/zone ${
-                   file 
-                   ? 'border-emerald-500/40 bg-emerald-500/5' 
+                   file
+                   ? 'border-emerald-500/40 bg-emerald-500/5'
                    : 'border-white/5 bg-white/[0.01] hover:border-indigo-500/40 hover:bg-indigo-500/5'
                 }`}
                 onClick={() => fileInputRef.current?.click()}
@@ -168,13 +164,13 @@ const VerificationPortal = () => {
                   className="hidden"
                   ref={fileInputRef}
                 />
-                
+
                 <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 transition-all duration-500 shadow-2xl ${
                    file ? 'bg-emerald-500 text-white' : 'bg-black border border-white/10 text-gray-500 group-hover/zone:border-indigo-500/50 group-hover/zone:text-indigo-400'
                 }`}>
                   <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
-                
+
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate px-4">
                   {file ? file.name : "UPLOAD CREDENTIAL"}
                 </h3>
@@ -183,7 +179,6 @@ const VerificationPortal = () => {
                 </p>
               </div>
 
-              {/* ID Input */}
               <div className="space-y-3">
                  <div className="flex items-center justify-between px-2">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Registry ID</label>
@@ -203,7 +198,6 @@ const VerificationPortal = () => {
                  </div>
               </div>
 
-              {/* Action Button */}
               <Button
                 onClick={handleVerify}
                 loading={verifying}
@@ -216,13 +210,12 @@ const VerificationPortal = () => {
               </Button>
            </div>
 
-           {/* Integrated Terminal Log */}
            <div className="relative z-10 bg-black/80 border border-white/5 rounded-2xl p-5 font-mono overflow-hidden flex flex-col h-48 sm:h-56 mt-4 shadow-inner">
-             {/* Subtle Terminal Watermark */}
+
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
                 <Search className="w-32 h-32" />
              </div>
-             
+
              <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
                 <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Process Log</span>
                 <div className="flex gap-1.5">
@@ -239,7 +232,7 @@ const VerificationPortal = () => {
                    </div>
                 ) : (
                    feed.map((item, idx) => (
-                      <motion.div 
+                      <motion.div
                         key={idx}
                         initial={{ opacity: 0, x: -5 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -267,8 +260,7 @@ const VerificationPortal = () => {
                 )}
              </div>
            </div>
-           
-           {/* Branding Footer */}
+
            <div className="pt-2">
               <PoweredBy className="opacity-60" />
            </div>
@@ -284,10 +276,9 @@ const VerificationPortal = () => {
           {result && (
             <div className="space-y-6 pt-2">
               <VerificationResult result={result} />
-              
-            {/* Footer Actions */}
+
               <div className="flex justify-center pt-8 border-t border-white/5">
-                  <RefreshButton 
+                  <RefreshButton
                       onClick={() => setShowResultModal(false)}
                       variant="secondary"
                       size="lg"

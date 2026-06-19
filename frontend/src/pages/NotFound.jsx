@@ -2,13 +2,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/shared/Button';
 import { useAuth } from '../context/AuthContext';
-import { 
-    Home, 
-    Search, 
-    AlertTriangle, 
-    ArrowLeft, 
-    LayoutDashboard, 
-    FileText, 
+import {
+    Home,
+    Search,
+    AlertTriangle,
+    ArrowLeft,
+    LayoutDashboard,
+    FileText,
     ShieldAlert,
     Cpu,
     Compass
@@ -21,7 +21,6 @@ const NotFound = () => {
 
     const path = location.pathname;
 
-    // Determine Contextual Content based on Path
     const getContext = () => {
         if (path.includes('/student')) {
             return {
@@ -67,41 +66,38 @@ const NotFound = () => {
 
     return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex flex-col relative overflow-hidden">
-             {/* Technical Background Overlay */}
+
              <div className="fixed inset-0 z-0 pointer-events-none">
-                {/* Dynamic Glow */}
+
                 <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] ${
                     ctx.color === 'indigo' ? 'bg-indigo-600/10' :
                     ctx.color === 'purple' ? 'bg-purple-600/10' :
                     ctx.color === 'blue' ? 'bg-blue-600/10' : 'bg-red-600/10'
                 } rounded-full blur-[180px] opacity-40 animate-pulse`}></div>
-                
-                {/* Scanner Sweep */}
-                <motion.div 
+
+                <motion.div
                     animate={{ top: ['0%', '100%'] }}
                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                     className="absolute left-0 right-0 h-px bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10"
                 />
 
-                {/* Grid Lines */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]"></div>
              </div>
 
              <main className="flex-grow relative z-10 flex flex-col items-center justify-center text-center px-4 pt-10">
                 <div className="max-w-4xl w-full relative">
-                    {/* Big Decorative 404 with Glitch Effect */}
+
                     <div className="relative mb-6 select-none">
-                        <motion.h1 
+                        <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 0.2, y: 0 }}
                             className="text-[14rem] md:text-[20rem] font-black leading-none tracking-tighter text-white"
                         >
                             404
                         </motion.h1>
-                        
-                        {/* Glitch Overlay Text */}
-                        <motion.h1 
-                            animate={{ 
+
+                        <motion.h1
+                            animate={{
                                 x: [-2, 2, -1, 0],
                                 skew: [0, 2, -1, 0]
                             }}
@@ -112,14 +108,13 @@ const NotFound = () => {
                         </motion.h1>
                     </div>
 
-                    {/* Content Card */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="bg-gray-900/60 backdrop-blur-3xl border border-white/5 p-10 md:p-16 rounded-[4rem] shadow-3xl relative overflow-hidden group"
                     >
-                        {/* ID Badge Labels */}
+
                         <div className="absolute top-8 left-10 flex items-center gap-4">
                             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_red]"></span>
@@ -128,7 +123,6 @@ const NotFound = () => {
                             <span className="text-[10px] font-mono text-white/20 tracking-widest">SEQ_ERR_04</span>
                         </div>
 
-                        {/* Visual Icon */}
                         <div className="relative mb-10 mt-4">
                              <div className="w-24 h-24 bg-white/[0.02] rounded-[2rem] flex items-center justify-center mx-auto border border-white/10 group-hover:rotate-6 transition-transform duration-500">
                                 <ctx.icon className={`w-12 h-12 ${
@@ -137,8 +131,8 @@ const NotFound = () => {
                                     ctx.color === 'blue' ? 'text-blue-400' : 'text-red-400'
                                 }`} />
                              </div>
-                             {/* Floating Elements */}
-                             <motion.div 
+
+                             <motion.div
                                 animate={{ y: [0, -10, 0] }}
                                 transition={{ duration: 4, repeat: Infinity }}
                                 className="absolute -top-4 right-1/2 translate-x-16"
@@ -152,14 +146,13 @@ const NotFound = () => {
                         <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter leading-none">
                             {ctx.title}
                         </h2>
-                        
+
                         <p className="text-gray-400 mb-12 text-sm md:text-lg leading-relaxed max-w-lg mx-auto font-medium">
                             {ctx.message}
                         </p>
 
-                        {/* Action Suite */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-md mx-auto">
-                            <Button 
+                            <Button
                                 onClick={() => navigate(ctx.action.path)}
                                 icon={ctx.action.icon}
                                 variant="white"
@@ -167,8 +160,8 @@ const NotFound = () => {
                             >
                                 {ctx.action.label}
                             </Button>
-                            
-                            <Button 
+
+                            <Button
                                 onClick={() => navigate(-1)}
                                 icon={ArrowLeft}
                                 variant="secondary"
@@ -178,10 +171,9 @@ const NotFound = () => {
                             </Button>
                         </div>
 
-                        {/* Secondary Logged-in Action */}
                         {user && (
                             <div className="mt-8 pt-8 border-t border-white/5">
-                                <Button 
+                                <Button
                                     onClick={() => navigate('/dashboard')}
                                     variant="ghost"
                                     icon={LayoutDashboard}
@@ -193,8 +185,7 @@ const NotFound = () => {
                         )}
                     </motion.div>
                 </div>
-                
-                {/* Footer Technical Telemetry */}
+
                 <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-20 pointer-events-none pb-10">
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] font-mono">NODE_INDEX:</span>

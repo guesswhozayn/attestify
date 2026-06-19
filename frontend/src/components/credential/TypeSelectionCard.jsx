@@ -1,11 +1,11 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 
-const TypeSelectionCard = ({ 
-    active, 
-    onClick, 
-    icon: Icon, 
-    title, 
+const TypeSelectionCard = ({
+    active,
+    onClick,
+    icon: Icon,
+    title,
     description,
     variant = 'emerald'
 }) => {
@@ -57,7 +57,6 @@ const TypeSelectionCard = ({
                 {description}
             </p>
 
-            {/* Background Glow */}
             {active && (
                 <div className={`absolute -right-10 -bottom-10 w-32 h-32 blur-2xl rounded-full ${glowStyles[variant]}`}></div>
             )}

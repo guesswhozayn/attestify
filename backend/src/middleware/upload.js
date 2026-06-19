@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
     if (file.fieldname === 'avatar') subDir = 'avatars/';
     if (file.fieldname === 'certificate') subDir = 'certificates/';
     if (file.fieldname === 'file') subDir = 'batch/';
-    
+
     const targetDir = `uploads/${subDir}`;
     if (!fs.existsSync(targetDir)){
       fs.mkdirSync(targetDir, { recursive: true });
@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  
+
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/webp') {
     cb(null, true);
   } else if (file.mimetype === 'text/csv' || ext === '.csv') {
@@ -41,11 +41,11 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: FILE_LIMITS.MAX_SIZE // 10MB — synced with constants.js
+    fileSize: FILE_LIMITS.MAX_SIZE
   }
 });
 

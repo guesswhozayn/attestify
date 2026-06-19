@@ -57,7 +57,7 @@ const UpgradePlanModal = ({ isOpen, onClose, onSuccess }) => {
       };
 
       const response = await userAPI.updateProfile(payload);
-      
+
       if (response.data.success) {
         updateUser(response.data.user);
         showNotification(`Successfully updated plan to ${selectedPlan}`, 'success');
@@ -95,11 +95,11 @@ const UpgradePlanModal = ({ isOpen, onClose, onSuccess }) => {
                   <CheckCircle className="w-5 h-5 text-indigo-400" />
                 </div>
               )}
-              
+
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${plan.bg} ${plan.border} border`}>
                 <plan.icon className={`w-6 h-6 ${plan.color}`} />
               </div>
-              
+
               <h3 className="text-white font-bold text-lg mb-1">{plan.name}</h3>
               <p className="text-gray-400 text-xs font-medium">{plan.desc}</p>
             </div>

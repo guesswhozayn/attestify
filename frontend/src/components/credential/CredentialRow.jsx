@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-    GraduationCap, 
-    Award, 
-    Calendar, 
-    User, 
+import {
+    GraduationCap,
+    Award,
+    Calendar,
+    User,
     ChevronRight
 } from 'lucide-react';
 
@@ -15,14 +15,13 @@ const CredentialRow = ({ credential, onClick }) => {
     const isRevoked = credential.isRevoked;
 
     return (
-        <div 
+        <div
             onClick={onClick}
             className="group relative flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-4xl bg-white/1 hover:bg-white/4 border border-white/4 hover:border-white/10 transition-all duration-500 cursor-pointer overflow-hidden active:scale-[0.99] mb-4"
         >
-            {/* Background Glow */}
+
             <div className={`absolute -right-20 -top-20 w-64 h-64 bg-${accentColor}-500/5 blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`}></div>
 
-            {/* Icon & Type */}
             <div className="flex items-center gap-4 shrink-0">
                 <div className={`w-14 h-14 rounded-2xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 shadow-2xl`}>
                     <Icon className={`w-7 h-7 text-${accentColor}-400`} />
@@ -37,7 +36,6 @@ const CredentialRow = ({ credential, onClick }) => {
                 </div>
             </div>
 
-            {/* Main Info */}
             <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col min-w-0">
                     <span className="hidden md:block text-[9px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-1">
@@ -77,7 +75,6 @@ const CredentialRow = ({ credential, onClick }) => {
                 </div>
             </div>
 
-            {/* Meta & Status */}
             <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 shrink-0">
                 <div className="flex items-center gap-2 text-zinc-600 text-[10px] font-black uppercase tracking-widest">
                     <Calendar className="w-3.5 h-3.5" />
@@ -85,8 +82,8 @@ const CredentialRow = ({ credential, onClick }) => {
                 </div>
 
                 <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border flex items-center gap-2 shadow-lg backdrop-blur-md
-                    ${isRevoked 
-                        ? 'bg-red-500/10 border-red-500/20 text-red-400' 
+                    ${isRevoked
+                        ? 'bg-red-500/10 border-red-500/20 text-red-400'
                         : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
                 `}>
                     <div className={`w-1.5 h-1.5 rounded-full ${isRevoked ? 'bg-red-500 animate-pulse' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}></div>
@@ -94,7 +91,6 @@ const CredentialRow = ({ credential, onClick }) => {
                 </div>
             </div>
 
-            {/* Hover Action */}
             <div className="hidden md:flex w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 shrink-0 shadow-2xl">
                 <ChevronRight className="w-5 h-5 text-indigo-400" />
             </div>

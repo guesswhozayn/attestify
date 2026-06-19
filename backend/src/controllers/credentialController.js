@@ -52,7 +52,6 @@ const issueCredential = asyncHandler(async (req, res) => {
     const normalizedStudentWallet = studentWalletAddress?.toLowerCase().trim();
     const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
 
-    // 1. Validation: No future dates
     const parsedIssueDate = new Date(issueDate);
     if (parsedIssueDate > new Date()) {
       return res.status(400).json({ error: 'Issue date cannot be in the future.' });
@@ -68,10 +67,7 @@ const issueCredential = asyncHandler(async (req, res) => {
       console.warn('Failed to parse JSON data', e);
     }
 
-    // Generate a stable _id upfront so we can reference the credential ID
-    // in the PDF without needing a pre-save.
     const credentialId = new mongoose.Types.ObjectId().toString();
-
 
     const uploadsDir = path.join(__dirname, '../../uploads');
     if (!fs.existsSync(uploadsDir)) {
@@ -79,7 +75,7 @@ const issueCredential = asyncHandler(async (req, res) => {
     }
 
     tempFilePath = path.join(uploadsDir, `cert_${credentialId}_${Date.now()}.pdf`);
-    
+
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
     const institutionName = req.user.issuerDetails?.institutionName || university || 'Attestify';
@@ -103,15 +99,13 @@ const issueCredential = asyncHandler(async (req, res) => {
 
     const certificateHash = await hashService.generateSHA256(tempFilePath);
 
-
     const ipfsResult = await ipfsService.uploadFile(
       tempFilePath,
       `Certificate_${credentialId}.pdf`
     );
 
+    let studentImageUrl = req.body.studentImage;
 
-    let studentImageUrl = req.body.studentImage; 
-    
     if (studentImageFile) {
       try {
         tempImagePath = studentImageFile.path;
@@ -125,8 +119,6 @@ const issueCredential = asyncHandler(async (req, res) => {
       }
     }
 
-    // Build a temporary credential object for SBT metadata generation
-    // (not saved yet — we need blockchain data first)
     const credentialData = {
       _id: credentialId,
       studentWalletAddress: normalizedStudentWallet,
@@ -137,7 +129,7 @@ const issueCredential = asyncHandler(async (req, res) => {
     };
 
     const certificatePromise = blockchainService.issueCertificate(
-      credentialId, 
+      credentialId,
       certificateHash,
       ipfsResult.ipfsHash
     );
@@ -145,7 +137,7 @@ const issueCredential = asyncHandler(async (req, res) => {
     const sbtPromise = (async () => {
         try {
             const metadataURI = await prepareSBTMetadata(req.user, credentialData, ipfsResult.ipfsHash);
-            
+
             const sbtRes = await blockchainService.issueSoulboundCredential(
                 normalizedStudentWallet,
                 metadataURI
@@ -157,10 +149,8 @@ const issueCredential = asyncHandler(async (req, res) => {
         }
     })();
 
-
     const [blockchainResult, sbtResult] = await Promise.all([certificatePromise, sbtPromise]);
 
-    // Single atomic save with ALL required fields populated
     const credential = new Credential({
       _id: credentialId,
       studentWalletAddress: normalizedStudentWallet,
@@ -192,9 +182,8 @@ const issueCredential = asyncHandler(async (req, res) => {
     req.user.issuerDetails.certificatesIssued = (req.user.issuerDetails.certificatesIssued || 0) + 1;
     await req.user.save();
 
-
     const studentUser = await User.findOne({ walletAddress: normalizedStudentWallet });
-    
+
     if (studentUser && studentUser.email) {
       const emailData = {
         studentName,
@@ -207,8 +196,8 @@ const issueCredential = asyncHandler(async (req, res) => {
         loginLink: `${process.env.FRONTEND_URL}/login`,
         tokenId: credential.tokenId
       };
-      
-      emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+
+      emailService.sendCertificateIssued(studentUser.email, emailData).catch(err =>
         console.error(`[EmailService] Failed to send issuance email to ${studentUser.email}:`, err)
       );
     }
@@ -247,7 +236,7 @@ const issueCredential = asyncHandler(async (req, res) => {
 
   } catch (error) {
     console.error('Issue credential error:', error);
-    
+
     try {
       const logPath = path.join(__dirname, '../../logs/issue_error.log');
       fs.mkdirSync(path.dirname(logPath), { recursive: true });
@@ -269,8 +258,6 @@ const issueCredential = asyncHandler(async (req, res) => {
     throw error;
   }
 });
-
-
 
 const batchIssueCredentials = asyncHandler(async (req, res) => {
   const file = req.files && req.files['file'] ? req.files['file'][0] : null;
@@ -348,8 +335,8 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
         issuedBy: req.user._id,
         metadata: {}
       });
-      
-      const credentialId = credential._id.toString(); 
+
+      const credentialId = credential._id.toString();
 
       const uploadsDir = path.join(__dirname, '../../uploads');
       if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
@@ -358,7 +345,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
       const institutionName = req.user.issuerDetails?.institutionName || credential.university;
       const issuerWalletAddress = req.user.walletAddress;
       const issuerRegistration = req.user.issuerDetails?.registrationNumber || '';
-      
+
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
 
@@ -379,9 +366,9 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
       const certificateHash = await hashService.generateSHA256(tempFilePath);
       const ipfsResult = await ipfsService.uploadFile(tempFilePath, `Certificate_${credentialId}.pdf`);
-      
+
       if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
-      
+
       const metadataURI = await prepareSBTMetadata(req.user, credential, ipfsResult.ipfsHash);
 
       batchStudentIds.push(credentialId);
@@ -443,13 +430,13 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
   let blockchainResult = null;
   let sbtResult = null;
-  
+
   try {
       console.log('Sending Batch Transactions...');
-      
+
       const certPromise = blockchainService.issueCertificateBatch(
-          batchStudentIds, 
-          batchHashes, 
+          batchStudentIds,
+          batchHashes,
           batchIpfsCIDs
       );
 
@@ -471,9 +458,9 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
   }
 
   console.log('Batch Transactions Successful. Saving credentials...');
-  
+
   const tokenIds = sbtResult ? sbtResult.tokenIds : [];
-  
+
   const totalCostWei = BigInt(blockchainResult.totalCost || 0) + BigInt(sbtResult?.totalCost || 0);
   const count = BigInt(pendingCredentials.length);
   const costPerItem = count > 0n ? (totalCostWei / count).toString() : "0";
@@ -481,25 +468,23 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
   for (let i = 0; i < pendingCredentials.length; i++) {
       const item = pendingCredentials[i];
       const credential = item.credential;
-      
+
       credential.certificateHash = item.certificateHash;
       credential.ipfsCID = item.ipfsHash;
-      
+
       credential.transactionHash = blockchainResult.transactionHash;
       credential.blockNumber = blockchainResult.blockNumber;
-      
+
       if (tokenIds && tokenIds[i]) {
           credential.tokenId = tokenIds[i];
       }
 
       credential.gasUsed = "0";
-      credential.gasPrice = blockchainResult.gasPrice; 
-      credential.totalCost = costPerItem; 
+      credential.gasPrice = blockchainResult.gasPrice;
+      credential.totalCost = costPerItem;
 
       credential.metadata = item.tempMetadata;
 
-      // Retry save up to 3 times — the credential is already minted on-chain,
-      // so failing to persist to MongoDB is a critical consistency issue.
       let saved = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
           try {
@@ -509,7 +494,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
           } catch (saveError) {
               console.error(`[BatchSave] Attempt ${attempt}/3 failed for credential ${credential._id}:`, saveError.message);
               if (attempt < 3) {
-                  await new Promise(r => setTimeout(r, 500 * attempt)); // backoff: 500ms, 1s
+                  await new Promise(r => setTimeout(r, 500 * attempt));
               }
           }
       }
@@ -528,16 +513,15 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
                   loginLink: `${process.env.FRONTEND_URL}/login`,
                   tokenId: credential.tokenId
                };
-               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err => 
+               emailService.sendCertificateIssued(studentUser.email, emailData).catch(err =>
                  console.error(`[EmailService] Failed to send batch issuance email to ${studentUser.email}:`, err)
                );
           }
-          
+
           summary.success++;
 
       } else {
-          // CRITICAL: On-chain credential exists but MongoDB record was not saved.
-          // Log all data needed for manual reconciliation.
+
           console.error(`[CRITICAL] Credential minted on-chain but NOT saved to DB. Manual reconciliation required.`, {
               credentialId: credential._id.toString(),
               studentWallet: item.row.studentWalletAddress,
@@ -583,10 +567,10 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 });
 
 const getCredentials = asyncHandler(async (req, res) => {
-  const { 
-    page = 1, 
-    limit = 20, 
-    search = '', 
+  const {
+    page = 1,
+    limit = 20,
+    search = '',
     revoked = null,
     type = null,
     sortBy = 'createdAt',
@@ -652,7 +636,6 @@ const getCredentialById = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Credential not found' });
   }
 
-  // Security Check: Access control
   const isOwner = req.user && req.user.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
   const isIssuer = req.user && req.user.role === 'ISSUER' && req.user._id.toString() === credential.issuedBy._id.toString();
 
@@ -683,7 +666,6 @@ const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized access to credentials' });
   }
 
-  // Security Check: If issuer is querying a different student, check student's visibility preference
   if (req.user.role === 'ISSUER' && currentWallet !== targetWallet) {
       const student = await User.findOne({ walletAddress: targetWallet });
       if (student?.preferences?.visibility === false) {
@@ -711,7 +693,6 @@ const revokeCredential = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Credential not found' });
   }
 
-  // Use Wallet Address for ownership check to handle cases where Issuer accounts are deleted/re-registered
   const issuerWallet = credential.issuedBy?.walletAddress?.toLowerCase();
   const currentWallet = req.user.walletAddress?.toLowerCase();
 
@@ -744,7 +725,6 @@ const revokeCredential = asyncHandler(async (req, res) => {
   credential.revocationTotalCost = blockchainResult.totalCost;
   await credential.save();
 
-
   res.json({
     success: true,
     message: 'Credential revoked successfully',
@@ -756,7 +736,7 @@ const revokeCredential = asyncHandler(async (req, res) => {
 const getStats = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const isIssuer = req.user.role === 'ISSUER';
-  
+
   const query = {};
   if (isIssuer) {
     query.issuedBy = userId;
@@ -768,13 +748,13 @@ const getStats = asyncHandler(async (req, res) => {
   }
 
   const total = await Credential.countDocuments(query);
-  const active = await Credential.countDocuments({ 
-    ...query, 
-    isRevoked: false 
+  const active = await Credential.countDocuments({
+    ...query,
+    isRevoked: false
   });
-  const revoked = await Credential.countDocuments({ 
-    ...query, 
-    isRevoked: true 
+  const revoked = await Credential.countDocuments({
+    ...query,
+    isRevoked: true
   });
 
   const startOfMonth = new Date();
@@ -794,7 +774,7 @@ const getStats = asyncHandler(async (req, res) => {
 
   const walletAddress = req.user.issuerDetails?.authorizedWalletAddress || req.user.walletAddress;
   let gasBalance = '0.00';
-  
+
   if (walletAddress) {
       try {
           gasBalance = await blockchainService.getBalance(walletAddress);

@@ -10,7 +10,7 @@ import AccountLayout from '../components/layout/AccountLayout';
 const Settings = () => {
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
-  
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -45,12 +45,12 @@ const Settings = () => {
 
   return (
     <AccountLayout>
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
         >
-            {/* Page Header */}
+
             <div className="px-2">
                 <h1 className="text-2xl font-black text-white tracking-widest uppercase mb-1">Account Settings</h1>
                 <div className="flex items-center gap-2">
@@ -60,10 +60,9 @@ const Settings = () => {
             </div>
 
             <div className="bg-[#0a0a0a] border border-white/4 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group">
-              {/* Background Decor */}
+
               <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/2 rounded-full blur-[100px] pointer-events-none group-hover:bg-red-500/5 transition-colors duration-700"></div>
 
-              {/* Security Content */}
               <div className="space-y-10 max-w-3xl relative z-10">
                   <div className="flex items-center gap-4">
                     <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
@@ -74,7 +73,7 @@ const Settings = () => {
                         <p className="text-zinc-500 text-xs font-medium">Update your account password.</p>
                     </div>
                   </div>
-                  
+
                   <div className="grid gap-8">
                     <Input
                       label="Current Password"
@@ -84,7 +83,7 @@ const Settings = () => {
                       icon={Lock}
                       placeholder="••••••••"
                     />
-                    
+
                     <div className="h-px bg-white/4 w-full"></div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -121,24 +120,23 @@ const Settings = () => {
                 </div>
             </div>
 
-            {/* Account Health / Info Card */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <SecurityInfoCard 
-                    label="Encryption" 
-                    value="AES-256" 
-                    status="Active" 
+                <SecurityInfoCard
+                    label="Encryption"
+                    value="AES-256"
+                    status="Active"
                     color="text-emerald-400"
                 />
-                <SecurityInfoCard 
-                    label="Last Update" 
-                    value="14 days ago" 
-                    status="Verified" 
+                <SecurityInfoCard
+                    label="Last Update"
+                    value="14 days ago"
+                    status="Verified"
                     color="text-indigo-400"
                 />
-                <SecurityInfoCard 
-                    label="Security" 
-                    value="Secure" 
-                    status="Active" 
+                <SecurityInfoCard
+                    label="Security"
+                    value="Secure"
+                    status="Active"
                     color="text-blue-400"
                 />
             </div>

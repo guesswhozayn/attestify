@@ -13,17 +13,15 @@ const AccountLayout = ({ children }) => {
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
 
-
   return (
     <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
       <GradientBackground />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="flex flex-col lg:flex-row gap-8">
-          
-          {/* Sidebar / Navigation */}
+
           <aside className="w-full lg:w-72 shrink-0">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="sticky top-24 space-y-6"
@@ -44,8 +42,8 @@ const AccountLayout = ({ children }) => {
                       onClick={() => navigate(tab.path)}
                       className={`
                         group flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300
-                        ${isActive 
-                          ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400' 
+                        ${isActive
+                          ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
                           : 'bg-white/2 border border-white/5 text-zinc-500 hover:bg-white/5 hover:text-zinc-300'}
                       `}
                     >
@@ -64,7 +62,6 @@ const AccountLayout = ({ children }) => {
                 })}
               </nav>
 
-              {/* Account Quick Stats / Info */}
               <div className="p-6 rounded-3xl bg-indigo-500/5 border border-indigo-500/10 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
                 <div className="relative z-10 space-y-4 text-center sm:text-left">
@@ -80,7 +77,6 @@ const AccountLayout = ({ children }) => {
             </motion.div>
           </aside>
 
-          {/* Main Content */}
           <section className="flex-1 min-w-0">
             <motion.div
               key={location.pathname}

@@ -2,41 +2,35 @@ import React from 'react';
 import { User, Camera, Loader2 } from 'lucide-react';
 import { getAvatarSrc } from '../../utils/avatarUtils';
 
-
-const Avatar = ({ 
-  src, 
-  alt, 
-  initials, 
-  size = 'md', 
-  editable = false, 
-  uploading = false, 
+const Avatar = ({
+  src,
+  alt,
+  initials,
+  size = 'md',
+  editable = false,
+  uploading = false,
   onUpload,
   className = ''
 }) => {
-  
-  // Size variants
+
   const sizeClasses = {
-    sm: 'w-10 h-10',      // Header, small lists
-    md: 'w-16 h-16',      // Cards
-    lg: 'w-32 h-32',      // Profile Hero
-    xl: 'w-40 h-40',      // Large Profile Hero
+    sm: 'w-10 h-10',
+    md: 'w-16 h-16',
+    lg: 'w-32 h-32',
+    xl: 'w-40 h-40',
   };
 
   const containerSize = sizeClasses[size] || sizeClasses.md;
 
   return (
     <div className={`relative group rounded-full ${containerSize} ${className}`}>
-      
-      {/* 1. Outer Glow (Static) */}
+
       <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
 
-      {/* 2. Simplified Border (Static) */}
       <div className="absolute -inset-px rounded-full border border-white/10 opacity-40" />
 
-      {/* 4. Static Glass Container */}
       <div className="absolute inset-0 rounded-full bg-[#0a0a0a] border border-white/10 overflow-hidden flex items-center justify-center shadow-inner group-hover:border-indigo-500/30 transition-colors duration-500">
-        
-        {/* Avatar Image */}
+
         <img
           src={getAvatarSrc(src, initials)}
           alt={alt || initials || 'Avatar'}
@@ -47,8 +41,7 @@ const Avatar = ({
             e.currentTarget.nextSibling.style.display = 'flex';
           }}
         />
-        
-        {/* Fallback with more premium gradient */}
+
         <div
           className="w-full h-full flex items-center justify-center bg-linear-to-br from-indigo-500/20 via-black to-purple-500/20"
           style={{ display: src ? 'none' : 'flex' }}
@@ -58,7 +51,6 @@ const Avatar = ({
           </span>
         </div>
 
-        {/* 5. Upload Overlay (if editable) */}
         {editable && (
           <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 backdrop-blur-sm z-20 rounded-full">
             {uploading ? (
@@ -71,9 +63,9 @@ const Avatar = ({
                 )}
               </>
             )}
-            <input 
-              type="file" 
-              className="hidden" 
+            <input
+              type="file"
+              className="hidden"
               accept="image/*"
               onChange={onUpload}
               disabled={uploading}

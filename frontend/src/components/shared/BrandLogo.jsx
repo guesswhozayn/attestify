@@ -2,7 +2,7 @@ import React from 'react';
 
 const BrandLogo = ({ textSize = "text-2xl", className = "", dotColor = "", textColor = "" }) => {
   return (
-    <span 
+    <span
       className={`font-sans ${textSize} font-black tracking-[-0.05em] lowercase ${className}`}
       style={textColor ? { color: textColor } : { color: '#ffffff' }}
     >
@@ -12,4 +12,3 @@ const BrandLogo = ({ textSize = "text-2xl", className = "", dotColor = "", textC
 };
 
 export default BrandLogo;
- 

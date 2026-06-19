@@ -51,7 +51,7 @@ function App() {
       <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public Routes */}
+
           <Route path="/" element={<Landing />} />
           <Route path="/verify" element={<VerifyPage />} />
           <Route path="/verify/:id" element={<VerifyPage />} />
@@ -64,7 +64,6 @@ function App() {
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
           <Route path="/pricing" element={<Pricing />} />
 
-          {/* Protected Routes */}
           <Route
             path="/dashboard"
             element={
@@ -119,7 +118,6 @@ function App() {
             }
           />
 
-          {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

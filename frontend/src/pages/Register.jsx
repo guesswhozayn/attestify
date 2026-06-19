@@ -11,8 +11,6 @@ import Input from '../components/shared/Input';
 import blockchainService from '../services/blockchain';
 import GradientBackground from '../components/shared/GradientBackground';
 
-
-
 const Register = () => {
   const [searchParams] = useSearchParams();
   const urlRole = searchParams.get('role');
@@ -24,17 +22,17 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     university: '',
-    registrationNumber: '', // Required for Issuer
-    walletAddress: '', // Initialize for student
-    authorizedWalletAddress: '', // Initialize for issuer
-    institutionName: '', // Initialize for issuer
-    role: (urlRole === 'STUDENT' || urlRole === 'ISSUER') ? urlRole : 'ISSUER', 
+    registrationNumber: '',
+    walletAddress: '',
+    authorizedWalletAddress: '',
+    institutionName: '',
+    role: (urlRole === 'STUDENT' || urlRole === 'ISSUER') ? urlRole : 'ISSUER',
     plan: ['STARTER', 'PRO', 'ENTERPRISE'].includes(urlPlan?.toUpperCase()) ? urlPlan.toUpperCase() : 'STARTER',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const { register } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
@@ -70,37 +68,29 @@ const Register = () => {
 
     setLoading(true);
 
-    // Standard Email/Password Registration
     const result = await register(formData);
-    
+
     if (result.success) {
       showNotification('Registration successful! Please login to continue.', 'success');
       navigate('/login');
     } else {
       setError(result.error);
     }
-    
+
     setLoading(false);
   };
 
-
-
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-8">
-      
+
       <BackButton />
 
-        {/* Background Elements */}
        <GradientBackground />
 
-      {/* Main Container */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center">
-          
-        {/* Left Side: Branding (Free Floating) */}
-        <div className="flex flex-col space-y-8 animate-in slide-in-from-left-8 duration-700 order-last lg:order-first"> 
-           {/* Order change for mobile: Form first, Branding last on small screens, Branding first on large */}
-             
-             {/* Logo */}
+
+        <div className="flex flex-col space-y-8 animate-in slide-in-from-left-8 duration-700 order-last lg:order-first">
+
              <div className="hidden lg:block">
                 <Link to="/" className="inline-flex items-center gap-4 group">
                    <ShieldLogo size="lg" className="shadow-2xl group-hover:scale-110" />
@@ -108,7 +98,6 @@ const Register = () => {
                 </Link>
              </div>
 
-             {/* Slogan */}
              <div className="max-w-xl hidden lg:block">
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
                   The Future of <br/>
@@ -121,7 +110,6 @@ const Register = () => {
                 </p>
              </div>
 
-             {/* Trusted By */}
              <div className="pt-4 hidden lg:block">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by innovative teams</p>
                 <div className="flex gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
@@ -141,16 +129,15 @@ const Register = () => {
              </div>
         </div>
 
-        {/* Right Side: Form (Glass Card) */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
-            {/* Mobile Logo */}
+
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
                  <ShieldLogo size="md" className="group-hover:scale-105" />
                  <BrandLogo textSize="text-2xl" />
               </Link>
            </div>
-           
+
            <div className="mb-8">
              <h2 className="text-2xl font-bold tracking-tight mb-2">
                Create Account
@@ -159,10 +146,9 @@ const Register = () => {
                Join the decentralized trust network.
              </p>
            </div>
-            
-           {/* Role Toggle */}
+
            <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
-             <div 
+             <div
                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner rounded-full transition-all duration-300 ease-out ${formData.role === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
              ></div>
              <button
@@ -189,7 +175,7 @@ const Register = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                {formData.role !== 'ISSUER' && (
                   <div className="md:col-span-1">
@@ -204,7 +190,7 @@ const Register = () => {
                       />
                   </div>
                )}
-               
+
                <div className={formData.role === 'ISSUER' ? 'md:col-span-1' : ''}>
                  <Input
                    label="Email Address"

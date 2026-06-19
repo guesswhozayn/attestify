@@ -14,13 +14,13 @@ const BackButton = ({ fallbackPath = '/', text = "Back to Home", force = false }
     };
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="hidden md:block fixed top-8 left-8 z-50"
         >
-            <button 
+            <button
                 onClick={handleBack}
                 className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-xl shadow-inner shadow-2xl"
             >

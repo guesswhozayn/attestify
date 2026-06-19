@@ -29,10 +29,10 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
       if (response.data.success) {
         showNotification(`Batch processing complete. ${response.data.summary.success} successful, ${response.data.summary.failed} failed.`, 'success');
         setBatchSummary(response.data.summary);
-        // Don't close immediately, let user see summary
+
         if (response.data.summary.failed === 0) {
            setTimeout(() => {
-             onSuccess(); // Trigger refresh
+             onSuccess();
              onClose();
              setBatchFile(null);
              setBatchSummary(null);
@@ -55,13 +55,13 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
 
   const downloadTemplate = () => {
     const headers = [
-      'studentName', 'studentWalletAddress', 'university', 'issueDate', 'type', 
-      'program', 'department', 'admissionYear', 'graduationYear', 'cgpa', 'courses', 
+      'studentName', 'studentWalletAddress', 'university', 'issueDate', 'type',
+      'program', 'department', 'admissionYear', 'graduationYear', 'cgpa', 'courses',
       'title', 'level', 'duration', 'score', 'description'
     ];
     const example1 = 'John Doe,0x1234567890123456789012345678901234567890,Tech University,2024-01-01,CERTIFICATION,,,,,,,,Advanced React Patterns,Expert,20 Hours,98,Mastering React hooks and patterns';
     const example2 = 'Jane Smith,0x0987654321098765432109876543210987654321,Tech University,2024-01-01,TRANSCRIPT,B.Sc CS,Engineering,2020,2024,3.85,CS101;Intro;A;4|CS102;Algo;B;3,,,,,,';
-    
+
     const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + example1 + "\n" + example2;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -101,8 +101,8 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
               <p className="text-red-400/80 text-sm mb-4">
                  {quotaError}
               </p>
-              <Button 
-                onClick={() => window.location.assign('/pricing')} 
+              <Button
+                onClick={() => window.location.assign('/pricing')}
                 variant="white"
                 className="w-full justify-center text-red-600 font-bold shadow-lg"
               >
@@ -112,7 +112,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
       )}
 
       <div className="space-y-6">
-          <div 
+          <div
             className={`relative border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-300 group ${
                 batchFile ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-white/10 bg-white/[0.02] hover:border-indigo-500/30 hover:bg-indigo-500/5'
             }`}
@@ -126,17 +126,17 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                     <FileText className="w-10 h-10 text-gray-400 group-hover:text-indigo-400 transition-colors" />
                 )}
               </div>
-              
+
               <h3 className="text-xl font-bold text-white mb-2">
                   {batchFile ? 'Wrapper File Selected' : 'Upload CSV File'}
               </h3>
               <p className="text-gray-400 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-                {batchFile 
+                {batchFile
                     ? <span className="text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded-lg">{batchFile.name}</span>
                     : 'Drag and drop your CSV file here, or click to browse. Ensure your file matches the template layout.'
                 }
               </p>
-              
+
               <input
                 type="file"
                 accept=".csv"
@@ -144,7 +144,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 className="hidden"
                 id="batch-file-upload"
               />
-              <Button 
+              <Button
                 onClick={() => document.getElementById('batch-file-upload').click()}
                 variant="white"
                 rounded="full"
@@ -166,7 +166,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
                 Download CSV Template
               </Button>
-              
+
               <Button
                 onClick={handleBatchUpload}
                 loading={loading}

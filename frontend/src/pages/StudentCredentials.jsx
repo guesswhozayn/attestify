@@ -31,7 +31,7 @@ const StudentCredentials = () => {
             else setLoading(true);
             const response = await credentialAPI.getByWalletAddress(walletAddress);
             const docs = response.data.credentials || [];
-            
+
             const total = docs.length;
             const revokedCount = docs.filter(d => d.isRevoked).length;
             const active = total - revokedCount;
@@ -61,7 +61,7 @@ const StudentCredentials = () => {
             }
         };
         init();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
     useEffect(() => {
@@ -74,11 +74,11 @@ const StudentCredentials = () => {
 
     useEffect(() => {
         let filtered = credentials;
-        
+
         if (activeTab !== 'all') {
             filtered = filtered.filter(doc => doc.type === activeTab);
         }
-        
+
         if (searchQuery) {
             const lower = searchQuery.toLowerCase();
             filtered = filtered.filter(cred =>
@@ -87,7 +87,7 @@ const StudentCredentials = () => {
                 (cred.certificateHash && cred.certificateHash.toLowerCase().includes(lower))
             );
         }
-        
+
         setFilteredCredentials(filtered);
     }, [credentials, activeTab, searchQuery]);
 
@@ -95,29 +95,26 @@ const StudentCredentials = () => {
         setSearchQuery(query);
     };
 
-
-
     return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-            {/* Dynamic Background Elements */}
+
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-                {/* Main Gradient Orbs */}
+
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
             </div>
 
             <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
-                
-                {/* Header & Actions */}
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/20 to-blue-900/20 border border-white/[0.08] p-8 md:p-10 backdrop-blur-xl"
         >
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none"></div>
-            
+
             <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                    <div className="flex items-center gap-3 mb-4">
@@ -130,10 +127,10 @@ const StudentCredentials = () => {
                       Your verifiable digital identity. Review your certificates, transcripts, and on-chain mastery records.
                    </p>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
-                    <RefreshButton 
-                      onClick={() => fetchCredentials(true)} 
+                    <RefreshButton
+                      onClick={() => fetchCredentials(true)}
                       loading={refreshing}
                       rounded="xl"
                       title="Refresh Records"
@@ -142,20 +139,17 @@ const StudentCredentials = () => {
             </div>
         </motion.div>
 
-        {/* Stats Section */}
         {walletAddress && <StudentStats stats={stats} />}
 
-                {/* Content Section */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
                     className="space-y-6"
                 >
-                    {/* Toolbar */}
+
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/[0.02] p-2 rounded-2xl border border-white/[0.05] backdrop-blur-sm">
-                         
-                        {/* Tabs */}
+
                         <div className="flex p-1 space-x-1 bg-black/20 rounded-xl">
                            {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((tab) => (
                              <Button
@@ -165,8 +159,8 @@ const StudentCredentials = () => {
                                size="sm"
                                rounded="lg"
                                className={`px-4 py-2 !shadow-none ${
-                                 activeTab === tab 
-                                   ? 'text-white' 
+                                 activeTab === tab
+                                   ? 'text-white'
                                    : 'text-gray-400'
                                }`}
                              >
@@ -190,7 +184,7 @@ const StudentCredentials = () => {
 
                     <div className="min-h-[400px]">
                         {(!walletAddress) ? (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5 }}
@@ -218,10 +212,10 @@ const StudentCredentials = () => {
                         ) : (
                             <div className="space-y-4">
                                 {filteredCredentials.map((cred) => (
-                                    <CredentialRow 
-                                        key={cred._id || cred.id} 
-                                        credential={cred} 
-                                        onClick={() => setSelectedCredential(cred)} 
+                                    <CredentialRow
+                                        key={cred._id || cred.id}
+                                        credential={cred}
+                                        onClick={() => setSelectedCredential(cred)}
                                     />
                                 ))}
                             </div>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-    ShieldAlert, 
-    ExternalLink, 
-    FileText, 
+import {
+    ShieldAlert,
+    ExternalLink,
+    FileText,
     Award,
     Calendar,
     User,
@@ -20,7 +20,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
     const accentColor = isTranscript ? 'indigo' : 'emerald';
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -28,12 +28,11 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
             onClick={() => onView(cred)}
             className="group relative bg-[#0b0b0b] border border-white/4 hover:border-white/10 rounded-4xl p-5 lg:p-6 transition-all duration-500 cursor-pointer overflow-hidden mb-4 active:scale-[0.99] shadow-lg hover:shadow-2xl"
         >
-            {/* Background Accent */}
+
             <div className={`absolute -right-24 -top-24 w-80 h-80 bg-${accentColor}-500/[0.03] blur-[120px] pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity`}></div>
 
-            {/* Desktop Row Layout (Hidden on Mobile) */}
             <div className="hidden lg:flex lg:flex-row lg:items-center gap-8 relative z-10">
-                {/* Section 1: Credential Identification */}
+
                 <div className="lg:w-[35%] flex items-center gap-5">
                     <div className={`p-4 rounded-3xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
                         <Icon className={`w-8 h-8 text-${accentColor}-400`} />
@@ -56,7 +55,6 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                {/* Section 2: Recipient Data */}
                 <div className="lg:w-[25%] flex items-center gap-4 border-l lg:border-white/5 lg:pl-8">
                      <div className="w-10 h-10 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/20 transition-colors">
                         {cred.studentImage ? (
@@ -74,7 +72,6 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                {/* Section 3: Ledger Data */}
                 <div className="lg:w-[20%] flex flex-col items-center justify-center border-l lg:border-white/5 lg:pl-8">
                     <div className="flex flex-col items-center">
                         <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1.5">Registry Entry</span>
@@ -85,11 +82,10 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                {/* Section 4: Status & Controls */}
                 <div className="lg:w-[20%] flex items-center justify-end gap-6 lg:pl-8 border-l lg:border-white/5">
                     <div className={`px-4 py-2 rounded-xl text-[11px] font-bold border flex items-center gap-2.5 shadow-inner backdrop-blur-md
-                        ${isRevoked 
-                            ? 'bg-red-500/10 border-red-500/20 text-red-500' 
+                        ${isRevoked
+                            ? 'bg-red-500/10 border-red-500/20 text-red-500'
                             : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
                     `}>
                         <div className={`w-2 h-2 rounded-full ${isRevoked ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse'}`}></div>
@@ -98,7 +94,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
 
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 duration-500">
                         {cred.transactionHash && (
-                            <a 
+                            <a
                                 href={`https://sepolia.etherscan.io/tx/${cred.transactionHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -111,7 +107,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                         )}
 
                         {!cred.isRevoked && (
-                            <Button 
+                            <Button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onRevoke(cred);
@@ -131,10 +127,8 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                 </div>
             </div>
 
-            {/* Mobile Stacked Card Layout (< lg) */}
             <div className="flex flex-col lg:hidden relative z-10 space-y-4">
-                
-                {/* Mobile Header: Icon, Title, Status */}
+
                 <div className="flex items-start justify-between gap-3 border-b border-white/4 pb-4">
                     <div className="flex items-center gap-3">
                         <div className={`p-2.5 rounded-xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 shrink-0`}>
@@ -147,7 +141,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                             </h3>
                         </div>
                     </div>
-                    {/* Compact Status Pill */}
+
                     <div className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold border flex items-center gap-2 shrink-0
                         ${isRevoked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
                     `}>
@@ -156,7 +150,6 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                {/* Mobile Identity Block */}
                 <div className="flex items-center justify-between bg-white/1 rounded-xl border border-white/2 p-3">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
@@ -173,7 +166,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                             </span>
                         </div>
                     </div>
-                    {/* Asset Type Tags */}
+
                     <div className="flex flex-col items-end gap-1">
                         {isSBT ? (
                             <span className="px-1.5 py-0.5 rounded text-[8px] bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold uppercase tracking-wider">SBT Token</span>
@@ -186,7 +179,6 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                {/* Mobile Bottom Bar: Date & Actions */}
                 <div className="pt-1 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2 text-zinc-500 font-bold text-[10px] tracking-wider uppercase">
                         <Calendar className="w-3 h-3" />
@@ -195,7 +187,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
 
                     <div className="flex items-center gap-1">
                          {cred.transactionHash && (
-                            <a 
+                            <a
                                 href={`https://sepolia.etherscan.io/tx/${cred.transactionHash}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -206,7 +198,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                             </a>
                         )}
                         {!cred.isRevoked && (
-                            <Button 
+                            <Button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onRevoke(cred);
@@ -228,7 +220,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
 CredentialTableRow.displayName = 'CredentialTableRow';
 
 const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
-    
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-32 bg-black/20 rounded-[3rem] border border-white/4 border-dashed">
@@ -263,7 +255,7 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
         <div className="pb-10">
             <AnimatePresence mode="popLayout">
                 {credentials.map((cred, idx) => (
-                    <CredentialTableRow 
+                    <CredentialTableRow
                         key={cred._id || idx}
                         cred={cred}
                         idx={idx}

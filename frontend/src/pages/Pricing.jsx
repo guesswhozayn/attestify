@@ -73,15 +73,13 @@ const Pricing = () => {
   return (
     <div className="h-screen overflow-y-auto snap-y snap-mandatory bg-black text-white selection:bg-indigo-500/30 font-sans relative scroll-smooth scrollbar-hide">
       <BackgroundEffects />
-      
-      {/* Background Grid Pattern */}
+
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
       <BackButton className="fixed top-8 left-8 z-50 text-white" />
 
-      {/* Hero Section */}
       <section className="relative snap-start min-h-screen lg:h-screen flex flex-col justify-center items-center px-4 overflow-hidden py-20 lg:py-0">
-        {/* Hero Glow Backdrop */}
+
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
 
         <div className="relative z-10 max-w-7xl mx-auto text-center">
@@ -98,20 +96,18 @@ const Pricing = () => {
           </p>
         </div>
 
-        {/* Floating Scroll Indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-50">
           <span className="text-[10px] font-black uppercase tracking-widest text-indigo-300">Scroll</span>
           <div className="w-px h-12 bg-linear-to-b from-indigo-500 to-transparent" />
         </div>
       </section>
 
-      {/* Pricing Cards Section */}
       <section className="relative snap-start min-h-screen lg:h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden py-20 lg:py-0">
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch max-w-6xl mx-auto">
             {plans.map((plan) => {
               const Icon = plan.icon;
-              
+
               return (
                 <div
                   key={plan.name}
@@ -121,7 +117,7 @@ const Pricing = () => {
                       : 'border-white/10 hover:border-white/30 hover:bg-white/[0.04]'
                   }`}
                 >
-                  {/* Inner Glow Hover Overlay */}
+
                   <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 ${
                      plan.highlight ? 'bg-indigo-600/10' : 'bg-gradient-to-br from-indigo-500/[0.03] to-purple-500/[0.03]'
                   }`} />
@@ -136,8 +132,8 @@ const Pricing = () => {
 
                   <div className="flex items-center gap-4 mb-8">
                     <div className={`w-14 h-14 rounded-2xl flex flex-shrink-0 items-center justify-center border shadow-lg ${
-                       plan.highlight 
-                        ? 'bg-gradient-to-br from-indigo-500/30 to-purple-500/30 border-indigo-500/40 text-indigo-300' 
+                       plan.highlight
+                        ? 'bg-gradient-to-br from-indigo-500/30 to-purple-500/30 border-indigo-500/40 text-indigo-300'
                         : 'bg-white/5 border-white/10 text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-colors'
                       }`}
                     >
@@ -206,15 +202,14 @@ const Pricing = () => {
           </div>
         </div>
       </section>
-      
-      {/* Final Pilot / Contact Footer Block Section */}
+
       <section className="relative snap-start min-h-screen lg:h-screen flex flex-col justify-center px-4 overflow-hidden py-20 lg:py-0">
         <div className="max-w-7xl mx-auto w-full">
           <div className="rounded-3xl border border-white/10 bg-linear-to-br from-gray-900/60 to-black/60 backdrop-blur-xl p-8 sm:p-16 text-center overflow-hidden">
-              {/* Inner Background Orbs */}
+
               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none"></div>
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none"></div>
-              
+
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 tracking-tight relative z-10">
                   Need a custom implementation?
               </h2>
@@ -222,15 +217,15 @@ const Pricing = () => {
                   We partner with select institutions for on-premise deployments, custom smart contract logic, and legacy system integrations via the Attestify Pilot Program.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
-                  <Button 
-                      onClick={() => window.location.assign('/partnership-guide')} 
+                  <Button
+                      onClick={() => window.location.assign('/partnership-guide')}
                       variant="white"
                       className="w-full sm:w-auto px-8! py-3! shadow-[0_0_20px_rgba(255,255,255,0.15)]"
                   >
                       View Partnership Guide
                   </Button>
-                  <Button 
-                      onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Enterprise Inquiry')} 
+                  <Button
+                      onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Enterprise Inquiry')}
                       variant="ghost"
                       className="w-full sm:w-auto px-8! py-3!"
                   >

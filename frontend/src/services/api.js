@@ -1,20 +1,18 @@
 import axios from 'axios';
-// API Configuration
+
 let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 if (!API_BASE_URL.endsWith('/api')) {
   API_BASE_URL = `${API_BASE_URL.replace(/\/$/, '')}/api`;
 }
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000, // 60 seconds (extended for PaaS cold starts)
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor - Add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -28,44 +26,43 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - Handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // Server responded with error
+
       const { status, data } = error.response;
 
       switch (status) {
         case 401:
-          // Unauthorized - clear token and redirect to login
+
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           if (window.location.pathname !== '/login') {
             window.location.href = '/login';
           }
           break;
-        
+
         case 403:
-          // Forbidden - insufficient permissions
+
           console.error('Access forbidden:', data.error);
           break;
-        
+
         case 404:
-          // Not found
+
           console.error('Resource not found:', data.error);
           break;
-        
+
         case 500:
-          // Server error
+
           console.error('Server error:', data.error);
           break;
       }
     } else if (error.request) {
-      // Request made but no response
+
       console.error('Network error - no response from server');
     } else {
-      // Something else happened
+
       console.error('Request error:', error.message);
     }
 
@@ -74,81 +71,72 @@ api.interceptors.response.use(
 );
 
 export const authAPI = {
-  // Register new user
+
   register: async (userData) => {
     return api.post('/auth/register', userData);
   },
 
-  // Login user
   login: async (credentials) => {
     return api.post('/auth/login', credentials);
   },
 
-  // Get current user
   getCurrentUser: async () => {
     return api.get('/auth/me');
   },
 
-  // Refresh token
   refreshToken: async () => {
     return api.post('/auth/refresh');
   },
 
-  // Logout
   logout: async () => {
     return api.post('/auth/logout');
   }
 };
 
 export const credentialAPI = {
-  // Issue new credential
+
   issue: async (formData) => {
     return api.post('/credentials/issue', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
-      timeout: 60000 // 60 seconds for file upload
+
+      timeout: 180000
     });
   },
 
-  // Get all credentials
   getAll: async (params = {}) => {
     return api.get('/credentials', { params });
   },
 
-  // Get credential by ID
   getById: async (id) => {
     return api.get(`/credentials/${id}`);
   },
 
-  // Get credentials by wallet address
   getByWalletAddress: async (walletAddress) => {
     return api.get(`/credentials/student/${walletAddress}`);
   },
 
-  // Revoke credential
   revoke: async (id, reason) => {
     return api.post(`/credentials/${id}/revoke`, { reason });
   },
 
-  // Batch upload
   batchUpload: async (formData) => {
     return api.post('/credentials/batch-issue', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
-      timeout: 120000 // 2 minutes for batch upload
+      timeout: 120000
     });
   },
 
-  // Get statistics
   getStats: async () => {
     return api.get('/credentials/stats');
   }
 };
 
 export const verifyAPI = {
-  // Verify certificate with file upload
+
   verifyWithFile: async (formData) => {
     return api.post('/verify/certificate', formData, {
       headers: {
@@ -157,41 +145,36 @@ export const verifyAPI = {
     });
   },
 
-  // Check if credential exists
   checkExists: async (walletAddress) => {
     return api.get(`/verify/${walletAddress}`);
   },
 
-  // Verify by hash
   verifyByHash: async (studentWalletAddress, hash) => {
     return api.post('/verify/hash', { studentWalletAddress, hash });
   }
 };
 
 export const networkAPI = {
-  // Get network stats
+
   getStats: async () => {
     return api.get('/network/stats');
   }
 };
 
 export const userAPI = {
-  // Get user profile
+
   getProfile: async () => {
     return api.get('/users/profile');
   },
 
-  // Update profile
   updateProfile: async (data) => {
     return api.put('/users/profile', data);
   },
 
-  // Change password
   changePassword: async (data) => {
     return api.put('/users/password', data);
   },
 
-  // Upload avatar
   uploadAvatar: async (formData) => {
     return api.post('/users/avatar', formData, {
       headers: {
@@ -202,14 +185,13 @@ export const userAPI = {
 };
 
 export const fileAPI = {
-  // Download certificate
+
   downloadCertificate: async (id) => {
     return api.get(`/files/certificate/${id}`, {
       responseType: 'blob'
     });
   },
 
-  // Get IPFS file
   getIPFSFile: async (cid) => {
     return api.get(`/files/ipfs/${cid}`, {
       responseType: 'blob'
@@ -219,7 +201,6 @@ export const fileAPI = {
 
 export default api;
 
-// Set auth token
 export const setAuthToken = (token) => {
   if (token) {
     localStorage.setItem('token', token);
@@ -230,19 +211,16 @@ export const setAuthToken = (token) => {
   }
 };
 
-// Get auth token
 export const getAuthToken = () => {
   return localStorage.getItem('token');
 };
 
-// Clear auth
 export const clearAuth = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   delete api.defaults.headers.common['Authorization'];
 };
 
-// Check if authenticated
 export const isAuthenticated = () => {
   return !!getAuthToken();
 };

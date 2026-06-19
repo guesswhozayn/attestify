@@ -53,7 +53,7 @@ const StudentDashboard = () => {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
       setError('');
-      
+
       const targetAddress = address || walletAddress;
 
       if (!targetAddress) {
@@ -62,7 +62,6 @@ const StudentDashboard = () => {
         return;
       }
 
-      // Security check: Match connected wallet with account wallet
       if (user?.walletAddress && targetAddress.toLowerCase() !== user.walletAddress.toLowerCase()) {
           setError(`Wallet mismatch: Connected (${targetAddress.slice(0,6)}...${targetAddress.slice(-4)}) does not match your account wallet.`);
           setLoading(false);
@@ -75,8 +74,7 @@ const StudentDashboard = () => {
       if (!isMounted.current) return;
 
       const docs = response.data.credentials || [];
-      
-      // Calculate Stats
+
       const total = docs.length;
       const revokedCount = docs.filter(d => d.isRevoked).length;
       const active = total - revokedCount;
@@ -113,7 +111,7 @@ const StudentDashboard = () => {
     isMounted.current = true;
     const init = async () => {
         try {
-           const address = await blockchainService.connectWallet(); 
+           const address = await blockchainService.connectWallet();
            if (isMounted.current) {
                setWalletAddress(address);
                if (address) {
@@ -132,7 +130,6 @@ const StudentDashboard = () => {
     init();
     return () => { isMounted.current = false; };
   }, [fetchCredential]);
-
 
   const handleShare = useCallback(() => {
     if (!credential || !walletAddress) return;
@@ -172,12 +169,11 @@ const StudentDashboard = () => {
 
   return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-            {/* Dynamic Background */}
+
             <GradientBackground />
 
             <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
-        
-        {/* Welcome Section */}
+
         <WelcomeHeroCard
           badge="Student Vault"
           title={welcomeTitle}
@@ -186,12 +182,10 @@ const StudentDashboard = () => {
           refreshing={refreshing}
         />
 
-        {/* Stats Section */}
         {walletAddress && <StudentStats stats={stats} />}
 
-        {/* Error Alert */}
         {error && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
@@ -211,7 +205,6 @@ const StudentDashboard = () => {
             </motion.div>
         )}
 
-        {/* Content Area */}
         {!walletAddress ? (
            <EmptyState
              icon={Wallet}
@@ -225,14 +218,13 @@ const StudentDashboard = () => {
              message="You haven't received any credentials yet. Once issued by an issuer, they will appear here instantly."
            />
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
             className="grid grid-cols-1 lg:grid-cols-12 gap-8"
           >
-            
-            {/* Main Credential Card - Takes up majority of space */}
+
             <div className="lg:col-span-8 space-y-2">
                <div className="flex items-center justify-between px-1">
                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -244,18 +236,16 @@ const StudentDashboard = () => {
                <DetailedCredentialCard credential={credential} metadata={metadata} />
             </div>
 
-            {/* Sidebar Actions - Right Column */}
             <div className="lg:col-span-4 space-y-6">
-               
-               {/* Quick Actions Card */}
-                <motion.div 
+
+                <motion.div
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
                  className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 shadow-sm dark:shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
                >
                   <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                  
+
                   <h3 className="text-white font-bold mb-6 flex items-center gap-3 relative z-10 text-left">
                      <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
                         <Share2 className="w-4 h-4 text-indigo-400" />
@@ -263,7 +253,7 @@ const StudentDashboard = () => {
                      Share & Verify
                   </h3>
                   <div className="space-y-3 relative z-10 text-left">
-                     <Button 
+                     <Button
                         onClick={handleShare}
                         icon={Share2}
                         variant="white"
@@ -271,7 +261,7 @@ const StudentDashboard = () => {
                      >
                         Copy Verification Link
                      </Button>
-                     <Button 
+                     <Button
                         onClick={openIPFSLink}
                         icon={ExternalLink}
                         variant="outline"
@@ -285,23 +275,21 @@ const StudentDashboard = () => {
                   </p>
                </motion.div>
 
-
-               {/* Blockchain Proof Card */}
-                <motion.div 
+                <motion.div
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
                  className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 backdrop-blur-xl relative overflow-hidden group/card shadow-sm dark:shadow-2xl"
                >
                   <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                  
+
                   <h3 className="text-white font-bold mb-8 flex items-center gap-3 relative z-10 text-left">
                      <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
                         <Hash className="w-4 h-4 text-emerald-400" />
                      </div>
                      On-Chain Proof
                   </h3>
-                  
+
                   <div className="space-y-6 relative z-10 text-left">
                      <div className="space-y-3">
                          <div className="flex justify-between items-center text-[11px] font-bold text-emerald-400/60 px-1">

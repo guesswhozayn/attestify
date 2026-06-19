@@ -4,35 +4,34 @@ const User = require('../models/User');
 exports.authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ 
-        error: 'Access denied. No token provided.' 
+      return res.status(401).json({
+        error: 'Access denied. No token provided.'
       });
     }
 
     const token = authHeader.split(' ')[1];
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     const user = await User.findById(decoded.userId);
-    
+
     if (!user) {
-      return res.status(401).json({ 
-        error: 'Invalid token. User not found.' 
+      return res.status(401).json({
+        error: 'Invalid token. User not found.'
       });
     }
 
-    // Version check for revocation
     if (user.tokenVersion !== decoded.tokenVersion) {
-        return res.status(401).json({ 
-            error: 'Token has been revoked. Please log in again.' 
+        return res.status(401).json({
+            error: 'Token has been revoked. Please log in again.'
         });
     }
 
     if (!user.isActive) {
-      return res.status(403).json({ 
-        error: 'Account is deactivated.' 
+      return res.status(403).json({
+        error: 'Account is deactivated.'
       });
     }
 

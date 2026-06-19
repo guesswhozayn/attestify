@@ -15,7 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -31,36 +31,31 @@ const Login = () => {
     setLoading(true);
 
     const result = await login(email, password, selectedRole);
-    
+
     if (result.success) {
       navigate('/dashboard');
     } else {
       setError(result.error);
     }
-    
+
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-12">
-      
+
       <BackButton force={true} fallbackPath="/" />
-      
-      {/* Background Elements */}
-      {/* Background Elements */}
+
       <div className="absolute inset-0 w-full h-full pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
           <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
           <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
       </div>
 
-      {/* Main Container */}
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center">
-        
-        {/* Left Side: Branding (Free Floating) */}
+
         <div className="flex flex-col space-y-8 animate-in slide-in-from-left-8 duration-700 order-last lg:order-first">
-             
-             {/* Logo */}
+
              <div className="hidden lg:block">
                 <Link to="/" className="inline-flex items-center gap-4 group">
                    <ShieldLogo size="lg" className="shadow-2xl group-hover:scale-110" />
@@ -68,7 +63,6 @@ const Login = () => {
                 </Link>
              </div>
 
-             {/* Slogan */}
              <div className="max-w-xl hidden lg:block">
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-8">
                   Trust is <br/>
@@ -81,7 +75,6 @@ const Login = () => {
                 </p>
              </div>
 
-             {/* Trusted By */}
              <div className="pt-4 hidden lg:block">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by innovative teams</p>
                 <div className="flex gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
@@ -101,9 +94,8 @@ const Login = () => {
              </div>
         </div>
 
-        {/* Right Side: Form (Glass Card) */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
-            {/* Mobile Logo */}
+
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
                  <ShieldLogo size="md" className="group-hover:scale-105" />
@@ -116,9 +108,8 @@ const Login = () => {
              <p className="text-gray-400">Sign in to manage your credentials.</p>
            </div>
 
-            {/* Role Toggle Switch */}
             <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
-              <div 
+              <div
                  className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner rounded-full transition-all duration-300 ease-out ${selectedRole === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
               ></div>
               <button
@@ -193,7 +184,7 @@ const Login = () => {
                  </Button>
               </div>
             </form>
-            
+
             <p className="mt-8 text-center text-gray-400 text-sm">
               New to Attestify?{' '}
               <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors">

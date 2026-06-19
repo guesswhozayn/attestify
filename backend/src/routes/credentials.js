@@ -21,10 +21,10 @@ router.get('/verify/:id', credentialController.verifyCredential);
 
 router.get('/:id', authenticate, credentialController.getCredentialById);
 
-router.get('/student/:walletAddress', authenticate, 
+router.get('/student/:walletAddress', authenticate,
   credentialController.getCredentialsByStudentWallet);
 
-router.post('/:id/revoke', authenticate, requireAdmin, 
+router.post('/:id/revoke', authenticate, requireAdmin,
   credentialController.revokeCredential);
 
 module.exports = router;

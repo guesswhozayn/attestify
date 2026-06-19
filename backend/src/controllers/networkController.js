@@ -5,7 +5,7 @@ const blockchainService = require('../services/blockchainService');
 const getNetworkStats = asyncHandler(async (req, res) => {
   try {
     const networkStats = await blockchainService.getNetworkStats();
-    
+
     const [stats] = await Credential.aggregate([
       {
         $facet: {
@@ -14,8 +14,8 @@ const getNetworkStats = asyncHandler(async (req, res) => {
                     $group: {
                         _id: null,
                         totalIssued: { $sum: 1 },
-                        totalRevoked: { 
-                            $sum: { $cond: [{ $eq: ["$isRevoked", true] }, 1, 0] } 
+                        totalRevoked: {
+                            $sum: { $cond: [{ $eq: ["$isRevoked", true] }, 1, 0] }
                         },
                         totalGasUsed: {
                             $sum: {
@@ -46,7 +46,7 @@ const getNetworkStats = asyncHandler(async (req, res) => {
                         createdAt: 1,
                         isRevoked: 1,
                         revokedAt: 1
-                        // studentWalletAddress removed for privacy
+
                     }
                 }
             ]
@@ -55,11 +55,11 @@ const getNetworkStats = asyncHandler(async (req, res) => {
     ]);
 
     const statsResult = stats || { counts: [], recent: [] };
-    const counts = (statsResult.counts && statsResult.counts[0]) || { 
-        totalIssued: 0, 
-        totalRevoked: 0, 
-        totalGasUsed: 0, 
-        totalCostWei: 0 
+    const counts = (statsResult.counts && statsResult.counts[0]) || {
+        totalIssued: 0,
+        totalRevoked: 0,
+        totalGasUsed: 0,
+        totalCostWei: 0
     };
 
     const recent = statsResult.recent || [];

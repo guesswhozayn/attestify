@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Rocket, 
-  Shield, 
-  Zap, 
-  ArrowRight, 
-  CheckCircle, 
-  Users, 
-  Lock, 
+import {
+  Rocket,
+  Shield,
+  Zap,
+  ArrowRight,
+  CheckCircle,
+  Users,
+  Lock,
   Globe,
   Code,
   ChevronRight,
@@ -107,12 +107,11 @@ const PartnershipGuide = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
       <BackgroundEffects scrollY={scrollY} />
-      
+
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 
       <div className="pt-24 flex max-w-[1440px] mx-auto relative z-10">
-        
-        {/* Desktop Sidebar */}
+
         <aside className="hidden lg:block w-72 shrink-0 relative top-24 h-[calc(100vh-6rem)] p-8 overflow-y-auto">
           <div className="fixed">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-8 ml-4">Partnership Guide</p>
@@ -133,7 +132,7 @@ const PartnershipGuide = () => {
                     <span className="leading-tight normal-case tracking-normal">{s.label}</span>
                   </div>
                   {activeSection === s.id && (
-                    <motion.div 
+                    <motion.div
                       layoutId="active-pill"
                       className="absolute inset-0 bg-white/5 border border-white/10 rounded-2xl -z-10 shadow-inner"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -146,11 +145,9 @@ const PartnershipGuide = () => {
           </div>
         </aside>
 
-        {/* Content Area */}
         <main className="flex-1 min-w-0 px-6 sm:px-12 lg:px-20 py-12 pb-48">
-          
-          {/* High-End Hero */}
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-20 sm:mb-24 lg:mb-32"
@@ -159,13 +156,13 @@ const PartnershipGuide = () => {
               <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
               <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">Pioneer Program 2026</span>
             </div>
-            
+
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.9]">
               Shape the <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-white to-purple-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Future of Trust.</span>
             </h1>
-            
+
             <p className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed font-medium">
-              Join an elite circle of academic and professional institutions redefining how the world handles human achievement. 
+              Join an elite circle of academic and professional institutions redefining how the world handles human achievement.
             </p>
           </motion.div>
 
@@ -178,16 +175,16 @@ const PartnershipGuide = () => {
                 By joining our Pioneer Program, you aren&apos;t just adopting a new tool; you are setting the global standard for <Highlight>Decentralized Academic Identity</Highlight>.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button 
+                <Button
                     onClick={() => navigate('/register')}
-                    variant="white" 
+                    variant="white"
                     size="lg"
                 >
                     Create Issuer Account
                 </Button>
-                <Button 
+                <Button
                     onClick={() => scrollTo('apply')}
-                    variant="secondary" 
+                    variant="secondary"
                     size="lg"
                     className="border-white/10"
                 >
@@ -279,9 +276,9 @@ const PartnershipGuide = () => {
                         Spaces in our 2026 Pioneer Program are limited to 50 select institutions. Secure your place in the decentralized academic future today.
                     </p>
                     <div className="flex justify-center">
-                        <Button 
+                        <Button
                             onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Pilot Program Inquiry')}
-                            variant="white" 
+                            variant="white"
                             size="lg"
                         >
                             Contact Partnership Team
@@ -290,23 +287,22 @@ const PartnershipGuide = () => {
                 </div>
              </SectionCard>
           </Section>
-          
+
           <PoweredBy className="mt-20" />
         </main>
       </div>
 
-      {/* Mobile Nav Drawer */}
       <AnimatePresence>
         {mobileNavOpen && (
           <div className="fixed inset-0 z-60 lg:hidden">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 backdrop-blur-lg" 
-              onClick={() => setMobileNavOpen(false)} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-lg"
+              onClick={() => setMobileNavOpen(false)}
             />
-            <motion.div 
+            <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -315,7 +311,7 @@ const PartnershipGuide = () => {
             >
               <div className="flex items-center justify-between mb-12">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Navigation</span>
-                <Button 
+                <Button
                   onClick={() => setMobileNavOpen(false)}
                   variant="secondary"
                   size="sm"
@@ -358,8 +354,8 @@ const PartnershipGuide = () => {
 };
 
 const Section = React.memo(({ id, title, icon: Icon, children }) => (
-  <motion.section 
-    id={id} 
+  <motion.section
+    id={id}
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-100px" }}

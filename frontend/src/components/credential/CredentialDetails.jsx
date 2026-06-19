@@ -56,7 +56,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      
+
       const contentDisposition = response.headers['content-disposition'];
       let filename = `Certificate_${credential.studentName.replace(/[^a-z0-9]/gi, '_')}.pdf`;
       if (contentDisposition) {
@@ -64,7 +64,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
         if (filenameMatch && filenameMatch.length === 2)
             filename = filenameMatch[1];
       }
-      
+
       link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
@@ -83,29 +83,25 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
     window.open(`https://sepolia.etherscan.io/tx/${credential.transactionHash}`, '_blank');
   }, [credential]);
 
-  // Hook declarations complete, now early return if no credential
   if (!credential) return null;
 
   const displayMetadata = credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData;
   const isSBT = !!credential.tokenId;
 
-
-
-  const iconColor = credential.type === 'TRANSCRIPT' 
-    ? 'text-indigo-400' 
+  const iconColor = credential.type === 'TRANSCRIPT'
+    ? 'text-indigo-400'
     : 'text-emerald-400';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Identity Registry Detail" size="2xl">
       <div className="space-y-8 pb-4">
-        
-        {/* Spotlight-enhanced Header */}
-        <div 
+
+        <div
           onMouseMove={handleMouseMove}
           className="relative overflow-hidden rounded-[2rem] bg-[#0a0a0a] border border-white/[0.08] p-8 md:p-10 backdrop-blur-3xl group"
         >
-          {/* Spotlight Effect */}
-          <div 
+
+          <div
             className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
             style={{
               background: `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99, 102, 241, 0.08), transparent 80%)`
@@ -113,23 +109,23 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           />
 
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700"></div>
-          
+
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-            {/* High-fidelity Avatar */}
+
             <div className="relative shrink-0 group/avatar">
               <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full blur-xl opacity-20 group-hover/avatar:opacity-40 transition-opacity duration-500"></div>
               <div className="w-32 h-32 rounded-full bg-[#0a0a0a] border-2 border-white/10 flex items-center justify-center shrink-0 shadow-2xl overflow-hidden relative z-10 p-1">
                 <div className="w-full h-full rounded-full bg-white/[0.03] flex items-center justify-center overflow-hidden">
                   {credential.issuedBy?.issuerDetails?.branding && (credential.issuedBy.issuerDetails.branding.logo || credential.issuedBy.issuerDetails.branding.logoCID) ? (
-                    <img 
+                    <img
                       src={credential.issuedBy.issuerDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.logoCID}`}
                       alt="Issuer Logo"
                       className="w-full h-full object-contain p-2"
                     />
                   ) : credential.studentImage ? (
-                    <img 
-                      src={credential.studentImage} 
-                      alt={credential.studentName} 
+                    <img
+                      src={credential.studentImage}
+                      alt={credential.studentName}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -153,7 +149,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl group/chip">
                       <Hash className="w-3.5 h-3.5 text-zinc-600" />
                       <span className="text-[10px] font-mono text-zinc-400 truncate max-w-[100px]">{credential._id}</span>
-                      <Button 
+                      <Button
                         onClick={() => copyToClipboard(credential._id, 'id')}
                         variant="ghost"
                         className="!p-1 text-zinc-400 hover:text-white"
@@ -168,15 +164,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
                 <div className="flex flex-col items-center md:items-end gap-3 shrink-0">
                   <div className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full border text-[10px] font-black tracking-[0.2em] shadow-lg shadow-black/20 ${
-                    credential.isRevoked 
-                      ? 'bg-red-500/10 border-red-500/20 text-red-500' 
+                    credential.isRevoked
+                      ? 'bg-red-500/10 border-red-500/20 text-red-500'
                       : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                   }`}>
                     {credential.isRevoked ? <ShieldAlert className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
                     {credential.isRevoked ? 'REVOKED' : 'ON-CHAIN VERIFIED'}
                   </div>
                   {isSBT && (
-                    <Button 
+                    <Button
                       onClick={() => setShowSBTModal(true)}
                       variant="ghost"
                       className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 shadow-none normal-case"
@@ -191,16 +187,13 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           </div>
         </div>
 
-        {/* Content Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-2">
-          
-          {/* Main Info Column */}
+
           <div className="lg:col-span-8 space-y-8">
-            
-            {/* Record Details Card */}
+
             <div className="bg-[#0b0b0b] border border-white/[0.06] rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group/card">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-              
+
               <div className="flex items-center gap-4 mb-8 relative z-10">
                 <div className={`p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${iconColor}`}>
                    {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-6 h-6" /> : <Award className="w-6 h-6" />}
@@ -212,7 +205,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Authentic Decentralized Record</p>
                 </div>
               </div>
-              
+
               <div className="relative z-10">
                 {credential.type === 'TRANSCRIPT' && displayMetadata ? (
                    <div className="space-y-10">
@@ -305,10 +298,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            {/* Cryptographic Proof Section */}
             <div className="bg-[#0b0b0b] border border-white/[0.06] rounded-[2rem] p-8 shadow-2xl relative group/card">
               <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent"></div>
-              
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 relative z-10">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
@@ -327,15 +319,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
               <div className="grid grid-cols-1 gap-10 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  {/* Transaction Details */}
+
                   <div className="space-y-6">
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
                         <span>Transaction Hash</span>
                         <div className="flex items-center gap-2">
                            {copiedField === 'tx' && <span className="text-[8px] text-emerald-400 font-black uppercase">COPIED</span>}
-                           <Button 
-                              onClick={() => copyToClipboard(credential.transactionHash, 'tx')} 
+                           <Button
+                              onClick={() => copyToClipboard(credential.transactionHash, 'tx')}
                               variant="ghost"
                               className="!p-1 text-zinc-500 hover:text-white"
                               size="sm"
@@ -369,13 +361,12 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     </div>
                   </div>
 
-                  {/* Fingerprint Details */}
                   <div className="space-y-6">
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
                         <span>IPFS Content ID</span>
-                        <Button 
-                          onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')} 
+                        <Button
+                          onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')}
                           variant="ghost"
                           className="!p-1 text-zinc-500 hover:text-white"
                           size="sm"
@@ -392,8 +383,8 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
                         <span>Certificate Fingerprint</span>
-                        <Button 
-                          onClick={() => copyToClipboard(credential.certificateHash, 'cert')} 
+                        <Button
+                          onClick={() => copyToClipboard(credential.certificateHash, 'cert')}
                           variant="ghost"
                           className="!p-1 text-zinc-500 hover:text-white"
                           size="sm"
@@ -409,7 +400,6 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   </div>
                 </div>
 
-                {/* Economic Summary */}
                 <div className="pt-10 border-t border-white/[0.04] grid grid-cols-2 md:grid-cols-4 gap-8">
                   <div className="space-y-1">
                     <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] block">Verifications</span>
@@ -430,7 +420,6 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            {/* Authorization Footer */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-8 bg-indigo-500/[0.02] border border-white/[0.06] rounded-[2rem] shadow-2xl group/auth relative overflow-hidden">
               <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
               <div className="flex flex-col sm:flex-row items-center gap-8 relative z-10 w-full sm:w-auto">
@@ -452,13 +441,10 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
           </div>
 
-          {/* Sidebar Info Column */}
           <div className="lg:col-span-4 space-y-6">
-            
-            {/* Direct Verification API */}
+
             <VerificationSection certificate={credential} />
 
-            {/* Mobile Registry Link */}
             <div className="bg-[#0b0b0b] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col items-center shadow-2xl relative group/qr overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-b from-black/[0.1] to-transparent opacity-0 group-hover/qr:opacity-100 transition-opacity"></div>
                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-8 relative z-10">Mobile Registry Access</span>
@@ -487,7 +473,6 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                </div>
             )}
 
-            {/* Principal Actions */}
             <div className="flex flex-col gap-4 pt-4">
               <Button
                 onClick={downloadCredential}
@@ -511,9 +496,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             {(credential.issuedBy?.issuerDetails?.branding?.signature || credential.issuedBy?.issuerDetails?.branding?.signatureCID) && (
                <div className="pt-8 text-center border-t border-white/[0.06]">
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/[0.06] inline-block mx-auto mb-4 hover:shadow-2xl transition-all">
-                    <img 
-                      src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`} 
-                      alt="Authority Signature" 
+                    <img
+                      src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`}
+                      alt="Authority Signature"
                       className="h-10 opacity-60 object-contain hover:opacity-100 transition-opacity"
                     />
                   </div>
@@ -531,11 +516,11 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
         credential={credential}
         onSuccess={() => {
           if (onUpdate) onUpdate();
-          onClose(); 
+          onClose();
         }}
       />
 
-      <SBTDetailsModal 
+      <SBTDetailsModal
         isOpen={showSBTModal}
         onClose={() => setShowSBTModal(false)}
         credential={credential}

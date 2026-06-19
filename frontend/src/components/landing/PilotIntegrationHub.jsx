@@ -17,14 +17,14 @@ const PILOT_MODULES = [
           {[...Array(9)].map((_, i) => (
             <motion.div
               key={i}
-              animate={{ 
+              animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.3, 1, 0.3]
               }}
-              transition={{ 
-                duration: 2, 
-                delay: i * 0.2, 
-                repeat: Infinity 
+              transition={{
+                duration: 2,
+                delay: i * 0.2,
+                repeat: Infinity
               }}
               className="w-3 h-3 bg-indigo-400 rounded-full"
             />
@@ -69,9 +69,9 @@ const PILOT_MODULES = [
             key={i}
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 100, opacity: [0, 1, 0] }}
-            transition={{ 
-              duration: 3, 
-              delay: i * 0.6, 
+            transition={{
+              duration: 3,
+              delay: i * 0.6,
               repeat: Infinity,
               ease: "linear"
             }}
@@ -99,10 +99,10 @@ const PILOT_MODULES = [
               key={i}
               initial={{ height: 0 }}
               animate={{ height: h }}
-              transition={{ 
-                duration: 1, 
-                delay: i * 0.1, 
-                type: "spring" 
+              transition={{
+                duration: 1,
+                delay: i * 0.1,
+                type: "spring"
               }}
               className="w-4 bg-linear-to-t from-blue-600 to-blue-400 rounded-t-sm"
             />
@@ -120,10 +120,10 @@ const PilotIntegrationHub = () => {
 
   return (
     <div className="flex flex-col items-center gap-8 lg:gap-12 max-w-5xl mx-auto">
-      {/* Stage: Centered Card */}
+
       <div className="w-full relative min-h-[400px] lg:min-h-[480px] rounded-3xl lg:rounded-[2.5rem] border border-white/5 bg-black/40 backdrop-blur-xl overflow-hidden group shadow-2xl">
         <div className="absolute inset-0 bg-white/2 bg-size-[20px_20px]"></div>
-        
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -153,12 +153,10 @@ const PilotIntegrationHub = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Decorative corner accent */}
         <div className={`absolute top-0 right-0 w-48 h-48 bg-linear-to-br ${activeModule.color} opacity-10 blur-[60px] transition-all duration-700`}></div>
         <div className={`absolute bottom-0 left-0 w-32 h-32 bg-linear-to-tr ${activeModule.color} opacity-5 blur-[60px] transition-all duration-700`}></div>
       </div>
 
-      {/* Selectors: Compact Pills Below */}
       <div className="inline-flex bg-black/40 backdrop-blur-md rounded-2xl lg:rounded-full p-1.5 border border-white/10 shadow-xl overflow-x-auto no-scrollbar max-w-full">
         <div className="flex items-center gap-1 lg:gap-2">
           {PILOT_MODULES.map((module) => (
