@@ -38,24 +38,23 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   };
 
   return (
-    <div 
+    <div
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
         isVisible ? 'opacity-100 backdrop-blur-sm' : 'opacity-0 backdrop-blur-none'
       }`}
     >
-      {/* Backdrop */}
-      <div 
+
+      <div
         className="absolute inset-0 bg-black/60 transition-opacity duration-300"
         onClick={onClose}
       ></div>
 
-      {/* Modal Content */}
-      <div 
+      <div
         className={`bg-gray-900 border border-white/10 rounded-3xl w-full max-h-[90vh] flex flex-col shadow-2xl transform transition-all duration-300 ${sizes[size]} ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}
       >
-        {/* Header */}
+
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 flex-shrink-0">
           <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
           <Button
@@ -69,7 +68,6 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
           </Button>
         </div>
 
-        {/* Body - Scrollable */}
         <div className="p-6 overflow-y-auto overflow-x-hidden scrollbar-hide">
           {children}
         </div>

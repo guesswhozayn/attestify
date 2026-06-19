@@ -5,7 +5,6 @@ const { JWT_EXPIRY } = require('../config/constants');
 const emailService = require('../services/emailService');
 const asyncHandler = require('../middleware/asyncHandler');
 
-
 const generateToken = (userId, role, tokenVersion = 0) => {
   return jwt.sign(
     { userId, role, tokenVersion },
@@ -31,13 +30,11 @@ const register = asyncHandler(async (req, res) => {
   const normalizedEmail = email?.toLowerCase().trim();
   const normalizedWallet = walletAddress?.toLowerCase().trim();
 
-  // 1. Email Check
   const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     return res.status(400).json({ error: 'Email already registered' });
   }
 
-  // 2. Wallet Check
   if (normalizedWallet) {
     const existingWallet = await User.findOne({ walletAddress: normalizedWallet });
     if (existingWallet) {
@@ -45,7 +42,6 @@ const register = asyncHandler(async (req, res) => {
     }
   }
 
-  // 3. Registration Number Check (for Issuers)
   if (role === 'ISSUER' && registrationNumber) {
     const existingReg = await User.findOne({ 'issuerDetails.registrationNumber': registrationNumber });
     if (existingReg) {
@@ -64,8 +60,8 @@ const register = asyncHandler(async (req, res) => {
 
   if (role === 'ISSUER') {
     const validPlans = ['STARTER', 'PRO', 'ENTERPRISE'];
-    const selectedPlan = (plan && validPlans.includes(plan.toUpperCase())) 
-      ? plan.toUpperCase() 
+    const selectedPlan = (plan && validPlans.includes(plan.toUpperCase()))
+      ? plan.toUpperCase()
       : 'STARTER';
 
     userData.issuerDetails = {
@@ -82,7 +78,7 @@ const register = asyncHandler(async (req, res) => {
   const user = await User.create(userData);
 
   if (email) {
-    emailService.sendWelcomeEmail(email, user.name).catch(err => 
+    emailService.sendWelcomeEmail(email, user.name).catch(err =>
       console.error(`[EmailService] Failed to send welcome email to ${email}:`, err)
     );
   }
@@ -115,7 +111,7 @@ const login = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email: normalizedEmail }).select('+password');
-  
+
   if (!user) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
@@ -129,7 +125,7 @@ const login = asyncHandler(async (req, res) => {
   }
 
   const isValidPassword = await user.comparePassword(password);
-  
+
   if (!isValidPassword) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
@@ -161,7 +157,7 @@ const login = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  
+
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
@@ -192,7 +188,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  
+
   const user = await User.findById(req.user._id).select('+password');
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
@@ -204,13 +200,11 @@ const changePassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
-  user.tokenVersion += 1; // Invalidate all previous tokens on password change
+  user.tokenVersion += 1;
   await user.save();
 
   res.json({ success: true, message: 'Password updated successfully' });
 });
-
-
 
 module.exports = {
   register,

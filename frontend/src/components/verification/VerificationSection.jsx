@@ -31,11 +31,11 @@ const VerificationSection = React.memo(({ certificate }) => {
 
     try {
       console.log('Verifying certificate with ID:', certificate._id);
-      
+
       const fileHash = await generateFileHash(file);
-      
+
       const response = await verifyAPI.verifyByHash(certificate._id, fileHash);
-      
+
       setResult(response.data);
       setShowResultModal(true);
 
@@ -58,7 +58,7 @@ const VerificationSection = React.memo(({ certificate }) => {
   return (
     <>
       <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col">
-        {/* Compact Header */}
+
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 bg-indigo-500/10 rounded-lg">
@@ -73,7 +73,7 @@ const VerificationSection = React.memo(({ certificate }) => {
             Gas Free
           </div>
         </div>
-        
+
         <div className="space-y-4 flex-1">
           <div className="relative group">
             <input
@@ -116,7 +116,6 @@ const VerificationSection = React.memo(({ certificate }) => {
         </div>
       </div>
 
-      {/* Verification Result Modal */}
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
@@ -126,9 +125,9 @@ const VerificationSection = React.memo(({ certificate }) => {
           {result && (
             <div className="space-y-6">
               <VerificationResult result={result} />
-              
+
               <div className="flex justify-center pt-2">
-                  <Button 
+                  <Button
                       onClick={() => setShowResultModal(false)}
                       variant="secondary"
                       className="px-8 py-2.5 text-gray-300 hover:text-white text-xs font-bold rounded-xl border-white/5"

@@ -3,7 +3,7 @@ module.exports = {
     ISSUER: 'ISSUER',
     STUDENT: 'STUDENT'
   },
-  
+
   AUDIT_ACTIONS: {
     CREDENTIAL_ISSUED: 'CREDENTIAL_ISSUED',
     CREDENTIAL_REVOKED: 'CREDENTIAL_REVOKED',
@@ -18,12 +18,12 @@ module.exports = {
   },
 
   FILE_LIMITS: {
-    MAX_SIZE: 10 * 1024 * 1024, // 10MB
+    MAX_SIZE: 10 * 1024 * 1024,
     ALLOWED_TYPES: ['application/pdf']
   },
 
   JWT_EXPIRY: '1h',
-  
+
   PAGINATION: {
     DEFAULT_PAGE: 1,
     DEFAULT_LIMIT: 20,

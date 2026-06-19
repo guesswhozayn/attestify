@@ -10,7 +10,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   const { showNotification } = useNotification();
   const [walletAddress, setWalletAddress] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
-  
+
   useEffect(() => {
     const detectWallet = async () => {
         if (typeof window.ethereum !== 'undefined') {
@@ -63,10 +63,9 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   return (
     <div className="sticky top-0 z-30 backdrop-blur-2xl bg-[#030014]/60 border-b border-white/[0.05] px-4 md:px-8 py-4 transition-all duration-300 shadow-[0_4px_30px_-10px_rgba(0,0,0,0.5)]">
       <div className="flex items-center justify-between relative">
-        
-        {/* Mobile Menu Button - Appears only on small screens */}
+
         <div className="md:hidden">
-            <button 
+            <button
                 onClick={onMenuClick}
                 className="p-2 -ml-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
                 aria-label="Toggle Menu"
@@ -75,23 +74,19 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             </button>
         </div>
 
-        {/* Title Section */}
         <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 whitespace-nowrap text-center md:text-left pointer-events-none md:pointer-events-auto flex flex-col items-center md:items-start">
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400 tracking-tight flex items-center justify-center md:justify-start gap-2 md:gap-3 pointer-events-auto">
             {title}
           </h1>
         </div>
 
-        {/* Right Actions */}
         <div className="flex items-center space-x-6">
-          
-          {/* Custom Right Content */}
+
           {rightContent}
 
-          {/* New Features: Wallet Status */}
           <div className="hidden lg:flex items-center">
             {walletAddress ? (
-                <Button 
+                <Button
                     onClick={copyAddress}
                     variant="ghost"
                     rounded="full"
@@ -127,7 +122,6 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             )}
           </div>
 
-          {/* Search Bar */}
           {showSearch && (
             <div className="relative group hidden md:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
@@ -140,7 +134,6 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
             </div>
           )}
 
-          {/* User Profile Pill */}
           <div className="flex items-center space-x-3 pl-4 border-l border-white/[0.06]">
             <div className="text-right hidden sm:block">
               <div className="text-white text-sm font-medium leading-none">{user?.name}</div>
@@ -149,10 +142,10 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
               </div>
             </div>
             <div className="cursor-pointer hover:scale-105 transition-transform duration-200 rounded-full">
-               <Avatar 
-                   src={user?.avatar} 
-                   initials={user?.name} 
-                   size="sm" 
+               <Avatar
+                   src={user?.avatar}
+                   initials={user?.name}
+                   size="sm"
                />
             </div>
           </div>

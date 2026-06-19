@@ -3,20 +3,6 @@ import { motion } from 'framer-motion';
 import StatusBadge from './StatusBadge';
 import RefreshButton from './RefreshButton';
 
-/**
- * WelcomeHeroCard
- * The spotlight-effect hero banner used at the top of both dashboards.
- * Handles its own mousePosition state internally.
- *
- * Props:
- *   badge      {string}           Label for the StatusBadge.
- *   title      {React.ReactNode}  Main heading (can include spans/GradientText).
- *   subtitle   {string}           Grey paragraph below the title.
- *   avatar     {React.ReactNode}  Avatar or icon rendered left of the title.
- *   onRefresh  {Function}         Called when the refresh button is clicked.
- *   refreshing {boolean}          Passed to RefreshButton.
- *   className  {string}           Extra classes on the root element.
- */
 const WelcomeHeroCard = ({
   badge,
   title,
@@ -41,7 +27,7 @@ const WelcomeHeroCard = ({
       onMouseMove={handleMouseMove}
       className={`relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/8 shadow-none p-8 md:p-12 backdrop-blur-3xl group ${className}`}
     >
-      {/* Spotlight Effect */}
+
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
         style={{
@@ -49,10 +35,8 @@ const WelcomeHeroCard = ({
         }}
       />
 
-      {/* Corner glow */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700" />
 
-      {/* Noise texture */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay pointer-events-none" />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">

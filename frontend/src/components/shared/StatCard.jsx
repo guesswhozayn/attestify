@@ -2,12 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp } from 'lucide-react';
 
-/**
- * StatCard
- *
- * variant="default" (default) — the large dashboard stat card used in IssuerDashboard top row.
- * variant="mini"              — compact centred tile used for Today/Weekly/Revoked etc.
- */
 const StatCard = ({ label, value, icon: Icon, subtext, gradient, iconBg, iconColor, delay = 0, variant = 'default' }) => {
     if (variant === 'mini') {
         return (
@@ -37,7 +31,6 @@ const StatCard = ({ label, value, icon: Icon, subtext, gradient, iconBg, iconCol
         >
             <div className={`absolute inset-0 bg-linear-to-br ${gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none`} />
 
-            {/* Decorative corner light */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/2 rounded-full blur-2xl group-hover:bg-white/5 transition-colors duration-700" />
 
             <div className="relative z-10 flex flex-col h-full justify-between">

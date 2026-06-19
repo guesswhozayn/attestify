@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/shared/Navbar';
-import { 
-  Shield, ChevronRight, BookOpen, Blocks, Fingerprint, 
+import {
+  Shield, ChevronRight, BookOpen, Blocks, Fingerprint,
   HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight } from 'lucide-react';
 import Button from '../components/shared/Button';
 import PoweredBy from '../components/shared/PoweredBy';
@@ -23,19 +23,16 @@ const sections = [
 const Documentation = () => {
   const [activeSection, setActiveSection] = useState('introduction');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  
-  // Spotlight and Interaction State
+
   const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef(null);
-  
-  // Unified scroll offset for spy and scrollTo
+
   const SCROLL_OFFSET = 110;
 
-  // Cache section elements for performance
   const sectionRefs = useRef([]);
 
   useEffect(() => {
-    // Initialize section elements once
+
     sectionRefs.current = sections.map(s => ({
       id: s.id,
       el: document.getElementById(s.id),
@@ -44,7 +41,6 @@ const Documentation = () => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
 
-      // Handle bottom of page
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
         setActiveSection(prev => {
           const lastId = sections[sections.length - 1].id;
@@ -68,7 +64,6 @@ const Documentation = () => {
       setActiveSection(prev => prev === currentSection ? prev : currentSection);
     };
 
-    // Initial check
     handleScroll();
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -87,7 +82,7 @@ const Documentation = () => {
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
     >
@@ -95,10 +90,8 @@ const Documentation = () => {
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 
-      {/* Main Container */}
       <div className="pt-24 flex max-w-[1440px] mx-auto relative z-10">
-        
-        {/* Desktop Sidebar - Premium Design */}
+
         <aside className="hidden lg:block w-72 flex-shrink-0 relative top-24 h-[calc(100vh-6rem)] p-8 overflow-y-auto custom-scrollbar">
           <div className="fixed">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-8 ml-4">Architecture & Docs</p>
@@ -119,7 +112,7 @@ const Documentation = () => {
                     <span className="leading-tight normal-case tracking-normal">{s.label}</span>
                   </div>
                   {activeSection === s.id && (
-                    <motion.div 
+                    <motion.div
                       layoutId="active-pill"
                       className="absolute inset-0 bg-white/5 border border-white/10 rounded-2xl -z-10 shadow-inner"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -132,11 +125,9 @@ const Documentation = () => {
           </div>
         </aside>
 
-        {/* Content Area */}
         <main className="flex-1 min-w-0 px-6 sm:px-12 lg:px-20 py-12 pb-48">
-          
-          {/* High-End Hero */}
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-20 sm:mb-24 lg:mb-32"
@@ -145,37 +136,36 @@ const Documentation = () => {
               <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
               <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">Documentation v1.0</span>
             </div>
-            
+
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.9]">
               The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Engine of Truth.</span>
             </h1>
-            
+
             <p className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed font-medium">
               Explore the theoretical foundations and cryptographic architecture powering Attestify.
             </p>
           </motion.div>
 
-          {/* Introduction */}
           <Section id="introduction" title="Introduction" icon={BookOpen}>
             <SectionCard title="The Problem: Credential Fraud">
               <p>
-                Academic credential fraud is a global epidemic. Studies estimate that millions of fraudulent 
-                degrees are in circulation worldwide, costing institutions, employers, and legitimate graduates 
-                billions of dollars annually. Traditional verification methods like phone calls, postal mail, and 
+                Academic credential fraud is a global epidemic. Studies estimate that millions of fraudulent
+                degrees are in circulation worldwide, costing institutions, employers, and legitimate graduates
+                billions of dollars annually. Traditional verification methods like phone calls, postal mail, and
                 centralized databases are slow, error-prone, and susceptible to manipulation.
               </p>
               <p className="mt-4">
-                The core issue lies in the <Highlight>centralized trust model</Highlight>. When a single institution 
-                is the sole custodian of credential records, that institution becomes a single point of failure. 
-                Records can be lost, altered, or forged. Verification depends entirely on the institution&apos;s 
+                The core issue lies in the <Highlight>centralized trust model</Highlight>. When a single institution
+                is the sole custodian of credential records, that institution becomes a single point of failure.
+                Records can be lost, altered, or forged. Verification depends entirely on the institution&apos;s
                 continued existence and cooperation.
               </p>
             </SectionCard>
             <SectionCard title="The Solution: Decentralized Verification">
               <p>
-                Attestify reimagines credential verification from first principles. Instead of trusting a single 
-                institution to maintain records, we distribute trust across a decentralized network. By recording 
-                credential data on a public blockchain and storing documents on a peer-to-peer file system, 
+                Attestify reimagines credential verification from first principles. Instead of trusting a single
+                institution to maintain records, we distribute trust across a decentralized network. By recording
+                credential data on a public blockchain and storing documents on a peer-to-peer file system,
                 Attestify creates a verification framework that is:
               </p>
               <ul className="mt-4 space-y-3">
@@ -187,13 +177,12 @@ const Documentation = () => {
             </SectionCard>
           </Section>
 
-          {/* Blockchain Technology */}
           <Section id="blockchain" title="Blockchain Technology" icon={Blocks}>
             <SectionCard title="What is a Blockchain?">
               <p>
-                A blockchain is a <Highlight>distributed, append-only ledger</Highlight> maintained by a network 
-                of independent nodes. Each block in the chain contains a cryptographic hash of the previous block, 
-                a timestamp, and a set of transactions. Together, these form an unbreakable chain of records that extends 
+                A blockchain is a <Highlight>distributed, append-only ledger</Highlight> maintained by a network
+                of independent nodes. Each block in the chain contains a cryptographic hash of the previous block,
+                a timestamp, and a set of transactions. Together, these form an unbreakable chain of records that extends
                 back to the genesis block.
               </p>
               <p className="mt-4">
@@ -207,8 +196,8 @@ const Documentation = () => {
             </SectionCard>
             <SectionCard title="Why Ethereum?">
               <p>
-                Attestify is deployed on the <Highlight>Ethereum network</Highlight>, specifically the Sepolia 
-                testnet for development, with production-readiness for mainnet deployment. Ethereum was chosen 
+                Attestify is deployed on the <Highlight>Ethereum network</Highlight>, specifically the Sepolia
+                testnet for development, with production-readiness for mainnet deployment. Ethereum was chosen
                 for several key reasons:
               </p>
               <ul className="mt-4 space-y-3">
@@ -220,64 +209,63 @@ const Documentation = () => {
             </SectionCard>
             <SectionCard title="Gas & Transaction Costs">
               <p>
-                Every operation on Ethereum requires <Highlight>gas</Highlight>, a unit measuring the 
-                computational effort needed to execute a transaction. Gas costs are paid in ETH and vary 
+                Every operation on Ethereum requires <Highlight>gas</Highlight>, a unit measuring the
+                computational effort needed to execute a transaction. Gas costs are paid in ETH and vary
                 based on network congestion and the complexity of the operation.
               </p>
               <p className="mt-4">
-                In Attestify, gas is consumed during three primary operations: <strong>credential issuance</strong> (minting 
-                a Soulbound Token), <strong>credential revocation</strong> (burning a token), and <strong>issuer 
-                authorization</strong> management. Read operations, such as verifying a credential, are free 
+                In Attestify, gas is consumed during three primary operations: <strong>credential issuance</strong> (minting
+                a Soulbound Token), <strong>credential revocation</strong> (burning a token), and <strong>issuer
+                authorization</strong> management. Read operations, such as verifying a credential, are free
                 because they don&apos;t modify the blockchain state.
               </p>
               <p className="mt-4">
-                Attestify tracks gas consumption per transaction, providing institutions with real-time 
+                Attestify tracks gas consumption per transaction, providing institutions with real-time
                 cost analytics through the audit dashboard.
               </p>
             </SectionCard>
           </Section>
 
-          {/* Soulbound Tokens */}
           <Section id="soulbound" title="Soulbound Tokens (SBTs)" icon={Lock}>
             <SectionCard title="The Concept">
               <p>
-                Soulbound Tokens were first proposed by Ethereum co-founder <Highlight>Vitalik Buterin</Highlight> in 
-                his 2022 paper <em>&quot;Decentralized Society: Finding Web3&apos;s Soul&quot;</em> (co-authored with E. Glen Weyl 
-                and Puja Ohlhaver). SBTs are non-transferable tokens that represent commitments, credentials, 
-                and affiliations. These are items inherently tied to an individual&apos;s identity that should not be 
+                Soulbound Tokens were first proposed by Ethereum co-founder <Highlight>Vitalik Buterin</Highlight> in
+                his 2022 paper <em>&quot;Decentralized Society: Finding Web3&apos;s Soul&quot;</em> (co-authored with E. Glen Weyl
+                and Puja Ohlhaver). SBTs are non-transferable tokens that represent commitments, credentials,
+                and affiliations. These are items inherently tied to an individual&apos;s identity that should not be
                 bought, sold, or traded.
               </p>
               <p className="mt-4">
-                Traditional NFTs (like digital art or collectibles) derive value from their transferability. 
-                Academic credentials are the opposite. A degree has meaning precisely <em>because</em> it cannot 
-                be transferred from one person to another. This makes the Soulbound pattern a natural fit for 
+                Traditional NFTs (like digital art or collectibles) derive value from their transferability.
+                Academic credentials are the opposite. A degree has meaning precisely <em>because</em> it cannot
+                be transferred from one person to another. This makes the Soulbound pattern a natural fit for
                 credential verification.
               </p>
             </SectionCard>
             <SectionCard title="How Attestify Implements SBTs">
               <p>
-                Attestify implements Soulbound Tokens by extending the <Highlight>ERC-721 standard</Highlight> with 
-                transfer restrictions at the smart contract level. The key mechanism is an override of the 
+                Attestify implements Soulbound Tokens by extending the <Highlight>ERC-721 standard</Highlight> with
+                transfer restrictions at the smart contract level. The key mechanism is an override of the
                 internal <code className="text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded text-sm">_update</code> function:
               </p>
               <CodeBlock language="solidity">{`function _update(
-    address to, 
-    uint256 tokenId, 
+    address to,
+    uint256 tokenId,
     address auth
 ) internal override returns (address) {
     address from = _ownerOf(tokenId);
-    
+
     // Allow minting (from == 0) and burning (to == 0)
     // Disallow transfers between users
     if (from != address(0) && to != address(0)) {
         revert("Soulbound: Transfer not allowed");
     }
-    
+
     return super._update(to, tokenId, auth);
 }`}</CodeBlock>
               <p className="mt-4">
-                This ensures that tokens can only be <strong>minted</strong> (issued to a student&apos;s wallet) or <strong>burned</strong> (revoked 
-                by an authorized issuer). Any attempt to transfer a credential between wallets is rejected at 
+                This ensures that tokens can only be <strong>minted</strong> (issued to a student&apos;s wallet) or <strong>burned</strong> (revoked
+                by an authorized issuer). Any attempt to transfer a credential between wallets is rejected at
                 the protocol level. The credential is permanently &quot;bound to the soul&quot; of its recipient.
               </p>
             </SectionCard>
@@ -291,26 +279,25 @@ const Documentation = () => {
             </SectionCard>
           </Section>
 
-          {/* Decentralized Identity */}
           <Section id="identity" title="Decentralized Identity" icon={Fingerprint}>
             <SectionCard title="Self-Sovereign Identity (SSI)">
               <p>
-                Self-Sovereign Identity is a paradigm in which individuals <Highlight>own and control their own 
-                identity data</Highlight> without depending on any central authority. In the traditional model, 
-                your identity is verified by institutions like banks, governments, and universities, and you depend 
+                Self-Sovereign Identity is a paradigm in which individuals <Highlight>own and control their own
+                identity data</Highlight> without depending on any central authority. In the traditional model,
+                your identity is verified by institutions like banks, governments, and universities, and you depend
                 on them to attest to who you are.
               </p>
               <p className="mt-4">
-                Attestify aligns with SSI principles by eliminating the need for the issuing institution 
-                to be actively involved in every verification. Once a credential is issued on-chain, the 
+                Attestify aligns with SSI principles by eliminating the need for the issuing institution
+                to be actively involved in every verification. Once a credential is issued on-chain, the
                 student possesses a permanent, independently verifiable proof of their achievement.
               </p>
             </SectionCard>
             <SectionCard title="Wallet Addresses as Identifiers">
               <p>
-                In Attestify, a student&apos;s <Highlight>Ethereum wallet address</Highlight> serves as their 
-                decentralized identifier (DID). This address is a cryptographically derived pseudonym that 
-                uniquely identifies the student within the system without revealing their real-world identity 
+                In Attestify, a student&apos;s <Highlight>Ethereum wallet address</Highlight> serves as their
+                decentralized identifier (DID). This address is a cryptographically derived pseudonym that
+                uniquely identifies the student within the system without revealing their real-world identity
                 by default.
               </p>
               <p className="mt-4">
@@ -325,27 +312,26 @@ const Documentation = () => {
             </SectionCard>
             <SectionCard title="The Role of MetaMask">
               <p>
-                MetaMask and similar Web3 wallets serve as the bridge between users and the Ethereum network. 
-                They securely manage private keys, sign transactions, and interact with smart contracts, all 
-                within the user&apos;s browser. In the Attestify workflow, institutions connect their wallet 
-                to authorize credential issuance, and students provide their wallet address to receive 
+                MetaMask and similar Web3 wallets serve as the bridge between users and the Ethereum network.
+                They securely manage private keys, sign transactions, and interact with smart contracts, all
+                within the user&apos;s browser. In the Attestify workflow, institutions connect their wallet
+                to authorize credential issuance, and students provide their wallet address to receive
                 Soulbound Tokens.
               </p>
             </SectionCard>
           </Section>
 
-          {/* IPFS */}
           <Section id="ipfs" title="IPFS & Decentralized Storage" icon={HardDrive}>
             <SectionCard title="Content-Addressable Storage">
               <p>
-                The <Highlight>InterPlanetary File System (IPFS)</Highlight> is a peer-to-peer protocol 
-                for storing and sharing data in a distributed file system. Unlike traditional HTTP, where 
-                content is located by <em>where</em> it lives (a URL pointing to a specific server), IPFS 
+                The <Highlight>InterPlanetary File System (IPFS)</Highlight> is a peer-to-peer protocol
+                for storing and sharing data in a distributed file system. Unlike traditional HTTP, where
+                content is located by <em>where</em> it lives (a URL pointing to a specific server), IPFS
                 locates content by <em>what</em> it is, using a cryptographic hash of the content itself.
               </p>
               <p className="mt-4">
-                When a credential PDF is uploaded to IPFS, the protocol generates a unique <Highlight>Content 
-                Identifier (CID)</Highlight>, a hash that is mathematically derived from the file&apos;s contents. 
+                When a credential PDF is uploaded to IPFS, the protocol generates a unique <Highlight>Content
+                Identifier (CID)</Highlight>, a hash that is mathematically derived from the file&apos;s contents.
                 This means:
               </p>
               <ul className="mt-4 space-y-3">
@@ -356,35 +342,34 @@ const Documentation = () => {
             </SectionCard>
             <SectionCard title="Why Not Store Documents On-Chain?">
               <p>
-                Storing full documents directly on the Ethereum blockchain would be prohibitively expensive. 
-                Blockchain storage costs are measured per byte, and a single PDF certificate could cost 
+                Storing full documents directly on the Ethereum blockchain would be prohibitively expensive.
+                Blockchain storage costs are measured per byte, and a single PDF certificate could cost
                 hundreds of dollars in gas fees to store on-chain.
               </p>
               <p className="mt-4">
-                Attestify uses a <Highlight>hybrid storage model</Highlight>: the credential&apos;s <strong>hash and 
-                metadata</strong> are stored on the Ethereum blockchain (small, fixed-cost), while the <strong>full 
-                document</strong> is stored on IPFS (cheap, scalable). The on-chain hash serves as an 
-                anchor of truth. Anyone can retrieve the document from IPFS and verify its integrity 
+                Attestify uses a <Highlight>hybrid storage model</Highlight>: the credential&apos;s <strong>hash and
+                metadata</strong> are stored on the Ethereum blockchain (small, fixed-cost), while the <strong>full
+                document</strong> is stored on IPFS (cheap, scalable). The on-chain hash serves as an
+                anchor of truth. Anyone can retrieve the document from IPFS and verify its integrity
                 against the hash stored on the immutable ledger.
               </p>
             </SectionCard>
             <SectionCard title="Pinning with Pinata">
               <p>
-                While IPFS is decentralized, files are only available while at least one node hosts them. 
-                Attestify uses <Highlight>Pinata</Highlight>, a professional IPFS pinning service, to 
-                ensure that credential documents remain persistently available. Pinning guarantees that 
-                the credential PDF is always hosted on reliable infrastructure, even if the issuing 
+                While IPFS is decentralized, files are only available while at least one node hosts them.
+                Attestify uses <Highlight>Pinata</Highlight>, a professional IPFS pinning service, to
+                ensure that credential documents remain persistently available. Pinning guarantees that
+                the credential PDF is always hosted on reliable infrastructure, even if the issuing
                 institution&apos;s own nodes go offline.
               </p>
             </SectionCard>
           </Section>
 
-          {/* Cryptographic Verification */}
           <Section id="cryptography" title="Cryptographic Verification" icon={ShieldCheck}>
             <SectionCard title="SHA-256 Hashing">
               <p>
-                At the core of credential verification is <Highlight>cryptographic hashing</Highlight>. 
-                Attestify uses the SHA-256 algorithm to create a unique, fixed-length digest (hash) of 
+                At the core of credential verification is <Highlight>cryptographic hashing</Highlight>.
+                Attestify uses the SHA-256 algorithm to create a unique, fixed-length digest (hash) of
                 every credential document. This hash has several critical properties:
               </p>
               <ul className="mt-4 space-y-3">
@@ -400,31 +385,31 @@ const Documentation = () => {
               </p>
               <div className="mt-4 space-y-4">
                 <VerifyStep number="1" title="Query the Blockchain">
-                  The verifier provides a wallet address or credential ID. The system queries the Attestify 
+                  The verifier provides a wallet address or credential ID. The system queries the Attestify
                   smart contract to retrieve the stored certificate hash and IPFS CID.
                 </VerifyStep>
                 <VerifyStep number="2" title="Retrieve the Document">
-                  Using the IPFS CID from the blockchain record, the system fetches the original credential 
+                  Using the IPFS CID from the blockchain record, the system fetches the original credential
                   PDF from the decentralized storage network.
                 </VerifyStep>
                 <VerifyStep number="3" title="Recompute the Hash">
                   The retrieved document is hashed using SHA-256, producing a fresh digest.
                 </VerifyStep>
                 <VerifyStep number="4" title="Compare Hashes">
-                  The freshly computed hash is compared against the hash stored on the blockchain. If they 
-                  match, the credential is verified as authentic and unaltered. If they differ, the document 
+                  The freshly computed hash is compared against the hash stored on the blockchain. If they
+                  match, the credential is verified as authentic and unaltered. If they differ, the document
                   has been tampered with.
                 </VerifyStep>
               </div>
               <p className="mt-4">
-                This process is <strong>trustless</strong>. The verifier does not need to contact or trust the 
+                This process is <strong>trustless</strong>. The verifier does not need to contact or trust the
                 issuing institution. The mathematics of cryptographic hashing provide the proof.
               </p>
             </SectionCard>
             <SectionCard title="Digital Signatures">
               <p>
-                Every credential issuance transaction is <Highlight>digitally signed</Highlight> by the 
-                issuing institution&apos;s Ethereum wallet. This signature is based on <strong>Elliptic Curve 
+                Every credential issuance transaction is <Highlight>digitally signed</Highlight> by the
+                issuing institution&apos;s Ethereum wallet. This signature is based on <strong>Elliptic Curve
                 Digital Signature Algorithm (ECDSA)</strong> and proves that:
               </p>
               <ul className="mt-4 space-y-3">
@@ -435,11 +420,10 @@ const Documentation = () => {
             </SectionCard>
           </Section>
 
-          {/* System Architecture */}
           <Section id="architecture" title="System Architecture" icon={Server}>
             <SectionCard title="Component Overview">
               <p>
-                Attestify is composed of four interconnected systems, each serving a distinct role in the 
+                Attestify is composed of four interconnected systems, each serving a distinct role in the
                 credential lifecycle:
               </p>
               <div className="mt-6 grid sm:grid-cols-2 gap-4">
@@ -468,24 +452,24 @@ const Documentation = () => {
             <SectionCard title="Data Flow: Credential Issuance">
               <div className="space-y-4">
                 <FlowStep number="1" title="Data Submission">
-                  An issuer submits student data (name, wallet address, degree details) through the 
+                  An issuer submits student data (name, wallet address, degree details) through the
                   web dashboard. The data is sent to the Backend API via an authenticated REST request.
                 </FlowStep>
                 <FlowStep number="2" title="PDF Generation">
-                  The backend generates a professional PDF certificate using PDFKit, incorporating the 
+                  The backend generates a professional PDF certificate using PDFKit, incorporating the
                   issuer&apos;s branding (logo, seal, signature) and a QR code linking to the verification portal.
                 </FlowStep>
                 <FlowStep number="3" title="IPFS Upload">
-                  The PDF is uploaded to IPFS via Pinata, returning a Content Identifier (CID) that 
+                  The PDF is uploaded to IPFS via Pinata, returning a Content Identifier (CID) that
                   uniquely addresses the document on the decentralized storage network.
                 </FlowStep>
                 <FlowStep number="4" title="Blockchain Recording">
-                  The backend calls the Attestify smart contract, minting a Soulbound Token to the 
-                  student&apos;s wallet. The credential hash and IPFS CID are stored on-chain as part of the 
+                  The backend calls the Attestify smart contract, minting a Soulbound Token to the
+                  student&apos;s wallet. The credential hash and IPFS CID are stored on-chain as part of the
                   token metadata.
                 </FlowStep>
                 <FlowStep number="5" title="Database Record">
-                  A record is created in MongoDB containing credential metadata, transaction hashes, 
+                  A record is created in MongoDB containing credential metadata, transaction hashes,
                   and references. This provides fast queries for the dashboard and audit trail.
                 </FlowStep>
               </div>
@@ -493,25 +477,24 @@ const Documentation = () => {
             <SectionCard title="Data Flow: Credential Verification">
               <div className="space-y-4">
                 <FlowStep number="1" title="Verification Request">
-                  A verifier submits a wallet address or credential ID through the web portal, mobile app, 
+                  A verifier submits a wallet address or credential ID through the web portal, mobile app,
                   or QR code scan.
                 </FlowStep>
                 <FlowStep number="2" title="Blockchain Query">
-                  The system queries the smart contract (a read-only, gas-free operation) to retrieve the 
+                  The system queries the smart contract (a read-only, gas-free operation) to retrieve the
                   credential record, including hash and revocation status.
                 </FlowStep>
                 <FlowStep number="3" title="Document Retrieval">
                   The credential PDF is fetched from IPFS using the stored CID.
                 </FlowStep>
                 <FlowStep number="4" title="Verification Result">
-                  The cryptographic hash is verified, and the result (valid, revoked, or not found) is 
+                  The cryptographic hash is verified, and the result (valid, revoked, or not found) is
                   displayed alongside the full credential details.
                 </FlowStep>
               </div>
             </SectionCard>
           </Section>
 
-          {/* Security Model */}
           <Section id="security" title="Security Model" icon={Shield}>
             <SectionCard title="Threat Model">
               <p>
@@ -547,57 +530,55 @@ const Documentation = () => {
             </SectionCard>
           </Section>
 
-          {/* FAQ */}
           <Section id="faq" title="Frequently Asked Questions" icon={HelpCircle}>
             <FAQItem question="What happens if the issuing organization shuts down?">
-              Because credentials are stored on the Ethereum blockchain and IPFS, they remain fully 
-              verifiable regardless of the issuing organization&apos;s status. The blockchain is maintained 
-              by thousands of independent nodes worldwide, and IPFS ensures the credential document 
+              Because credentials are stored on the Ethereum blockchain and IPFS, they remain fully
+              verifiable regardless of the issuing organization&apos;s status. The blockchain is maintained
+              by thousands of independent nodes worldwide, and IPFS ensures the credential document
               persists as long as it is pinned by at least one node.
             </FAQItem>
             <FAQItem question="Can a degree be faked by minting a token from a different wallet?">
-              No. Each issuer&apos;s wallet address is registered as an authorized issuer in the 
-              smart contract. Only whitelisted addresses can mint credentials. A verifier can check the 
+              No. Each issuer&apos;s wallet address is registered as an authorized issuer in the
+              smart contract. Only whitelisted addresses can mint credentials. A verifier can check the
               issuer&apos;s on-chain address to confirm it belongs to a legitimate issuer.
             </FAQItem>
             <FAQItem question="Why are Soulbound Tokens better than regular NFTs for credentials?">
-              Regular NFTs can be freely transferred, sold, or traded, which would allow someone to buy 
-              a degree they didn&apos;t earn. Soulbound Tokens are permanently bound to the recipient&apos;s wallet, 
+              Regular NFTs can be freely transferred, sold, or traded, which would allow someone to buy
+              a degree they didn&apos;t earn. Soulbound Tokens are permanently bound to the recipient&apos;s wallet,
               reflecting the real-world property that academic achievements are personal and non-transferable.
             </FAQItem>
             <FAQItem question="Is verification truly free?">
-              Yes. Blockchain read operations (queries) do not consume gas and are completely free. Only 
-              write operations (issuance, revocation) require gas fees, which are paid by the issuing 
+              Yes. Blockchain read operations (queries) do not consume gas and are completely free. Only
+              write operations (issuance, revocation) require gas fees, which are paid by the issuing
               institution.
             </FAQItem>
             <FAQItem question="How does Attestify handle student privacy?">
-              Wallet addresses are pseudonymous and don&apos;t inherently reveal a student&apos;s real-world 
-              identity. Students choose what information to share and with whom. The on-chain record 
+              Wallet addresses are pseudonymous and don&apos;t inherently reveal a student&apos;s real-world
+              identity. Students choose what information to share and with whom. The on-chain record
               contains hashes and CIDs, not plaintext personal data.
             </FAQItem>
             <FAQItem question="What blockchain network does Attestify use?">
-              Attestify is currently deployed on the Ethereum Sepolia testnet for development and 
-              demonstration purposes. The smart contract is designed for seamless deployment to 
+              Attestify is currently deployed on the Ethereum Sepolia testnet for development and
+              demonstration purposes. The smart contract is designed for seamless deployment to
               Ethereum mainnet or compatible Layer 2 networks for production use.
             </FAQItem>
           </Section>
-          
+
           <PoweredBy className="mt-20" />
         </main>
       </div>
 
-      {/* Mobile Nav Drawer - Premium Redesign */}
       <AnimatePresence>
         {mobileNavOpen && (
           <div className="fixed inset-0 z-[60] lg:hidden">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 backdrop-blur-lg" 
-              onClick={() => setMobileNavOpen(false)} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-lg"
+              onClick={() => setMobileNavOpen(false)}
             />
-            <motion.div 
+            <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -606,7 +587,7 @@ const Documentation = () => {
             >
               <div className="flex items-center justify-between mb-12">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Navigation</span>
-                <Button 
+                <Button
                   onClick={() => setMobileNavOpen(false)}
                   variant="secondary"
                   size="sm"
@@ -645,16 +626,13 @@ const Documentation = () => {
         )}
       </AnimatePresence>
 
-      {/* <Footer /> */}
     </div>
   );
 };
 
-/* ========== Reusable Sub-Components ========== */
-
 const Section = React.memo(({ id, title, icon: Icon, children }) => (
-  <motion.section 
-    id={id} 
+  <motion.section
+    id={id}
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-100px" }}

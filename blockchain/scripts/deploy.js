@@ -2,31 +2,26 @@ const hre = require("hardhat");
 
 async function main() {
   console.log("Deploying Attestify contract...\n");
-  
-  // Get deployer account
+
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying with account:", deployer.address);
-  
-  // Check balance
+
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("Account balance:", hre.ethers.formatEther(balance), "ETH\n");
-  
-  // Deploy contract
+
   const Attestify = await hre.ethers.getContractFactory("Attestify");
   const attestify = await Attestify.deploy();
-  
+
   await attestify.waitForDeployment();
-  
+
   const address = await attestify.getAddress();
   console.log("Attestify deployed to:", address);
   console.log("View on Etherscan:", `https://sepolia.etherscan.io/address/${address}\n`);
-  
-  // Wait for block confirmations
+
   console.log("Waiting for 6 block confirmations...");
   await attestify.deploymentTransaction().wait(6);
   console.log("Confirmed!\n");
-  
-  // Verify contract on Etherscan
+
   if (process.env.ETHERSCAN_API_KEY) {
     console.log("Verifying contract on Etherscan...");
     try {
@@ -43,8 +38,7 @@ async function main() {
       }
     }
   }
-  
-  // Save deployment info
+
   const fs = require('fs');
   const deploymentInfo = {
     address: address,
@@ -53,12 +47,12 @@ async function main() {
     timestamp: new Date().toISOString(),
     transactionHash: attestify.deploymentTransaction().hash
   };
-  
+
   fs.writeFileSync(
     'deployment-info.json',
     JSON.stringify(deploymentInfo, null, 2)
   );
-  
+
   console.log("\nDeployment info saved to deployment-info.json");
   console.log("\nDeployment complete!");
 }

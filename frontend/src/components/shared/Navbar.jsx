@@ -35,17 +35,16 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
         <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 py-6 pointer-events-none">
             <div className={`
                 w-full max-w-6xl pointer-events-auto transition-all duration-500 ease-in-out
-                ${isScrolled 
-                    ? 'bg-black/90 backdrop-blur-lg border-white/10 rounded-2xl px-6 py-2 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]' 
+                ${isScrolled
+                    ? 'bg-black/90 backdrop-blur-lg border-white/10 rounded-2xl px-6 py-2 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]'
                     : 'bg-[#030014]/60 backdrop-blur-lg border-white/5 rounded-full px-6 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]'
                 }
                 border flex items-center justify-between group/nav hover:border-white/20 transition-all duration-500
             `}>
-                
-                {/* Left: Logo & Toggle */}
+
                 <div className="flex items-center gap-4">
-                    <div 
-                        className="flex items-center gap-3 cursor-pointer group/logo" 
+                    <div
+                        className="flex items-center gap-3 cursor-pointer group/logo"
                         onClick={() => navigate('/')}
                     >
                         <div className="relative">
@@ -60,7 +59,6 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                     </div>
                 </div>
 
-                {/* Center: Desktop Navigation */}
                 <div className="hidden md:flex items-center gap-1">
                     {navLinks.map((link) => (
                         <Button
@@ -74,7 +72,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             <link.icon className={`w-4 h-4 ${isActive(link.path) ? 'text-indigo-400' : 'text-gray-500'}`} />
                             <span className={`text-[11px] font-bold ${isActive(link.path) ? 'text-white' : 'text-gray-300'}`}>{link.name}</span>
                             {isActive(link.path) && (
-                                <motion.div 
+                                <motion.div
                                     layoutId="nav-active"
                                     className="absolute inset-0 rounded-full pointer-events-none"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -84,10 +82,9 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                     ))}
                 </div>
 
-                {/* Right: Actions */}
                 <div className="flex items-center gap-3">
                     {showBackSearch && (
-                        <Button 
+                        <Button
                             onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/')}
                             variant="secondary"
                             size="sm"
@@ -103,17 +100,17 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
 
                     {user ? (
                         <div className="flex items-center gap-2">
-                            <Button 
+                            <Button
                                 onClick={() => navigate('/dashboard')}
                                 variant="secondary"
                                 rounded="full"
                                 size="sm"
                                 className="p-1.5! sm:pl-1.5! sm:pr-5! sm:py-1.5! transition-all duration-300 group/dash"
                             >
-                                <Avatar 
-                                    src={user.avatar} 
-                                    initials={user.name} 
-                                    size="sm" 
+                                <Avatar
+                                    src={user.avatar}
+                                    initials={user.name}
+                                    size="sm"
                                     className="border-0 shadow-none scale-100 group-hover/dash:scale-110 transition-transform"
                                 />
                                 <div className="hidden sm:flex flex-col items-start pr-1 gap-0.5">
@@ -123,7 +120,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                             </Button>
                         </div>
                     ) : (
-                        <Button 
+                        <Button
                             onClick={() => navigate('/login')}
                             variant="white"
                             className="hover:scale-105 active:scale-95 transition-all p-2! md:px-6! md:py-2.5! rounded-full md:rounded-2xl bg-transparent! md:bg-white! text-white! md:text-black!"
@@ -149,7 +146,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                     )}
 
                     {!showSidebarToggle && (
-                        <Button 
+                        <Button
                             variant="ghost"
                             size="sm"
                             rounded="full"
@@ -162,10 +159,9 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                 </div>
             </div>
 
-            {/* Mobile Menu Overlay */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}

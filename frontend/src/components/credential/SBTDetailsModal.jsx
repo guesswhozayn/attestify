@@ -17,8 +17,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
             <div className="bg-[#0a0a0a] border border-white/[0.08] rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.1)] animate-in zoom-in-95 duration-500">
-                
-                {/* Header */}
+
                 <div className="relative p-8 border-b border-white/[0.06] bg-gradient-to-br from-indigo-500/[0.05] to-transparent">
                     <div className="flex items-center justify-between relative z-10">
                         <div className="flex items-center gap-4">
@@ -30,7 +29,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 <p className="text-[11px] text-indigo-400/60 font-bold mt-1">Immutable Identity Proof</p>
                             </div>
                         </div>
-                        <Button 
+                        <Button
                             onClick={onClose}
                             variant="ghost"
                             rounded="full"
@@ -42,14 +41,12 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-8 space-y-8">
-                    
-                    {/* Status Badge */}
+
                     <div className="flex justify-center">
                         <div className={`flex items-center gap-3 px-6 py-2.5 rounded-full border text-[11px] font-bold shadow-lg ${
-                            credential.isRevoked 
-                                ? 'bg-red-500/10 border-red-500/20 text-red-400' 
+                            credential.isRevoked
+                                ? 'bg-red-500/10 border-red-500/20 text-red-400'
                                 : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse'
                         }`}>
                             <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-red-500' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}></div>
@@ -58,24 +55,22 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     </div>
 
                     <div className="grid grid-cols-1 gap-5">
-                        {/* Token ID */}
-                        <DataField 
-                            label="Token Index" 
-                            value={credential.tokenId || 'N/A'} 
-                            icon={Hash} 
+
+                        <DataField
+                            label="Token Index"
+                            value={credential.tokenId || 'N/A'}
+                            icon={Hash}
                             onCopy={() => copyToClipboard(credential.tokenId, 'Token ID')}
                         />
-                        
-                        {/* Contract */}
-                        <DataField 
-                            label="Contract Protocol" 
-                            value={contractAddress} 
-                            icon={Database} 
+
+                        <DataField
+                            label="Contract Protocol"
+                            value={contractAddress}
+                            icon={Database}
                             isAddress
                             onCopy={() => copyToClipboard(contractAddress, 'Contract Address')}
                         />
 
-                        {/* Network */}
                         <div className="bg-white/[0.02] rounded-[1.5rem] p-5 border border-white/[0.04] flex items-center justify-between group hover:border-white/10 transition-colors shadow-inner">
                             <div className="flex items-center gap-4">
                                 <div className="p-2.5 bg-white/[0.04] rounded-xl">
@@ -93,13 +88,12 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                         </div>
                     </div>
 
-                    {/* Metadata Section */}
                     <div className="space-y-4">
                         <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] px-2">Extended Proofs</h4>
                         <div className="grid grid-cols-2 gap-4">
-                            <Button 
-                                href={etherscanUrl} 
-                                target="_blank" 
+                            <Button
+                                href={etherscanUrl}
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 variant="ghost"
                                 rounded="2xl"
@@ -108,9 +102,9 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 <ExternalLink className="w-6 h-6 text-zinc-500 group-hover:text-indigo-400 mb-3 transition-colors shrink-0" />
                                 <span className="text-[11px] font-bold text-zinc-500 group-hover:text-white text-center truncate w-full">Explorer</span>
                             </Button>
-                            <Button 
-                                href={ipfsUrl} 
-                                target="_blank" 
+                            <Button
+                                href={ipfsUrl}
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 variant="ghost"
                                 rounded="2xl"
@@ -123,7 +117,6 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className="p-8 bg-white/[0.02] flex justify-center border-t border-white/[0.04]">
                     <Button onClick={onClose} variant="secondary" className="w-full justify-center py-4">
                         Exit Registry
@@ -147,7 +140,7 @@ const DataField = ({ label, value, icon: Icon, isAddress, onCopy }) => (
                 </p>
             </div>
         </div>
-        <Button 
+        <Button
             onClick={onCopy}
             variant="ghost"
             rounded="xl"

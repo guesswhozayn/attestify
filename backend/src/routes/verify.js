@@ -3,7 +3,7 @@ const router = express.Router();
 const verifyController = require('../controllers/verifyController');
 const upload = require('../middleware/upload');
 
-router.post('/certificate', upload.single('certificate'), 
+router.post('/certificate', upload.single('certificate'),
   verifyController.verifyWithFile);
 
 router.get('/:walletAddress', verifyController.checkExists);

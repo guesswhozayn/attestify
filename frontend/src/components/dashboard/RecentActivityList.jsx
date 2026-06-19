@@ -30,10 +30,10 @@ const RecentActivityList = ({ credentials, onCredentialClick, loading }) => {
     return (
         <div className="space-y-4">
             {credentials.map((cred) => (
-                <CredentialRow 
-                    key={cred._id || cred.id} 
-                    credential={cred} 
-                    onClick={() => onCredentialClick(cred)} 
+                <CredentialRow
+                    key={cred._id || cred.id}
+                    credential={cred}
+                    onClick={() => onCredentialClick(cred)}
                 />
             ))}
         </div>

@@ -3,7 +3,7 @@
 > [!NOTE]
 > This file serves as the single source of truth for the project's structure, tech stack, and workflows. **AI Coding Assistants should read this file first** to avoid scanning the entire project, which conserves token usage.
 
-*Last Refactored / Updated:* 2026-06-12 18:42:20 UTC
+*Last Refactored / Updated:* 2026-06-19 10:12:10 UTC
 *Automated Update Script:* Run `node scripts/update-context.js` to refresh the directory map and timestamp.
 
 ---
@@ -51,9 +51,8 @@ Below is the directory map. This tree is automatically generated and updated.
 .
 ├── backend
 │   ├── logs
-│   │   └── issue_error.log
 │   ├── scripts
-│   │   └── test-pdf-gen.js
+│   │   └── drain_stuck_nonces.js
 │   ├── src
 │   │   ├── config
 │   │   │   ├── constants.js
@@ -97,8 +96,6 @@ Below is the directory map. This tree is automatically generated and updated.
 │   │   └── Attestify.sol
 │   ├── scripts
 │   │   └── deploy.js
-│   ├── test
-│   │   └── Attestify.test.js
 │   ├── deployment-info.json
 │   ├── hardhat.config.js
 │   └── package.json
@@ -207,7 +204,8 @@ Below is the directory map. This tree is automatically generated and updated.
 │   └── vite.config.js
 ├── scripts
 │   └── update-context.js
-└── context.md
+├── context.md
+└── README.md
 <!-- DIRECTORY_TREE_END -->
 
 ---

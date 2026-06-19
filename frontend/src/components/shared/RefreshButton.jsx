@@ -2,19 +2,19 @@ import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import Button from './Button';
 
-const RefreshButton = ({ 
-    loading = false, 
-    onClick, 
+const RefreshButton = ({
+    loading = false,
+    onClick,
     title = 'Refresh',
     variant = 'secondary',
     rounded = 'full',
     size = 'sm',
     className = '',
     icon: Icon = RefreshCw,
-    ...props 
+    ...props
 }) => {
     return (
-        <Button 
+        <Button
             onClick={onClick}
             disabled={loading}
             variant={variant}

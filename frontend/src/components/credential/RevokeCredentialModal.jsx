@@ -30,8 +30,7 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Revoke Credential" size="md">
       <form onSubmit={handleSubmit} className="space-y-6">
-        
-        {/* Warning Banner */}
+
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 flex items-start space-x-4">
           <div className="p-2 bg-red-500/20 rounded-lg text-red-500 shrink-0">
              <AlertTriangle className="w-6 h-6" />
@@ -39,14 +38,13 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
           <div className="text-sm">
             <h4 className="font-bold text-red-300 mb-1">Permanent Action</h4>
             <p className="text-red-200/70 leading-relaxed">
-              You are about to revoke a blockchain-verified credential. This action is 
-              <span className="font-semibold text-red-300"> irreversible </span> 
+              You are about to revoke a blockchain-verified credential. This action is
+              <span className="font-semibold text-red-300"> irreversible </span>
               and will be permanently recorded in the public ledger.
             </p>
           </div>
         </div>
 
-        {/* Reason Input */}
         <div>
           <label className="block text-sm font-semibold text-gray-300 mb-2">
             Reason for Revocation
@@ -66,7 +64,6 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="grid grid-cols-2 gap-4 pt-2">
           <Button
             type="button"

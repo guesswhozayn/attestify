@@ -18,12 +18,12 @@ import EmptyState from '../components/shared/EmptyState';
 
 const IssuerDashboard = () => {
     const [credentials, setCredentials] = useState([]);
-    const [stats, setStats] = useState({ 
-        total: 0, 
-        active: 0, 
+    const [stats, setStats] = useState({
+        total: 0,
+        active: 0,
         revoked: 0,
-        today: 0, 
-        thisWeek: 0, 
+        today: 0,
+        thisWeek: 0,
         verificationRequests: 0,
         transactionSuccessRate: 100,
         networkStats: { blockNumber: 0, gasPrice: '0', connected: false }
@@ -55,7 +55,7 @@ const IssuerDashboard = () => {
         <Shield className="w-6 h-6 text-indigo-400" />
       </div>
     ), []);
-    
+
     const fetchDashboardData = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) {
@@ -65,17 +65,17 @@ const IssuerDashboard = () => {
                 setLoading(true);
                 loadingRef.current = true;
             }
-            
+
             const [statsResponse, recentResponse] = await Promise.all([
                  credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0, today: 0, thisWeek: 0, verificationRequests: 0, transactionSuccessRate: 100, networkStats: { blockNumber: 0, gasPrice: '0', connected: false } } } }),
-                 credentialAPI.getAll({ limit: 6 }) 
+                 credentialAPI.getAll({ limit: 6 })
             ]);
 
             if (!isMounted.current) return;
 
             if (statsResponse.data?.stats) {
                 setStats(statsResponse.data.stats);
-            } 
+            }
 
             setCredentials(recentResponse.data?.credentials || []);
 
@@ -98,7 +98,6 @@ const IssuerDashboard = () => {
         isMounted.current = true;
         fetchDashboardData();
 
-        // Auto-refresh every 30 seconds
         const refreshInterval = setInterval(() => {
             if (!loadingRef.current && !refreshingRef.current) {
                 fetchDashboardData(true);
@@ -111,15 +110,12 @@ const IssuerDashboard = () => {
         };
     }, [fetchDashboardData]);
 
-
     return (
         <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-            {/* Dynamic Background */}
+
             <GradientBackground />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 relative z-10 space-y-6 md:space-y-10">
 
-                
-                {/* Welcome Section */}
                 <WelcomeHeroCard
                   badge="Issuer Command"
                   title={welcomeTitle}
@@ -129,26 +125,24 @@ const IssuerDashboard = () => {
                   refreshing={refreshing}
                 />
 
-                {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start flex-col-reverse lg:flex-row">
-                    
-                    {/* Left Column: Stats and Activity */}
+
                     <div className="lg:col-span-8 space-y-6 md:space-y-8 order-last lg:order-first">
-                        {/* Stats Carousel-like Grid */}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <StatCard 
-                                label="Total Issued" 
-                                value={stats.total} 
-                                icon={Award} 
+                            <StatCard
+                                label="Total Issued"
+                                value={stats.total}
+                                icon={Award}
                                 subtext="All-time verified"
                                 gradient="from-indigo-500 to-transparent"
                                 iconBg="bg-indigo-500/10"
                                 delay={0.1}
                             />
-                            <StatCard 
-                                label="Active Now" 
-                                value={stats.active} 
-                                icon={CheckCircle} 
+                            <StatCard
+                                label="Active Now"
+                                value={stats.active}
+                                icon={CheckCircle}
                                 subtext="Live credentials"
                                 gradient="from-emerald-500 to-transparent"
                                 iconBg="bg-emerald-500/10"
@@ -162,7 +156,6 @@ const IssuerDashboard = () => {
                             <StatCard variant="mini" label="Revoked" value={stats.revoked} icon={Filter} iconBg="bg-red-500/10" iconColor="text-red-400" delay={0.4} />
                         </div>
 
-                        {/* Recent Activity List */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between px-2">
                                 <div className="flex items-center gap-3">
@@ -171,8 +164,8 @@ const IssuerDashboard = () => {
                                     </div>
                                     <h2 className="text-2xl font-bold text-white tracking-tight">Recent Issuances</h2>
                                 </div>
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     icon={ArrowRight}
                                     className="border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-2xl px-6 text-sm flex-row-reverse"
                                     onClick={() => navigate('/credentials')}
@@ -188,8 +181,8 @@ const IssuerDashboard = () => {
                                         <div className="text-zinc-500 font-medium animate-pulse">Scanning chain...</div>
                                     </div>
                                 ) : credentials.length > 0 ? (
-                                    <RecentActivityList 
-                                        credentials={credentials} 
+                                    <RecentActivityList
+                                        credentials={credentials}
                                         onCredentialClick={setSelectedCredential}
                                         loading={loading}
                                     />
@@ -209,27 +202,25 @@ const IssuerDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Right Column: Actions and Network */}
                     <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
-                        
-                        {/* Quick Action Card */}
-                        <motion.div 
+
+                        <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
                             className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
                         >
                             <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                            
+
                             <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-left">
                                 <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
                                     <Plus className="w-4 h-4 text-indigo-400" />
                                 </div>
                                 Quick Actions
                             </h3>
-                            
+
                             <div className="space-y-4">
-                                <Button 
+                                <Button
                                     onClick={() => setShowUploadModal(true)}
                                     variant="white"
                                     icon={Plus}
@@ -237,7 +228,7 @@ const IssuerDashboard = () => {
                                 >
                                     Issue Credential
                                 </Button>
-                                <Button 
+                                <Button
                                     onClick={() => setShowBulkModal(true)}
                                     variant="outline"
                                     icon={Users}
@@ -245,7 +236,7 @@ const IssuerDashboard = () => {
                                 >
                                     Bulk Sync
                                 </Button>
-                                <Button 
+                                <Button
                                     onClick={() => navigate('/settings')}
                                     variant="outline"
                                     className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
@@ -255,7 +246,6 @@ const IssuerDashboard = () => {
                             </div>
                         </motion.div>
 
-                        {/* Quota Usage Card */}
                         <motion.div
                              initial={{ opacity: 0, x: 20 }}
                              animate={{ opacity: 1, x: 0 }}
@@ -273,7 +263,7 @@ const IssuerDashboard = () => {
                                     {user?.issuerDetails?.plan || 'STARTER'}
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div className="flex justify-between text-sm font-medium text-gray-400 mb-2">
                                     <span>Credentials Issued</span>
@@ -282,15 +272,15 @@ const IssuerDashboard = () => {
                                     </span>
                                 </div>
                                 <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ width: 0 }}
-                                        animate={{ 
-                                            width: user?.issuerDetails?.plan === 'ENTERPRISE' ? '100%' : `${Math.min(100, ((user?.issuerDetails?.certificatesIssued || 0) / (user?.issuerDetails?.plan === 'PRO' ? 500 : 5)) * 100)}%` 
+                                        animate={{
+                                            width: user?.issuerDetails?.plan === 'ENTERPRISE' ? '100%' : `${Math.min(100, ((user?.issuerDetails?.certificatesIssued || 0) / (user?.issuerDetails?.plan === 'PRO' ? 500 : 5)) * 100)}%`
                                         }}
                                         transition={{ duration: 1, ease: "easeOut" }}
                                         className={`h-full ${
-                                            (user?.issuerDetails?.certificatesIssued || 0) >= (user?.issuerDetails?.plan === 'PRO' ? 500 : (user?.issuerDetails?.plan === 'ENTERPRISE' ? Infinity : 5)) 
-                                            ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' 
+                                            (user?.issuerDetails?.certificatesIssued || 0) >= (user?.issuerDetails?.plan === 'PRO' ? 500 : (user?.issuerDetails?.plan === 'ENTERPRISE' ? Infinity : 5))
+                                            ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'
                                             : 'bg-linear-to-r from-purple-500 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                                         }`}
                                     ></motion.div>
@@ -299,9 +289,9 @@ const IssuerDashboard = () => {
                                     <p className="mt-3 text-red-400 text-xs font-medium">Limit reached. Upgrade to issue more.</p>
                                 )}
                             </div>
-                            
+
                             {user?.issuerDetails?.plan !== 'ENTERPRISE' && (
-                                <Button 
+                                <Button
                                     onClick={() => setShowUpgradeModal(true)}
                                     variant="outline"
                                     className="w-full justify-center text-xs py-2 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10"
@@ -311,7 +301,6 @@ const IssuerDashboard = () => {
                             )}
                         </motion.div>
 
-                        {/* Network Health Card */}
                         <motion.div
                              initial={{ opacity: 0, x: 20 }}
                              animate={{ opacity: 1, x: 0 }}
@@ -364,7 +353,7 @@ const IssuerDashboard = () => {
                                     <span>{stats.transactionSuccessRate}%</span>
                                 </div>
                                 <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5 shadow-inner">
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${stats.transactionSuccessRate}%` }}
                                         transition={{ duration: 1.5, ease: "easeOut" }}
@@ -374,7 +363,6 @@ const IssuerDashboard = () => {
                             </div>
                         </motion.div>
 
-                        {/* Recent Success Card */}
                         <div className="p-6 rounded-4xl bg-indigo-500/5 border border-indigo-500/10 text-center">
                             <span className="text-indigo-400 text-xs font-bold block mb-2">Network Verification</span>
                             <p className="text-zinc-500 text-[11px] leading-relaxed">
@@ -385,7 +373,6 @@ const IssuerDashboard = () => {
                 </div>
             </main>
 
-            {/* Modals */}
             <IssueCredentialModal
                 isOpen={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
@@ -419,6 +406,5 @@ const IssuerDashboard = () => {
         </div>
     );
 };
-
 
 export default IssuerDashboard;

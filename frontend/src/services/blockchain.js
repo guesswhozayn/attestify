@@ -1,23 +1,19 @@
 import { ethers } from 'ethers';
 
-// Contract ABI - Essential functions only
 const CONTRACT_ABI = [
-  // Read functions
+
   "function getCredential(string memory _studentId) public view returns (bytes32 certificateHash, string memory ipfsCID, uint256 issuedAt, bool isRevoked)",
   "function verifyCredential(string memory _studentId, bytes32 _hash) public view returns (bool)",
   "function isIssued(string memory _studentId) public view returns (bool)",
-  
-  // Write functions (only owner)
+
   "function issueCertificate(string memory _studentId, bytes32 _certificateHash, string memory _ipfsCID) public",
   "function revokeCertificate(string memory _studentId) public",
-  
-  // Events
+
   "event CredentialIssued(string indexed studentId, bytes32 certificateHash, string ipfsCID, uint256 timestamp)",
   "event CredentialRevoked(string indexed studentId, uint256 timestamp)"
 ];
 
-// Blockchain configuration
-const SEPOLIA_CHAIN_ID = '0xaa36a7'; // 11155111 in decimal
+const SEPOLIA_CHAIN_ID = '0xaa36a7';
 const SEPOLIA_CHAIN_ID_DECIMAL = 11155111;
 
 class BlockchainService {
@@ -27,8 +23,7 @@ class BlockchainService {
     this.contract = null;
     this.contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
     this.rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL;
-    
-    // Initialize read-only provider
+
     if (this.rpcUrl) {
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
       this.contract = new ethers.Contract(
@@ -39,12 +34,10 @@ class BlockchainService {
     }
   }
 
-  // Check if MetaMask is installed
   isMetaMaskInstalled() {
     return typeof window.ethereum !== 'undefined';
   }
 
-  // Get current network
   async getCurrentNetwork() {
     if (!this.provider) return null;
     try {
@@ -59,13 +52,11 @@ class BlockchainService {
     }
   }
 
-  // Check if on Sepolia network
   async isOnSepoliaNetwork() {
     const network = await this.getCurrentNetwork();
     return network && network.chainId === SEPOLIA_CHAIN_ID_DECIMAL;
   }
 
-  // Switch to Sepolia network
   async switchToSepolia() {
     if (!window.ethereum) {
       throw new Error('MetaMask is not installed');
@@ -78,7 +69,7 @@ class BlockchainService {
       });
       return true;
     } catch (switchError) {
-      // This error code indicates that the chain has not been added to MetaMask
+
       if (switchError.code === 4902) {
         try {
           await window.ethereum.request({
@@ -104,36 +95,32 @@ class BlockchainService {
     }
   }
 
-  // Connect wallet
   async connectWallet() {
     if (!this.isMetaMaskInstalled()) {
       throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
     }
 
     try {
-      // Request account access
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
+
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
       });
 
       if (!accounts || accounts.length === 0) {
         throw new Error('No accounts found. Please unlock MetaMask.');
       }
 
-      // Create provider and signer
       this.provider = new ethers.BrowserProvider(window.ethereum);
       this.signer = await this.provider.getSigner();
 
-      // Check network
       const network = await this.provider.getNetwork();
       if (Number(network.chainId) !== SEPOLIA_CHAIN_ID_DECIMAL) {
         await this.switchToSepolia();
-        // Reload provider after network switch
+
         this.provider = new ethers.BrowserProvider(window.ethereum);
         this.signer = await this.provider.getSigner();
       }
 
-      // Initialize contract with signer
       this.contract = new ethers.Contract(
         this.contractAddress,
         CONTRACT_ABI,
@@ -149,7 +136,6 @@ class BlockchainService {
     }
   }
 
-  // Get connected account
   async getAccount() {
     if (!this.signer) {
       return null;
@@ -162,7 +148,6 @@ class BlockchainService {
     }
   }
 
-  // Get account balance
   async getBalance(address) {
     if (!this.provider) {
       throw new Error('Provider not initialized');
@@ -176,7 +161,6 @@ class BlockchainService {
     }
   }
 
-  // Issue certificate (requires connected wallet)
   async issueCertificate(studentId, certificateHash, ipfsCID) {
     if (!this.contract || !this.signer) {
       throw new Error('Contract not initialized or wallet not connected');
@@ -185,14 +169,12 @@ class BlockchainService {
     try {
       console.log('Issuing certificate:', { studentId, certificateHash, ipfsCID });
 
-      // Estimate gas
       const gasEstimate = await this.contract.issueCertificate.estimateGas(
         studentId,
         certificateHash,
         ipfsCID
       );
 
-      // Send transaction with 20% buffer
       const tx = await this.contract.issueCertificate(
         studentId,
         certificateHash,
@@ -204,7 +186,6 @@ class BlockchainService {
 
       console.log('Transaction sent:', tx.hash);
 
-      // Wait for confirmation
       const receipt = await tx.wait();
 
       console.log('Transaction confirmed:', receipt);
@@ -218,8 +199,7 @@ class BlockchainService {
 
     } catch (error) {
       console.error('Issue certificate error:', error);
-      
-      // Parse error message
+
       let errorMessage = 'Failed to issue certificate';
       if (error.message.includes('user rejected')) {
         errorMessage = 'Transaction rejected by user';
@@ -228,12 +208,11 @@ class BlockchainService {
       } else if (error.message.includes('already issued')) {
         errorMessage = 'Certificate already issued for this student';
       }
-      
+
       throw new Error(errorMessage);
     }
   }
 
-  // Revoke certificate
   async revokeCertificate(studentId) {
     if (!this.contract || !this.signer) {
       throw new Error('Contract not initialized or wallet not connected');
@@ -241,7 +220,7 @@ class BlockchainService {
 
     try {
       const gasEstimate = await this.contract.revokeCertificate.estimateGas(studentId);
-      
+
       const tx = await this.contract.revokeCertificate(studentId, {
         gasLimit: gasEstimate * 120n / 100n
       });
@@ -260,7 +239,6 @@ class BlockchainService {
     }
   }
 
-  // Get credential (read-only, no wallet needed)
   async getCredential(studentId) {
     if (!this.contract) {
       throw new Error('Contract not initialized');
@@ -268,7 +246,7 @@ class BlockchainService {
 
     try {
       const result = await this.contract.getCredential(studentId);
-      
+
       return {
         certificateHash: result[0],
         ipfsCID: result[1],
@@ -278,16 +256,15 @@ class BlockchainService {
 
     } catch (error) {
       console.error('Get credential error:', error);
-      
+
       if (error.message.includes('Credential not found')) {
         return null;
       }
-      
+
       throw new Error(`Failed to get credential: ${error.message}`);
     }
   }
 
-  // Verify credential (read-only, no wallet needed)
   async verifyCredential(studentId, hash) {
     if (!this.contract) {
       throw new Error('Contract not initialized');
@@ -302,7 +279,6 @@ class BlockchainService {
     }
   }
 
-  // Check if credential is issued (read-only)
   async isCredentialIssued(studentId) {
     if (!this.contract) {
       throw new Error('Contract not initialized');
@@ -316,7 +292,6 @@ class BlockchainService {
     }
   }
 
-  // Get transaction details
   async getTransaction(txHash) {
     if (!this.provider) {
       throw new Error('Provider not initialized');
@@ -325,7 +300,7 @@ class BlockchainService {
     try {
       const tx = await this.provider.getTransaction(txHash);
       const receipt = await this.provider.getTransactionReceipt(txHash);
-      
+
       return {
         transaction: tx,
         receipt: receipt,
@@ -337,7 +312,6 @@ class BlockchainService {
     }
   }
 
-  // Get Etherscan URL
   getEtherscanUrl(txHash) {
     return `https://sepolia.etherscan.io/tx/${txHash}`;
   }
@@ -346,7 +320,6 @@ class BlockchainService {
     return `https://sepolia.etherscan.io/address/${address}`;
   }
 
-  // Listen to contract events
   onCredentialIssued(callback) {
     if (!this.contract) {
       throw new Error('Contract not initialized');
@@ -379,17 +352,15 @@ class BlockchainService {
     });
   }
 
-  // Remove event listeners
   removeAllListeners() {
     if (this.contract) {
       this.contract.removeAllListeners();
     }
   }
 
-  // Disconnect wallet
   disconnect() {
     this.signer = null;
-    // Keep provider for read-only operations
+
     if (this.rpcUrl) {
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
       this.contract = new ethers.Contract(
@@ -401,6 +372,5 @@ class BlockchainService {
   }
 }
 
-// Export singleton instance
 const blockchainService = new BlockchainService();
 export default blockchainService;

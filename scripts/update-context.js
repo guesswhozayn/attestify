@@ -4,7 +4,6 @@ const path = require('path');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const CONTEXT_FILE_PATH = path.join(ROOT_DIR, 'context.md');
 
-// Directories and files to exclude from the tree to save token usage
 const EXCLUDES = [
   'node_modules',
   '.git',
@@ -19,13 +18,13 @@ const EXCLUDES = [
 
 function buildTree(dir, prefix = '') {
   let result = '';
-  
+
   if (!fs.existsSync(dir)) return result;
-  
+
   const files = fs.readdirSync(dir)
     .filter(file => !file.startsWith('.') && !EXCLUDES.includes(file))
     .sort((a, b) => {
-      // Sort directories first, then files alphabetically
+
       const aStat = fs.statSync(path.join(dir, a));
       const bStat = fs.statSync(path.join(dir, b));
       if (aStat.isDirectory() && !bStat.isDirectory()) return -1;
@@ -38,15 +37,15 @@ function buildTree(dir, prefix = '') {
     const isDirectory = fs.statSync(filePath).isDirectory();
     const isLastItem = index === files.length - 1;
     const connector = isLastItem ? '└── ' : '├── ';
-    
+
     result += `${prefix}${connector}${file}\n`;
-    
+
     if (isDirectory) {
       const newPrefix = prefix + (isLastItem ? '    ' : '│   ');
       result += buildTree(filePath, newPrefix);
     }
   });
-  
+
   return result;
 }
 
@@ -58,17 +57,14 @@ function updateContextFile() {
 
   let content = fs.readFileSync(CONTEXT_FILE_PATH, 'utf8');
 
-  // 1. Generate new file tree
   let tree = '.\n';
   tree += buildTree(ROOT_DIR);
 
-  // Clean trailing newlines
   tree = tree.trim();
 
-  // 2. Replace tree block
   const startMarker = '<!-- DIRECTORY_TREE_START -->';
   const endMarker = '<!-- DIRECTORY_TREE_END -->';
-  
+
   const startIndex = content.indexOf(startMarker);
   const endIndex = content.indexOf(endMarker);
 
@@ -79,10 +75,9 @@ function updateContextFile() {
 
   const beforeTree = content.substring(0, startIndex + startMarker.length);
   const afterTree = content.substring(endIndex);
-  
+
   content = `${beforeTree}\n${tree}\n${afterTree}`;
 
-  // 3. Update Last Updated Timestamp
   const now = new Date();
   const format2Digit = (num) => String(num).padStart(2, '0');
   const timestamp = `${now.getUTCFullYear()}-${format2Digit(now.getUTCMonth() + 1)}-${format2Digit(now.getUTCDate())} ${format2Digit(now.getUTCHours())}:${format2Digit(now.getUTCMinutes())}:${format2Digit(now.getUTCSeconds())} UTC`;

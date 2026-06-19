@@ -1,11 +1,3 @@
-/**
- * StatusBadge
- * The pulsing indigo pill badge used throughout hero and welcome sections.
- *
- * Props:
- *   label     {string}   Text displayed in the badge (uppercased via CSS).
- *   className {string}   Optional extra classes on the wrapper.
- */
 const StatusBadge = ({ label, className = '' }) => (
   <div
     className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md ${className}`}

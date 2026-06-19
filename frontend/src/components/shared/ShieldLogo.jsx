@@ -1,7 +1,7 @@
 import { Shield } from 'lucide-react';
 
-const ShieldLogo = ({ 
-    size = "md", 
+const ShieldLogo = ({
+    size = "md",
     className = "",
     iconClassName = "text-indigo-400"
 }) => {

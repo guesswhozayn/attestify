@@ -3,15 +3,15 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { userAPI } from '../services/api';
-import { 
-    User, 
-    Mail, 
-    Building, 
-    Calendar, 
-    Wallet, 
-    Shield, 
-    BadgeCheck, 
-    Activity, 
+import {
+    User,
+    Mail,
+    Building,
+    Calendar,
+    Wallet,
+    Shield,
+    BadgeCheck,
+    Activity,
     ExternalLink,
     Edit2,
     Save,
@@ -34,7 +34,6 @@ const Profile = () => {
 
     const isIssuer = user?.role === 'ISSUER';
 
-    // Sync connected wallet for display if not set in profile
     useEffect(() => {
         const detectWallet = async () => {
             if (typeof window.ethereum !== 'undefined') {
@@ -50,7 +49,7 @@ const Profile = () => {
         };
         detectWallet();
     }, []);
-    
+
     const [formData, setFormData] = useState({
         name: '',
         title: '',
@@ -60,7 +59,6 @@ const Profile = () => {
         registrationNumber: ''
     });
 
-    // Initialize/Sync Form Data
     useEffect(() => {
         if (user) {
             setFormData({
@@ -120,7 +118,7 @@ const Profile = () => {
             }
 
             const response = await userAPI.updateProfile(payload);
-            
+
             if (response.data.success) {
                 updateUser(response.data.user);
                 showNotification('Profile updated successfully', 'success');
@@ -144,7 +142,7 @@ const Profile = () => {
 
     return (
       <AccountLayout>
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
@@ -164,7 +162,7 @@ const Profile = () => {
                 <div className="flex gap-3">
                    {isEditing ? (
                        <>
-                           <Button 
+                           <Button
                                 onClick={() => setIsEditing(false)}
                                 variant="ghost"
                                 icon={X}
@@ -172,7 +170,7 @@ const Profile = () => {
                            >
                                 Cancel
                            </Button>
-                           <Button 
+                           <Button
                                 onClick={handleSave}
                                 loading={loading}
                                 variant="success"
@@ -183,7 +181,7 @@ const Profile = () => {
                            </Button>
                        </>
                    ) : (
-                       <Button 
+                       <Button
                            onClick={() => setIsEditing(true)}
                            variant="outline"
                            icon={Edit2}
@@ -195,20 +193,19 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* Profile Hero Card */}
             <div className="relative bg-[#0a0a0a] rounded-4xl p-8 md:p-12 border border-white/4 shadow-2xl overflow-hidden group">
                 <div className="absolute inset-0 bg-linear-to-br from-indigo-500/2 to-transparent pointer-events-none"></div>
-                
+
                 <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-10">
-                    {/* Avatar Container */}
+
                     <div className="relative shrink-0">
                         <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                        <Avatar 
-                            src={user?.avatar} 
-                            initials={user?.name} 
-                            size="xl" 
-                            editable={true} 
-                            uploading={uploading} 
+                        <Avatar
+                            src={user?.avatar}
+                            initials={user?.name}
+                            size="xl"
+                            editable={true}
+                            uploading={uploading}
                             onUpload={handleAvatarUpload}
                             className="ring-1 ring-white/10"
                         />
@@ -221,18 +218,17 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {/* Info Section */}
                     <div className="flex-1 w-full space-y-6">
                         {isEditing ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Input 
+                                <Input
                                     label={isIssuer ? "Institution Name" : "Display Name"}
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                                     icon={isIssuer ? Building : User}
                                 />
                                 {!isIssuer && (
-                                    <Input 
+                                    <Input
                                         label="Academic Title"
                                         value={formData.title}
                                         onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -269,14 +265,13 @@ const Profile = () => {
 
                         <div className="h-px bg-white/4 w-full"></div>
 
-                        {/* Bio/About */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <Activity className="w-4 h-4 text-zinc-600" />
                                 <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Biography</span>
                             </div>
                             {isEditing ? (
-                                <textarea 
+                                <textarea
                                     value={formData.about}
                                     onChange={(e) => setFormData({...formData, about: e.target.value})}
                                     className="w-full bg-white/2 text-zinc-100 p-6 rounded-3xl border border-white/10 text-sm focus:outline-none focus:border-indigo-500/50 transition-all min-h-[150px] resize-none"
@@ -292,9 +287,8 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* Details Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Academic/Institutional Details */}
+
                 <div className="lg:col-span-2 space-y-6">
                     <div className="flex items-center gap-3 px-2">
                         <div className="p-2 bg-indigo-500/10 rounded-lg">
@@ -312,7 +306,7 @@ const Profile = () => {
                                 icon={Building}
                             />
                         ) : (
-                            <ProfileCard 
+                            <ProfileCard
                                 icon={Building}
                                 label={isIssuer ? "Registration ID" : "Institution"}
                                 value={isIssuer ? (formData.registrationNumber || 'None') : (user?.university || 'None')}
@@ -320,7 +314,7 @@ const Profile = () => {
                             />
                         )}
 
-                        <ProfileCard 
+                        <ProfileCard
                             icon={Calendar}
                             label="Joined"
                             value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
@@ -328,8 +322,8 @@ const Profile = () => {
                             }) : 'Pending'}
                             color="text-emerald-400"
                         />
-                        
-                        <ProfileCard 
+
+                        <ProfileCard
                             icon={Activity}
                             label="Status"
                             value={user?.isActive ? 'Active' : 'Inactive'}
@@ -337,7 +331,7 @@ const Profile = () => {
                         />
 
                         {isIssuer && (
-                            <ProfileCard 
+                            <ProfileCard
                                 icon={Award}
                                 label="Plan Tier"
                                 value={user?.issuerDetails?.plan || 'STARTER'}
@@ -347,7 +341,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Blockchain Passport Section */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-3 px-2">
                         <div className="p-2 bg-emerald-500/10 rounded-lg">
@@ -355,10 +348,10 @@ const Profile = () => {
                         </div>
                         <h3 className="text-sm font-black text-white uppercase tracking-widest">Wallet Connection</h3>
                     </div>
-                    
+
                     <div className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/4 shadow-2xl relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-500">
                         <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[60px] -mr-16 -mt-16 pointer-events-none group-hover:bg-emerald-500/10 transition-colors duration-500"></div>
-                        
+
                         <div className="flex justify-between items-start mb-10 relative z-10">
                             <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 transition-transform group-hover:scale-110">
                                 <Wallet className="w-6 h-6 text-emerald-400" />
@@ -372,7 +365,7 @@ const Profile = () => {
                         <div className="space-y-6 relative z-10">
                             <div>
                                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest block mb-3">Wallet Address</label>
-                                <button 
+                                <button
                                    onClick={copyWalletAddress}
                                    className="w-full text-left group/copy focus:outline-none"
                                 >
@@ -382,7 +375,7 @@ const Profile = () => {
                                     </div>
                                 </button>
                             </div>
-                            
+
                             <div className="pt-6 border-t border-white/4 flex justify-between items-center">
                                 <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest leading-none">Network</span>
                                 <div className="flex items-center gap-2">

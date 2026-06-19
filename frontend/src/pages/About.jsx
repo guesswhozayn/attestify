@@ -23,10 +23,9 @@ const About = () => {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
-      {/* Background Effects */}
+
       <GradientBackground fixed />
 
-      {/* Mouse-tracking spotlight overlay */}
       <div
         className="fixed inset-0 z-0 pointer-events-none opacity-40 transition-opacity duration-1000"
         style={{
@@ -37,30 +36,28 @@ const About = () => {
       <BackButton />
 
       <main className="relative z-10 pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Hero Section */}
-        <motion.div 
+
+        <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-center mb-24"
         >
             <div className="mb-8">
-              <StatusBadge label="Our Mission" />  
+              <StatusBadge label="Our Mission" />
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter leading-tight">
                 Restoring <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 bg-[length:200%_auto] animate-shimmer">Trust</span> in <br />
                 Digital Credentials.
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                We are building the decentralized standard for academic and professional verification. 
+                We are building the decentralized standard for academic and professional verification.
                 Owned by users, secured by Ethereum, and verifiable by anyone.
             </p>
         </motion.div>
 
-        {/* Vision Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
             {[
                 {
@@ -88,7 +85,7 @@ const About = () => {
                     border: "border-emerald-500/20"
                 }
             ].map((item, idx) => (
-                <motion.div 
+                <motion.div
                     key={idx}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -107,7 +104,6 @@ const About = () => {
             ))}
         </div>
 
-        {/* Story Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
             <motion.div
                 initial={{ opacity: 0, x: -30 }}
@@ -128,7 +124,7 @@ const About = () => {
                     </p>
                 </div>
             </motion.div>
-            
+
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -138,11 +134,11 @@ const About = () => {
             >
                 <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-3xl blur-2xl"></div>
                 <div className="relative bg-gray-900/40 border border-white/10 rounded-3xl p-8 backdrop-blur-xl overflow-hidden">
-                     {/* Decorative Elements */}
+
                      <div className="absolute top-0 right-0 p-12 opacity-10">
                          <Rocket className="w-64 h-64 text-white" />
                      </div>
-                     
+
                      <div className="relative z-10 space-y-6">
                         <div className="flex items-center gap-4">
                             <div className="text-5xl font-bold text-white">2026</div>
@@ -164,8 +160,7 @@ const About = () => {
             </motion.div>
         </div>
 
-        {/* Team / Community CTA */}
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -173,7 +168,7 @@ const About = () => {
             className="text-center bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 rounded-3xl p-12 md:p-20 relative overflow-hidden"
         >
              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none"></div>
-             
+
              <div className="relative z-10">
                  <Users className="w-16 h-16 text-indigo-400 mx-auto mb-8" />
                  <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Join the Movement</h2>

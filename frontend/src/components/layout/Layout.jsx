@@ -8,8 +8,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  
-  // Define routes that should have the Sidebar/Header layout (Dashboard routes)
+
   const dashboardRoutes = [
       '/dashboard',
       '/credentials',
@@ -18,11 +17,10 @@ const Layout = ({ children }) => {
       '/network-status'
   ];
 
-  const isDashboardRoute = dashboardRoutes.some(route => 
+  const isDashboardRoute = dashboardRoutes.some(route =>
       location.pathname === route || location.pathname.startsWith(route + '/')
   );
 
-  // Profile editor is strictly '/profile' (without ID)
   const isProfileEditor = location.pathname === '/profile' || location.pathname === '/profile/';
 
   const shouldShowLayout = user && (isDashboardRoute || isProfileEditor);
@@ -46,7 +44,7 @@ const Layout = ({ children }) => {
       case '/network-status':
         return 'Network Status';
       default:
-        // Handle student profile route which might have an ID
+
         if (pathname.includes('/student/')) return 'Profile';
         return 'Attestify';
     }
@@ -56,7 +54,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-black flex selection:bg-indigo-500/30 text-gray-100 font-sans">
-      {/* Fixed Background Effects */}
+
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/7 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-purple-600/5 rounded-full blur-[100px]"></div>
@@ -65,21 +63,19 @@ const Layout = ({ children }) => {
       </div>
 
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      
-      {/* Overlay for mobile when sidebar is open */}
+
       {isMobileMenuOpen && (
-        <div 
+        <div
            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
            onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Main Content Area: padding left 0 on mobile, 20px (w-20) on md+ */}
       <div className="flex-1 md:ml-20 transition-all duration-300 ease-in-out relative z-10 flex flex-col w-full">
-        <Header 
-          title={title} 
-          showSearch={false} 
-          onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        <Header
+          title={title}
+          showSearch={false}
+          onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
         <div className="flex-1 flex flex-col min-h-0 w-full overflow-x-hidden">
            {children}

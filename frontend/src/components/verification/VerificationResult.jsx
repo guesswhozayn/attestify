@@ -7,8 +7,7 @@ const VerificationResult = ({ result }) => {
 
   const isSuccess = result.valid && !result.revoked;
   const isRevoked = result.revoked;
-  
-  // Status configuration
+
   const statusConfig = {
     success: {
       icon: CheckCircle,
@@ -49,12 +48,12 @@ const VerificationResult = ({ result }) => {
   const StatusIcon = config.icon;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="w-full max-w-2xl mx-auto relative group"
     >
-      {/* Holographic scanning line effect */}
+
       <motion.div
         initial={{ top: 0, opacity: 0 }}
         animate={{ top: "100%", opacity: [0, 1, 0] }}
@@ -63,20 +62,19 @@ const VerificationResult = ({ result }) => {
       />
 
       <div className={`relative overflow-hidden rounded-3xl border ${config.borderColor} bg-black/40 backdrop-blur-2xl shadow-[0_0_50px_-10px_rgba(0,0,0,0.5)]`}>
-        {/* Decorative corner accents */}
+
         <div className={`absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 ${config.borderColor} rounded-tl-2xl`} />
         <div className={`absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 ${config.borderColor} rounded-tr-2xl`} />
         <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 ${config.borderColor} rounded-bl-2xl`} />
         <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 ${config.borderColor} rounded-br-2xl`} />
 
-        {/* Header Section */}
         <div className={`p-8 border-b border-white/5 relative overflow-hidden`}>
-           {/* Background Grid */}
+
            <div className={`absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none opacity-20`}></div>
-           
+
            <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-5">
-                 <motion.div 
+                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.2 }}
@@ -84,9 +82,9 @@ const VerificationResult = ({ result }) => {
                  >
                     <StatusIcon className={`w-8 h-8 ${config.textColor}`} />
                  </motion.div>
-                 
+
                  <div>
-                    <motion.h2 
+                    <motion.h2
                       initial={{ y: 10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.3 }}
@@ -94,7 +92,7 @@ const VerificationResult = ({ result }) => {
                     >
                       {config.label}
                     </motion.h2>
-                    <motion.div 
+                    <motion.div
                       initial={{ y: 10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.4 }}
@@ -108,8 +106,7 @@ const VerificationResult = ({ result }) => {
                  </div>
               </div>
 
-              {/* Trust Score Indicator */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 }}
@@ -126,39 +123,35 @@ const VerificationResult = ({ result }) => {
            </div>
         </div>
 
-        {/* Content Body */}
         <div className="p-8 space-y-8">
            {result.credential ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {/* Student Info */}
-                 <InfoGroup 
-                    icon={User} 
-                    label="Identity Subject" 
-                    value={result.credential.studentName} 
-                    delay={0.6} 
-                  />
-                 
-                 {/* Issuer Info */}
-                 <InfoGroup 
-                    icon={Award} 
-                    label="Issuing Authority" 
-                    value={result.credential.university} 
-                    delay={0.7} 
+
+                 <InfoGroup
+                    icon={User}
+                    label="Identity Subject"
+                    value={result.credential.studentName}
+                    delay={0.6}
                   />
 
-                {/* Date Info */}
-                 <InfoGroup 
-                    icon={Calendar} 
-                    label="Issuance Date" 
+                 <InfoGroup
+                    icon={Award}
+                    label="Issuing Authority"
+                    value={result.credential.university}
+                    delay={0.7}
+                  />
+
+                 <InfoGroup
+                    icon={Calendar}
+                    label="Issuance Date"
                     value={new Date(result.credential.issueDate).toLocaleDateString(undefined, {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
-                    })} 
-                    delay={0.8} 
+                    })}
+                    delay={0.8}
                   />
 
-                 {/* Credential ID */}
                  <div className="md:col-span-2">
                     <motion.div
                        initial={{ opacity: 0, y: 10 }}
@@ -182,9 +175,8 @@ const VerificationResult = ({ result }) => {
              </div>
            )}
 
-           {/* Revocation Details (if applicable) */}
            {isRevoked && result.credential && (
-              <motion.div 
+              <motion.div
                  initial={{ opacity: 0, height: 0 }}
                  animate={{ opacity: 1, height: 'auto' }}
                  transition={{ delay: 0.5 }}
@@ -193,12 +185,12 @@ const VerificationResult = ({ result }) => {
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                      <ShieldAlert className="w-24 h-24 text-red-500" />
                   </div>
-                  
+
                   <h3 className="text-red-400 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
                      <Activity className="w-4 h-4" />
                      Revocation Log
                   </h3>
-                  
+
                   <div className="space-y-3 relative z-10">
                      <div className="flex justify-between items-center text-sm border-b border-red-500/10 pb-2">
                         <span className="text-gray-500">Timestamp</span>
@@ -214,9 +206,8 @@ const VerificationResult = ({ result }) => {
               </motion.div>
            )}
 
-           {/* Actions */}
            {result.credential?.transactionHash && (
-              <motion.div 
+              <motion.div
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}
                  transition={{ delay: 1.0 }}
@@ -241,9 +232,8 @@ const VerificationResult = ({ result }) => {
   );
 };
 
-// Helper Component for Info Groups
 const InfoGroup = ({ icon: Icon, label, value, delay }) => (
-  <motion.div 
+  <motion.div
      initial={{ opacity: 0, y: 10 }}
      animate={{ opacity: 1, y: 0 }}
      transition={{ delay }}

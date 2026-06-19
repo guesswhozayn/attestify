@@ -62,7 +62,7 @@ const CredentialArchive = () => {
         } finally {
             if (isMounted.current) setLoading(false);
         }
-    }, [showNotification]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [showNotification]);
 
     const fetchStats = useCallback(async () => {
         try {
@@ -88,7 +88,7 @@ const CredentialArchive = () => {
         fetchCredentials(1);
         fetchStats();
         return () => { isMounted.current = false; };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         clearTimeout(debounceTimer.current);
@@ -96,7 +96,7 @@ const CredentialArchive = () => {
             fetchCredentials(currentPage, searchQuery, typeFilter, statusFilter);
         }, 300);
         return () => clearTimeout(debounceTimer.current);
-    }, [searchQuery, typeFilter, statusFilter, currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [searchQuery, typeFilter, statusFilter, currentPage]);
 
     const handleFilterChange = (setter) => (value) => {
         setter(value);
@@ -122,7 +122,7 @@ const CredentialArchive = () => {
 
     return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-            {/* Dynamic Background Elements */}
+
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
                 <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
@@ -130,9 +130,8 @@ const CredentialArchive = () => {
             </div>
 
             <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
-                
-                {/* Header Section */}
-                <motion.div 
+
+                <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -146,7 +145,7 @@ const CredentialArchive = () => {
                             </span>
                             <span className="text-[11px] font-bold text-indigo-300">Institutional Registry</span>
                         </div>
-                        
+
                         <div className="space-y-2">
                             <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none flex flex-col md:flex-row md:items-center gap-4">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-zinc-500">Credential</span>
@@ -179,19 +178,17 @@ const CredentialArchive = () => {
                     </div>
                 </motion.div>
 
-                {/* Stats Dashboard */}
                 <div className="bg-white/[0.01] border border-white/[0.04] rounded-[3rem] p-2 backdrop-blur-3xl shadow-2xl">
                     <CredentialsStats stats={stats} />
                 </div>
 
-                {/* Main Interaction Area */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                     className="space-y-10"
                 >
-                    <CredentialsFilter 
+                    <CredentialsFilter
                         searchQuery={searchQuery}
                         setSearchQuery={handleFilterChange(setSearchQuery)}
                         typeFilter={typeFilter}
@@ -211,7 +208,6 @@ const CredentialArchive = () => {
                         />
                     </div>
 
-                    {/* Pagination Bar */}
                     {!loading && totalPages > 1 && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
@@ -242,7 +238,6 @@ const CredentialArchive = () => {
                 </motion.div>
             </main>
 
-            {/* Modal Components */}
             <IssueCredentialModal
                 isOpen={showUploadModal}
                 onClose={() => setShowUploadModal(false)}
@@ -269,7 +264,7 @@ const CredentialArchive = () => {
                 )}
             </AnimatePresence>
 
-            <RevokeCredentialModal 
+            <RevokeCredentialModal
                 isOpen={!!credentialToRevoke}
                 onClose={() => setCredentialToRevoke(null)}
                 credential={credentialToRevoke}

@@ -5,21 +5,14 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const asyncHandler = require('../middleware/asyncHandler');
 
-/**
- * Unified credential lookup. Tries to find by MongoDB ObjectId first (credential ID),
- * then falls back to wallet address + hash matching for backward compatibility with
- * older credentials that were indexed by wallet address on-chain.
- */
 async function findCredential(identifier, certificateHash = null) {
   let credential = null;
 
-  // Attempt 1: Treat identifier as a credential ObjectId
   if (mongoose.Types.ObjectId.isValid(identifier)) {
     credential = await Credential.findById(identifier)
       .populate('issuedBy', 'name university email');
   }
 
-  // Attempt 2 (legacy fallback): Treat identifier as a wallet address
   if (!credential && certificateHash) {
     credential = await Credential.findOne({
       studentWalletAddress: identifier.toLowerCase(),
@@ -30,17 +23,12 @@ async function findCredential(identifier, certificateHash = null) {
   return credential;
 }
 
-/**
- * Unified on-chain verification. Tries credential._id first (current scheme),
- * then falls back to wallet address (legacy scheme).
- */
 async function verifyOnChain(credential, hash) {
   let isValid = await blockchainService.verifyCredential(
     credential._id.toString(),
     hash
   );
 
-  // Legacy fallback: older credentials may be keyed by wallet address on-chain
   if (!isValid) {
     isValid = await blockchainService.verifyCredential(
       credential.studentWalletAddress,
@@ -62,9 +50,6 @@ async function checkPrivacy(credential, reqUser) {
     return student?.preferences?.visibility !== false;
 }
 
-/**
- * Builds the standard verification response after all checks pass.
- */
 function buildVerificationResponse(credential, isValidOnChain, hash) {
   if (credential.isRevoked) {
     return {
@@ -119,12 +104,12 @@ const verifyWithFile = asyncHandler(async (req, res) => {
   let tempFilePath = null;
 
   try {
-    const { studentWalletAddress } = req.body; 
+    const { studentWalletAddress } = req.body;
     const file = req.file;
 
     if (!file || !studentWalletAddress) {
-      return res.status(400).json({ 
-        error: 'Credential ID/Wallet Address and certificate file are required' 
+      return res.status(400).json({
+        error: 'Credential ID/Wallet Address and certificate file are required'
       });
     }
 
@@ -196,20 +181,19 @@ const checkExists = asyncHandler(async (req, res) => {
     });
   }
 
-  // Security & Privacy Check: Check student visibility preference
   const User = require('../models/User');
   const actualWalletAddress = credentials[0].studentWalletAddress;
   const escapedWallet = actualWalletAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const student = await User.findOne({ 
+  const student = await User.findOne({
       walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
       role: 'STUDENT'
   });
 
   if (student?.preferences?.visibility === false) {
-    return res.status(403).json({ 
+    return res.status(403).json({
         exists: true,
         isPrivate: true,
-        message: 'This student profile is private. Credentials cannot be viewed publicly.' 
+        message: 'This student profile is private. Credentials cannot be viewed publicly.'
     });
   }
 
@@ -232,8 +216,8 @@ const verifyByHash = asyncHandler(async (req, res) => {
   const { studentWalletAddress, hash } = req.body;
 
   if (!studentWalletAddress || !hash) {
-    return res.status(400).json({ 
-      error: 'Credential ID/Wallet Address and hash are required' 
+    return res.status(400).json({
+      error: 'Credential ID/Wallet Address and hash are required'
     });
   }
 

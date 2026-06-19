@@ -4,23 +4,23 @@ const asyncHandler = require('../middleware/asyncHandler');
 
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, title, university, about, walletAddress, issuerDetails } = req.body;
-  
+
   const updateFields = {};
   if (name) updateFields.name = name;
   if (title) updateFields.title = title;
   if (university) updateFields.university = university;
   if (about) updateFields.about = about;
-  
+
   if (walletAddress) {
       if (req.user.role === 'ISSUER') {
           return res.status(400).json({ error: 'Institutional wallet addresses cannot be changed through the profile. Please contact support for administrative wallet migration.' });
       }
 
       const normalizedWallet = walletAddress.toLowerCase().trim();
-      // Only check if it's different from the current wallet
+
       if (normalizedWallet !== req.user.walletAddress?.toLowerCase()) {
           const escapedWallet = normalizedWallet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const existingWallet = await User.findOne({ 
+          const existingWallet = await User.findOne({
               walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
               _id: { $ne: req.user._id }
           });
@@ -36,11 +36,11 @@ const updateProfile = asyncHandler(async (req, res) => {
           ...req.body.preferences
       };
   }
-  
+
   if (issuerDetails) {
       if (issuerDetails.institutionName) updateFields['issuerDetails.institutionName'] = issuerDetails.institutionName;
       if (issuerDetails.registrationNumber) updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
-      
+
       if (issuerDetails.plan) {
          const validPlans = ['STARTER', 'PRO', 'ENTERPRISE'];
          if (!validPlans.includes(issuerDetails.plan.toUpperCase())) {
@@ -70,7 +70,6 @@ const uploadAvatar = asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Please upload a file' });
     }
 
-    // Delete old avatar to prevent storage bloat
     if (req.user.avatar) {
         try {
             const urlParts = req.user.avatar.split('/uploads/avatars/');
@@ -105,4 +104,3 @@ module.exports = {
   updateProfile,
   uploadAvatar
 };
-

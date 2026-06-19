@@ -11,7 +11,6 @@ import StatusBadge from '../components/shared/StatusBadge';
 import SectionHeader from '../components/shared/SectionHeader';
 import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
 
-
 const Landing = () => {
   const navigate = useNavigate();
 
@@ -20,17 +19,15 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative">
       <BackgroundEffects scrollY={scrollY} />
-      
+
       <Navbar />
 
-      {/* Hero Section */}
       <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-40 overflow-hidden">
 
-        {/* Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          {/* Status Badge */}
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -39,9 +36,8 @@ const Landing = () => {
           >
             <StatusBadge label="Live on Sepolia Testnet" className="hover:bg-indigo-500/20 transition-colors cursor-default" />
           </motion.div>
-          
-          {/* Main Heading */}
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -53,9 +49,8 @@ const Landing = () => {
               Programmable.
             </span>
           </motion.h1>
-          
-          {/* Subheading */}
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -65,8 +60,7 @@ const Landing = () => {
             Issue tamper-proof academic credentials on Ethereum. <br className="hidden md:block" />
             Verifiable instantly, owned forever, and mathematically secure.
           </motion.p>
-          
-          {/* CTA Buttons */}
+
           <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
             <Button onClick={() => navigate('/register')} variant="white" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
               Start Issuing Now
@@ -79,19 +73,18 @@ const Landing = () => {
             </Button>
           </div>
 
-          {/* Abstract Dashboard Visualization */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.95 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
             className="mt-24 relative mx-auto max-w-6xl"
           >
-             {/* Glow behind dashboard */}
+
              <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] -z-10 rounded-full"></div>
-             
+
              <div className="rounded-xl border border-white/10 bg-gray-900/60 backdrop-blur-lg shadow-2xl overflow-hidden">
-                {/* Mock Browser Header */}
+
                 <div className="h-10 border-b border-white/5 bg-black/40 flex items-center px-4 space-x-2">
                    <div className="flex space-x-1.5">
                       <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
@@ -100,10 +93,9 @@ const Landing = () => {
                    </div>
                    <div className="mx-auto w-1/3 h-5 bg-white/5 rounded-md text-[10px] flex items-center justify-center text-gray-500 font-mono">attestify.co/dashboard</div>
                 </div>
-                
-                {/* Mock Dashboard Content */}
+
                 <div className="p-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-                   {/* Card 1 */}
+
                    <div className="bg-linear-to-br from-white/5 to-white/2 border border-white/10 p-6 rounded-2xl">
                       <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-4">
                         <Users className="w-5 h-5 text-indigo-400" />
@@ -111,7 +103,7 @@ const Landing = () => {
                       <div className="h-2 w-24 bg-gray-700/50 rounded mb-2"></div>
                       <div className="h-8 w-16 bg-white/10 rounded"></div>
                    </div>
-                   {/* Card 2 */}
+
                    <div className="bg-linear-to-br from-white/5 to-white/2 border border-white/10 p-6 rounded-2xl">
                       <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
                         <FileCheck className="w-5 h-5 text-emerald-400" />
@@ -119,7 +111,7 @@ const Landing = () => {
                       <div className="h-2 w-24 bg-gray-700/50 rounded mb-2"></div>
                       <div className="h-8 w-16 bg-white/10 rounded"></div>
                    </div>
-                   {/* Card 3 */}
+
                    <div className="bg-linear-to-br from-white/5 to-white/2 border border-white/10 p-6 rounded-2xl">
                       <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
                         <Shield className="w-5 h-5 text-purple-400" />
@@ -133,7 +125,6 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Logos / Trusted By */}
       <div className="py-10 bg-black border-y border-white/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8">
               <p className="text-sm font-medium text-gray-500 uppercase tracking-widest">Trusted by innovative institutions</p>
@@ -152,12 +143,9 @@ const Landing = () => {
           </div>
       </div>
 
-
-
-      {/* Universal Standard - Bento Grid */}
       <div className="py-32 bg-black relative overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-          
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <SectionHeader
                 prefix="The"
@@ -165,16 +153,15 @@ const Landing = () => {
                 subtitle="Attestify isn't just a platform. It's a new primitive for digital trust."
               />
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
                 className="grid grid-cols-1 md:grid-cols-3 auto-rows-auto md:auto-rows-[300px] gap-6"
               >
-                  
-                  {/* Card 1: Soulbound Identity */}
-                  <motion.div 
+
+                  <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -185,7 +172,7 @@ const Landing = () => {
                       <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-10 pointer-events-none">
                           <Shield className="w-64 h-64 text-indigo-500" />
                       </div>
-                      
+
                       <div className="relative z-10">
                           <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6 border border-indigo-500/30">
                               <Users className="w-6 h-6 text-indigo-400" />
@@ -195,16 +182,13 @@ const Landing = () => {
                               Credentials are minted as Soulbound Tokens (SBTs). They are non-transferable, effectively acting as a permanent, on-chain CV that you truly own.
                           </p>
                       </div>
-                      
-                      {/* Visual: Abstract Identity */}
+
                       <div className="mt-8 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
-                          {/* Holographic Card Effect */}
+
                           <div className="relative w-[320px] h-[200px] rounded-xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden shadow-2xl group/card">
-                              
-                              {/* Background Gradient Mesh */}
+
                               <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 via-purple-500/5 to-black"></div>
 
-                              {/* Card Content */}
                               <div className="relative z-10 p-6 flex flex-col justify-between h-full">
                                   <div className="flex justify-between items-start">
                                       <div className="w-12 h-12 rounded-full bg-linear-to-br from-indigo-400 to-purple-600 p-[1px]">
@@ -231,15 +215,13 @@ const Landing = () => {
                                       </div>
                                   </div>
                               </div>
-                              
-                              {/* Scanline Effect */}
+
                               <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.3)_50%)] bg-[size:100%_4px] pointer-events-none opacity-20"></div>
                           </div>
                       </div>
                   </motion.div>
 
-                  {/* Card 2: Global Network */}
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -247,7 +229,7 @@ const Landing = () => {
                     className="md:col-span-1 md:row-span-2 relative group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur-lg p-8 flex flex-col"
                   >
                       <div className="absolute inset-0 bg-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                      
+
                       <div className="relative z-10 mb-auto">
                           <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-6 border border-purple-500/30">
                               <Globe className="w-6 h-6 text-purple-400" />
@@ -258,10 +240,9 @@ const Landing = () => {
                           </p>
                       </div>
 
-                      {/* Visual: Globe/Network */}
                       <div className="mt-8 relative flex-1 min-h-[200px] flex items-center justify-center">
                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent"></div>
-                          {/* Animated Node 1 */}
+
                           <div className="absolute top-1/4 left-1/4">
                               <span className="relative flex h-4 w-4">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
@@ -269,7 +250,6 @@ const Landing = () => {
                               </span>
                           </div>
 
-                          {/* Animated Node 2 */}
                           <div className="absolute bottom-1/3 right-1/4">
                               <span className="relative flex h-3 w-3">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -277,7 +257,6 @@ const Landing = () => {
                               </span>
                           </div>
 
-                          {/* Animated Node 3 */}
                           <div className="absolute top-1/2 right-1/3">
                               <span className="relative flex h-2 w-2">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -288,8 +267,7 @@ const Landing = () => {
                       </div>
                   </motion.div>
 
-                  {/* Card 3: Instant Issuance */}
-                   <motion.div 
+                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -306,8 +284,7 @@ const Landing = () => {
                       </p>
                    </motion.div>
 
-                  {/* Card 4: Cryptographic Truth */}
-                   <motion.div 
+                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -332,9 +309,8 @@ const Landing = () => {
           </div>
       </div>
 
-      {/* How It Works */}
       <div className="py-32 relative bg-black overflow-hidden">
-        {/* Background circuit pattern */}
+
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay"></div>
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
@@ -347,16 +323,16 @@ const Landing = () => {
               Why <BrandLogo textSize="text-5xl sm:text-6xl md:text-8xl" />
             </h2>
           </SectionHeader>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1 }}
             className="grid md:grid-cols-3 gap-8"
           >
-             {/* Card 1: Immutable Trust */}
-             <motion.div 
+
+             <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -364,7 +340,7 @@ const Landing = () => {
                 className="group relative h-[400px] rounded-3xl border border-white/10 bg-gray-900/40 overflow-hidden hover:border-indigo-500/50 transition-all duration-500"
              >
                 <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
+
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
                    <Lock className="w-32 h-32 text-indigo-500 rotate-12" />
                 </div>
@@ -380,8 +356,7 @@ const Landing = () => {
                  </div>
              </motion.div>
 
-             {/* Card 2: Sovereign Ownership */}
-             <motion.div 
+             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -389,7 +364,7 @@ const Landing = () => {
                 className="group relative h-[400px] rounded-3xl border border-white/10 bg-gray-900/40 overflow-hidden hover:border-purple-500/50 transition-all duration-500"
              >
                 <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
+
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
                    <Users className="w-32 h-32 text-purple-500 -rotate-12" />
                 </div>
@@ -405,8 +380,7 @@ const Landing = () => {
                  </div>
              </motion.div>
 
-             {/* Card 3: Instant Verification */}
-             <motion.div 
+             <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -414,7 +388,7 @@ const Landing = () => {
                 className="group relative h-[400px] rounded-3xl border border-white/10 bg-gray-900/40 overflow-hidden hover:border-emerald-500/50 transition-all duration-500"
              >
                 <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
+
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
                    <Zap className="w-32 h-32 text-emerald-500 rotate-6" />
                 </div>
@@ -433,10 +407,9 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Global Stats */}
       <div className="py-24 bg-black border-y border-white/5 relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:32px_32px]"></div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -464,12 +437,11 @@ const Landing = () => {
           </motion.div>
       </div>
 
-      {/* Final CTA / Pilot Onboarding */}
       <div className="py-32 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-           
+
            <div className="max-w-7xl mx-auto px-4 relative z-10">
-               <motion.div 
+               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -480,33 +452,32 @@ const Landing = () => {
                      Ready to pioneer the future?
                    </h2>
                    <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                     Join the Attestify Pilot Program. We are partnering with forward-thinking institutions 
+                     Join the Attestify Pilot Program. We are partnering with forward-thinking institutions
                      to define the global standard for digital trust.
                    </p>
                </motion.div>
 
-               {/* Pilot Integration Hub */}
                <div className="mb-20">
                   <PilotIntegrationHub />
                </div>
 
-               <motion.div 
+               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="flex flex-row flex-wrap items-center justify-center gap-4 sm:gap-6 px-4"
                >
-                  <Button 
-                    onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Pilot Program Inquiry')} 
-                    variant="white" 
+                  <Button
+                    onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Pilot Program Inquiry')}
+                    variant="white"
                     className="hover:-translate-y-1 px-5! py-2.5! sm:px-10! sm:py-4! text-xs sm:text-lg font-black w-auto shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                   >
                       Apply for Pilot
                   </Button>
-                  <Button 
-                    onClick={() => navigate('/partnership-guide')} 
-                    variant="secondary" 
+                  <Button
+                    onClick={() => navigate('/partnership-guide')}
+                    variant="secondary"
                     className="hover:-translate-y-1 px-5! py-2.5! sm:px-10! sm:py-4! text-xs sm:text-lg font-black w-auto border-white/10"
                   >
                       View Partnership Guide
@@ -515,11 +486,9 @@ const Landing = () => {
            </div>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
 };
-
 
 export default Landing;

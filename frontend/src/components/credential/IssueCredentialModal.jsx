@@ -43,18 +43,15 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   const [certificationData, setCertificationData] = useState({ ...INITIAL_CERTIFICATION });
   const [quotaError, setQuotaError] = useState(false);
 
-  // Track object URL to prevent memory leaks
   const imagePreviewUrl = useRef(null);
 
-  // Create/revoke object URLs properly
   useEffect(() => {
-    // Revoke previous URL to free memory
+
     if (imagePreviewUrl.current) {
       URL.revokeObjectURL(imagePreviewUrl.current);
       imagePreviewUrl.current = null;
     }
 
-    // Create new URL if we have a file
     if (formData.studentImage && formData.studentImage instanceof File) {
       imagePreviewUrl.current = URL.createObjectURL(formData.studentImage);
     }
@@ -67,7 +64,6 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     };
   }, [formData.studentImage]);
 
-  // Reset all form state when modal closes
   const resetForm = useCallback(() => {
     setFormData(getInitialFormData(user));
     setCredentialType('CERTIFICATION');
@@ -76,10 +72,9 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     setQuotaError(false);
   }, [user]);
 
-  // Reset form when modal closes (user cancels or after success)
   useEffect(() => {
     if (!isOpen) {
-      // Small delay to let the close animation play before resetting
+
       const timer = setTimeout(resetForm, 350);
       return () => clearTimeout(timer);
     }
@@ -124,7 +119,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.studentName || !formData.studentWalletAddress || !formData.university || 
+    if (!formData.studentName || !formData.studentWalletAddress || !formData.university ||
         !formData.issueDate) {
       showNotification('Please fill in all required fields', 'error');
       return;
@@ -140,11 +135,11 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       formDataToSend.append('university', formData.university);
       formDataToSend.append('issueDate', formData.issueDate);
       formDataToSend.append('type', credentialType);
-      
+
       if (formData.studentImage && formData.studentImage instanceof File) {
         formDataToSend.append('studentImage', formData.studentImage);
       }
-      
+
       if (credentialType === 'TRANSCRIPT') {
         formDataToSend.append('transcriptData', JSON.stringify(transcriptData));
       } else {
@@ -152,7 +147,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       }
 
       const response = await credentialAPI.issue(formDataToSend);
-      
+
       showNotification('Credential issued successfully! Transaction confirmed.', 'success');
       onSuccess(response.data.credential);
       onClose();
@@ -171,7 +166,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Issue New Credential" size="xl">
-      {/* Loading Overlay — positioned relative to modal body */}
+
       {loading && (
         <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all rounded-2xl">
             <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl flex flex-col items-center max-w-sm w-full">
@@ -193,8 +188,8 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
               <p className="text-red-400/80 text-sm mb-4">
                  Your institution has reached the maximum number of credentials allowed on your current plan.
               </p>
-              <Button 
-                onClick={() => window.location.assign('/pricing')} 
+              <Button
+                onClick={() => window.location.assign('/pricing')}
                 variant="white"
                 className="w-full justify-center text-red-600 font-bold shadow-lg"
               >
@@ -206,11 +201,11 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       <div className="relative group flex flex-col">
         <div className="relative z-10 space-y-8 pb-4">
           <div className="space-y-8">
-        {/* Credential Type Selector */}
+
         <div>
            <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-4">Credential Type</label>
            <div className="grid grid-cols-2 gap-4">
-             <TypeSelectionCard 
+             <TypeSelectionCard
                active={credentialType === 'CERTIFICATION'}
                onClick={() => setCredentialType('CERTIFICATION')}
                icon={Award}
@@ -218,7 +213,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                description="For courses, workshops, and skills verification."
                variant="emerald"
              />
-             <TypeSelectionCard 
+             <TypeSelectionCard
                active={credentialType === 'TRANSCRIPT'}
                onClick={() => setCredentialType('TRANSCRIPT')}
                icon={BookOpen}
@@ -229,7 +224,6 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
            </div>
         </div>
 
-        {/* Common Fields */}
         <div className="bg-white/[0.02] p-6 rounded-3xl border border-white/[0.06] space-y-6">
            <h3 className="text-xs font-bold text-gray-400 flex items-center gap-2 ml-4 uppercase tracking-wider">
               <User className="w-4 h-4 text-indigo-400" />
@@ -251,7 +245,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                value={formData.studentWalletAddress}
                onChange={handleChange}
                placeholder="e.g. 0x..."
-               icon={User} 
+               icon={User}
                required
              />
              <Input
@@ -275,16 +269,16 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                required
              />
            </div>
-           
+
            <div className="border-t border-white/[0.06] pt-6">
              <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-3">Profile Image</label>
              <div className="flex items-center space-x-4 p-4 bg-black/20 border border-white/10 rounded-2xl border-dashed hover:border-indigo-500/30 transition-colors group">
                <div className="flex-shrink-0">
                   {formData.studentImage && formData.studentImage instanceof File ? (
                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
-                        <img 
-                          src={imagePreviewUrl.current} 
-                          alt="Preview" 
+                        <img
+                          src={imagePreviewUrl.current}
+                          alt="Preview"
                           className="w-full h-full object-cover"
                         />
                      </div>
@@ -302,7 +296,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                     className="hidden"
                     id="student-image-upload"
                   />
-                  <label 
+                  <label
                     htmlFor="student-image-upload"
                     className="cursor-pointer text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
@@ -314,13 +308,12 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
            </div>
         </div>
 
-        {/* Dynamic Fields */}
         <div className="bg-white/[0.02] p-6 rounded-3xl border border-white/[0.06] space-y-6">
            <h3 className="text-xs font-bold text-gray-400 flex items-center gap-2 ml-4 uppercase tracking-wider">
              {credentialType === 'TRANSCRIPT' ? <BookOpen className="w-4 h-4 text-indigo-400" /> : <Award className="w-4 h-4 text-emerald-400" />}
              {credentialType === 'TRANSCRIPT' ? 'Academic Records' : 'Certification Details'}
            </h3>
-           
+
            {credentialType === 'TRANSCRIPT' ? (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -389,7 +382,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                           onChange={(e) => updateCourse(index, 'grade', e.target.value)}
                           className="w-20 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
                         />
-                        <Button 
+                        <Button
                           onClick={() => removeCourse(index)}
                           variant="danger"
                           rounded="xl"
@@ -475,6 +468,5 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   </Modal>
   );
 };
-
 
 export default IssueCredentialModal;

@@ -3,12 +3,12 @@ import { Search, Upload, SlidersHorizontal, X } from 'lucide-react';
 import Button from '../shared/Button';
 import RefreshButton from '../shared/RefreshButton';
 
-const CredentialsFilter = ({ 
-    searchQuery, 
-    setSearchQuery, 
-    typeFilter, 
-    setTypeFilter, 
-    statusFilter, 
+const CredentialsFilter = ({
+    searchQuery,
+    setSearchQuery,
+    typeFilter,
+    setTypeFilter,
+    statusFilter,
     setStatusFilter,
     onRefresh,
     loading = false
@@ -16,8 +16,7 @@ const CredentialsFilter = ({
     return (
         <div className="bg-[#0b0b0b]/50 border border-white/4 rounded-[2.5rem] p-6 backdrop-blur-3xl shadow-2xl space-y-6">
             <div className="flex flex-col xl:flex-row gap-6 items-center justify-between">
-                
-                {/* Search Bar */}
+
                 <div className="relative w-full xl:max-w-2xl group">
                     <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                         <Search className="h-5 w-5 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
@@ -30,7 +29,7 @@ const CredentialsFilter = ({
                         className="block w-full pl-14 pr-14 py-4 bg-white/1 border border-white/4 rounded-2xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all focus:bg-white/3 shadow-inner"
                     />
                     {searchQuery && (
-                        <Button 
+                        <Button
                             onClick={() => setSearchQuery('')}
                             variant="ghost"
                             rounded="full"
@@ -42,16 +41,14 @@ const CredentialsFilter = ({
                     )}
                 </div>
 
-                {/* Main Actions */}
                 <div className="flex items-center gap-3 w-full xl:w-auto">
-                    <RefreshButton 
+                    <RefreshButton
                         onClick={onRefresh}
                         loading={loading}
-                        variant="ghost" 
+                        variant="ghost"
                         className="text-zinc-500 hover:text-white hover:bg-white/5 border border-white/4 hover:border-white/10 shadow-xl active:scale-90"
                         title="Sync Registry"
                     />
-                    
 
                 </div>
             </div>
@@ -64,7 +61,7 @@ const CredentialsFilter = ({
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Type Toggle */}
+
                         <div className="flex p-1 bg-black/40 border border-white/4 rounded-xl shadow-inner">
                             {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((type) => (
                                 <Button
@@ -73,8 +70,8 @@ const CredentialsFilter = ({
                                     variant={typeFilter === type ? 'primary' : 'ghost'}
                                     rounded="lg"
                                     className={`px-5 py-1 text-[11px] font-bold shadow-none! ${
-                                        typeFilter === type 
-                                            ? 'text-white' 
+                                        typeFilter === type
+                                            ? 'text-white'
                                             : 'text-zinc-500 hover:text-zinc-300'
                                     }`}
                                 >
@@ -83,7 +80,6 @@ const CredentialsFilter = ({
                             ))}
                         </div>
 
-                        {/* Status Toggle */}
                         <div className="flex p-1 bg-black/40 border border-white/4 rounded-xl shadow-inner">
                             {['all', 'active', 'revoked'].map((status) => (
                                 <Button
@@ -92,7 +88,7 @@ const CredentialsFilter = ({
                                     variant={statusFilter === status ? (status === 'revoked' ? 'danger' : 'success') : 'ghost'}
                                     rounded="lg"
                                     className={`px-5 py-1 text-[11px] font-bold shadow-none! ${
-                                        statusFilter === status 
+                                        statusFilter === status
                                             ? 'text-white'
                                             : 'text-zinc-500 hover:text-zinc-300'
                                     }`}
@@ -104,10 +100,9 @@ const CredentialsFilter = ({
                     </div>
                 </div>
 
-                {/* Stats / Clear */}
                 <div className="flex items-center gap-4">
                     {(typeFilter !== 'all' || statusFilter !== 'all' || searchQuery) && (
-                        <Button 
+                        <Button
                             onClick={() => {
                                 setTypeFilter('all');
                                 setStatusFilter('all');
