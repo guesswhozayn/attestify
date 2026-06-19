@@ -23,8 +23,7 @@ const register = asyncHandler(async (req, res) => {
     institutionName,
     authorizedWalletAddress,
     registrationNumber,
-    walletAddress,
-    plan
+    walletAddress
   } = req.body;
 
   const normalizedEmail = email?.toLowerCase().trim();
@@ -59,17 +58,11 @@ const register = asyncHandler(async (req, res) => {
   };
 
   if (role === 'ISSUER') {
-    const validPlans = ['STARTER', 'PRO', 'ENTERPRISE'];
-    const selectedPlan = (plan && validPlans.includes(plan.toUpperCase()))
-      ? plan.toUpperCase()
-      : 'STARTER';
-
     userData.issuerDetails = {
       institutionName,
       registrationNumber,
       isVerified: true,
       authorizedWalletAddress,
-      plan: selectedPlan,
       certificatesIssued: 0
     };
     userData.name = institutionName;

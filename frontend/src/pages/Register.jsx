@@ -14,7 +14,6 @@ import GradientBackground from '../components/shared/GradientBackground';
 const Register = () => {
   const [searchParams] = useSearchParams();
   const urlRole = searchParams.get('role');
-  const urlPlan = searchParams.get('plan');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +26,6 @@ const Register = () => {
     authorizedWalletAddress: '',
     institutionName: '',
     role: (urlRole === 'STUDENT' || urlRole === 'ISSUER') ? urlRole : 'ISSUER',
-    plan: ['STARTER', 'PRO', 'ENTERPRISE'].includes(urlPlan?.toUpperCase()) ? urlPlan.toUpperCase() : 'STARTER',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -206,18 +204,6 @@ const Register = () => {
 
                {formData.role === 'ISSUER' ? (
                  <>
-                   <div className="md:col-span-2 mb-2 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between">
-                     <div>
-                       <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Selected Plan</span>
-                       <span className="text-xl font-bold text-white flex items-center gap-2">
-                         {formData.plan === 'STARTER' ? 'Starter' : formData.plan === 'PRO' ? 'Pro' : 'Enterprise'}
-                         {formData.plan === 'STARTER' && <span className="text-xs py-1 px-2 rounded-full bg-green-500/20 text-green-400">Free</span>}
-                       </span>
-                     </div>
-                     <Link to="/pricing" className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
-                       Change Plan
-                     </Link>
-                   </div>
                    <Input
                      label="Organization Name"
                      name="institutionName"

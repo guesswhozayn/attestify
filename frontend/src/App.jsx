@@ -24,7 +24,6 @@ const PrivacyPolicy     = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService    = lazy(() => import('./pages/TermsOfService'));
 const NotFound          = lazy(() => import('./pages/NotFound'));
 const PartnershipGuide  = lazy(() => import('./pages/PartnershipGuide'));
-const Pricing           = lazy(() => import('./pages/Pricing'));
 
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -62,7 +61,6 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
-          <Route path="/pricing" element={<Pricing />} />
 
           <Route
             path="/dashboard"

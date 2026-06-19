@@ -98,7 +98,7 @@ const PartnershipGuide = () => {
     },
     {
       title: "Genesis Launch",
-      desc: "Go live with your first batch of blockchain-secured credentials and issue for free for the first year.",
+      desc: "Go live with your blockchain-secured credentials and issue them completely free and without limits.",
       icon: <Rocket className="w-6 h-6 text-orange-400" />,
       tag: "Week 8"
     }
@@ -219,8 +219,8 @@ const PartnershipGuide = () => {
               <div className="space-y-6">
                 {[
                   {
-                    title: "First-Year Foundation",
-                    desc: "Zero platform fees for the first 12 months. Scale your issuing without capital risk.",
+                    title: "Open-Source Infrastructure",
+                    desc: "Deploy the protocol on your own terms. Scale your issuing without any platform fees or volume limits.",
                     icon: <Zap className="w-5 h-5 text-yellow-400" />
                   },
                   {
@@ -256,11 +256,11 @@ const PartnershipGuide = () => {
                 <div className="relative p-10 rounded-3xl border border-white/10 bg-linear-to-br from-indigo-500/10 via-transparent to-purple-500/10 overflow-hidden flex flex-col justify-center text-center">
                     <div className="absolute inset-0 bg-white/2 bg-size-[24px_24px]"></div>
                     <div className="relative z-10">
-                        <div className="text-8xl font-black text-white/5 leading-none mb-6">FREE</div>
-                        <h3 className="text-xl font-bold text-white mb-3 tracking-tighter">100% Free Issuing</h3>
-                        <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">We are removing all barriers for established institutions to adopt decentralized standards.</p>
+                        <div className="text-8xl font-black text-white/5 leading-none mb-6">OPEN</div>
+                        <h3 className="text-xl font-bold text-white mb-3 tracking-tighter">100% Free & Unlimited</h3>
+                        <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">No licenses, no limits. We are removing all barriers for established institutions to adopt decentralized standards.</p>
                         <div className="flex items-center justify-center gap-2 text-indigo-400 font-bold tracking-widest uppercase text-[10px]">
-                            <CheckCircle className="w-3.5 h-3.5" /> For Year 1 Foundation Partners
+                            <CheckCircle className="w-3.5 h-3.5" /> Completely Open-Source
                         </div>
                     </div>
                 </div>

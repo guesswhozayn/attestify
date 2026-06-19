@@ -40,14 +40,6 @@ const issueCredential = asyncHandler(async (req, res) => {
   let tempImagePath = null;
 
   try {
-    const plan = req.user.issuerDetails?.plan || 'STARTER';
-    const issued = req.user.issuerDetails?.certificatesIssued || 0;
-    const limit = plan === 'ENTERPRISE' ? Infinity : (plan === 'PRO' ? 500 : 5);
-
-    if (issued + 1 > limit) {
-      return res.status(403).json({ error: `Issuance limit reached for ${plan} plan. Limit: ${limit}, Current: ${issued}. Please upgrade your plan.` });
-    }
-
     const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
     const normalizedStudentWallet = studentWalletAddress?.toLowerCase().trim();
     const studentImageFile = req.files && req.files['studentImage'] ? req.files['studentImage'][0] : null;
@@ -409,14 +401,6 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Failed to process CSV file', details: parseError.message });
   }
 
-  const plan = req.user.issuerDetails?.plan || 'STARTER';
-  const issued = req.user.issuerDetails?.certificatesIssued || 0;
-  const limit = plan === 'ENTERPRISE' ? Infinity : (plan === 'PRO' ? 500 : 5);
-
-  if (issued + rows.length > limit) {
-      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-      return res.status(403).json({ error: `Batch issuance exceeds limit for ${plan} plan. Limit: ${limit}, Current: ${issued}, Attempted: ${rows.length}. Please upgrade your plan.` });
-  }
 
   for (const row of rows) {
       summary.total++;

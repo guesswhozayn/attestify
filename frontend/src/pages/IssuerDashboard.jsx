@@ -4,7 +4,6 @@ import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import IssueCredentialModal from '../components/credential/IssueCredentialModal';
 import BulkIssueModal from '../components/credential/BulkIssueModal';
-import UpgradePlanModal from '../components/dashboard/UpgradePlanModal';
 import RecentActivityList from '../components/dashboard/RecentActivityList';
 import { Plus, Shield, Filter, ArrowRight, FileText, Users, Award, CheckCircle, Clock, Calendar, Zap} from 'lucide-react';
 import { credentialAPI } from '../services/api';
@@ -31,7 +30,6 @@ const IssuerDashboard = () => {
     const [selectedCredential, setSelectedCredential] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showBulkModal, setShowBulkModal] = useState(false);
-    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const { showNotification } = useNotification();
@@ -249,61 +247,6 @@ const IssuerDashboard = () => {
                         <motion.div
                              initial={{ opacity: 0, x: 20 }}
                              animate={{ opacity: 1, x: 0 }}
-                             transition={{ duration: 0.5, delay: 0.35 }}
-                             className="rounded-4xl bg-[#0c0c0c] border border-white/8 backdrop-blur-xl p-8 space-y-6 group/card relative overflow-hidden"
-                        >
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-white font-bold flex items-center gap-3">
-                                    <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                                        <Award className="w-4 h-4 text-purple-400" />
-                                    </div>
-                                    Plan Usage
-                                </h3>
-                                <div className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-gray-300">
-                                    {user?.issuerDetails?.plan || 'STARTER'}
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between text-sm font-medium text-gray-400 mb-2">
-                                    <span>Credentials Issued</span>
-                                    <span className="text-white">
-                                        {user?.issuerDetails?.certificatesIssued || 0} / {user?.issuerDetails?.plan === 'ENTERPRISE' ? '∞' : (user?.issuerDetails?.plan === 'PRO' ? 500 : 5)}
-                                    </span>
-                                </div>
-                                <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{
-                                            width: user?.issuerDetails?.plan === 'ENTERPRISE' ? '100%' : `${Math.min(100, ((user?.issuerDetails?.certificatesIssued || 0) / (user?.issuerDetails?.plan === 'PRO' ? 500 : 5)) * 100)}%`
-                                        }}
-                                        transition={{ duration: 1, ease: "easeOut" }}
-                                        className={`h-full ${
-                                            (user?.issuerDetails?.certificatesIssued || 0) >= (user?.issuerDetails?.plan === 'PRO' ? 500 : (user?.issuerDetails?.plan === 'ENTERPRISE' ? Infinity : 5))
-                                            ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'
-                                            : 'bg-linear-to-r from-purple-500 to-indigo-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                                        }`}
-                                    ></motion.div>
-                                </div>
-                                {(user?.issuerDetails?.certificatesIssued || 0) >= (user?.issuerDetails?.plan === 'PRO' ? 500 : (user?.issuerDetails?.plan === 'ENTERPRISE' ? Infinity : 5)) && (
-                                    <p className="mt-3 text-red-400 text-xs font-medium">Limit reached. Upgrade to issue more.</p>
-                                )}
-                            </div>
-
-                            {user?.issuerDetails?.plan !== 'ENTERPRISE' && (
-                                <Button
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    variant="outline"
-                                    className="w-full justify-center text-xs py-2 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10"
-                                >
-                                    Upgrade Plan
-                                </Button>
-                            )}
-                        </motion.div>
-
-                        <motion.div
-                             initial={{ opacity: 0, x: 20 }}
-                             animate={{ opacity: 1, x: 0 }}
                              transition={{ duration: 0.5, delay: 0.4 }}
                              className="rounded-4xl bg-[#0c0c0c] border border-white/8 backdrop-blur-xl p-8 space-y-8 group/card overflow-hidden relative"
                         >
@@ -384,14 +327,6 @@ const IssuerDashboard = () => {
             <BulkIssueModal
                 isOpen={showBulkModal}
                 onClose={() => setShowBulkModal(false)}
-                onSuccess={() => {
-                    fetchDashboardData();
-                }}
-            />
-
-            <UpgradePlanModal
-                isOpen={showUpgradeModal}
-                onClose={() => setShowUpgradeModal(false)}
                 onSuccess={() => {
                     fetchDashboardData();
                 }}

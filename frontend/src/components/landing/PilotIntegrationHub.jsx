@@ -88,7 +88,7 @@ const PILOT_MODULES = [
     id: 'advantage',
     label: 'Advantage',
     title: 'The Pioneer Advantage',
-    desc: 'Join as a pioneer partner and enjoy full platform access completely free for the first year, with priority support and feature requests.',
+    desc: 'Join as a partner to enjoy full, unlimited platform access completely free and open-source, with priority support and feature requests.',
     icon: <Shield className="w-5 h-5" />,
     color: 'from-blue-400 to-blue-600',
     visual: (
