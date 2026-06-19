@@ -423,7 +423,7 @@ const Documentation = () => {
           <Section id="architecture" title="System Architecture" icon={Server}>
             <SectionCard title="Component Overview">
               <p>
-                Attestify is composed of four interconnected systems, each serving a distinct role in the
+                Attestify is composed of three interconnected systems, each serving a distinct role in the
                 credential lifecycle:
               </p>
               <div className="mt-6 grid sm:grid-cols-2 gap-4">
@@ -441,11 +441,6 @@ const Documentation = () => {
                   title="Smart Contract"
                   tech="Solidity on Ethereum"
                   description="On-chain credential registry. Manages Soulbound Token minting, revocation, issuer authorization, and hash-based verification."
-                />
-                <ArchCard
-                  title="Mobile App"
-                  tech="React Native + Expo"
-                  description="QR code-based credential verification for mobile users. Scans credential QR codes and displays verification results in real-time."
                 />
               </div>
             </SectionCard>
@@ -477,8 +472,7 @@ const Documentation = () => {
             <SectionCard title="Data Flow: Credential Verification">
               <div className="space-y-4">
                 <FlowStep number="1" title="Verification Request">
-                  A verifier submits a wallet address or credential ID through the web portal, mobile app,
-                  or QR code scan.
+                  A verifier submits a wallet address or credential ID through the web portal or QR code scan.
                 </FlowStep>
                 <FlowStep number="2" title="Blockchain Query">
                   The system queries the smart contract (a read-only, gas-free operation) to retrieve the
