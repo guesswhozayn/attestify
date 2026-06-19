@@ -40,14 +40,6 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (issuerDetails) {
       if (issuerDetails.institutionName) updateFields['issuerDetails.institutionName'] = issuerDetails.institutionName;
       if (issuerDetails.registrationNumber) updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
-
-      if (issuerDetails.plan) {
-         const validPlans = ['STARTER', 'PRO', 'ENTERPRISE'];
-         if (!validPlans.includes(issuerDetails.plan.toUpperCase())) {
-             return res.status(400).json({ error: 'Invalid plan selected.' });
-         }
-         updateFields['issuerDetails.plan'] = issuerDetails.plan.toUpperCase();
-      }
   }
 
   const user = await User.findByIdAndUpdate(

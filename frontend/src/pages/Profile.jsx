@@ -329,15 +329,6 @@ const Profile = () => {
                             value={user?.isActive ? 'Active' : 'Inactive'}
                             color="text-blue-400"
                         />
-
-                        {isIssuer && (
-                            <ProfileCard
-                                icon={Award}
-                                label="Plan Tier"
-                                value={user?.issuerDetails?.plan || 'STARTER'}
-                                color="text-purple-400"
-                            />
-                        )}
                     </div>
                 </div>
 

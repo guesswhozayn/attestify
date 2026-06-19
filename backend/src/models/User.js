@@ -66,11 +66,6 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: true },
     registrationNumber: { type: String, trim: true, unique: true, sparse: true },
     authorizedWalletAddress: { type: String, trim: true },
-    plan: {
-      type: String,
-      enum: ['STARTER', 'PRO', 'ENTERPRISE'],
-      default: 'STARTER'
-    },
     certificatesIssued: {
       type: Number,
       default: 0

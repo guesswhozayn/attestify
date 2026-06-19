@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, Rocket, Tag } from 'lucide-react';
+import { Shield, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, Rocket } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Avatar from './Avatar';
@@ -23,7 +23,6 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
     }, []);
 
     const navLinks = [
-        { name: 'Pricing', path: '/pricing', icon: Tag },
         { name: 'Docs', path: '/docs', icon: BookOpen },
         { name: 'Partners', path: '/partnership-guide', icon: Rocket },
         { name: 'Verify', path: '/verify', icon: CheckCircle },
