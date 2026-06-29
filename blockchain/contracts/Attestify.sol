@@ -102,6 +102,50 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         emit SoulboundMinted(to, tokenId, uri);
     }
 
+    function issueUnifiedCredential(
+        address to,
+        string memory _studentId,
+        bytes32 _certificateHash,
+        string memory _ipfsCID,
+        string memory uri
+    ) public onlyAuthorized nonReentrant returns (uint256) {
+        require(!isIssued[_studentId], "Already issued");
+        require(_certificateHash != bytes32(0), "Invalid hash");
+
+        uint256 tokenId = _nextTokenId++;
+        _mintSingle(to, tokenId, uri);
+
+        credentials[_studentId] = Credential({
+            studentId: _studentId,
+            certificateHash: _certificateHash,
+            ipfsCID: _ipfsCID,
+            issuedAt: block.timestamp,
+            isRevoked: false,
+            issuedBy: msg.sender
+        });
+
+        isIssued[_studentId] = true;
+
+        emit CredentialIssued(_studentId, _certificateHash, _ipfsCID, block.timestamp, msg.sender);
+        return tokenId;
+    }
+
+    function issueUnifiedCredentialBatch(
+        address[] memory to,
+        string[] memory _studentIds,
+        bytes32[] memory _certificateHashes,
+        string[] memory _ipfsCIDs,
+        string[] memory uris
+    ) public onlyAuthorized nonReentrant returns (uint256[] memory) {
+        require(to.length == _studentIds.length && to.length == _certificateHashes.length && to.length == _ipfsCIDs.length && to.length == uris.length, "Arrays length mismatch");
+
+        uint256[] memory tokenIds = new uint256[](to.length);
+        for (uint256 i = 0; i < to.length; i++) {
+            tokenIds[i] = issueUnifiedCredential(to[i], _studentIds[i], _certificateHashes[i], _ipfsCIDs[i], uris[i]);
+        }
+        return tokenIds;
+    }
+
     function revokeToken(uint256 tokenId) public onlyAuthorized {
         _burn(tokenId);
         emit SoulboundRevoked(tokenId);

@@ -37,6 +37,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   const { showNotification } = useNotification();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [formData, setFormData] = useState(() => getInitialFormData(user));
   const [credentialType, setCredentialType] = useState('CERTIFICATION');
   const [transcriptData, setTranscriptData] = useState({ ...INITIAL_TRANSCRIPT });
@@ -124,6 +125,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     }
 
     setLoading(true);
+    setLoadingMessage('Initializing issuance...');
 
     try {
       const formDataToSend = new FormData();
@@ -144,14 +146,45 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       }
 
       const response = await credentialAPI.issue(formDataToSend);
+      const { credentialId } = response.data;
+
+      setLoadingMessage('Job enqueued. Waiting for background worker...');
+
+      const pollStatus = () => {
+        return new Promise((resolve, reject) => {
+          const interval = setInterval(async () => {
+            try {
+              const statusRes = await credentialAPI.getStatus(credentialId);
+              const { status, credential } = statusRes.data;
+
+              if (status === 'PENDING') {
+                setLoadingMessage('Preparing PDF generation & IPFS upload...');
+              } else if (status === 'PROCESSING') {
+                setLoadingMessage('Minting Unified Soulbound Credential on Ethereum...');
+              } else if (status === 'COMPLETED') {
+                clearInterval(interval);
+                resolve(credential);
+              } else if (status === 'FAILED') {
+                clearInterval(interval);
+                reject(new Error(credential.error || 'Issuance failed on the background worker'));
+              }
+            } catch (err) {
+              clearInterval(interval);
+              reject(err);
+            }
+          }, 2500);
+        });
+      };
+
+      const finalCredential = await pollStatus();
 
       showNotification('Credential issued successfully! Transaction confirmed.', 'success');
-      onSuccess(response.data.credential);
+      onSuccess(finalCredential);
       onClose();
 
     } catch (error) {
        console.error(error);
-       showNotification(error.response?.data?.error || 'Failed to issue credential', 'error');
+       showNotification(error.response?.data?.error || error.message || 'Failed to issue credential', 'error');
     } finally {
       setLoading(false);
     }
@@ -166,7 +199,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                 <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
                 <h3 className="text-white text-lg font-bold mb-2">Processing Transaction</h3>
                 <p className="text-gray-400 text-center text-sm">
-                    Please wait while we mint the credential on the blockchain...
+                    {loadingMessage}
                 </p>
             </div>
         </div>

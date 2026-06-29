@@ -24,7 +24,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const response = await credentialAPI.batchUpload(formData);
       if (response.data.success) {
-        showNotification(`Batch processing complete. ${response.data.summary.success} successful, ${response.data.summary.failed} failed.`, 'success');
+        showNotification(`Batch import complete. ${response.data.summary.success} credentials enqueued for blockchain processing, ${response.data.summary.failed} failed to parsing.`, 'success');
         setBatchSummary(response.data.summary);
 
         if (response.data.summary.failed === 0) {
@@ -33,7 +33,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
              onClose();
              setBatchFile(null);
              setBatchSummary(null);
-           }, 2000);
+           }, 2500);
         } else {
            onSuccess();
         }
@@ -162,7 +162,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 <div className="grid grid-cols-3 gap-4 text-center">
                     <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
                       <div className="text-2xl font-black text-emerald-400 mb-1">{batchSummary.success}</div>
-                      <div className="text-xs font-bold text-emerald-500/70 uppercase tracking-wider">Success</div>
+                      <div className="text-xs font-bold text-emerald-500/70 uppercase tracking-wider">Enqueued</div>
                     </div>
                     <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20">
                       <div className="text-2xl font-black text-red-400 mb-1">{batchSummary.failed}</div>

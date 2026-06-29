@@ -17,6 +17,8 @@ router.get('/', authenticate, credentialController.getCredentials);
 
 router.get('/stats', authenticate, credentialController.getStats);
 
+router.get('/status/:id', authenticate, credentialController.getCredentialStatus);
+
 router.get('/verify/:id', credentialController.verifyCredential);
 
 router.get('/:id', authenticate, credentialController.getCredentialById);

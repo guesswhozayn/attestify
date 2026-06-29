@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
-
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
@@ -113,8 +112,8 @@ const startServer = async () => {
       `);
     });
 
-    server.setTimeout(150000);
-    server.keepAliveTimeout = 150000;
+    // Start background workers
+    require('./workers/issuanceWorker');
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
