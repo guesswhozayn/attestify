@@ -121,8 +121,14 @@ class CredentialIssuanceService {
 
     await credential.save();
 
-    reqUser.issuerDetails.certificatesIssued = (reqUser.issuerDetails.certificatesIssued || 0) + 1;
-    await reqUser.save();
+    const userDoc = await User.findById(reqUser._id);
+    if (userDoc) {
+      if (!userDoc.issuerDetails) {
+        userDoc.issuerDetails = {};
+      }
+      userDoc.issuerDetails.certificatesIssued = (userDoc.issuerDetails.certificatesIssued || 0) + 1;
+      await userDoc.save();
+    }
 
     const studentUser = await User.findOne({ walletAddress: normalizedStudentWallet });
     if (studentUser && studentUser.email) {
