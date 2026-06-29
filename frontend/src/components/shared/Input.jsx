@@ -16,7 +16,7 @@ const Input = ({
       )}
       <div className="relative group overflow-hidden">
         {Icon && (
-          <div className="absolute left-0 inset-y-0 w-12 flex items-center justify-center pointer-events-none">
+          <div className="absolute left-0 inset-y-0 w-12 flex items-center justify-center pointer-events-none z-10">
             <Icon className="w-5 h-5 text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-200" />
           </div>
         )}
@@ -36,7 +36,7 @@ const Input = ({
           {...props}
         />
         {rightAction && (
-          <div className="absolute right-0 inset-y-0 w-12 flex items-center justify-center">
+          <div className="absolute right-0 inset-y-0 w-12 flex items-center justify-center z-10">
             {rightAction}
           </div>
         )}
