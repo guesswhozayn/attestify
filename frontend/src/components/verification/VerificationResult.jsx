@@ -11,8 +11,8 @@ const VerificationResult = ({ result }) => {
   const statusConfig = {
     success: {
       icon: CheckCircle,
-      label: 'IDENTITY VERIFIED',
-      subtext: 'Cryptographic Proof Validated',
+      label: 'DOCUMENT VALIDATED',
+      subtext: 'Verified Secure Record',
       borderColor: 'border-emerald-500/30',
       bgColor: 'bg-emerald-500/5',
       shadowColor: 'shadow-emerald-500/20',
@@ -22,8 +22,8 @@ const VerificationResult = ({ result }) => {
     },
     revoked: {
       icon: ShieldAlert,
-      label: 'CREDENTIAL REVOKED',
-      subtext: 'Issuer Authority Revocation',
+      label: 'RECORD REVOKED',
+      subtext: 'No Longer Active',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',
       shadowColor: 'shadow-red-500/20',
@@ -34,7 +34,7 @@ const VerificationResult = ({ result }) => {
     failed: {
       icon: XCircle,
       label: 'VERIFICATION FAILED',
-      subtext: 'Integrity Check Failed',
+      subtext: 'Document details do not match',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',
       shadowColor: 'shadow-red-500/20',
@@ -112,7 +112,7 @@ const VerificationResult = ({ result }) => {
                 transition={{ delay: 0.5 }}
                 className="hidden sm:flex flex-col items-end"
               >
-                 <span className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Trust Score</span>
+                 <span className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Match Accuracy</span>
                  <div className="flex items-end gap-1">
                     <span className={`text-3xl font-black ${config.textColor} leading-none`}>
                        {isSuccess ? '100' : '0'}
@@ -129,14 +129,14 @@ const VerificationResult = ({ result }) => {
 
                  <InfoGroup
                     icon={User}
-                    label="Identity Subject"
+                    label="Recipient Name"
                     value={result.credential.studentName}
                     delay={0.6}
                   />
 
                  <InfoGroup
                     icon={Award}
-                    label="Issuing Authority"
+                    label="Issuing Institution"
                     value={result.credential.university}
                     delay={0.7}
                   />
@@ -161,7 +161,7 @@ const VerificationResult = ({ result }) => {
                     >
                        <div className="flex items-center gap-2 text-gray-500">
                           <Hash className="w-3 h-3" />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">Credential Identification</span>
+                          <span className="text-[10px] uppercase tracking-widest font-bold">Recipient Account ID</span>
                        </div>
                        <div className="bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-xs text-indigo-300 break-all hover:bg-white/5 transition-colors cursor-text select-all">
                           {result.credential.studentWalletAddress}
@@ -188,7 +188,7 @@ const VerificationResult = ({ result }) => {
 
                   <h3 className="text-red-400 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
                      <Activity className="w-4 h-4" />
-                     Revocation Log
+                     Revocation Status
                   </h3>
 
                   <div className="space-y-3 relative z-10">
@@ -222,7 +222,7 @@ const VerificationResult = ({ result }) => {
                     className="w-full sm:w-auto font-mono text-xs uppercase hover:bg-white/10"
                     icon={ExternalLink}
                  >
-                    Block Explorer
+                    View Verification Receipt
                  </Button>
               </motion.div>
            )}

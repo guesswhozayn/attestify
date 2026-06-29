@@ -22,7 +22,6 @@ import {
 import Button from '../components/shared/Button';
 import Avatar from '../components/shared/Avatar';
 import Input from '../components/shared/Input';
-import AccountLayout from '../components/layout/AccountLayout';
 
 const Profile = () => {
     const { user, updateUser } = useAuth();
@@ -141,7 +140,7 @@ const Profile = () => {
     };
 
     return (
-      <AccountLayout>
+      <main className="p-6 lg:p-12 max-w-7xl mx-auto relative z-10">
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -379,7 +378,7 @@ const Profile = () => {
                 </div>
             </div>
         </motion.div>
-      </AccountLayout>
+      </main>
     );
 };
 

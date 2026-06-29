@@ -39,7 +39,7 @@ api.interceptors.response.use(
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
+            window.dispatchEvent(new Event('auth-unauthorized'));
           }
           break;
 
@@ -82,10 +82,6 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     return api.get('/auth/me');
-  },
-
-  refreshToken: async () => {
-    return api.post('/auth/refresh');
   },
 
   logout: async () => {
@@ -189,15 +185,8 @@ export const userAPI = {
 };
 
 export const fileAPI = {
-
   downloadCertificate: async (id) => {
     return api.get(`/files/certificate/${id}`, {
-      responseType: 'blob'
-    });
-  },
-
-  getIPFSFile: async (cid) => {
-    return api.get(`/files/ipfs/${cid}`, {
       responseType: 'blob'
     });
   }
@@ -205,26 +194,8 @@ export const fileAPI = {
 
 export default api;
 
-export const setAuthToken = (token) => {
-  if (token) {
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-  }
-};
-
-export const getAuthToken = () => {
-  return localStorage.getItem('token');
-};
-
 export const clearAuth = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   delete api.defaults.headers.common['Authorization'];
-};
-
-export const isAuthenticated = () => {
-  return !!getAuthToken();
 };

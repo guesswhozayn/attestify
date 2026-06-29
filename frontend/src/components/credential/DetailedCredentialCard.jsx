@@ -1,11 +1,14 @@
 import React from 'react';
 import { Award, ShieldAlert, CheckCircle, GraduationCap, ChevronRight, Box, Activity, ExternalLink, Database } from 'lucide-react';
+import { getCredentialMeta } from '../../utils/credential';
 
 const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onClick }) => {
 
     if (!credential) return null;
 
-    const displayMetadata = metadata || (credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData);
+    const meta = getCredentialMeta(credential);
+    const displayMetadata = metadata || meta.metadata;
+    const isTranscript = meta.isTranscript;
     const formattedDate = new Date(credential.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     const title = displayMetadata?.program || displayMetadata?.title || 'Credential Title';
     const recipient = displayMetadata?.studentName || credential.studentName;
@@ -20,7 +23,7 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
             >
                 <div className="flex items-center gap-4">
                     <div className="p-3 rounded-xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-indigo-500 dark:text-indigo-400 group-hover:scale-110 transition-transform shadow-xs dark:shadow-none">
-                        {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
+                        {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
                     </div>
                     <div>
                         <h3 className="text-slate-900 dark:text-white font-bold text-sm mb-0.5 tracking-tight">{title}</h3>
@@ -82,7 +85,7 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <div className={`p-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl backdrop-blur-xl group-hover:bg-opacity-10 transition-all duration-500 shadow-sm dark:shadow-none ${isSBT ? 'group-hover:border-purple-300 dark:group-hover:border-purple-500/30 group-hover:bg-purple-50 dark:group-hover:bg-purple-500/10' : 'group-hover:border-indigo-300 dark:group-hover:border-indigo-500/30 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10'}`}>
-                                    {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-6 h-6 text-slate-700 dark:text-white" /> : <Award className="w-6 h-6 text-slate-700 dark:text-white" />}
+                                    {isTranscript ? <GraduationCap className="w-6 h-6 text-slate-700 dark:text-white" /> : <Award className="w-6 h-6 text-slate-700 dark:text-white" />}
                                 </div>
                                 <div>
                                     <span className={`block text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${isSBT ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400'}`}>Verified Credential</span>
@@ -149,8 +152,8 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                                         <Database className="w-4 h-4 text-purple-500 dark:text-purple-400" />
                                     </div>
                                     <div className="truncate">
-                                        <span className="block text-[8px] font-black text-purple-400 dark:text-purple-300/40 uppercase tracking-widest">On-Chain Asset ID</span>
-                                        <span className="text-[11px] font-mono font-bold text-purple-700 dark:text-purple-200">TOKEN #{credential.tokenId} {"//"} SBT-LOCKED</span>
+                                        <span className="block text-[8px] font-black text-purple-400 dark:text-purple-300/40 uppercase tracking-widest">Registry Reference ID</span>
+                                        <span className="text-[11px] font-mono font-bold text-purple-700 dark:text-purple-200">RECORD #{credential.tokenId} {"//"} SECURED</span>
                                     </div>
                                 </div>
                                 <a
@@ -159,7 +162,7 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 group/btn px-4 py-2 text-[9px] font-black uppercase tracking-widest text-purple-600 dark:text-purple-300 hover:text-purple-800 dark:hover:text-white transition-colors"
                                 >
-                                    <span>Verify Ownership</span>
+                                    <span>Verification Receipt</span>
                                     <ExternalLink className="w-3 h-3 translate-y-[-1px] group-hover/btn:translate-x-1 group-hover/btn:translate-y-[-3px] transition-transform" />
                                 </a>
                             </div>
@@ -191,7 +194,7 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                 <div className={`w-full py-4 px-5 flex items-center justify-between border-b ${isSBT ? 'bg-linear-to-r from-purple-100 dark:from-purple-500/10 to-transparent border-purple-200 dark:border-purple-500/10' : 'bg-linear-to-r from-indigo-50 dark:from-indigo-500/10 to-transparent border-slate-200 dark:border-white/5'}`}>
                     <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-xl backdrop-blur-md border ${isSBT ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30' : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10'}`}>
-                            {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-5 h-5 text-slate-700 dark:text-white" /> : <Award className="w-5 h-5 text-slate-700 dark:text-white" />}
+                            {isTranscript ? <GraduationCap className="w-5 h-5 text-slate-700 dark:text-white" /> : <Award className="w-5 h-5 text-slate-700 dark:text-white" />}
                         </div>
                         <div>
                             <span className={`block text-[9px] font-black uppercase tracking-[0.2em] ${isSBT ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400'}`}>Verified Record</span>
@@ -240,8 +243,8 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                             <span className="text-xs text-slate-700 dark:text-white/80 font-bold tracking-tight truncate max-w-[50%] text-right" title={displayMetadata?.major || displayMetadata?.department || 'N/A'}>{displayMetadata?.major || displayMetadata?.department || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 dark:bg-black/20 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5">
-                            <span className="text-[9px] text-slate-500 dark:text-white/40 font-black uppercase tracking-widest">ID Hash</span>
-                            <span className="text-[10px] text-slate-400 dark:text-white font-mono dark:opacity-50 text-right">#{credential.studentWalletAddress?.substring(2, 8).toUpperCase() || 'ID_000'}</span>
+                             <span className="text-[9px] text-slate-500 dark:text-white/40 font-black uppercase tracking-widest">Reference ID</span>
+                             <span className="text-[10px] text-slate-400 dark:text-white font-mono dark:opacity-50 text-right">#{credential.studentWalletAddress?.substring(2, 8).toUpperCase() || 'ID_000'}</span>
                         </div>
                     </div>
 
@@ -250,9 +253,9 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                             <div>
                                 <div className="flex gap-2 items-center mb-1">
                                     <Database className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                                    <span className="text-[9px] font-black text-purple-500 dark:text-purple-300/60 uppercase tracking-widest">On-Chain Asset ID</span>
+                                    <span className="text-[9px] font-black text-purple-500 dark:text-purple-300/60 uppercase tracking-widest">Registry Reference ID</span>
                                 </div>
-                                <span className="text-[10px] font-mono font-bold text-purple-800 dark:text-purple-200 block">SBT #{credential.tokenId}</span>
+                                <span className="text-[10px] font-mono font-bold text-purple-800 dark:text-purple-200 block">RECORD #{credential.tokenId}</span>
                             </div>
                             <a
                                 href={`https://sepolia.etherscan.io/token/${import.meta.env.VITE_CONTRACT_ADDRESS}?a=${credential.tokenId}`}

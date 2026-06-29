@@ -24,10 +24,10 @@ const StudentStats = ({ stats }) => {
                 delay={0.1}
             />
             <StatCard
-                label="Soulbound Tokens"
+                label="Secured Credentials"
                 value={stats.sbtCount || 0}
                 icon={Users}
-                subtext="Permanent (SBT)"
+                subtext="Identity-locked"
                 gradient="from-purple-500/10 to-pink-500/5"
                 iconBg="bg-purple-500/20"
                 delay={0.2}

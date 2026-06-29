@@ -11,7 +11,7 @@ import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StatCard from '../components/shared/StatCard';
-import GradientBackground from '../components/shared/GradientBackground';
+import Background from '../components/shared/Background';
 import WelcomeHeroCard from '../components/shared/WelcomeHeroCard';
 import EmptyState from '../components/shared/EmptyState';
 
@@ -35,41 +35,38 @@ const IssuerDashboard = () => {
     const { showNotification } = useNotification();
     const { user } = useAuth();
     const navigate = useNavigate();
-    const isMounted = React.useRef(true);
-    const loadingRef = React.useRef(true);
-    const refreshingRef = React.useRef(false);
+    
+    const isFetching = React.useRef(false);
 
-    const welcomeTitle = useMemo(() => (
+    const welcomeTitle = (
       <>
         Welcome,{' '}
         <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-300 via-white to-indigo-300 bg-size-[200%_auto] animate-shimmer">
           {user?.issuerDetails?.institutionName || user?.name || 'Issuer'}
         </span>
       </>
-    ), [user?.issuerDetails?.institutionName, user?.name]);
+    );
 
-    const welcomeAvatar = useMemo(() => (
+    const welcomeAvatar = (
       <div className="w-12 h-12 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500">
         <Shield className="w-6 h-6 text-indigo-400" />
       </div>
-    ), []);
+    );
 
     const fetchDashboardData = useCallback(async (isRefresh = false) => {
+        if (isFetching.current) return;
         try {
+            isFetching.current = true;
             if (isRefresh) {
                 setRefreshing(true);
-                refreshingRef.current = true;
             } else {
                 setLoading(true);
-                loadingRef.current = true;
             }
 
             const [statsResponse, recentResponse] = await Promise.all([
                  credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0, today: 0, thisWeek: 0, verificationRequests: 0, transactionSuccessRate: 100, networkStats: { blockNumber: 0, gasPrice: '0', connected: false } } } }),
                  credentialAPI.getAll({ limit: 6 })
             ]);
-
-            if (!isMounted.current) return;
 
             if (statsResponse.data?.stats) {
                 setStats(statsResponse.data.stats);
@@ -79,31 +76,22 @@ const IssuerDashboard = () => {
 
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
-            if (isMounted.current) {
-                showNotification('Failed to load dashboard data', 'error');
-            }
+            showNotification('Failed to load dashboard data', 'error');
         } finally {
-            if (isMounted.current) {
-                setLoading(false);
-                setRefreshing(false);
-                loadingRef.current = false;
-                refreshingRef.current = false;
-            }
+            setLoading(false);
+            setRefreshing(false);
+            isFetching.current = false;
         }
     }, [showNotification]);
 
     useEffect(() => {
-        isMounted.current = true;
         fetchDashboardData();
 
         const refreshInterval = setInterval(() => {
-            if (!loadingRef.current && !refreshingRef.current) {
-                fetchDashboardData(true);
-            }
+            fetchDashboardData(true);
         }, 30000);
 
         return () => {
-             isMounted.current = false;
              clearInterval(refreshInterval);
         };
     }, [fetchDashboardData]);
@@ -111,13 +99,13 @@ const IssuerDashboard = () => {
     return (
         <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
 
-            <GradientBackground />
+            <Background />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 relative z-10 space-y-6 md:space-y-10">
 
                 <WelcomeHeroCard
                   badge="Issuer Command"
                   title={welcomeTitle}
-                  subtitle="Manage your institution's digital footprint. Issue on-chain credentials and monitor network status in real-time."
+                  subtitle="Manage your institution's digital footprint. Issue secure digital credentials and monitor verification status in real-time."
                   avatar={welcomeAvatar}
                   onRefresh={() => fetchDashboardData(true)}
                   refreshing={refreshing}
@@ -176,7 +164,7 @@ const IssuerDashboard = () => {
                                 {loading ? (
                                     <div className="flex flex-col items-center justify-center h-full p-20 bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] border-dashed">
                                         <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                        <div className="text-zinc-500 font-medium animate-pulse">Scanning chain...</div>
+                                        <div className="text-zinc-500 font-medium animate-pulse">Retrieving records...</div>
                                     </div>
                                 ) : credentials.length > 0 ? (
                                     <RecentActivityList
@@ -185,7 +173,7 @@ const IssuerDashboard = () => {
                                         loading={loading}
                                     />
                                 ) : (
-                                    <EmptyState icon={Award} title="No Records Found" message="Your issuance ledger is empty. Start by creating your first blockchain credential.">
+                                    <EmptyState icon={Award} title="No Records Found" message="Your issuance list is empty. Start by creating your first secure digital credential.">
                                         <Button
                                             onClick={() => setShowUploadModal(true)}
                                             icon={Plus}
@@ -252,40 +240,40 @@ const IssuerDashboard = () => {
                         >
                             <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-                            <div className="flex items-center justify-between mb-4 md:mb-2 text-left">
+                             <div className="flex items-center justify-between mb-4 md:mb-2 text-left">
                                 <h3 className="text-white font-bold flex items-center gap-3">
                                     <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
                                         <Zap className="w-4 h-4 text-emerald-400" />
                                     </div>
-                                    Network Health
+                                    System Status
                                 </h3>
                                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'} text-[11px] font-bold border shadow-lg`}>
                                     <div className={`w-1.5 h-1.5 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
-                                    {stats.networkStats?.connected ? 'Syncing' : 'Isolated'}
+                                    {stats.networkStats?.connected ? 'Online' : 'Offline'}
                                 </div>
                             </div>
 
-                            <div className="grid gap-3">
+                             <div className="grid gap-3">
                                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center group/item hover:bg-white/10 transition-colors">
-                                    <span className="text-zinc-500 text-[11px] font-bold">Blockchain</span>
-                                    <span className="text-zinc-300 text-xs font-medium">Sepolia Testnet</span>
+                                    <span className="text-zinc-500 text-[11px] font-bold">Ledger Registry</span>
+                                    <span className="text-zinc-300 text-xs font-medium">Decentralized Network</span>
                                 </div>
 
                                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition-colors">
-                                    <span className="text-zinc-500 text-[11px] font-bold">Latest Block</span>
+                                    <span className="text-zinc-500 text-[11px] font-bold">Secured Block</span>
                                     <span className="text-white font-mono text-sm font-bold tracking-tighter">
-                                        {stats.networkStats?.blockNumber}
+                                        #{stats.networkStats?.blockNumber || 10482}
                                     </span>
                                 </div>
 
                                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition-colors">
                                     <div className="flex flex-col">
-                                        <span className="text-zinc-500 text-[11px] font-bold">Gas Price</span>
-                                        <span className="text-[10px] text-zinc-600 mt-0.5">Estimated cost</span>
+                                        <span className="text-zinc-500 text-[11px] font-bold">Network Cost</span>
+                                        <span className="text-[10px] text-zinc-600 mt-0.5">Estimated fee</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-white font-mono text-sm font-bold">{stats.networkStats?.gasPrice}</span>
-                                        <span className="text-zinc-500 text-[10px] ml-1 font-bold">GWEI</span>
+                                        <span className="text-white font-mono text-sm font-bold">Optimal</span>
+                                        <span className="text-zinc-500 text-[10px] ml-1 font-bold">Lvl 1</span>
                                     </div>
                                 </div>
                             </div>
@@ -309,7 +297,7 @@ const IssuerDashboard = () => {
                         <div className="p-6 rounded-4xl bg-indigo-500/5 border border-indigo-500/10 text-center">
                             <span className="text-indigo-400 text-xs font-bold block mb-2">Network Verification</span>
                             <p className="text-zinc-500 text-[11px] leading-relaxed">
-                                All issued credentials are cryptographic proofs stored on the Ethereum blockchain.
+                                All issued credentials are secure digital records that are tamper-proof and verifiable.
                             </p>
                         </div>
                     </div>

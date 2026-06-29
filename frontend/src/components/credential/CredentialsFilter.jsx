@@ -1,7 +1,6 @@
 import React from 'react';
-import { Search, Upload, SlidersHorizontal, X } from 'lucide-react';
+import { Search, Upload, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
 import Button from '../shared/Button';
-import RefreshButton from '../shared/RefreshButton';
 
 const CredentialsFilter = ({
     searchQuery,
@@ -42,11 +41,12 @@ const CredentialsFilter = ({
                 </div>
 
                 <div className="flex items-center gap-3 w-full xl:w-auto">
-                    <RefreshButton
+                    <Button
                         onClick={onRefresh}
                         loading={loading}
                         variant="ghost"
-                        className="text-zinc-500 hover:text-white hover:bg-white/5 border border-white/4 hover:border-white/10 shadow-xl active:scale-90"
+                        icon={RefreshCw}
+                        className="text-zinc-500 hover:text-white hover:bg-white/5 border border-white/4 hover:border-white/10 shadow-xl active:scale-90 aspect-square !p-0 flex items-center justify-center w-10 h-10"
                         title="Sync Registry"
                     />
 

@@ -10,11 +10,11 @@ import {
   XCircle,
   Hash,
   CheckCircle,
-  Link as LinkIcon
+  Link as LinkIcon,
+  RefreshCw
 } from 'lucide-react';
 import { networkAPI } from '../services/api';
 import Button from '../components/shared/Button';
-import RefreshButton from '../components/shared/RefreshButton';
 import StatCard from '../components/shared/StatCard';
 
 const NetworkStatus = () => {
@@ -117,11 +117,14 @@ const NetworkStatus = () => {
                         <span className="font-medium text-sm">{network.connected ? 'Systems Operational' : 'Network Disconnected'}</span>
                     </div>
 
-                    <RefreshButton
+                    <Button
                       onClick={fetchData}
                       loading={refreshing}
                       rounded="xl"
                       title="Refresh Data"
+                      icon={RefreshCw}
+                      variant="secondary"
+                      className="aspect-square !p-0 flex items-center justify-center w-10 h-10"
                     />
                 </div>
             </div>

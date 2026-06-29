@@ -5,7 +5,6 @@ import { Shield, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, Rocket 
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Avatar from './Avatar';
-import BrandLogo from './BrandLogo';
 
 const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSidebar }) => {
     const navigate = useNavigate();
@@ -54,7 +53,9 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
                                 </div>
                             </div>
                         </div>
-                        <BrandLogo textSize="text-xl" className="text-white group-hover/logo:text-indigo-200 transition-colors" />
+                        <span className="font-sans text-xl font-black tracking-[-0.05em] lowercase text-white group-hover/logo:text-indigo-200 transition-colors">
+                            attestify<span className="text-indigo-500">.</span>
+                        </span>
                     </div>
                 </div>
 

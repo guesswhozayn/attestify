@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
-import IPFSService from '../services/ipfs';
+import { getIpfsUrl } from '../services/ipfs';
 import { Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -10,7 +10,7 @@ import { credentialAPI } from '../services/api';
 import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
 import StudentStats from '../components/credential/StudentStats';
 import Avatar from '../components/shared/Avatar';
-import GradientBackground from '../components/shared/GradientBackground';
+import Background from '../components/shared/Background';
 import WelcomeHeroCard from '../components/shared/WelcomeHeroCard';
 import EmptyState from '../components/shared/EmptyState';
 
@@ -28,25 +28,23 @@ const StudentDashboard = () => {
     return credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData;
   }, [credential]);
 
-  const welcomeTitle = useMemo(() => (
+  const welcomeTitle = (
     <>
       Welcome,{' '}
       <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-500 dark:from-indigo-300 dark:via-white dark:to-indigo-300 bg-size-[200%_auto] animate-shimmer">
         {user?.name?.split(' ')[0] || 'Student'}
       </span>
     </>
-  ), [user?.name]);
+  );
 
-  const welcomeAvatar = useMemo(() => (
+  const welcomeAvatar = (
     <Avatar
       src={user?.avatar}
       initials={user?.name}
       size="md"
       className="ring-0"
     />
-  ), [user?.avatar, user?.name]);
-
-  const isMounted = React.useRef(true);
+  );
 
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
     try {
@@ -71,7 +69,6 @@ const StudentDashboard = () => {
       }
 
       const response = await credentialAPI.getByWalletAddress(targetAddress);
-      if (!isMounted.current) return;
 
       const docs = response.data.credentials || [];
 
@@ -90,45 +87,35 @@ const StudentDashboard = () => {
       }
 
     } catch (err) {
-      if (isMounted.current) {
-          console.error('Error fetching credential:', err);
-          if (err.response?.status === 403) {
-              setError('Unauthorized: You do not have permission to view credentials for this wallet.');
-          } else {
-              setError('Failed to load your credentials. Please ensure your wallet is connected.');
-          }
-          setCredential(null);
+      console.error('Error fetching credential:', err);
+      if (err.response?.status === 403) {
+          setError('Unauthorized: You do not have permission to view credentials for this wallet.');
+      } else {
+          setError('Failed to load your credentials. Please ensure your wallet is connected.');
       }
+      setCredential(null);
     } finally {
-      if (isMounted.current) {
-          setLoading(false);
-          setRefreshing(false);
-      }
+      setLoading(false);
+      setRefreshing(false);
     }
   }, [walletAddress, user?.walletAddress]);
 
   useEffect(() => {
-    isMounted.current = true;
     const init = async () => {
         try {
            const address = await blockchainService.connectWallet();
-           if (isMounted.current) {
-               setWalletAddress(address);
-               if (address) {
-                 fetchCredential(address);
-               } else {
-                 setLoading(false);
-               }
+           setWalletAddress(address);
+           if (address) {
+             fetchCredential(address);
+           } else {
+             setLoading(false);
            }
         } catch (e) {
            console.log("Wallet not auto-connected", e);
-           if (isMounted.current) {
-               setLoading(false);
-           }
+           setLoading(false);
         }
     };
     init();
-    return () => { isMounted.current = false; };
   }, [fetchCredential]);
 
   const handleShare = useCallback(() => {
@@ -140,7 +127,7 @@ const StudentDashboard = () => {
 
   const openIPFSLink = useCallback(() => {
     if (credential?.ipfsCID) {
-      window.open(IPFSService.getUrl(credential.ipfsCID), '_blank');
+      window.open(getIpfsUrl(credential.ipfsCID), '_blank');
     }
   }, [credential]);
 
@@ -161,7 +148,7 @@ const StudentDashboard = () => {
     return (
       <div className="min-h-screen bg-transparent">
         <div className="flex flex-col items-center justify-center h-[calc(100vh-120px)]">
-          <LoadingSpinner size="lg" text="Retrieving blockchain records..." />
+          <LoadingSpinner size="lg" text="Retrieving secure records..." />
         </div>
       </div>
     );
@@ -170,7 +157,7 @@ const StudentDashboard = () => {
   return (
         <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
 
-            <GradientBackground />
+            <Background />
 
             <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
 
@@ -261,17 +248,17 @@ const StudentDashboard = () => {
                      >
                         Copy Verification Link
                      </Button>
-                     <Button
+                      <Button
                         onClick={openIPFSLink}
                         icon={ExternalLink}
                         variant="outline"
                         className="w-full justify-center py-4 border-white/10 hover:border-white/20 backdrop-blur-md transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl"
                      >
-                        View Original on IPFS
+                        View Original Document
                      </Button>
                   </div>
                   <p className="text-[11px] text-gray-500 mt-6 text-center leading-relaxed relative z-10 font-medium">
-                     Provide this link to employers or institutions. They can instantly verify the authenticity of this credential on-chain.
+                     Provide this link to employers or institutions. They can instantly verify the authenticity of this credential.
                   </p>
                </motion.div>
 

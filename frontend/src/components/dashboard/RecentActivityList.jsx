@@ -1,6 +1,6 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
-import CredentialRow from '../credential/CredentialRow';
+import CredentialTable from '../credential/CredentialTable';
 
 const RecentActivityList = ({ credentials, onCredentialClick, loading }) => {
     if (loading) {
@@ -28,15 +28,10 @@ const RecentActivityList = ({ credentials, onCredentialClick, loading }) => {
     }
 
     return (
-        <div className="space-y-4">
-            {credentials.map((cred) => (
-                <CredentialRow
-                    key={cred._id || cred.id}
-                    credential={cred}
-                    onClick={() => onCredentialClick(cred)}
-                />
-            ))}
-        </div>
+        <CredentialTable
+            credentials={credentials}
+            onView={onCredentialClick}
+        />
     );
 };
 

@@ -5,11 +5,9 @@ import { useNotification } from '../context/NotificationContext';
 import { Shield, User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet } from 'lucide-react';
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
-import BrandLogo from '../components/shared/BrandLogo';
-import ShieldLogo from '../components/shared/ShieldLogo';
 import Input from '../components/shared/Input';
 import blockchainService from '../services/blockchain';
-import GradientBackground from '../components/shared/GradientBackground';
+import Background from '../components/shared/Background';
 
 const Register = () => {
   const [searchParams] = useSearchParams();
@@ -83,7 +81,7 @@ const Register = () => {
 
       <BackButton />
 
-       <GradientBackground />
+        <Background />
 
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center">
 
@@ -91,8 +89,10 @@ const Register = () => {
 
              <div className="hidden lg:block">
                 <Link to="/" className="inline-flex items-center gap-4 group">
-                   <ShieldLogo size="lg" className="shadow-2xl group-hover:scale-110" />
-                   <BrandLogo textSize="text-4xl" />
+                   <div className="relative w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                      <Shield className="w-10 h-10 text-indigo-400" />
+                   </div>
+                   <span className="font-sans text-4xl font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
                 </Link>
              </div>
 
@@ -131,8 +131,10 @@ const Register = () => {
 
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
-                 <ShieldLogo size="md" className="group-hover:scale-105" />
-                 <BrandLogo textSize="text-2xl" />
+                 <div className="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
+                     <Shield className="w-5 h-5 text-indigo-400" />
+                  </div>
+                 <span className="font-sans text-2xl font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
               </Link>
            </div>
 

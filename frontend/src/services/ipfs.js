@@ -1,29 +1,15 @@
-class IPFSService {
-  constructor() {
-    this.gateway = 'https://gateway.pinata.cloud/ipfs/';
-  }
+const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs/';
 
-  getUrl(cid) {
-    return `${this.gateway}${cid}`;
-  }
+export const getIpfsUrl = (cid) => cid ? `${IPFS_GATEWAY}${cid}` : '';
 
-  async fetchFile(cid) {
-    try {
-      const response = await fetch(this.getUrl(cid));
-      return await response.blob();
-    } catch (error) {
-      throw new Error(`Failed to fetch file from IPFS: ${error.message}`);
-    }
-  }
+export const fetchIpfsFile = async (cid) => {
+  const response = await fetch(getIpfsUrl(cid));
+  if (!response.ok) throw new Error('Failed to fetch file from IPFS');
+  return response.blob();
+};
 
-  async fetchJSON(cid) {
-    try {
-      const response = await fetch(this.getUrl(cid));
-      return await response.json();
-    } catch (error) {
-      throw new Error(`Failed to fetch JSON from IPFS: ${error.message}`);
-    }
-  }
-}
-
-export default new IPFSService();
+export const fetchIpfsJSON = async (cid) => {
+  const response = await fetch(getIpfsUrl(cid));
+  if (!response.ok) throw new Error('Failed to fetch JSON from IPFS');
+  return response.json();
+};

@@ -1,50 +1,29 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { useAuth } from '../../context/AuthContext';
 
-const Layout = ({ children }) => {
+const Layout = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  const dashboardRoutes = [
-      '/dashboard',
-      '/credentials',
-      '/revoked',
-      '/settings',
-      '/network-status'
-  ];
-
-  const isDashboardRoute = dashboardRoutes.some(route =>
-      location.pathname === route || location.pathname.startsWith(route + '/')
-  );
-
-  const isProfileEditor = location.pathname === '/profile' || location.pathname === '/profile/';
-
-  const shouldShowLayout = user && (isDashboardRoute || isProfileEditor);
-
-  if (!shouldShowLayout) {
-    return <>{children}</>;
-  }
-
   const getPageTitle = (pathname, role) => {
     switch (pathname) {
       case '/dashboard':
-        return role === 'STUDENT' ? 'Dashboard' : 'Dashboard';
+        return 'Dashboard';
       case '/credentials':
         return 'Credentials';
       case '/settings':
         return 'Account Settings';
       case '/profile':
-        return role === 'ISSUER' ? 'Profile' : 'Profile';
+        return 'Profile';
       case '/revoked':
         return 'Revoked Credentials';
       case '/network-status':
         return 'Network Status';
       default:
-
         if (pathname.includes('/student/')) return 'Profile';
         return 'Attestify';
     }
@@ -54,7 +33,6 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-black flex selection:bg-indigo-500/30 text-gray-100 font-sans">
-
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/7 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-purple-600/5 rounded-full blur-[100px]"></div>
@@ -78,7 +56,7 @@ const Layout = ({ children }) => {
           onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
         <div className="flex-1 flex flex-col min-h-0 w-full overflow-x-hidden">
-           {children}
+           <Outlet />
         </div>
       </div>
     </div>
