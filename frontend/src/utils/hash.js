@@ -1,14 +1,17 @@
-import { sha256 } from 'js-sha256';
-
 export const generateFileHash = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = (e) => {
-      const arrayBuffer = e.target.result;
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const hash = sha256(uint8Array);
-      resolve('0x' + hash);
+    reader.onload = async (e) => {
+      try {
+        const arrayBuffer = e.target.result;
+        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        resolve('0x' + hashHex);
+      } catch (error) {
+        reject(error);
+      }
     };
 
     reader.onerror = (error) => reject(error);

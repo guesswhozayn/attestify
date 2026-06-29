@@ -1,15 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Search, Shield } from 'lucide-react';
+import { Upload, Search, Shield, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../shared/Button';
-import RefreshButton from '../shared/RefreshButton';
 import { verifyAPI } from '../../services/api';
 import { generateFileHash } from '../../utils/hash';
 import { extractMetadata } from '../../utils/pdf';
 import Modal from '../shared/Modal';
 import { useLocation, useParams } from 'react-router-dom';
 import VerificationResult from './VerificationResult';
-import PoweredBy from '../shared/PoweredBy';
 
 const VerificationPortal = () => {
   const [file, setFile] = useState(null);
@@ -69,29 +67,29 @@ const VerificationPortal = () => {
     setResult(null);
     setFeed([]);
 
-    addFeedItem("Initializing verification sequence...", "info");
+    addFeedItem("Initializing secure check...", "info");
 
     try {
       let response;
       if (file && walletAddress) {
-        addFeedItem("Generating cryptographic file hash...", "info");
+        addFeedItem("Creating secure file fingerprint...", "info");
         const fileHash = await generateFileHash(file);
-        addFeedItem(`Hash: ${fileHash.substring(0, 32)}...`, "info");
+        addFeedItem(`Fingerprint: ${fileHash.substring(0, 32)}...`, "info");
 
-        addFeedItem("Querying Ethereum smart contracts...", "info");
+        addFeedItem("Searching verification registry...", "info");
         response = await verifyAPI.verifyByHash(walletAddress, fileHash);
       } else if (walletAddress) {
-        addFeedItem(`Checking registry for ID: ${walletAddress.substring(0, 10)}...`, "info");
+        addFeedItem(`Checking record for ID: ${walletAddress.substring(0, 10)}...`, "info");
         response = await verifyAPI.checkExists(walletAddress);
       }
 
-      addFeedItem("Validating digital signatures...", "info");
-      addFeedItem("Verification sequence completed.", "success");
+      addFeedItem("Validating authority signatures...", "info");
+      addFeedItem("Verification check completed.", "success");
 
       setResult(response.data);
       setTimeout(() => setShowResultModal(true), 800);
     } catch {
-      addFeedItem("Verification failed: Integrity mismatch or network error", "error");
+      addFeedItem("Verification failed: Record mismatch or network error", "error");
       setResult({
         valid: false,
         message: 'Verification failed. Please try again.',
@@ -131,7 +129,7 @@ const VerificationPortal = () => {
                     <Shield className="w-6 h-6 text-indigo-400" />
                  </div>
                  <div>
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tighter text-white">SCANNER MODULE</h2>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tighter text-white">VERIFICATION PORTAL</h2>
                     <div className="flex items-center gap-2">
                        <div className={`w-2 h-2 rounded-full ${verifying ? 'bg-indigo-500' : 'bg-emerald-500'} animate-pulse`}></div>
                        <span className={`text-[10px] font-black uppercase tracking-widest ${verifying ? 'text-indigo-500' : 'text-emerald-500'}`}>
@@ -142,8 +140,8 @@ const VerificationPortal = () => {
               </div>
 
               <div className="hidden sm:flex flex-col items-end">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Target Node</span>
-                <span className="text-[10px] font-mono text-indigo-400">SEPOLIA</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Security Network</span>
+                <span className="text-[10px] font-mono text-indigo-400">SECURE LEDGER</span>
               </div>
            </div>
 
@@ -172,16 +170,16 @@ const VerificationPortal = () => {
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate px-4">
-                  {file ? file.name : "UPLOAD CREDENTIAL"}
+                  {file ? file.name : "UPLOAD CERTIFICATE"}
                 </h3>
                 <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-gray-500">
-                  {file ? "Scan Sequence Ready" : "Target format: application/pdf"}
+                  {file ? "Document Loaded Successfully" : "Supported format: PDF"}
                 </p>
               </div>
 
               <div className="space-y-3">
                  <div className="flex items-center justify-between px-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Registry ID</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Credential Reference ID</label>
                     {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID CAPTURED</span>)}
                  </div>
                  <div className="relative group/input">
@@ -206,7 +204,7 @@ const VerificationPortal = () => {
                 size="xl"
                 className="w-full hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                {verifying ? 'Running Cryptographic Verification...' : 'Scan'}
+                {verifying ? 'Verifying Document Status...' : 'Verify Document'}
               </Button>
            </div>
 
@@ -217,7 +215,7 @@ const VerificationPortal = () => {
              </div>
 
              <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
-                <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Process Log</span>
+                <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Verification Log</span>
                 <div className="flex gap-1.5">
                    <div className="w-2 h-2 rounded-full bg-red-500/40 border border-red-500/20"></div>
                    <div className="w-2 h-2 rounded-full bg-yellow-500/40 border border-yellow-500/20"></div>
@@ -228,7 +226,7 @@ const VerificationPortal = () => {
              <div className="flex-1 overflow-y-auto space-y-2.5 custom-scrollbar pr-2 pb-2">
                 {feed.length === 0 ? (
                    <div className="h-full flex flex-col items-center justify-center opacity-30 italic">
-                      <p className="text-[11px] text-gray-400">Awaiting user input stream...</p>
+                      <p className="text-[11px] text-gray-400">Awaiting document upload or reference ID...</p>
                    </div>
                 ) : (
                    feed.map((item, idx) => (
@@ -255,14 +253,17 @@ const VerificationPortal = () => {
                 {verifying && (
                    <div className="flex items-center gap-2 text-[11px] text-indigo-400 animate-pulse mt-2">
                       <span className="select-none inline-block w-4">›</span>
-                      <span>Processing buffer...</span>
+                      <span>Analyzing document details...</span>
                    </div>
                 )}
              </div>
            </div>
 
            <div className="pt-2">
-              <PoweredBy className="opacity-60" />
+                             <div className="flex items-center justify-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300 py-8 opacity-60">
+                  <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Powered by</span>
+                  <span className="font-sans text-lg font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+               </div>
            </div>
 
         </div>
@@ -270,7 +271,7 @@ const VerificationPortal = () => {
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
-          title="OUTPUT REPORT"
+          title="VERIFICATION RESULT"
           size="lg"
       >
           {result && (
@@ -278,13 +279,16 @@ const VerificationPortal = () => {
               <VerificationResult result={result} />
 
               <div className="flex justify-center pt-8 border-t border-white/5">
-                  <RefreshButton
+                  <Button
                       onClick={() => setShowResultModal(false)}
                       variant="secondary"
                       size="lg"
-                      className="px-8 uppercase tracking-widest text-xs font-bold border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-300"
-                      title="System Reset"
-                  />
+                      icon={RefreshCw}
+                      className="px-8 uppercase tracking-widest text-xs font-bold border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-300 animate-none"
+                      title="Verify Another"
+                  >
+                      Verify Another
+                  </Button>
               </div>
             </div>
           )}

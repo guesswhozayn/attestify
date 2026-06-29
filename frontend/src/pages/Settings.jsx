@@ -5,7 +5,6 @@ import Button from '../components/shared/Button';
 import { Lock } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import { userAPI } from '../services/api';
-import AccountLayout from '../components/layout/AccountLayout';
 
 const Settings = () => {
   const { showNotification } = useNotification();
@@ -44,7 +43,7 @@ const Settings = () => {
   };
 
   return (
-    <AccountLayout>
+    <main className="p-6 lg:p-12 max-w-7xl mx-auto relative z-10">
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -141,8 +140,8 @@ const Settings = () => {
                 />
             </div>
         </motion.div>
-    </AccountLayout>
-  );
+      </main>
+    );
 };
 
 const SecurityInfoCard = ({ label, value, status, color }) => (

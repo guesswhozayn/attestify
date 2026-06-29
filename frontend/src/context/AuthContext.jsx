@@ -14,17 +14,12 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleLogout = useCallback(() => {
-
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-
     clearAuth();
-
     setUser(null);
-    setIsAuthenticated(false);
   }, []);
 
   const isInitialized = React.useRef(false);
@@ -37,10 +32,8 @@ export const AuthProvider = ({ children }) => {
       const userData = localStorage.getItem('user');
 
       if (token && userData) {
-
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        setIsAuthenticated(true);
 
         try {
           const response = await authAPI.getCurrentUser();
@@ -66,15 +59,22 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     initializeAuth();
+  }, [initializeAuth]);
 
-  }, []);
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      handleLogout();
+    };
+    window.addEventListener('auth-unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth-unauthorized', handleUnauthorized);
+    };
+  }, [handleLogout]);
 
   const register = useCallback(async (userData) => {
     try {
       await authAPI.register(userData);
-
       return { success: true };
-
     } catch (error) {
       console.error('Registration error:', error);
       return {
@@ -93,10 +93,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(loggedInUser));
 
       setUser(loggedInUser);
-      setIsAuthenticated(true);
 
       return { success: true, user: loggedInUser };
-
     } catch (error) {
       console.error('Login error:', error);
       return {
@@ -108,11 +106,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-
       await authAPI.logout();
     } catch (error) {
       console.error('Logout API error:', error);
-
     } finally {
       handleLogout();
     }
@@ -142,21 +138,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [handleLogout]);
 
-  const hasRole = useCallback((role) => {
-    if (!user) return false;
-    if (Array.isArray(role)) {
-      return role.includes(user.role);
-    }
-    return user.role === role;
-  }, [user]);
-
-  const isIssuer = useCallback(() => {
-    return hasRole('ISSUER');
-  }, [hasRole]);
-
-  const isStudent = useCallback(() => {
-    return hasRole('STUDENT');
-  }, [hasRole]);
+  const isAuthenticated = !!user;
 
   const value = useMemo(() => ({
     user,
@@ -166,10 +148,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateUser,
-    refreshUser,
-    hasRole,
-    isIssuer,
-    isStudent
+    refreshUser
   }), [
     user,
     loading,
@@ -178,10 +157,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateUser,
-    refreshUser,
-    hasRole,
-    isIssuer,
-    isStudent
+    refreshUser
   ]);
 
   return (

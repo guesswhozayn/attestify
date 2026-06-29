@@ -5,10 +5,7 @@ import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
-import BrandLogo from '../components/shared/BrandLogo';
-import BackgroundEffects, { useScrollY } from '../components/shared/BackgroundEffects';
-import StatusBadge from '../components/shared/StatusBadge';
-import SectionHeader from '../components/shared/SectionHeader';
+import Background, { useScrollY } from '../components/shared/Background';
 import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
 
 const Landing = () => {
@@ -18,7 +15,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative">
-      <BackgroundEffects scrollY={scrollY} />
+      <Background scrollY={scrollY} parallax />
 
       <Navbar />
 
@@ -34,7 +31,15 @@ const Landing = () => {
             transition={{ duration: 0.6 }}
             className="mb-8"
           >
-            <StatusBadge label="Live on Sepolia Testnet" className="hover:bg-indigo-500/20 transition-colors cursor-default" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md hover:bg-indigo-500/20 transition-colors cursor-default">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+              </span>
+              <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">
+                Live on Sepolia Testnet
+              </span>
+            </div>
           </motion.div>
 
           <motion.h1
@@ -144,11 +149,17 @@ const Landing = () => {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <SectionHeader
-                prefix="The"
-                highlight="Universal Standard"
-                subtitle="Attestify isn't just a platform. It's a new primitive for digital trust."
-              />
+              <div className="text-center mb-20">
+                <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
+                  The{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-emerald-300 to-indigo-400">
+                    Universal Standard
+                  </span>
+                </h2>
+                <p className="text-gray-400 max-w-2xl mx-auto text-xl">
+                  Attestify isn't just a platform. It's a new primitive for digital trust.
+                </p>
+              </div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -312,14 +323,12 @@ const Landing = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader
-            subtitle="The three pillars of the new standard."
-            mb="mb-24"
-          >
+          <div className="text-center mb-24">
             <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight flex items-center justify-center gap-2 flex-wrap">
-              Why <BrandLogo textSize="text-5xl sm:text-6xl md:text-8xl" />
+              Why <span className="font-sans text-5xl sm:text-6xl md:text-8xl font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
             </h2>
-          </SectionHeader>
+            <p className="text-gray-400 max-w-2xl mx-auto text-xl">The three pillars of the new standard.</p>
+          </div>
 
           <motion.div
             initial={{ opacity: 0 }}

@@ -11,13 +11,23 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../shared/Button';
+import { getCredentialMeta } from '../../utils/credential';
 
 const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
     const isRevoked = cred.isRevoked;
     const isSBT = !!cred.tokenId;
-    const isTranscript = cred.type === 'TRANSCRIPT';
+    const isTranscript = getCredentialMeta(cred).isTranscript;
     const Icon = isTranscript ? FileText : Award;
-    const accentColor = isTranscript ? 'indigo' : 'emerald';
+    
+    const accent = isTranscript ? {
+        orb: 'bg-indigo-500/[0.03]',
+        iconBg: 'bg-indigo-500/10 border-indigo-500/20',
+        iconText: 'text-indigo-400'
+    } : {
+        orb: 'bg-emerald-500/[0.03]',
+        iconBg: 'bg-emerald-500/10 border-emerald-500/20',
+        iconText: 'text-emerald-400'
+    };
 
     return (
         <motion.div
@@ -29,13 +39,13 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
             className="group relative bg-[#0b0b0b] border border-white/4 hover:border-white/10 rounded-4xl p-5 lg:p-6 transition-all duration-500 cursor-pointer overflow-hidden mb-4 active:scale-[0.99] shadow-lg hover:shadow-2xl"
         >
 
-            <div className={`absolute -right-24 -top-24 w-80 h-80 bg-${accentColor}-500/[0.03] blur-[120px] pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity`}></div>
+            <div className={`absolute -right-24 -top-24 w-80 h-80 ${accent.orb} blur-[120px] pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity`}></div>
 
             <div className="hidden lg:flex lg:flex-row lg:items-center gap-8 relative z-10">
 
                 <div className="lg:w-[35%] flex items-center gap-5">
-                    <div className={`p-4 rounded-3xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
-                        <Icon className={`w-8 h-8 text-${accentColor}-400`} />
+                    <div className={`p-4 rounded-3xl ${accent.iconBg} group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
+                        <Icon className={`w-8 h-8 ${accent.iconText}`} />
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Subject Title</span>
@@ -106,7 +116,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                             </a>
                         )}
 
-                        {!cred.isRevoked && (
+                        {onRevoke && !cred.isRevoked && (
                             <Button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -131,8 +141,8 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
 
                 <div className="flex items-start justify-between gap-3 border-b border-white/4 pb-4">
                     <div className="flex items-center gap-3">
-                        <div className={`p-2.5 rounded-xl bg-${accentColor}-500/10 border border-${accentColor}-500/20 shrink-0`}>
-                            <Icon className={`w-5 h-5 text-${accentColor}-400`} />
+                        <div className={`p-2.5 rounded-xl ${accent.iconBg} shrink-0`}>
+                            <Icon className={`w-5 h-5 ${accent.iconText}`} />
                         </div>
                         <div className="flex flex-col min-w-0">
                             <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">Subject Title</span>
@@ -197,7 +207,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                                 <ExternalLink className="w-4 h-4" />
                             </a>
                         )}
-                        {!cred.isRevoked && (
+                        {onRevoke && !cred.isRevoked && (
                             <Button
                                 onClick={(e) => {
                                     e.stopPropagation();

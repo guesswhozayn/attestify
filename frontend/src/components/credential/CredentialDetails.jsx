@@ -8,6 +8,7 @@ import { Download, ExternalLink, User, Building, Hash, ShieldAlert, GraduationCa
 import VerificationSection from '../verification/VerificationSection';
 import RevokeCredentialModal from './RevokeCredentialModal';
 import SBTDetailsModal from './SBTDetailsModal';
+import { getCredentialMeta } from '../../utils/credential';
 import { useAuth } from '../../context/AuthContext';
 
 const formatDate = (dateString, includeTime = false) => {
@@ -85,10 +86,12 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
   if (!credential) return null;
 
-  const displayMetadata = credential.type === 'TRANSCRIPT' ? credential.transcriptData : credential.certificationData;
+  const meta = getCredentialMeta(credential);
+  const displayMetadata = meta.metadata;
+  const isTranscript = meta.isTranscript;
   const isSBT = !!credential.tokenId;
 
-  const iconColor = credential.type === 'TRANSCRIPT'
+  const iconColor = isTranscript
     ? 'text-indigo-400'
     : 'text-emerald-400';
 
@@ -169,7 +172,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                   }`}>
                     {credential.isRevoked ? <ShieldAlert className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
-                    {credential.isRevoked ? 'REVOKED' : 'ON-CHAIN VERIFIED'}
+                    {credential.isRevoked ? 'REVOKED' : 'VERIFIED SECURE'}
                   </div>
                   {isSBT && (
                     <Button
@@ -178,7 +181,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 shadow-none normal-case"
                     >
                       <Shield className="w-3.5 h-3.5" />
-                      SOULBOUND
+                      SECURE RECORD
                     </Button>
                   )}
                 </div>
@@ -196,18 +199,18 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
               <div className="flex items-center gap-4 mb-8 relative z-10">
                 <div className={`p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${iconColor}`}>
-                   {credential.type === 'TRANSCRIPT' ? <GraduationCap className="w-6 h-6" /> : <Award className="w-6 h-6" />}
+                   {isTranscript ? <GraduationCap className="w-6 h-6" /> : <Award className="w-6 h-6" />}
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-white tracking-tight uppercase">
-                    {credential.type === 'TRANSCRIPT' ? 'Academic Ledger' : 'Certification Registry'}
+                    {isTranscript ? 'Academic Ledger' : 'Certification Registry'}
                   </h3>
                   <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Authentic Decentralized Record</p>
                 </div>
               </div>
 
               <div className="relative z-10">
-                {credential.type === 'TRANSCRIPT' && displayMetadata ? (
+                {isTranscript && displayMetadata ? (
                    <div className="space-y-10">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-1.5 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:border-white/10 transition-colors">

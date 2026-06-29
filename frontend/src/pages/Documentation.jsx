@@ -5,8 +5,7 @@ import {
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint,
   HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight } from 'lucide-react';
 import Button from '../components/shared/Button';
-import PoweredBy from '../components/shared/PoweredBy';
-import BackgroundEffects from '../components/shared/BackgroundEffects';
+import Background from '../components/shared/Background';
 
 const sections = [
   { id: 'introduction', label: 'Introduction', icon: BookOpen },
@@ -86,7 +85,7 @@ const Documentation = () => {
       ref={containerRef}
       className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
     >
-      <BackgroundEffects scrollY={scrollY} />
+      <Background scrollY={scrollY} parallax />
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 
@@ -558,7 +557,10 @@ const Documentation = () => {
             </FAQItem>
           </Section>
 
-          <PoweredBy className="mt-20" />
+          <div className="flex items-center justify-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300 py-8 mt-20">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Powered by</span>
+              <span className="font-sans text-lg font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+          </div>
         </main>
       </div>
 

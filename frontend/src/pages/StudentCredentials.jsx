@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import CredentialDetails from '../components/credential/CredentialDetails';
-import CredentialRow from '../components/credential/CredentialRow';
-import { Search, Wallet, Shield } from 'lucide-react';
+import CredentialTable from '../components/credential/CredentialTable';
+import { Search, Wallet, Shield, RefreshCw } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/shared/Button';
-import RefreshButton from '../components/shared/RefreshButton';
 import blockchainService from '../services/blockchain';
 import StudentStats from '../components/credential/StudentStats';
 
@@ -129,11 +128,14 @@ const StudentCredentials = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <RefreshButton
+                    <Button
                       onClick={() => fetchCredentials(true)}
                       loading={refreshing}
                       rounded="xl"
                       title="Refresh Records"
+                      icon={RefreshCw}
+                      variant="secondary"
+                      className="aspect-square !p-0 flex items-center justify-center w-10 h-10"
                     />
                 </div>
             </div>
@@ -196,29 +198,12 @@ const StudentCredentials = () => {
                                 <h3 className="text-xl font-bold text-white mb-2">Wallet Not Connected</h3>
                                 <p className="text-gray-500 max-w-sm mx-auto mb-6">Connect your wallet to access your decentralized academic vault.</p>
                             </motion.div>
-                        ) : loading ? (
-                            <div className="flex flex-col items-center justify-center py-20">
-                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-                                <p className="text-gray-500 text-sm">Loading your credentials...</p>
-                            </div>
-                        ) : filteredCredentials.length === 0 ? (
-                           <div className="flex flex-col items-center justify-center py-16 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center">
-                                <div className="w-20 h-20 bg-gray-800/80 rounded-full flex items-center justify-center mb-6 ring-8 ring-gray-800/40">
-                                    <Shield className="w-8 h-8 text-gray-500" />
-                                </div>
-                                <p className="text-white font-semibold text-lg mb-1">No Credentials Found</p>
-                                <p className="text-gray-500 text-sm">Any credentials issued to your wallet will appear here.</p>
-                           </div>
                         ) : (
-                            <div className="space-y-4">
-                                {filteredCredentials.map((cred) => (
-                                    <CredentialRow
-                                        key={cred._id || cred.id}
-                                        credential={cred}
-                                        onClick={() => setSelectedCredential(cred)}
-                                    />
-                                ))}
-                            </div>
+                            <CredentialTable
+                                credentials={filteredCredentials}
+                                onView={setSelectedCredential}
+                                loading={loading}
+                            />
                         )}
                     </div>
                 </motion.div>

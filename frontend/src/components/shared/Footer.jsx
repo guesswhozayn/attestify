@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
-import BrandLogo from './BrandLogo';
-import ShieldLogo from './ShieldLogo';
+import { Github, Twitter, Linkedin, Mail, Shield } from 'lucide-react';
 import Button from './Button';
 
 const Footer = () => {
@@ -18,8 +16,12 @@ const Footer = () => {
 
           <div className="lg:col-span-5 space-y-8">
             <div className="flex items-center space-x-3 mb-6">
-              <ShieldLogo size="md" />
-              <BrandLogo textSize="text-2xl" />
+              <div className="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+                <Shield className="w-5 h-5 text-indigo-400" />
+              </div>
+              <span className="font-sans text-2xl font-black tracking-[-0.05em] lowercase text-white">
+                  attestify<span className="text-indigo-500">.</span>
+              </span>
             </div>
             <p className="text-gray-400 text-base leading-relaxed max-w-md font-medium">
               Building the trust layer for the internet. Empowering students and institutions with blockchain-verified credentials that are owned forever.

@@ -1,10 +1,19 @@
-import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import PrivateRoute from './components/shared/PrivateRoute';
 import LoadingSpinner from './components/shared/LoadingSpinner';
-import ScrollToTop from './components/shared/ScrollToTop';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 const Landing           = lazy(() => import('./pages/Landing'));
 const Login             = lazy(() => import('./pages/Login'));
@@ -46,7 +55,7 @@ function App() {
   }
 
   return (
-    <Layout>
+    <>
       <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -62,64 +71,67 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
 
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                {user?.role === 'STUDENT' ? <StudentDashboard /> : <IssuerDashboard />}
-              </PrivateRoute>
-            }
-          />
+          {/* Nested Dashboard Layout Routes */}
+          <Route element={<Layout />}>
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  {user?.role === 'STUDENT' ? <StudentDashboard /> : <IssuerDashboard />}
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/credentials"
-            element={
-              <PrivateRoute>
-                {user?.role === 'STUDENT' ? <StudentCredentials /> : <CredentialArchive />}
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/credentials"
+              element={
+                <PrivateRoute>
+                  {user?.role === 'STUDENT' ? <StudentCredentials /> : <CredentialArchive />}
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/network-status"
-            element={
-              <PrivateRoute allowedRoles={['ISSUER']}>
-                <NetworkStatus />
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/network-status"
+              element={
+                <PrivateRoute allowedRoles={['ISSUER']}>
+                  <NetworkStatus />
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/revoked"
-            element={
-              <PrivateRoute allowedRoles={['ISSUER']}>
-                <RevokedCredentials />
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/revoked"
+              element={
+                <PrivateRoute allowedRoles={['ISSUER']}>
+                  <RevokedCredentials />
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute>
-                <Settings />
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+          </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-    </Layout>
+    </>
   );
 }
 

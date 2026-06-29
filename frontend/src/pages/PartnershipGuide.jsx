@@ -16,8 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/shared/Navbar';
 import Button from '../components/shared/Button';
-import PoweredBy from '../components/shared/PoweredBy';
-import BackgroundEffects from '../components/shared/BackgroundEffects';
+import Background from '../components/shared/Background';
 
 const sections = [
   { id: 'mission', label: 'The Mission', icon: Rocket },
@@ -106,7 +105,7 @@ const PartnershipGuide = () => {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
-      <BackgroundEffects scrollY={scrollY} />
+      <Background scrollY={scrollY} parallax />
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 
@@ -288,7 +287,10 @@ const PartnershipGuide = () => {
              </SectionCard>
           </Section>
 
-          <PoweredBy className="mt-20" />
+          <div className="flex items-center justify-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300 py-8 mt-20">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Powered by</span>
+              <span className="font-sans text-lg font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+          </div>
         </main>
       </div>
 

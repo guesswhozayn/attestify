@@ -25,8 +25,8 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 <ShieldCheck className="w-7 h-7 text-indigo-400" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">SBT Registry</h3>
-                                <p className="text-[11px] text-indigo-400/60 font-bold mt-1">Immutable Identity Proof</p>
+                                <h3 className="text-xl font-bold text-white">Security Record</h3>
+                                <p className="text-[11px] text-indigo-400/60 font-bold mt-1">Permanent Digital Proof</p>
                             </div>
                         </div>
                         <Button
@@ -50,21 +50,21 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse'
                         }`}>
                             <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-red-500' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}></div>
-                            {credential.isRevoked ? 'Token Revoked' : 'Token Active'}
+                            {credential.isRevoked ? 'Record Inactive' : 'Record Active'}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-5">
 
                         <DataField
-                            label="Token Index"
+                            label="Reference Index"
                             value={credential.tokenId || 'N/A'}
                             icon={Hash}
                             onCopy={() => copyToClipboard(credential.tokenId, 'Token ID')}
                         />
 
                         <DataField
-                            label="Contract Protocol"
+                            label="Security Protocol Address"
                             value={contractAddress}
                             icon={Database}
                             isAddress
@@ -77,19 +77,19 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                     <Globe className="w-5 h-5 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-bold text-zinc-600">Global Network</p>
-                                    <p className="text-sm font-bold text-zinc-200">{networkName}</p>
+                                    <p className="text-[10px] font-bold text-zinc-600">Verification Ledger</p>
+                                    <p className="text-sm font-bold text-zinc-200">Secure Blockchain Registry</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">
                                 <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
-                                <span className="text-[11px] font-bold text-indigo-300">Live</span>
+                                <span className="text-[11px] font-bold text-indigo-300">Online</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-4">
-                        <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] px-2">Extended Proofs</h4>
+                        <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] px-2">Verification Records</h4>
                         <div className="grid grid-cols-2 gap-4">
                             <Button
                                 href={etherscanUrl}
@@ -100,7 +100,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 className="flex-col items-center justify-center p-6 !bg-white/[0.02] hover:!bg-indigo-500/10 border border-white/[0.04] hover:border-indigo-500/30 transition-all !h-auto !shadow-none"
                             >
                                 <ExternalLink className="w-6 h-6 text-zinc-500 group-hover:text-indigo-400 mb-3 transition-colors shrink-0" />
-                                <span className="text-[11px] font-bold text-zinc-500 group-hover:text-white text-center truncate w-full">Explorer</span>
+                                <span className="text-[11px] font-bold text-zinc-500 group-hover:text-white text-center truncate w-full">Receipt Link</span>
                             </Button>
                             <Button
                                 href={ipfsUrl}
@@ -111,7 +111,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 className="flex-col items-center justify-center p-6 !bg-white/[0.02] hover:!bg-purple-500/10 border border-white/[0.04] hover:border-purple-500/30 transition-all !h-auto !shadow-none"
                             >
                                 <Share2 className="w-6 h-6 text-zinc-500 group-hover:text-purple-400 mb-3 transition-colors shrink-0" />
-                                <span className="text-[10px] font-black text-zinc-500 group-hover:text-white text-center uppercase tracking-widest truncate w-full">IPFS Hub</span>
+                                <span className="text-[10px] font-black text-zinc-500 group-hover:text-white text-center uppercase tracking-widest truncate w-full">Storage Link</span>
                             </Button>
                         </div>
                     </div>
@@ -119,7 +119,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
 
                 <div className="p-8 bg-white/[0.02] flex justify-center border-t border-white/[0.04]">
                     <Button onClick={onClose} variant="secondary" className="w-full justify-center py-4">
-                        Exit Registry
+                        Close Records
                     </Button>
                 </div>
             </div>
