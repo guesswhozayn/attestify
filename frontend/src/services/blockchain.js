@@ -1,14 +1,9 @@
 import { ethers } from 'ethers';
 
 const CONTRACT_ABI = [
-
   "function getCredential(string memory _studentId) public view returns (bytes32 certificateHash, string memory ipfsCID, uint256 issuedAt, bool isRevoked)",
   "function verifyCredential(string memory _studentId, bytes32 _hash) public view returns (bool)",
   "function isIssued(string memory _studentId) public view returns (bool)",
-
-  "function issueCertificate(string memory _studentId, bytes32 _certificateHash, string memory _ipfsCID) public",
-  "function revokeCertificate(string memory _studentId) public",
-
   "event CredentialIssued(string indexed studentId, bytes32 certificateHash, string ipfsCID, uint256 timestamp)",
   "event CredentialRevoked(string indexed studentId, uint256 timestamp)"
 ];
@@ -161,83 +156,7 @@ class BlockchainService {
     }
   }
 
-  async issueCertificate(studentId, certificateHash, ipfsCID) {
-    if (!this.contract || !this.signer) {
-      throw new Error('Contract not initialized or wallet not connected');
-    }
 
-    try {
-      console.log('Issuing certificate:', { studentId, certificateHash, ipfsCID });
-
-      const gasEstimate = await this.contract.issueCertificate.estimateGas(
-        studentId,
-        certificateHash,
-        ipfsCID
-      );
-
-      const tx = await this.contract.issueCertificate(
-        studentId,
-        certificateHash,
-        ipfsCID,
-        {
-          gasLimit: gasEstimate * 120n / 100n
-        }
-      );
-
-      console.log('Transaction sent:', tx.hash);
-
-      const receipt = await tx.wait();
-
-      console.log('Transaction confirmed:', receipt);
-
-      return {
-        transactionHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        status: receipt.status === 1 ? 'success' : 'failed'
-      };
-
-    } catch (error) {
-      console.error('Issue certificate error:', error);
-
-      let errorMessage = 'Failed to issue certificate';
-      if (error.message.includes('user rejected')) {
-        errorMessage = 'Transaction rejected by user';
-      } else if (error.message.includes('insufficient funds')) {
-        errorMessage = 'Insufficient ETH for gas fees';
-      } else if (error.message.includes('already issued')) {
-        errorMessage = 'Certificate already issued for this student';
-      }
-
-      throw new Error(errorMessage);
-    }
-  }
-
-  async revokeCertificate(studentId) {
-    if (!this.contract || !this.signer) {
-      throw new Error('Contract not initialized or wallet not connected');
-    }
-
-    try {
-      const gasEstimate = await this.contract.revokeCertificate.estimateGas(studentId);
-
-      const tx = await this.contract.revokeCertificate(studentId, {
-        gasLimit: gasEstimate * 120n / 100n
-      });
-
-      const receipt = await tx.wait();
-
-      return {
-        transactionHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString()
-      };
-
-    } catch (error) {
-      console.error('Revoke certificate error:', error);
-      throw new Error(`Failed to revoke certificate: ${error.message}`);
-    }
-  }
 
   async getCredential(studentId) {
     if (!this.contract) {

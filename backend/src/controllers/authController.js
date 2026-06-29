@@ -176,6 +176,10 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
+  if (req.user) {
+    req.user.tokenVersion = (req.user.tokenVersion || 0) + 1;
+    await req.user.save();
+  }
   res.json({ success: true, message: 'Logged out successfully' });
 });
 

@@ -19,7 +19,7 @@ module.exports = {
 
   FILE_LIMITS: {
     MAX_SIZE: 10 * 1024 * 1024,
-    ALLOWED_TYPES: ['application/pdf']
+    ALLOWED_TYPES: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'text/csv']
   },
 
   JWT_EXPIRY: '1h',

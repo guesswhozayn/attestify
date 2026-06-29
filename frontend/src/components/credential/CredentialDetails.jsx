@@ -90,6 +90,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const displayMetadata = meta?.metadata;
   const isTranscript = meta?.isTranscript;
   const isSBT = !!credential.tokenId;
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0x...';
 
   const getStatusStyles = () => {
     if (credential.isRevoked) {
@@ -461,6 +462,57 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     </div>
                   </div>
                 </div>
+
+                {isSBT && (
+                  <div className="pt-10 border-t border-white/[0.04] space-y-6">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-purple-400" />
+                      <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em]">Soulbound Token (SBT) Details</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
+                          <span>Token ID (Reference Index)</span>
+                          <div className="flex items-center gap-2">
+                            {copiedField === 'tokenId' && <span className="text-[8px] text-purple-400 font-black uppercase">COPIED</span>}
+                            <Button
+                              onClick={() => copyToClipboard(credential.tokenId, 'tokenId')}
+                              variant="ghost"
+                              className="!p-1 text-zinc-500 hover:text-white"
+                              size="sm"
+                              rounded="md"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </label>
+                        <div className="text-[11px] font-mono text-purple-300 font-bold p-5 bg-purple-500/[0.03] rounded-2xl border border-purple-500/10 shadow-inner">
+                          #{credential.tokenId}
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
+                          <span>Smart Contract Address</span>
+                          <div className="flex items-center gap-2">
+                            {copiedField === 'contract' && <span className="text-[8px] text-purple-400 font-black uppercase">COPIED</span>}
+                            <Button
+                              onClick={() => copyToClipboard(contractAddress, 'contract')}
+                              variant="ghost"
+                              className="!p-1 text-zinc-500 hover:text-white"
+                              size="sm"
+                              rounded="md"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </label>
+                        <div className="text-[11px] font-mono text-purple-300 break-all p-5 bg-purple-500/[0.03] rounded-2xl border border-purple-500/10 shadow-inner">
+                          {contractAddress}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="pt-10 border-t border-white/[0.04] grid grid-cols-2 md:grid-cols-4 gap-8">
                   <div className="space-y-1">

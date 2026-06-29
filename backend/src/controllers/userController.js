@@ -39,7 +39,16 @@ const updateProfile = asyncHandler(async (req, res) => {
 
   if (issuerDetails) {
       if (issuerDetails.institutionName) updateFields['issuerDetails.institutionName'] = issuerDetails.institutionName;
-      if (issuerDetails.registrationNumber) updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
+      if (issuerDetails.registrationNumber) {
+          const existingReg = await User.findOne({ 
+              'issuerDetails.registrationNumber': issuerDetails.registrationNumber,
+              _id: { $ne: req.user._id }
+          });
+          if (existingReg) {
+              return res.status(400).json({ error: 'Registration number already in use by another institution.' });
+          }
+          updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
+      }
   }
 
   const user = await User.findByIdAndUpdate(
@@ -77,7 +86,8 @@ const uploadAvatar = asyncHandler(async (req, res) => {
         }
     }
 
-    const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const avatarUrl = `${protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
 
     const user = await User.findByIdAndUpdate(
         req.user._id,

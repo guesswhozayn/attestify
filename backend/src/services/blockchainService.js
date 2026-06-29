@@ -5,17 +5,36 @@ const SimpleMutex = require('../utils/mutex');
 
 class BlockchainService {
   constructor() {
-    this.provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL?.trim());
-    this.wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY?.trim(), this.provider);
-    this.contract = new ethers.Contract(
-      process.env.CONTRACT_ADDRESS,
-      contractABI,
-      this.wallet
-    );
-
+    this._provider = null;
+    this._wallet = null;
+    this._contract = null;
     this.nonceMutex = new SimpleMutex();
-
     this.currentNonce = null;
+  }
+
+  get provider() {
+    if (!this._provider) {
+      this._provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL?.trim());
+    }
+    return this._provider;
+  }
+
+  get wallet() {
+    if (!this._wallet) {
+      this._wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY?.trim(), this.provider);
+    }
+    return this._wallet;
+  }
+
+  get contract() {
+    if (!this._contract) {
+      this._contract = new ethers.Contract(
+        process.env.CONTRACT_ADDRESS,
+        contractABI,
+        this.wallet
+      );
+    }
+    return this._contract;
   }
 
   async _pollForReceipt(txHash, { intervalMs = 3000, timeoutMs = 240000 } = {}) {
@@ -31,7 +50,6 @@ class BlockchainService {
           return receipt;
         }
       } catch (err) {
-
         console.warn(`[Blockchain] getTransactionReceipt error (attempt ${attempt}): ${err.message}`);
       }
 
@@ -78,7 +96,17 @@ class BlockchainService {
           this.nonceMutex.unlock();
         }
 
-        return await contractCall(...args, bumpedOverrides);
+        try {
+          return await contractCall(...args, bumpedOverrides);
+        } catch (retryErr) {
+          await this.nonceMutex.lock();
+          try {
+            this.currentNonce = null;
+          } finally {
+            this.nonceMutex.unlock();
+          }
+          throw retryErr;
+        }
       }
 
       await this.nonceMutex.lock();
@@ -114,55 +142,26 @@ class BlockchainService {
     return { maxFeePerGas, maxPriorityFeePerGas };
   }
 
-  async issueCertificate(registrationNumber, certificateHash, ipfsCID) {
-    try {
-      console.log('Issuing certificate on blockchain:', { registrationNumber, certificateHash, ipfsCID });
-
-      const gasEstimate = await this.contract.issueCertificate.estimateGas(
-        registrationNumber,
-        certificateHash,
-        ipfsCID
-      );
-
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.issueCertificate.bind(this.contract),
-        [registrationNumber, certificateHash, ipfsCID],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
-
-      console.log('Transaction sent:', tx.hash);
-
-      const receipt = await this._pollForReceipt(tx.hash);
-
-      console.log('Transaction confirmed:', receipt.hash);
-
-      return {
-        transactionHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        gasPrice: receipt.gasPrice.toString(),
-        totalCost: (receipt.gasUsed * receipt.gasPrice).toString(),
-        status: receipt.status === 1 ? 'success' : 'failed'
-      };
-
-    } catch (error) {
-      console.error('Blockchain issue error:', error);
-      throw new Error(`Blockchain transaction failed: ${error.message}`);
-    }
+  _extractGasStats(receipt) {
+    const gasPrice = receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0n;
+    const gasUsed = receipt.gasUsed ?? 0n;
+    const totalCost = gasUsed * gasPrice;
+    return {
+      gasUsed: gasUsed.toString(),
+      gasPrice: gasPrice.toString(),
+      totalCost: totalCost.toString()
+    };
   }
 
-  async revokeCertificate(registrationNumber) {
+  async revokeCertificate(studentId) {
     try {
-      const gasEstimate = await this.contract.revokeCertificate.estimateGas(registrationNumber);
+      const gasEstimate = await this.contract.revokeCertificate.estimateGas(studentId);
       const nonce = await this.getNonce();
       const gasOverrides = await this._getGasOverrides();
 
       const tx = await this._sendWithRetry(
         this.contract.revokeCertificate.bind(this.contract),
-        [registrationNumber],
+        [studentId],
         { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
       );
 
@@ -172,49 +171,12 @@ class BlockchainService {
       return {
         transactionHash: receipt.hash,
         blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        gasPrice: receipt.gasPrice.toString(),
-        totalCost: (receipt.gasUsed * receipt.gasPrice).toString()
+        ...this._extractGasStats(receipt)
       };
 
     } catch (error) {
       console.error('Blockchain revoke error:', error);
       throw new Error(`Revocation failed: ${error.message}`);
-    }
-  }
-
-  async issueCertificateBatch(registrationNumbers, certificateHashes, ipfsCIDs) {
-    try {
-      console.log('Issuing BATCH certificates:', { count: registrationNumbers.length });
-
-      const gasEstimate = await this.contract.issueCertificateBatch.estimateGas(
-        registrationNumbers, certificateHashes, ipfsCIDs
-      );
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.issueCertificateBatch.bind(this.contract),
-        [registrationNumbers, certificateHashes, ipfsCIDs],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
-
-      console.log('Batch transaction sent:', tx.hash);
-      const receipt = await this._pollForReceipt(tx.hash);
-      console.log('Batch transaction confirmed:', receipt.hash);
-
-      return {
-        transactionHash: receipt.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        gasPrice: receipt.gasPrice.toString(),
-        totalCost: (receipt.gasUsed * receipt.gasPrice).toString(),
-        status: receipt.status === 1 ? 'success' : 'failed'
-      };
-
-    } catch (error) {
-      console.error('Blockchain batch issue error:', error);
-      throw new Error(`Batch transaction failed: ${error.message}`);
     }
   }
 
@@ -246,51 +208,6 @@ class BlockchainService {
       for (const log of receipt.logs) {
         try {
           const parsedLog = this.contract.interface.parseLog(log);
-          if (parsedLog.name === 'CredentialIssued') {
-            tokenId = parsedLog.args.tokenId.toString();
-            break;
-          }
-        } catch (e) { }
-      }
-
-      return {
-        transactionHash: receipt.hash,
-        tokenId,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString(),
-        gasPrice: receipt.gasPrice.toString(),
-        totalCost: (receipt.gasUsed * receipt.gasPrice).toString(),
-        status: receipt.status === 1 ? 'success' : 'failed'
-      };
-
-    } catch (error) {
-      console.error('Unified Mint error:', error);
-      throw new Error(`Unified Mint failed: ${error.message}`);
-    }
-  }
-
-  async issueSoulboundCredential(to, tokenURI) {
-    try {
-      console.log('Minting Soulbound Token:', { to, tokenURI });
-
-      const gasEstimate = await this.contract.safeMint.estimateGas(to, tokenURI);
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.safeMint.bind(this.contract),
-        [to, tokenURI],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
-
-      console.log('Mint transaction sent:', tx.hash);
-      const receipt = await this._pollForReceipt(tx.hash);
-      console.log('Mint confirmed:', receipt.hash);
-
-      let tokenId = null;
-      for (const log of receipt.logs) {
-        try {
-          const parsedLog = this.contract.interface.parseLog(log);
           if (parsedLog.name === 'SoulboundMinted') {
             tokenId = parsedLog.args.tokenId.toString();
             break;
@@ -302,53 +219,17 @@ class BlockchainService {
         transactionHash: receipt.hash,
         tokenId,
         blockNumber: receipt.blockNumber,
-        status: receipt.status === 1 ? 'success' : 'failed'
+        status: receipt.status === 1 ? 'success' : 'failed',
+        ...this._extractGasStats(receipt)
       };
 
     } catch (error) {
-      console.error('SBT Mint error:', error);
-      throw new Error(`SBT Mint failed: ${error.message}`);
+      console.error('Unified Mint error:', error);
+      throw new Error(`Unified Mint failed: ${error.message}`);
     }
   }
 
-  async issueSoulboundCredentialBatch(recipients, tokenURIs) {
-    try {
-      console.log('Minting BATCH Soulbound Tokens:', { count: recipients.length });
 
-      const gasEstimate = await this.contract.safeMintBatch.estimateGas(recipients, tokenURIs);
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.safeMintBatch.bind(this.contract),
-        [recipients, tokenURIs],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
-
-      console.log('Batch Mint transaction sent:', tx.hash);
-      const receipt = await this._pollForReceipt(tx.hash);
-      console.log('Batch Mint confirmed:', receipt.hash);
-
-      const tokenIds = [];
-      for (const log of receipt.logs) {
-        try {
-          const parsedLog = this.contract.interface.parseLog(log);
-          if (parsedLog.name === 'SoulboundMinted') tokenIds.push(parsedLog.args.tokenId.toString());
-        } catch (e) { }
-      }
-
-      return {
-        transactionHash: receipt.hash,
-        tokenIds,
-        blockNumber: receipt.blockNumber,
-        status: receipt.status === 1 ? 'success' : 'failed'
-      };
-
-    } catch (error) {
-      console.error('Batch SBT Mint error:', error);
-      throw new Error(`Batch SBT Mint failed: ${error.message}`);
-    }
-  }
 
   async revokeSoulboundCredential(tokenId) {
     try {
@@ -366,7 +247,11 @@ class BlockchainService {
       console.log('Revoke SBT transaction sent:', tx.hash);
       const receipt = await this._pollForReceipt(tx.hash);
 
-      return { transactionHash: receipt.hash, status: 'revoked' };
+      return {
+        transactionHash: receipt.hash,
+        status: 'revoked',
+        ...this._extractGasStats(receipt)
+      };
 
     } catch (error) {
       console.error('SBT Revoke error:', error);
@@ -374,9 +259,9 @@ class BlockchainService {
     }
   }
 
-  async getCredential(registrationNumber) {
+  async getCredential(studentId) {
     try {
-      const result = await this.contract.getCredential(registrationNumber);
+      const result = await this.contract.getCredential(studentId);
 
       return {
         certificateHash: result[0],
@@ -393,9 +278,9 @@ class BlockchainService {
     }
   }
 
-  async verifyCredential(registrationNumber, hash) {
+  async verifyCredential(studentId, hash) {
     try {
-      return await this.contract.verifyCredential(registrationNumber, hash);
+      return await this.contract.verifyCredential(studentId, hash);
     } catch (error) {
       console.error('Blockchain verify error:', error);
       return false;
