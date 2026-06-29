@@ -130,6 +130,10 @@ export const credentialAPI = {
     });
   },
 
+  getStatus: async (id) => {
+    return api.get(`/credentials/status/${id}`);
+  },
+
   getStats: async () => {
     return api.get('/credentials/stats');
   }

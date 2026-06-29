@@ -10,10 +10,10 @@ class IPFSService {
     this.gatewayUrl = 'https://gateway.pinata.cloud/ipfs/';
   }
 
-  async uploadFile(filePath, fileName) {
+  async uploadFile(fileBuffer, fileName) {
     try {
       const formData = new FormData();
-      formData.append('file', fs.createReadStream(filePath));
+      formData.append('file', fileBuffer, { filename: fileName });
 
       const metadata = JSON.stringify({
         name: fileName,

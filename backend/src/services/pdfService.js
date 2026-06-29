@@ -13,7 +13,7 @@ const COLORS = {
   textMain: '#1e293b',
 };
 
-exports.generateCredentialPDF = async (data, outputPath) => {
+exports.generateCredentialPDF = async (data) => {
   const {
     type,
   } = data;
@@ -42,8 +42,12 @@ exports.generateCredentialPDF = async (data, outputPath) => {
         }
       });
 
-      const writeStream = fs.createWriteStream(outputPath);
-      doc.pipe(writeStream);
+      const buffers = [];
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => {
+        const pdfData = Buffer.concat(buffers);
+        resolve(pdfData);
+      });
 
       if (isTranscript) {
         await drawTranscript(doc, data);
@@ -53,8 +57,6 @@ exports.generateCredentialPDF = async (data, outputPath) => {
 
       doc.end();
 
-      writeStream.on('finish', () => resolve());
-      writeStream.on('error', (err) => reject(err));
     } catch (error) {
       reject(error);
     }

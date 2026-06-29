@@ -26,6 +26,18 @@ const credentialSchema = new mongoose.Schema({
     enum: ['TRANSCRIPT', 'CERTIFICATION'],
     default: 'CERTIFICATION'
   },
+  status: {
+    type: String,
+    enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'],
+    default: 'PENDING'
+  },
+  jobId: {
+    type: String,
+    index: true
+  },
+  processingError: {
+    type: String
+  },
   transcriptData: {
     program: String,
     department: String,

@@ -218,6 +218,57 @@ class BlockchainService {
     }
   }
 
+  async issueUnifiedCredential(to, studentId, certificateHash, ipfsCID, tokenURI) {
+    try {
+      console.log('Minting Unified Credential:', { to, studentId, certificateHash });
+
+      const gasEstimate = await this.contract.issueUnifiedCredential.estimateGas(
+        to,
+        studentId,
+        certificateHash,
+        ipfsCID,
+        tokenURI
+      );
+      const nonce = await this.getNonce();
+      const gasOverrides = await this._getGasOverrides();
+
+      const tx = await this._sendWithRetry(
+        this.contract.issueUnifiedCredential.bind(this.contract),
+        [to, studentId, certificateHash, ipfsCID, tokenURI],
+        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
+      );
+
+      console.log('Unified Mint transaction sent:', tx.hash);
+      const receipt = await this._pollForReceipt(tx.hash);
+      console.log('Unified Mint confirmed:', receipt.hash);
+
+      let tokenId = null;
+      for (const log of receipt.logs) {
+        try {
+          const parsedLog = this.contract.interface.parseLog(log);
+          if (parsedLog.name === 'CredentialIssued') {
+            tokenId = parsedLog.args.tokenId.toString();
+            break;
+          }
+        } catch (e) { }
+      }
+
+      return {
+        transactionHash: receipt.hash,
+        tokenId,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed.toString(),
+        gasPrice: receipt.gasPrice.toString(),
+        totalCost: (receipt.gasUsed * receipt.gasPrice).toString(),
+        status: receipt.status === 1 ? 'success' : 'failed'
+      };
+
+    } catch (error) {
+      console.error('Unified Mint error:', error);
+      throw new Error(`Unified Mint failed: ${error.message}`);
+    }
+  }
+
   async issueSoulboundCredential(to, tokenURI) {
     try {
       console.log('Minting Soulbound Token:', { to, tokenURI });
