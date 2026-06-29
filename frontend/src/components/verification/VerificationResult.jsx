@@ -34,7 +34,7 @@ const VerificationResult = ({ result }) => {
     failed: {
       icon: XCircle,
       label: 'VERIFICATION FAILED',
-      subtext: 'Document details do not match',
+      subtext: result.message || 'Document details do not match',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',
       shadowColor: 'shadow-red-500/20',
