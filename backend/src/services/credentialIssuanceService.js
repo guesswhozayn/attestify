@@ -119,6 +119,8 @@ class CredentialIssuanceService {
       originalFileName: `Certificate_${credentialId}.pdf`
     };
 
+    credential.status = 'COMPLETED';
+
     await credential.save();
 
     const userDoc = await User.findById(reqUser._id);

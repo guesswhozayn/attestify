@@ -16,7 +16,7 @@ import { getCredentialMeta } from '../../utils/credential';
 const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
     const isRevoked = cred.isRevoked;
     const isSBT = !!cred.tokenId;
-    const isTranscript = getCredentialMeta(cred).isTranscript;
+    const isTranscript = getCredentialMeta(cred)?.isTranscript;
     const Icon = isTranscript ? FileText : Award;
     
     const accent = isTranscript ? {
@@ -28,6 +28,44 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
         iconBg: 'bg-emerald-500/10 border-emerald-500/20',
         iconText: 'text-emerald-400'
     };
+
+    const getStatusStyles = () => {
+        if (isRevoked) {
+            return {
+                container: 'bg-red-500/10 border-red-500/20 text-red-500',
+                dot: 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]',
+                label: 'Revoked'
+            };
+        }
+        switch (cred.status) {
+            case 'PENDING':
+                return {
+                    container: 'bg-zinc-500/10 border-zinc-500/20 text-zinc-400',
+                    dot: 'bg-zinc-500 shadow-[0_0_10px_rgba(115,115,115,0.4)] animate-pulse',
+                    label: 'Pending'
+                };
+            case 'PROCESSING':
+                return {
+                    container: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+                    dot: 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)] animate-pulse',
+                    label: 'Processing'
+                };
+            case 'FAILED':
+                return {
+                    container: 'bg-red-500/10 border-red-500/20 text-red-400',
+                    dot: 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]',
+                    label: 'Failed'
+                };
+            case 'COMPLETED':
+            default:
+                return {
+                    container: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+                    dot: 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse',
+                    label: 'Active'
+                };
+        }
+    };
+    const statusStyles = getStatusStyles();
 
     return (
         <motion.div
@@ -43,7 +81,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
 
             <div className="hidden lg:flex lg:flex-row lg:items-center gap-8 relative z-10">
 
-                <div className="lg:w-[35%] flex items-center gap-5">
+                <div className="lg:w-[32%] flex items-center gap-5">
                     <div className={`p-4 rounded-3xl ${accent.iconBg} group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500`}>
                         <Icon className={`w-8 h-8 ${accent.iconText}`} />
                     </div>
@@ -65,7 +103,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                <div className="lg:w-[25%] flex items-center gap-4 border-l lg:border-white/5 lg:pl-8">
+                <div className="lg:w-[23%] flex items-center gap-4 border-l lg:border-white/5 lg:pl-8">
                      <div className="w-10 h-10 rounded-full bg-linear-to-tr from-zinc-800 to-zinc-900 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-indigo-500/20 transition-colors">
                         {cred.studentImage ? (
                             <img src={cred.studentImage} alt="User" className="w-full h-full object-cover" />
@@ -82,24 +120,22 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
                 </div>
 
-                <div className="lg:w-[20%] flex flex-col items-center justify-center border-l lg:border-white/5 lg:pl-8">
-                    <div className="flex flex-col items-center">
+                <div className="lg:w-[17%] flex flex-col items-start justify-center border-l lg:border-white/5 lg:pl-8">
+                    <div className="flex flex-col items-start">
                         <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1.5">Registry Entry</span>
-                        <div className="flex items-center gap-2 text-zinc-400 font-bold text-xs">
-                            <Calendar className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-2 text-zinc-400 font-bold text-xs whitespace-nowrap">
+                            <Calendar className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                             {new Date(cred.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                         </div>
                     </div>
                 </div>
 
-                <div className="lg:w-[20%] flex items-center justify-end gap-6 lg:pl-8 border-l lg:border-white/5">
-                    <div className={`px-4 py-2 rounded-xl text-[11px] font-bold border flex items-center gap-2.5 shadow-inner backdrop-blur-md
-                        ${isRevoked
-                            ? 'bg-red-500/10 border-red-500/20 text-red-500'
-                            : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
+                <div className="lg:w-[28%] flex items-center justify-end gap-6 lg:pl-8 border-l lg:border-white/5">
+                    <div className={`px-4 py-2 rounded-xl text-[11px] font-bold border flex items-center gap-2.5 shadow-inner backdrop-blur-md shrink-0
+                        ${statusStyles.container}
                     `}>
-                        <div className={`w-2 h-2 rounded-full ${isRevoked ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse'}`}></div>
-                        {isRevoked ? 'Revoked' : 'Active'}
+                        <div className={`w-2 h-2 rounded-full ${statusStyles.dot}`}></div>
+                        {statusStyles.label}
                     </div>
 
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 duration-500">
@@ -153,10 +189,10 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                     </div>
 
                     <div className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold border flex items-center gap-2 shrink-0
-                        ${isRevoked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}
+                        ${statusStyles.container}
                     `}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${isRevoked ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`}></div>
-                        {isRevoked ? 'Invalid' : 'Active'}
+                        <div className={`w-1.5 h-1.5 rounded-full ${statusStyles.dot}`}></div>
+                        {statusStyles.label}
                     </div>
                 </div>
 

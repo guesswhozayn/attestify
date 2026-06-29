@@ -87,9 +87,49 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   if (!credential) return null;
 
   const meta = getCredentialMeta(credential);
-  const displayMetadata = meta.metadata;
-  const isTranscript = meta.isTranscript;
+  const displayMetadata = meta?.metadata;
+  const isTranscript = meta?.isTranscript;
   const isSBT = !!credential.tokenId;
+
+  const getStatusStyles = () => {
+    if (credential.isRevoked) {
+      return {
+        container: 'bg-red-500/10 border-red-500/20 text-red-500',
+        icon: ShieldAlert,
+        label: 'REVOKED'
+      };
+    }
+    switch (credential.status) {
+      case 'PENDING':
+        return {
+          container: 'bg-zinc-500/10 border-zinc-500/20 text-zinc-400',
+          icon: Clock,
+          label: 'PENDING'
+        };
+      case 'PROCESSING':
+        return {
+          container: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+          icon: Loader2,
+          label: 'PROCESSING'
+        };
+      case 'FAILED':
+        return {
+          container: 'bg-red-500/10 border-red-500/20 text-red-400',
+          icon: ShieldAlert,
+          label: 'FAILED'
+        };
+      case 'COMPLETED':
+      default:
+        return {
+          container: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+          icon: ShieldCheck,
+          label: 'VERIFIED SECURE'
+        };
+    }
+  };
+
+  const statusStyles = getStatusStyles();
+  const StatusIcon = statusStyles.icon;
 
   const iconColor = isTranscript
     ? 'text-indigo-400'
@@ -98,6 +138,29 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Identity Registry Detail" size="2xl">
       <div className="space-y-8 pb-4">
+        {credential.status === 'FAILED' && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-400 text-sm flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Credential Issuance Failed</p>
+              <p className="text-xs text-red-400/80 mt-1">
+                {credential.processingError || 'An unknown error occurred during the background minting process. Please contact support or re-issue this credential.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {(credential.status === 'PROCESSING' || credential.status === 'PENDING') && (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-amber-400 text-sm flex items-start gap-3">
+            <Loader2 className="w-5 h-5 shrink-0 mt-0.5 animate-spin" />
+            <div>
+              <p className="font-bold">Issuance in Progress</p>
+              <p className="text-xs text-amber-400/80 mt-1">
+                This credential is currently being processed by the background worker (status: {credential.status}). On-chain registry records and downloads will be available once the transaction completes.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div
           onMouseMove={handleMouseMove}
@@ -166,13 +229,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 </div>
 
                 <div className="flex flex-col items-center md:items-end gap-3 shrink-0">
-                  <div className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full border text-[10px] font-black tracking-[0.2em] shadow-lg shadow-black/20 ${
-                    credential.isRevoked
-                      ? 'bg-red-500/10 border-red-500/20 text-red-500'
-                      : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                  }`}>
-                    {credential.isRevoked ? <ShieldAlert className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
-                    {credential.isRevoked ? 'REVOKED' : 'VERIFIED SECURE'}
+                  <div className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full border text-[10px] font-black tracking-[0.2em] shadow-lg shadow-black/20 ${statusStyles.container}`}>
+                    <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
+                    {statusStyles.label}
                   </div>
                   {isSBT && (
                     <Button
@@ -481,6 +540,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 onClick={downloadCredential}
                 variant="secondary"
                 loading={isDownloading}
+                disabled={credential.status === 'FAILED' || credential.status === 'PROCESSING' || credential.status === 'PENDING'}
                 className="w-full justify-center py-4 font-black text-sm uppercase tracking-widest rounded-2xl active:scale-95 transition-all"
                 icon={Download}
               >
@@ -489,6 +549,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               <Button
                 onClick={viewOnEtherscan}
                 variant="outline"
+                disabled={!credential.transactionHash}
                 className="w-full justify-center py-4 border-white/[0.06] hover:border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl active:scale-95 transition-all backdrop-blur-3xl"
                 icon={ExternalLink}
               >

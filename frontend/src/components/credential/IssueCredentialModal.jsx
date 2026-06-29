@@ -3,7 +3,7 @@ import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
 import TypeSelectionCard from './TypeSelectionCard';
-import { Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, Shield, Activity, Wallet } from 'lucide-react';
+import { Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, Shield, Activity, Wallet, Clock, CheckCircle } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
