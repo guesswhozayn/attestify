@@ -42,58 +42,10 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         authorizedIssuers[msg.sender] = true;
     }
 
-    function issueCertificate(string memory _studentId, bytes32 _certificateHash, string memory _ipfsCID) public onlyAuthorized nonReentrant {
-        _issueSingle(_studentId, _certificateHash, _ipfsCID);
-    }
-
-    function issueCertificateBatch(string[] memory _studentIds, bytes32[] memory _certificateHashes, string[] memory _ipfsCIDs) public onlyAuthorized nonReentrant {
-        require(_studentIds.length == _certificateHashes.length && _studentIds.length == _ipfsCIDs.length, "Arrays length mismatch");
-
-        for (uint256 i = 0; i < _studentIds.length; i++) {
-            _issueSingle(_studentIds[i], _certificateHashes[i], _ipfsCIDs[i]);
-        }
-    }
-
-    function _issueSingle(string memory _studentId, bytes32 _certificateHash, string memory _ipfsCID) internal {
-        require(!isIssued[_studentId], "Already issued");
-        require(_certificateHash != bytes32(0), "Invalid hash");
-
-        credentials[_studentId] = Credential({
-            studentId: _studentId,
-            certificateHash: _certificateHash,
-            ipfsCID: _ipfsCID,
-            issuedAt: block.timestamp,
-            isRevoked: false,
-            issuedBy: msg.sender
-        });
-
-        isIssued[_studentId] = true;
-
-        emit CredentialIssued(_studentId, _certificateHash, _ipfsCID, block.timestamp, msg.sender);
-    }
-
     function revokeCertificate(string memory _studentId) public onlyAuthorized credentialExists(_studentId) nonReentrant {
         require(!credentials[_studentId].isRevoked, "Already revoked");
         credentials[_studentId].isRevoked = true;
         emit CredentialRevoked(_studentId, block.timestamp, msg.sender);
-    }
-
-    function safeMint(address to, string memory uri) public onlyAuthorized returns (uint256) {
-        uint256 tokenId = _nextTokenId++;
-        _mintSingle(to, tokenId, uri);
-        return tokenId;
-    }
-
-    function safeMintBatch(address[] memory recipients, string[] memory uris) public onlyAuthorized returns (uint256[] memory) {
-        require(recipients.length == uris.length, "Arrays length mismatch");
-
-        uint256[] memory tokenIds = new uint256[](recipients.length);
-        for (uint256 i = 0; i < recipients.length; i++) {
-            uint256 tokenId = _nextTokenId++;
-            _mintSingle(recipients[i], tokenId, uris[i]);
-            tokenIds[i] = tokenId;
-        }
-        return tokenIds;
     }
 
     function _mintSingle(address to, uint256 tokenId, string memory uri) internal {
@@ -128,22 +80,6 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
 
         emit CredentialIssued(_studentId, _certificateHash, _ipfsCID, block.timestamp, msg.sender);
         return tokenId;
-    }
-
-    function issueUnifiedCredentialBatch(
-        address[] memory to,
-        string[] memory _studentIds,
-        bytes32[] memory _certificateHashes,
-        string[] memory _ipfsCIDs,
-        string[] memory uris
-    ) public onlyAuthorized nonReentrant returns (uint256[] memory) {
-        require(to.length == _studentIds.length && to.length == _certificateHashes.length && to.length == _ipfsCIDs.length && to.length == uris.length, "Arrays length mismatch");
-
-        uint256[] memory tokenIds = new uint256[](to.length);
-        for (uint256 i = 0; i < to.length; i++) {
-            tokenIds[i] = issueUnifiedCredential(to[i], _studentIds[i], _certificateHashes[i], _ipfsCIDs[i], uris[i]);
-        }
-        return tokenIds;
     }
 
     function revokeToken(uint256 tokenId) public onlyAuthorized {

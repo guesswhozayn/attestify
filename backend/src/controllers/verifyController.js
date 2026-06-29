@@ -24,24 +24,18 @@ async function findCredential(identifier, certificateHash = null) {
 }
 
 async function verifyOnChain(credential, hash) {
-  let isValid = await blockchainService.verifyCredential(
+  return await blockchainService.verifyCredential(
     credential._id.toString(),
     hash
   );
-
-  if (!isValid) {
-    isValid = await blockchainService.verifyCredential(
-      credential.studentWalletAddress,
-      hash
-    );
-  }
-
-  return isValid;
 }
 
 async function checkPrivacy(credential, reqUser) {
     const isOwner = reqUser && reqUser.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
-    const isIssuer = reqUser && reqUser.role === 'ISSUER' && reqUser.walletAddress?.toLowerCase() === credential.issuedBy?.walletAddress?.toLowerCase();
+    const isIssuer = reqUser && reqUser.role === 'ISSUER' && (
+      reqUser._id.toString() === credential.issuedBy?._id?.toString() ||
+      (reqUser.walletAddress && reqUser.walletAddress.toLowerCase() === credential.issuedBy?.walletAddress?.toLowerCase())
+    );
 
     if (isOwner || isIssuer) return true;
 
@@ -139,9 +133,13 @@ const verifyWithFile = asyncHandler(async (req, res) => {
 
     const isValidOnChain = await verifyOnChain(credential, uploadedHash);
 
-    credential.verificationCount += 1;
-    credential.lastVerifiedAt = new Date();
-    await credential.save();
+    await Credential.updateOne(
+      { _id: credential._id },
+      {
+        $inc: { verificationCount: 1 },
+        $set: { lastVerifiedAt: new Date() }
+      }
+    );
 
     if (fs.existsSync(tempFilePath)) {
       fs.unlinkSync(tempFilePath);
@@ -246,9 +244,13 @@ const verifyByHash = asyncHandler(async (req, res) => {
 
   const isValidOnChain = await verifyOnChain(credential, hash);
 
-  credential.verificationCount += 1;
-  credential.lastVerifiedAt = new Date();
-  await credential.save();
+    await Credential.updateOne(
+      { _id: credential._id },
+      {
+        $inc: { verificationCount: 1 },
+        $set: { lastVerifiedAt: new Date() }
+      }
+    );
 
   return res.json(buildVerificationResponse(credential, isValidOnChain, hash));
 });

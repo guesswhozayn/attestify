@@ -65,7 +65,6 @@ const credentialSchema = new mongoose.Schema({
   certificateHash: {
     type: String,
     required: [true, 'Certificate hash is required'],
-    unique: true,
     index: true
   },
   ipfsCID: {
@@ -138,6 +137,7 @@ const credentialSchema = new mongoose.Schema({
 });
 
 credentialSchema.index({ studentWalletAddress: 1, isRevoked: 1 });
+credentialSchema.index({ studentWalletAddress: 1, certificateHash: 1 });
 credentialSchema.index({ issuedBy: 1, createdAt: -1 });
 credentialSchema.index({ createdAt: -1 });
 

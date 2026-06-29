@@ -166,11 +166,20 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
         status: 'PENDING'
       });
 
-      const job = await enqueueIssuanceJob({ data, user: req.user });
-      await Credential.findByIdAndUpdate(credentialId, { jobId: job.id });
-      summary.success++;
-    } catch (err) {
-      console.error('Batch item failed:', err);
+      try {
+        const job = await enqueueIssuanceJob({ data, user: req.user });
+        await Credential.findByIdAndUpdate(credentialId, { jobId: job.id });
+        summary.success++;
+      } catch (queueErr) {
+        console.error('Failed to enqueue job for credential:', credentialId, queueErr);
+        await Credential.findByIdAndUpdate(credentialId, {
+          status: 'FAILED',
+          processingError: 'Failed to add to processing queue: ' + queueErr.message
+        });
+        summary.failed++;
+      }
+    } catch (rowError) {
+      console.error('Validation error for CSV row:', rowError.message);
       summary.failed++;
     }
   }
@@ -308,11 +317,11 @@ const revokeCredential = asyncHandler(async (req, res) => {
     return res.status(404).json({ error: 'Credential not found' });
   }
 
-  const issuerWallet = credential.issuedBy?.walletAddress?.toLowerCase();
-  const currentWallet = req.user.walletAddress?.toLowerCase();
+  const issuerId = credential.issuedBy?._id.toString();
+  const currentUserId = req.user._id.toString();
 
-  if (issuerWallet !== currentWallet) {
-    return res.status(403).json({ error: 'Unauthorized: Only the original issuer wallet can revoke this credential.' });
+  if (issuerId !== currentUserId) {
+    return res.status(403).json({ error: 'Unauthorized: Only the original issuer can revoke this credential.' });
   }
 
   if (credential.isRevoked) {
@@ -399,6 +408,11 @@ const getStats = asyncHandler(async (req, res) => {
       }
   }
 
+  const totalCompleted = await Credential.countDocuments({ ...query, status: 'COMPLETED' });
+  const totalFailed = await Credential.countDocuments({ ...query, status: 'FAILED' });
+  const totalProcessed = totalCompleted + totalFailed;
+  const transactionSuccessRate = totalProcessed > 0 ? Math.round((totalCompleted / totalProcessed) * 100) : 100;
+
   res.json({
     success: true,
     stats: {
@@ -423,7 +437,7 @@ const getStats = asyncHandler(async (req, res) => {
           blockchainService.getNetworkStats(),
           new Promise(resolve => setTimeout(() => resolve({ blockNumber: 0, gasPrice: '0', connected: false, timeout: true }), 5000))
       ]),
-      transactionSuccessRate: 100
+      transactionSuccessRate
     },
     recent
   });
@@ -449,6 +463,7 @@ const verifyCredential = asyncHandler(async (req, res) => {
 
   const result = {
     ...credential,
+    isRevoked: credential.isRevoked || (blockchainData ? blockchainData.isRevoked : false),
     institutionName: credential.issuedBy?.issuerDetails?.institutionName || credential.university || 'Attestify Institution',
     blockchainProof: blockchainData ? {
       hashMatch: blockchainData.certificateHash === credential.certificateHash,
