@@ -71,7 +71,7 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
 
-          {/* Nested Dashboard Layout Routes */}
+          {}
           <Route element={<Layout />}>
             <Route
               path="/dashboard"

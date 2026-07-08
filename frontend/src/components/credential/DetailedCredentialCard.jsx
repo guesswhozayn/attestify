@@ -74,9 +74,9 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                 <div className={`absolute bottom-10 right-10 w-6 h-6 border-b border-r border-slate-300 dark:border-white/20 rounded-br-sm pointer-events-none group-hover:w-8 group-hover:h-8 transition-all duration-500 ${isSBT ? 'group-hover:border-purple-500 dark:group-hover:border-purple-400' : 'group-hover:border-indigo-500 dark:group-hover:border-indigo-400'}`}></div>
 
                 <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-6 text-[8px] font-black tracking-[0.3em] text-slate-400 dark:text-white/20 uppercase pointer-events-none transition-all duration-500 group-hover:text-slate-600 dark:group-hover:text-white/40 group-hover:gap-10">
-                    <span>RECORD ID // 0X{credential.certificateHash?.substring(0, 8)}</span>
+                    <span>RECORD ID {"//"} 0X{credential.certificateHash?.substring(0, 8)}</span>
                     <div className={`w-1 h-1 rounded-full ${isSBT ? 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]' : 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]'}`}></div>
-                    <span>STATUS // SECURE</span>
+                    <span>STATUS {"//"} SECURE</span>
                 </div>
 
                 <div className="relative h-full p-12 lg:p-16 flex flex-col justify-between z-10 w-full">
