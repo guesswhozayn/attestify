@@ -1,0 +1,19 @@
+{
+  "name": "attestify",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "blockchain"
+  ],
+  "scripts": {
+    "dev:client": "npm run dev --workspace=@attestify/client",
+    "dev:server": "npm run dev --workspace=@attestify/server",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:client": "npm run build --workspace=@attestify/client",
+    "build": "npm run build:client"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

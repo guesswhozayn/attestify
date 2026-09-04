@@ -1,5 +1,5 @@
 {
-  "name": "blockchain",
+  "name": "@attestify/blockchain",
   "version": "1.0.0",
   "description": "Smart contracts for Attestify credential verification",
   "main": "hardhat.config.js",

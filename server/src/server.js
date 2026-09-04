@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 
-// Trust the first proxy (Render load balancer) to ensure correct IP rate-limiting
+
 app.set('trust proxy', 1);
 
 app.use(helmet({
@@ -112,7 +112,7 @@ const startServer = async () => {
       `);
     });
 
-    // Start background workers
+    
     require('./workers/issuanceWorker');
   } catch (error) {
     console.error('Failed to start server:', error);

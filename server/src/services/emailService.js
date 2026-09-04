@@ -32,7 +32,7 @@ class EmailService {
       .replace(/'/g, '&#039;');
   }
 
-  // Shared Email Template Wrapper
+  
   _wrapTemplate(title, content) {
     return `
       <!DOCTYPE html>

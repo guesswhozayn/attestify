@@ -11,7 +11,7 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
   try {
     await Credential.findByIdAndUpdate(data.credentialId, { status: 'PROCESSING', jobId: job.id });
 
-    // Handle serialized Buffer objects
+    
     if (data.studentImageBuffer && data.studentImageBuffer.type === 'Buffer') {
       data.studentImageBuffer = Buffer.from(data.studentImageBuffer.data);
     }
@@ -31,7 +31,7 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
     
     throw error;
   }
-}, { connection, concurrency: 1 }); // concurrency 1 prevents nonce collisions for blockchain txs
+}, { connection, concurrency: 1 }); 
 
 issuanceWorker.on('failed', (job, err) => {
   console.error(`Job ${job?.id} permanently failed with error: ${err.message}`);

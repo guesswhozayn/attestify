@@ -39,7 +39,7 @@ const issueCredential = asyncHandler(async (req, res) => {
   if (studentImageFile) {
     studentImageBuffer = fs.readFileSync(studentImageFile.path);
     studentImageName = studentImageFile.originalname;
-    // Clean up multer temp file
+    
     fs.unlinkSync(studentImageFile.path);
   }
 

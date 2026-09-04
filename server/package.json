@@ -1,5 +1,5 @@
 {
-  "name": "attestify-backend",
+  "name": "@attestify/server",
   "version": "1.0.0",
   "description": "Backend API for Attestify credential verification platform",
   "main": "src/server.js",
