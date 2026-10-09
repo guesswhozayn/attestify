@@ -4,7 +4,7 @@
   "description": "Smart contracts for Attestify credential verification",
   "main": "hardhat.config.js",
   "scripts": {
-    "compile": "hardhat compile",
+    "compile": "CI=true hardhat compile",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
     "verify": "hardhat run scripts/verify.js --network sepolia",

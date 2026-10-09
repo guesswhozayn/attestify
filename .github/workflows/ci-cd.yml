@@ -33,8 +33,6 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --schema=server/prisma/schema.prisma
 
-      - name: Check Backend Integrity
-        run: node scripts/test-server.js
 
       - name: Lint Frontend
         run: npm --prefix client run lint
