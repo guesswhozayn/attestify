@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
 import TypeSelectionCard from './TypeSelectionCard';
-import { Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, Shield, Activity, Wallet, Clock, CheckCircle } from 'lucide-react';
+import { Loader2, Calendar, User, Building, Image, Plus, Trash2, BookOpen, Award, Shield, Activity, Wallet } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -43,25 +43,15 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   const [transcriptData, setTranscriptData] = useState({ ...INITIAL_TRANSCRIPT });
   const [certificationData, setCertificationData] = useState({ ...INITIAL_CERTIFICATION });
 
-  const imagePreviewUrl = useRef(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
 
   useEffect(() => {
-
-    if (imagePreviewUrl.current) {
-      URL.revokeObjectURL(imagePreviewUrl.current);
-      imagePreviewUrl.current = null;
+    if (formData.studentImage instanceof File) {
+      const url = URL.createObjectURL(formData.studentImage);
+      Promise.resolve().then(() => setImagePreviewUrl(url));
+      return () => URL.revokeObjectURL(url);
     }
-
-    if (formData.studentImage && formData.studentImage instanceof File) {
-      imagePreviewUrl.current = URL.createObjectURL(formData.studentImage);
-    }
-
-    return () => {
-      if (imagePreviewUrl.current) {
-        URL.revokeObjectURL(imagePreviewUrl.current);
-        imagePreviewUrl.current = null;
-      }
-    };
+    Promise.resolve().then(() => setImagePreviewUrl(null));
   }, [formData.studentImage]);
 
   const resetForm = useCallback(() => {
@@ -284,7 +274,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                   {formData.studentImage && formData.studentImage instanceof File ? (
                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
                         <img
-                          src={imagePreviewUrl.current}
+                          src={imagePreviewUrl}
                           alt="Preview"
                           className="w-full h-full object-cover"
                         />

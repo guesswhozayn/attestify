@@ -254,7 +254,6 @@ const Register = () => {
                  </>
                ) : (
                  <>
-                  <>
                     <Input
                       label="University / Organization"
                       name="university"
@@ -290,7 +289,6 @@ const Register = () => {
                       </div>
                     </div>
                   </>
-                 </>
                )}
             </div>
 

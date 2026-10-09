@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Upload, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
+import { Search, SlidersHorizontal, X, RefreshCw } from 'lucide-react';
 import Button from '../shared/Button';
 
 const CredentialsFilter = ({

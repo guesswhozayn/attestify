@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const crypto = require('crypto');
 const Credential = require('../models/Credential');
 const User = require('../models/User');
 const blockchainService = require('./blockchainService');
@@ -29,38 +29,32 @@ class CredentialIssuanceService {
   }
 
   async processIssuance(data, reqUser) {
-    const { 
-      studentWalletAddress, studentName, university, issueDate, type, 
+    const {
+      studentWalletAddress, studentName, university, issueDate, type,
       transcriptData, certificationData, studentImageBuffer, studentImageName
     } = data;
 
-    const credentialId = data.credentialId || new mongoose.Types.ObjectId().toString();
+    const credentialId = data.credentialId || crypto.randomUUID();
     const normalizedStudentWallet = studentWalletAddress?.toLowerCase().trim();
     const parsedIssueDate = new Date(issueDate);
-
     const institutionName = reqUser.issuerDetails?.institutionName || university || 'Attestify';
-    const issuerWalletAddress = reqUser.walletAddress;
-    const issuerRegistration = reqUser.issuerDetails?.registrationNumber || '';
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const verificationUrl = `${frontendUrl}/verify/${credentialId}`;
 
     const pdfBuffer = await pdfService.generateCredentialPDF({
-      type,
-      studentName,
+      type, studentName,
       studentWalletAddress: normalizedStudentWallet,
-      university,
-      issueDate: parsedIssueDate,
-      credentialId,
-      transcriptData,
-      certificationData,
-      verificationUrl,
+      university, issueDate: parsedIssueDate, credentialId,
+      transcriptData, certificationData,
+      verificationUrl: `${frontendUrl}/verify/${credentialId}`,
       institutionName,
-      issuerWalletAddress,
-      issuerRegistration
+      issuerWalletAddress: reqUser.walletAddress,
+      issuerRegistration: reqUser.issuerDetails?.registrationNumber || ''
     });
 
-    const certificateHash = hashService.generateSHA256FromBuffer(pdfBuffer);
-    const ipfsResult = await ipfsService.uploadFile(pdfBuffer, `Certificate_${credentialId}.pdf`);
+    const [certificateHash, ipfsResult] = await Promise.all([
+      Promise.resolve(hashService.generateSHA256FromBuffer(pdfBuffer)),
+      ipfsService.uploadFile(pdfBuffer, `Certificate_${credentialId}.pdf`)
+    ]);
 
     let studentImageUrl = null;
     if (studentImageBuffer) {
@@ -72,89 +66,48 @@ class CredentialIssuanceService {
       }
     }
 
-    const credentialDataForMetadata = {
-      _id: credentialId,
-      studentWalletAddress: normalizedStudentWallet,
-      studentName,
-      university: institutionName,
-      issueDate: parsedIssueDate,
-      type,
-    };
+    const metadataURI = await this.prepareSBTMetadata(reqUser, {
+      _id: credentialId, studentWalletAddress: normalizedStudentWallet,
+      studentName, university: institutionName, issueDate: parsedIssueDate, type
+    }, ipfsResult.ipfsHash);
 
-    const metadataURI = await this.prepareSBTMetadata(reqUser, credentialDataForMetadata, ipfsResult.ipfsHash);
-    
     const blockchainResult = await blockchainService.issueUnifiedCredential(
-      normalizedStudentWallet,
-      credentialId,
-      certificateHash,
-      ipfsResult.ipfsHash,
-      metadataURI
+      normalizedStudentWallet, credentialId, certificateHash, ipfsResult.ipfsHash, metadataURI
     );
 
-    let credential = await Credential.findById(credentialId);
-    if (!credential) {
-      credential = new Credential({ _id: credentialId });
-    }
+    const credential = await Credential.findByIdAndUpdate(credentialId, {
+      studentWalletAddress: normalizedStudentWallet,
+      studentName, university: institutionName, issueDate: parsedIssueDate, type,
+      transcriptData, certificationData, issuedBy: reqUser._id,
+      studentImage: studentImageUrl, certificateHash,
+      ipfsCID: ipfsResult.ipfsHash,
+      transactionHash: blockchainResult.transactionHash,
+      blockNumber: blockchainResult.blockNumber,
+      gasUsed: blockchainResult.gasUsed,
+      gasPrice: blockchainResult.gasPrice,
+      totalCost: blockchainResult.totalCost,
+      tokenId: blockchainResult.tokenId,
+      metadata: { fileSize: pdfBuffer.length, fileType: 'application/pdf', originalFileName: `Certificate_${credentialId}.pdf` },
+      status: 'COMPLETED'
+    }, { new: true, upsert: true });
 
-    credential.studentWalletAddress = normalizedStudentWallet;
-    credential.studentName = studentName;
-    credential.university = institutionName;
-    credential.issueDate = parsedIssueDate;
-    credential.type = type;
-    credential.transcriptData = transcriptData;
-    credential.certificationData = certificationData;
-    credential.issuedBy = reqUser._id;
-    credential.studentImage = studentImageUrl;
-    credential.certificateHash = certificateHash;
-    credential.ipfsCID = ipfsResult.ipfsHash;
-    credential.transactionHash = blockchainResult.transactionHash;
-    credential.blockNumber = blockchainResult.blockNumber;
-    credential.gasUsed = blockchainResult.gasUsed;
-    credential.gasPrice = blockchainResult.gasPrice;
-    credential.totalCost = blockchainResult.totalCost;
-    credential.tokenId = blockchainResult.tokenId;
-    credential.metadata = {
-      fileSize: pdfBuffer.length,
-      fileType: 'application/pdf',
-      originalFileName: `Certificate_${credentialId}.pdf`
-    };
-
-    credential.status = 'COMPLETED';
-
-    await credential.save();
-
-    const userDoc = await User.findById(reqUser._id);
-    if (userDoc) {
-      if (!userDoc.issuerDetails) {
-        userDoc.issuerDetails = {};
-      }
-      userDoc.issuerDetails.certificatesIssued = (userDoc.issuerDetails.certificatesIssued || 0) + 1;
-      await userDoc.save();
-    }
+    await User.findByIdAndUpdate(reqUser._id, {
+      $inc: { 'issuerDetails.certificatesIssued': 1 }
+    });
 
     const studentUser = await User.findOne({ walletAddress: normalizedStudentWallet });
-    if (studentUser && studentUser.email) {
-      const emailData = {
-        studentName,
-        university: institutionName,
-        issueDate: parsedIssueDate,
+    if (studentUser?.email) {
+      emailService.sendCertificateIssued(studentUser.email, {
+        studentName, university: institutionName, issueDate: parsedIssueDate,
         transactionHash: blockchainResult.transactionHash,
-        id: credential._id,
-        ipfsCID: ipfsResult.ipfsHash,
+        id: credential._id, ipfsCID: ipfsResult.ipfsHash,
         certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
         loginLink: `${process.env.FRONTEND_URL}/login`,
         tokenId: credential.tokenId
-      };
-      emailService.sendCertificateIssued(studentUser.email, emailData).catch(err =>
-        console.error(`[EmailService] Failed to send issuance email to ${studentUser.email}:`, err)
-      );
+      }).catch(err => console.error(`[EmailService] Failed to send issuance email to ${studentUser.email}:`, err));
     }
 
-    return {
-      credential,
-      blockchainResult,
-      ipfsResult
-    };
+    return { credential, blockchainResult, ipfsResult };
   }
 }
 

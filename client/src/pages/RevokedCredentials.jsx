@@ -10,31 +10,21 @@ const RevokedCredentials = () => {
   const [selectedCredential, setSelectedCredential] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const isMounted = React.useRef(true);
 
   useEffect(() => {
-    isMounted.current = true;
-    fetchRevokedCredentials();
-    return () => { isMounted.current = false; };
+    let active = true;
+    credentialAPI.getAll({ revoked: 'true' })
+      .then((response) => {
+        if (active) setCredentials(response.data.credentials || []);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch revoked credentials', error);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, []);
-
-  const fetchRevokedCredentials = async () => {
-    try {
-      setLoading(true);
-      const response = await credentialAPI.getAll({ revoked: 'true' });
-      if (isMounted.current) {
-          setCredentials(response.data.credentials || []);
-      }
-    } catch (error) {
-      if (isMounted.current) {
-          console.error('Failed to fetch revoked credentials', error);
-      }
-    } finally {
-      if (isMounted.current) {
-          setLoading(false);
-      }
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">

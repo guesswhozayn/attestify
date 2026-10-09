@@ -24,7 +24,6 @@ const Documentation = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
-  const containerRef = useRef(null);
 
   const SCROLL_OFFSET = 110;
 
@@ -82,7 +81,6 @@ const Documentation = () => {
 
   return (
     <div
-      ref={containerRef}
       className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
     >
       <Background scrollY={scrollY} parallax />

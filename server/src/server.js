@@ -11,39 +11,34 @@ dotenv.config();
 
 const app = express();
 
-
 app.set('trust proxy', 1);
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
-const normalizedOrigin = allowedOrigin.endsWith('/') ? allowedOrigin.slice(0, -1) : allowedOrigin;
+const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
 app.use(cors({
-  origin: [normalizedOrigin, `${normalizedOrigin}/`],
+  origin: [allowedOrigin, `${allowedOrigin}/`],
   credentials: true
 }));
 
-const limiter = rateLimit({
+app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
-});
+}));
 
-const authLimiter = rateLimit({
+app.use('/api/auth/', rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
   message: { error: 'Too many login/register attempts, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
-});
-
-app.use('/api/', limiter);
-app.use('/api/auth/', authLimiter);
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -55,19 +50,12 @@ app.use((req, res, next) => {
   next();
 });
 
-const authRoutes = require('./routes/auth');
-const credentialRoutes = require('./routes/credentials');
-const verifyRoutes = require('./routes/verify');
-const userRoutes = require('./routes/user');
-const networkRoutes = require('./routes/network');
-const fileRoutes = require('./routes/files');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/credentials', credentialRoutes);
-app.use('/api/verify', verifyRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/network', networkRoutes);
-app.use('/api/files', fileRoutes);
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/credentials', require('./routes/credentials'));
+app.use('/api/verify', require('./routes/verify'));
+app.use('/api/users', require('./routes/user'));
+app.use('/api/network', require('./routes/network'));
+app.use('/api/files', require('./routes/files'));
 
 app.get('/health', (req, res) => {
   res.json({
@@ -101,18 +89,10 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-
     const PORT = process.env.PORT || 5000;
-    const server = app.listen(PORT, () => {
-      console.log(`
-  Attestify Backend Server
-  Port: ${PORT}
-  Environment: ${process.env.NODE_ENV || 'development'}
-  Database: Connected
-      `);
+    app.listen(PORT, () => {
+      console.log(`\n  Attestify Backend Server\n  Port: ${PORT}\n  Environment: ${process.env.NODE_ENV || 'development'}\n  Database: Connected\n`);
     });
-
-    
     require('./workers/issuanceWorker');
   } catch (error) {
     console.error('Failed to start server:', error);

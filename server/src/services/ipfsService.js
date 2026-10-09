@@ -1,6 +1,5 @@
 const axios = require('axios');
 const FormData = require('form-data');
-const fs = require('fs');
 
 class IPFSService {
   constructor() {
@@ -10,40 +9,40 @@ class IPFSService {
     this.gatewayUrl = 'https://gateway.pinata.cloud/ipfs/';
   }
 
+  _authHeaders() {
+    return {
+      'pinata_api_key': this.pinataApiKey,
+      'pinata_secret_api_key': this.pinataSecretKey
+    };
+  }
+
+  _extractResult(response) {
+    return {
+      ipfsHash: response.data.IpfsHash,
+      pinSize: response.data.PinSize,
+      timestamp: response.data.Timestamp
+    };
+  }
+
   async uploadFile(fileBuffer, fileName) {
     try {
       const formData = new FormData();
       formData.append('file', fileBuffer, { filename: fileName });
-
-      const metadata = JSON.stringify({
+      formData.append('pinataMetadata', JSON.stringify({
         name: fileName,
-        keyvalues: {
-          uploadedBy: 'attestify',
-          timestamp: Date.now().toString()
-        }
-      });
-      formData.append('pinataMetadata', metadata);
-
-      const options = JSON.stringify({
-        cidVersion: 1
-      });
-      formData.append('pinataOptions', options);
+        keyvalues: { uploadedBy: 'attestify', timestamp: Date.now().toString() }
+      }));
+      formData.append('pinataOptions', JSON.stringify({ cidVersion: 1 }));
 
       const response = await axios.post(this.pinataEndpoint, formData, {
         maxBodyLength: 'Infinity',
         headers: {
           'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
-          'pinata_api_key': this.pinataApiKey,
-          'pinata_secret_api_key': this.pinataSecretKey
+          ...this._authHeaders()
         }
       });
 
-      return {
-        ipfsHash: response.data.IpfsHash,
-        pinSize: response.data.PinSize,
-        timestamp: response.data.Timestamp
-      };
-
+      return this._extractResult(response);
     } catch (error) {
       console.error('IPFS upload error:', error.response?.data || error.message);
       throw new Error(`IPFS upload failed: ${error.message}`);
@@ -56,27 +55,14 @@ class IPFSService {
         pinataContent: data,
         pinataMetadata: {
           name: name || 'metadata.json',
-          keyvalues: {
-            uploadedBy: 'attestify',
-            timestamp: Date.now().toString()
-          }
+          keyvalues: { uploadedBy: 'attestify', timestamp: Date.now().toString() }
         },
-        pinataOptions: {
-          cidVersion: 1
-        }
+        pinataOptions: { cidVersion: 1 }
       }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'pinata_api_key': this.pinataApiKey,
-          'pinata_secret_api_key': this.pinataSecretKey
-        }
+        headers: { 'Content-Type': 'application/json', ...this._authHeaders() }
       });
 
-      return {
-        ipfsHash: response.data.IpfsHash,
-        pinSize: response.data.PinSize,
-        timestamp: response.data.Timestamp
-      };
+      return this._extractResult(response);
     } catch (error) {
       console.error('IPFS JSON upload error:', error.response?.data || error.message);
       throw new Error(`IPFS JSON upload failed: ${error.message}`);
@@ -85,15 +71,9 @@ class IPFSService {
 
   async unpinFile(ipfsHash) {
     try {
-      await axios.delete(
-        `https://api.pinata.cloud/pinning/unpin/${ipfsHash}`,
-        {
-          headers: {
-            'pinata_api_key': this.pinataApiKey,
-            'pinata_secret_api_key': this.pinataSecretKey
-          }
-        }
-      );
+      await axios.delete(`https://api.pinata.cloud/pinning/unpin/${ipfsHash}`, {
+        headers: this._authHeaders()
+      });
       return true;
     } catch (error) {
       console.error('IPFS unpin error:', error);
@@ -108,10 +88,7 @@ class IPFSService {
   async testConnection() {
     try {
       const response = await axios.get('https://api.pinata.cloud/data/testAuthentication', {
-        headers: {
-          'pinata_api_key': this.pinataApiKey,
-          'pinata_secret_api_key': this.pinataSecretKey
-        }
+        headers: this._authHeaders()
       });
       return response.data.message === 'Congratulations! You are communicating with the Pinata API!';
     } catch (error) {

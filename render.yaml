@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: attestify-backend
+    runtime: node
+    plan: free
+    buildCommand: npm ci && cd server && npx prisma generate && npx prisma db push
+    startCommand: cd server && node src/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SEPOLIA_RPC_URL
+        sync: false
+      - key: ADMIN_PRIVATE_KEY
+        sync: false
+      - key: CONTRACT_ADDRESS
+        sync: false
+      - key: PINATA_API_KEY
+        sync: false
+      - key: PINATA_SECRET_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: attestify-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: attestify-redis
+          property: port
+
+  - type: redis
+    name: attestify-redis
+    plan: free
+    ipAllowList: []

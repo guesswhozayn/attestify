@@ -11,14 +11,11 @@ class EmailService {
     try {
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
       });
     } catch (error) {
-       console.error('Email service: Failed to create transporter', error);
-       this.transporter = null;
+      console.error('Email service: Failed to create transporter', error);
+      this.transporter = null;
     }
   }
 
@@ -32,7 +29,6 @@ class EmailService {
       .replace(/'/g, '&#039;');
   }
 
-  
   _wrapTemplate(title, content) {
     return `
       <!DOCTYPE html>
@@ -229,12 +225,25 @@ class EmailService {
     `;
   }
 
-  async sendCertificateIssued(to, data) {
+  async _send(to, subject, title, content) {
     if (!this.transporter) {
-        console.warn('Email service: Transporter not initialized. Skipping email.');
-        return false;
+      console.warn('Email service: Transporter not initialized. Skipping email.');
+      return false;
     }
+    try {
+      await this.transporter.sendMail({
+        from: `"Attestify" <${process.env.EMAIL_USER}>`,
+        to, subject,
+        html: this._wrapTemplate(title, content)
+      });
+      return true;
+    } catch (error) {
+      console.error('Email send error:', error);
+      return false;
+    }
+  }
 
+  async sendCertificateIssued(to, data) {
     const content = `
       <div style="text-align: center; margin-bottom: 30px;">
         <div class="badge">Verified On-Chain</div>
@@ -279,30 +288,10 @@ class EmailService {
       </div>
     `;
 
-    const html = this._wrapTemplate('Credential Issued', content);
-
-    const mailOptions = {
-      from: `"Attestify" <${process.env.EMAIL_USER}>`,
-      to: to,
-      subject: `New Credential Issued: ${data.university}`,
-      html: html
-    };
-
-    try {
-      await this.transporter.sendMail(mailOptions);
-      return true;
-    } catch (error) {
-      console.error('Email send error:', error);
-      return false;
-    }
+    return this._send(to, `New Credential Issued: ${data.university}`, 'Credential Issued', content);
   }
 
   async sendWelcomeEmail(to, name) {
-    if (!this.transporter) {
-        console.warn('Email service: Transporter not initialized. Skipping email.');
-        return false;
-    }
-
     const content = `
       <h2 style="text-align: center;">Welcome to the Network.</h2>
       <p style="text-align: center;">The future of decentralized credentialing is here. We're glad to have you, <strong>${this._sanitize(name)}</strong>.</p>
@@ -335,22 +324,7 @@ class EmailService {
       </div>
     `;
 
-    const html = this._wrapTemplate('Welcome to Attestify', content);
-
-    const mailOptions = {
-      from: `"Attestify" <${process.env.EMAIL_USER}>`,
-      to: to,
-      subject: 'Welcome to Attestify',
-      html: html
-    };
-
-    try {
-      await this.transporter.sendMail(mailOptions);
-      return true;
-    } catch (error) {
-      console.error('Welcome email error:', error);
-      return false;
-    }
+    return this._send(to, 'Welcome to Attestify', 'Welcome to Attestify', content);
   }
 }
 

@@ -13,189 +13,92 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-
       const { status, data } = error.response;
-
-      switch (status) {
-        case 401:
-
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          if (window.location.pathname !== '/login') {
-            window.dispatchEvent(new Event('auth-unauthorized'));
-          }
-          break;
-
-        case 403:
-
-          console.error('Access forbidden:', data.error);
-          break;
-
-        case 404:
-
-          console.error('Resource not found:', data.error);
-          break;
-
-        case 500:
-
-          console.error('Server error:', data.error);
-          break;
+      if (status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (window.location.pathname !== '/login') {
+          window.dispatchEvent(new Event('auth-unauthorized'));
+        }
+      } else if (status === 403) {
+        console.error('Access forbidden:', data.error);
+      } else if (status === 404) {
+        console.error('Resource not found:', data.error);
+      } else if (status === 500) {
+        console.error('Server error:', data.error);
       }
     } else if (error.request) {
-
       console.error('Network error - no response from server');
     } else {
-
       console.error('Request error:', error.message);
     }
-
     return Promise.reject(error);
   }
 );
 
 export const authAPI = {
-
-  register: async (userData) => {
-    return api.post('/auth/register', userData);
-  },
-
-  login: async (credentials) => {
-    return api.post('/auth/login', credentials);
-  },
-
-  getCurrentUser: async () => {
-    return api.get('/auth/me');
-  },
-
-  logout: async () => {
-    return api.post('/auth/logout');
-  }
+  register: (userData) => api.post('/auth/register', userData),
+  login: (credentials) => api.post('/auth/login', credentials),
+  getCurrentUser: () => api.get('/auth/me'),
+  logout: () => api.post('/auth/logout')
 };
 
 export const credentialAPI = {
-
-  issue: async (formData) => {
-    return api.post('/credentials/issue', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-
-      timeout: 180000
-    });
-  },
-
-  getAll: async (params = {}) => {
-    return api.get('/credentials', { params });
-  },
-
-  getById: async (id) => {
-    return api.get(`/credentials/${id}`);
-  },
-
-  getByWalletAddress: async (walletAddress) => {
-    return api.get(`/credentials/student/${walletAddress}`);
-  },
-
-  revoke: async (id, reason) => {
-    return api.post(`/credentials/${id}/revoke`, { reason });
-  },
-
-  batchUpload: async (formData) => {
-    return api.post('/credentials/batch-issue', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-      timeout: 120000
-    });
-  },
-
-  getStatus: async (id) => {
-    return api.get(`/credentials/status/${id}`);
-  },
-
-  getStats: async () => {
-    return api.get('/credentials/stats');
-  }
+  issue: (formData) => api.post('/credentials/issue', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 180000
+  }),
+  getAll: (params = {}) => api.get('/credentials', { params }),
+  getById: (id) => api.get(`/credentials/${id}`),
+  getByWalletAddress: (walletAddress) => api.get(`/credentials/student/${walletAddress}`),
+  revoke: (id, reason) => api.post(`/credentials/${id}/revoke`, { reason }),
+  batchUpload: (formData) => api.post('/credentials/batch-issue', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 120000
+  }),
+  getStatus: (id) => api.get(`/credentials/status/${id}`),
+  getStats: () => api.get('/credentials/stats')
 };
 
 export const verifyAPI = {
-
-  verifyWithFile: async (formData) => {
-    return api.post('/verify/certificate', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  },
-
-  checkExists: async (walletAddress) => {
-    return api.get(`/verify/${walletAddress}`);
-  },
-
-  verifyByHash: async (studentWalletAddress, hash) => {
-    return api.post('/verify/hash', { studentWalletAddress, hash });
-  }
+  verifyWithFile: (formData) => api.post('/verify/certificate', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  checkExists: (walletAddress) => api.get(`/verify/${walletAddress}`),
+  verifyByHash: (studentWalletAddress, hash) => api.post('/verify/hash', { studentWalletAddress, hash })
 };
 
 export const networkAPI = {
-
-  getStats: async () => {
-    return api.get('/network/stats');
-  }
+  getStats: () => api.get('/network/stats')
 };
 
 export const userAPI = {
-
-  getProfile: async () => {
-    return api.get('/users/profile');
-  },
-
-  updateProfile: async (data) => {
-    return api.put('/users/profile', data);
-  },
-
-  changePassword: async (data) => {
-    return api.put('/users/password', data);
-  },
-
-  uploadAvatar: async (formData) => {
-    return api.post('/users/avatar', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  }
+  getProfile: () => api.get('/users/profile'),
+  updateProfile: (data) => api.put('/users/profile', data),
+  changePassword: (data) => api.put('/users/password', data),
+  uploadAvatar: (formData) => api.post('/users/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
 };
 
 export const fileAPI = {
-  downloadCertificate: async (id) => {
-    return api.get(`/files/certificate/${id}`, {
-      responseType: 'blob'
-    });
-  }
+  downloadCertificate: (id) => api.get(`/files/certificate/${id}`, { responseType: 'blob' })
 };
-
-export default api;
 
 export const clearAuth = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   delete api.defaults.headers.common['Authorization'];
 };
+
+export default api;

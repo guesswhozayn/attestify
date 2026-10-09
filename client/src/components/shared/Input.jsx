@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Input = ({
   label,
   error,
@@ -5,12 +7,15 @@ const Input = ({
   rightAction,
   required = false,
   className = '',
+  id,
   ...props
 }) => {
+  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider">
+        <label htmlFor={inputId} className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider">
           {label} {required && <span className="text-red-500/70 text-[10px] align-top">*</span>}
         </label>
       )}
@@ -21,18 +26,12 @@ const Input = ({
           </div>
         )}
         <input
-          className={`
-            w-full bg-black/40 text-gray-100
-            py-3.5 rounded-xl border border-white/10
-            text-sm placeholder-gray-600
-            focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:bg-black/60
-            disabled:opacity-50 disabled:cursor-not-allowed
-            transition-all duration-200 backdrop-blur-md
-            ${Icon ? 'pl-12' : 'pl-5'}
-            ${rightAction ? 'pr-12' : 'pr-5'}
-            ${error ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : ''}
-            ${className}
-          `}
+          id={inputId}
+          className={`w-full bg-black/40 text-gray-100 py-3.5 rounded-xl border border-white/10 text-sm placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:bg-black/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 backdrop-blur-md ${
+            Icon ? 'pl-12' : 'pl-5'
+          } ${rightAction ? 'pr-12' : 'pr-5'} ${
+            error ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20' : ''
+          } ${className}`}
           {...props}
         />
         {rightAction && (
@@ -46,4 +45,4 @@ const Input = ({
   );
 };
 
-export default Input;
+export default React.memo(Input);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import CredentialTable from '../components/credential/CredentialTable';
@@ -13,21 +13,18 @@ import StudentStats from '../components/credential/StudentStats';
 const StudentCredentials = () => {
     const { user } = useAuth();
     const [credentials, setCredentials] = useState([]);
-    const [filteredCredentials, setFilteredCredentials] = useState([]);
     const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
     const [activeTab, setActiveTab] = useState('all');
     const [selectedCredential, setSelectedCredential] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!!user?.walletAddress);
     const [refreshing, setRefreshing] = useState(false);
     const { showNotification } = useNotification();
     const [walletAddress, setWalletAddress] = useState(user?.walletAddress);
-
     const [searchQuery, setSearchQuery] = useState('');
 
     const fetchCredentials = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
-            else setLoading(true);
             const response = await credentialAPI.getByWalletAddress(walletAddress);
             const docs = response.data.credentials || [];
 
@@ -36,8 +33,8 @@ const StudentCredentials = () => {
             const active = total - revokedCount;
             const sbtCount = docs.filter(d => !!d.tokenId).length;
             const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
-            setStats({ total, active, sbtCount, uniqueIssuers });
 
+            setStats({ total, active, sbtCount, uniqueIssuers });
             setCredentials(docs);
         } catch (error) {
             console.error('Failed to fetch credentials:', error);
@@ -49,35 +46,43 @@ const StudentCredentials = () => {
     }, [walletAddress, showNotification]);
 
     useEffect(() => {
-        const init = async () => {
-            if (!walletAddress) {
-                try {
-                    const address = await blockchainService.connectWallet();
-                    setWalletAddress(address);
-                } catch (e) {
-                    console.log("Wallet not auto-connected", e);
-                }
-            }
-        };
-        init();
-
-    }, []);
-
-    useEffect(() => {
-        if (walletAddress) {
-            fetchCredentials();
-        } else {
-            setLoading(false);
+        if (!walletAddress) {
+            blockchainService.connectWallet()
+                .then(address => address && setWalletAddress(address))
+                .catch(e => console.log("Wallet not auto-connected", e));
         }
-    }, [walletAddress, fetchCredentials]);
+    }, [walletAddress]);
 
     useEffect(() => {
-        let filtered = credentials;
+        if (!walletAddress) return;
+        let active = true;
+        Promise.resolve().then(() => {
+            if (active) setLoading(true);
+            return credentialAPI.getByWalletAddress(walletAddress);
+        }).then(response => {
+            if (!active) return;
+            const docs = response.data.credentials || [];
+            const total = docs.length;
+            const revokedCount = docs.filter(d => d.isRevoked).length;
+            const activeCount = total - revokedCount;
+            const sbtCount = docs.filter(d => !!d.tokenId).length;
+            const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
+            setStats({ total, active: activeCount, sbtCount, uniqueIssuers });
+            setCredentials(docs);
+        }).catch(error => {
+            console.error('Failed to fetch credentials:', error);
+            if (active) showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
+        }).finally(() => {
+            if (active) setLoading(false);
+        });
+        return () => { active = false; };
+    }, [walletAddress, showNotification]);
 
+    const filteredCredentials = useMemo(() => {
+        let filtered = credentials;
         if (activeTab !== 'all') {
             filtered = filtered.filter(doc => doc.type === activeTab);
         }
-
         if (searchQuery) {
             const lower = searchQuery.toLowerCase();
             filtered = filtered.filter(cred =>
@@ -86,8 +91,7 @@ const StudentCredentials = () => {
                 (cred.certificateHash && cred.certificateHash.toLowerCase().includes(lower))
             );
         }
-
-        setFilteredCredentials(filtered);
+        return filtered;
     }, [credentials, activeTab, searchQuery]);
 
     const handleSearch = (query) => {

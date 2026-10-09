@@ -4,82 +4,72 @@ import { Shield, Grid, FileText, Trash2, User, Activity, Settings, LogOut, X } f
 import Button from '../shared/Button';
 import { useAuth } from '../../context/AuthContext';
 
+const menuItems = [
+  { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['ISSUER', 'STUDENT'] },
+  { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['ISSUER', 'STUDENT'] },
+  { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] },
+  { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
+  { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] },
+];
+
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
-
-  const menuItems = [
-    { icon: Grid, path: '/dashboard', label: 'Dashboard', roles: ['ISSUER', 'STUDENT'] },
-    { icon: FileText, path: '/credentials', label: 'Credentials', roles: ['ISSUER', 'STUDENT'] },
-    { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] },
-    { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
-    { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] },
-  ];
-
-  const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  return (
-    <div className={`
-      fixed inset-y-0 left-0 z-50 w-64 md:w-20 bg-black backdrop-blur-3xl md:bg-black/80 border-r border-white/[0.06] flex flex-col items-center py-6 h-full transition-transform duration-300 ease-in-out
-      ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-    `}>
+  const handleNavigate = (path) => {
+    navigate(path);
+    if (onClose) onClose();
+  };
 
+  return (
+    <div className={`fixed inset-y-0 left-0 z-50 w-64 md:w-20 bg-black backdrop-blur-3xl md:bg-black/80 border-r border-white/[0.06] flex flex-col items-center py-6 h-full transition-transform duration-300 ease-in-out ${
+      isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+    }`}>
       <button
         onClick={onClose}
         className="md:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+        aria-label="Close Sidebar"
       >
-         <X className="w-5 h-5" />
+        <X className="w-5 h-5" />
       </button>
 
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none rounded-none"></div>
-
-      <div
-        className="relative z-10 mb-8 cursor-pointer group"
-        onClick={() => navigate('/dashboard')}
-      >
-        <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover:opacity-50 transition-opacity duration-500"></div>
-        <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-purple-500/20">
-            <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                <Shield className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors" />
-            </div>
+      <div className="relative z-10 mb-8 cursor-pointer group" onClick={() => handleNavigate('/dashboard')}>
+        <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover:opacity-50 transition-opacity duration-500" />
+        <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-purple-500/20">
+          <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+            <Shield className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors" />
+          </div>
         </div>
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col space-y-4 w-full px-3">
-        {menuItems.map((item) => {
-          if (!item.roles.includes(user?.role)) return null;
-
+        {menuItems.filter(item => item.roles.includes(user?.role)).map((item) => {
           const Icon = item.icon;
-          const active = isActive(item.path);
+          const active = location.pathname === item.path;
 
           return (
             <Button
               key={item.path}
-              onClick={() => {
-                  navigate(item.path);
-                  if (onClose) onClose();
-              }}
+              onClick={() => handleNavigate(item.path)}
               variant={active ? 'primary' : 'ghost'}
               rounded="2xl"
               className={`relative p-3 !shadow-none !justify-center ${
                 active
-                  ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 shadow-indigo-500/25 ring-1 ring-white/10'
+                  ? 'bg-linear-to-tr from-indigo-600 to-indigo-500 shadow-indigo-500/25 ring-1 ring-white/10'
                   : 'text-gray-400'
               }`}
             >
-              <Icon className={`w-6 h-6 ${active ? 'animate-in zoom-in-50 duration-200' : ''}`} />
-
+              <Icon className="w-6 h-6" />
               <div className="hidden md:block absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
                 {item.label}
-                <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45"></div>
+                <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45" />
               </div>
-
               <span className="md:hidden ml-4 font-semibold text-sm tracking-wide">{item.label}</span>
             </Button>
           );
@@ -87,28 +77,20 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
 
       <div className="relative z-10 flex flex-col space-y-4 w-full px-3 mt-auto">
-        <div className="h-px bg-white/[0.06] w-full mx-auto"></div>
-
+        <div className="h-px bg-white/[0.06] w-full mx-auto" />
         <Button
-          onClick={() => {
-             navigate('/settings');
-             if (onClose) onClose();
-          }}
-          variant={isActive('/settings') ? 'secondary' : 'ghost'}
+          onClick={() => handleNavigate('/settings')}
+          variant={location.pathname === '/settings' ? 'secondary' : 'ghost'}
           rounded="2xl"
           className={`relative p-3 !shadow-none !justify-center ${
-            isActive('/settings')
-              ? 'bg-white/[0.05] border border-white/[0.08]'
-              : 'text-gray-400'
+            location.pathname === '/settings' ? 'bg-white/[0.05] border border-white/[0.08]' : 'text-gray-400'
           }`}
         >
-          <Settings className={`w-6 h-6 ${isActive('/settings') ? 'animate-spin-slow' : ''}`} />
-
+          <Settings className="w-6 h-6" />
           <div className="hidden md:block absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
-             Settings
-             <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45"></div>
+            Settings
+            <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45" />
           </div>
-
           <span className="md:hidden ml-4 font-semibold text-sm tracking-wide">Settings</span>
         </Button>
 
@@ -120,10 +102,9 @@ const Sidebar = ({ isOpen, onClose }) => {
         >
           <LogOut className="w-6 h-6" />
           <div className="hidden md:block absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-red-900/30 text-red-200 text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
-             Logout
-             <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-red-900/30 transform rotate-45"></div>
+            Logout
+            <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-red-900/30 transform rotate-45" />
           </div>
-
           <span className="md:hidden ml-4 font-semibold text-sm tracking-wide">Logout</span>
         </Button>
       </div>

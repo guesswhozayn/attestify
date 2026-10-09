@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ISSUER
+  STUDENT
+}
+
+enum CredentialType {
+  TRANSCRIPT
+  CERTIFICATION
+}
+
+enum CredentialStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                String       @id @default(uuid())
+  name              String
+  email             String       @unique
+  password          String?
+  role              Role         @default(STUDENT)
+  university        String       @default("Not Specified")
+  title             String       @default("")
+  about             String       @default("")
+  googleId          String?      @unique
+  avatar            String?
+  walletAddress     String?
+  isActive          Boolean      @default(true)
+  issuerDetails     Json?
+  preferences       Json?
+  lastLogin         DateTime?
+  tokenVersion      Int          @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  createdById       String?
+  createdBy         User?        @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdUsers      User[]       @relation("UserCreatedBy")
+
+  issuedCredentials  Credential[] @relation("IssuedByUser")
+  revokedCredentials Credential[] @relation("RevokedByUser")
+
+  @@index([email])
+  @@index([walletAddress])
+  @@map("users")
+}
+
+model Credential {
+  id                  String           @id @default(uuid())
+  studentWalletAddress String
+  studentName         String
+  university          String
+  issueDate           DateTime
+  type                CredentialType   @default(CERTIFICATION)
+  status              CredentialStatus @default(PENDING)
+  jobId               String?
+  processingError     String?
+  transcriptData      Json?
+  certificationData   Json?
+  studentImage        String?
+  certificateHash     String
+  ipfsCID             String?
+  transactionHash     String?
+  blockNumber         Int?
+  tokenId             String?
+  isRevoked           Boolean          @default(false)
+  revokedAt           DateTime?
+  revocationReason    String?
+  gasUsed             String?
+  gasPrice            String?
+  totalCost           String?
+  revocationGasUsed   String?
+  revocationGasPrice  String?
+  revocationTotalCost String?
+  metadata            Json?
+  verificationCount   Int              @default(0)
+  lastVerifiedAt      DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  issuedById          String
+  issuedBy            User             @relation("IssuedByUser", fields: [issuedById], references: [id])
+
+  revokedById         String?
+  revokedByUser       User?            @relation("RevokedByUser", fields: [revokedById], references: [id])
+
+  @@index([studentWalletAddress, isRevoked])
+  @@index([studentWalletAddress, certificateHash])
+  @@index([certificateHash])
+  @@index([tokenId])
+  @@index([jobId])
+  @@index([issuedById, createdAt])
+  @@index([createdAt])
+  @@map("credentials")
+}

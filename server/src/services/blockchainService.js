@@ -1,7 +1,8 @@
 const { ethers } = require('ethers');
 const contractArtifact = require('../config/contractABI.json');
-const contractABI = contractArtifact.abi || contractArtifact;
 const SimpleMutex = require('../utils/mutex');
+
+const contractABI = contractArtifact.abi || contractArtifact;
 
 class BlockchainService {
   constructor() {
@@ -28,11 +29,7 @@ class BlockchainService {
 
   get contract() {
     if (!this._contract) {
-      this._contract = new ethers.Contract(
-        process.env.CONTRACT_ADDRESS,
-        contractABI,
-        this.wallet
-      );
+      this._contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractABI, this.wallet);
     }
     return this._contract;
   }
@@ -45,14 +42,13 @@ class BlockchainService {
       attempt++;
       try {
         const receipt = await this.provider.getTransactionReceipt(txHash);
-        if (receipt && receipt.blockNumber) {
+        if (receipt?.blockNumber) {
           console.log(`[Blockchain] Receipt confirmed for ${txHash} (attempt ${attempt}, ${Date.now() - start}ms)`);
           return receipt;
         }
       } catch (err) {
         console.warn(`[Blockchain] getTransactionReceipt error (attempt ${attempt}): ${err.message}`);
       }
-
       await new Promise(r => setTimeout(r, intervalMs));
     }
 
@@ -65,12 +61,19 @@ class BlockchainService {
   async getNonce() {
     await this.nonceMutex.lock();
     try {
-      if (this.currentNonce === null || this.currentNonce === undefined) {
+      if (this.currentNonce == null) {
         this.currentNonce = await this.provider.getTransactionCount(this.wallet.address, 'pending');
       }
-      const nonce = this.currentNonce;
-      this.currentNonce++;
-      return nonce;
+      return this.currentNonce++;
+    } finally {
+      this.nonceMutex.unlock();
+    }
+  }
+
+  async _resetNonce() {
+    await this.nonceMutex.lock();
+    try {
+      this.currentNonce = null;
     } finally {
       this.nonceMutex.unlock();
     }
@@ -99,23 +102,12 @@ class BlockchainService {
         try {
           return await contractCall(...args, bumpedOverrides);
         } catch (retryErr) {
-          await this.nonceMutex.lock();
-          try {
-            this.currentNonce = null;
-          } finally {
-            this.nonceMutex.unlock();
-          }
+          await this._resetNonce();
           throw retryErr;
         }
       }
 
-      await this.nonceMutex.lock();
-      try {
-        this.currentNonce = null;
-      } finally {
-        this.nonceMutex.unlock();
-      }
-
+      await this._resetNonce();
       throw err;
     }
   }
@@ -123,57 +115,52 @@ class BlockchainService {
   async _getGasOverrides(multiplier = 1.0) {
     const feeData = await this.provider.getFeeData();
     const mul = BigInt(Math.round(multiplier * 100));
-
     const PRIORITY_FLOOR = BigInt(3e9);
-    const MAX_FEE_FLOOR  = BigInt(15e9);
-
+    const MAX_FEE_FLOOR = BigInt(15e9);
     const rawPriority = feeData.maxPriorityFeePerGas ?? BigInt(1e9);
-    const rawMax      = feeData.maxFeePerGas ?? BigInt(10e9);
+    const rawMax = feeData.maxFeePerGas ?? BigInt(10e9);
 
-    const maxPriorityFeePerGas = (rawPriority * mul / 100n) > PRIORITY_FLOOR
-      ? (rawPriority * mul / 100n)
-      : PRIORITY_FLOOR;
+    const maxPriorityFeePerGas = rawPriority * mul / 100n > PRIORITY_FLOOR
+      ? rawPriority * mul / 100n : PRIORITY_FLOOR;
+    const maxFeePerGas = rawMax * mul / 100n > MAX_FEE_FLOOR
+      ? rawMax * mul / 100n : MAX_FEE_FLOOR;
 
-    const maxFeePerGas = (rawMax * mul / 100n) > MAX_FEE_FLOOR
-      ? (rawMax * mul / 100n)
-      : MAX_FEE_FLOOR;
-
-    console.log(`[Gas] maxFeePerGas=${ethers.formatUnits(maxFeePerGas,'gwei')} gwei, maxPriorityFeePerGas=${ethers.formatUnits(maxPriorityFeePerGas,'gwei')} gwei`);
+    console.log(`[Gas] maxFeePerGas=${ethers.formatUnits(maxFeePerGas, 'gwei')} gwei, maxPriorityFeePerGas=${ethers.formatUnits(maxPriorityFeePerGas, 'gwei')} gwei`);
     return { maxFeePerGas, maxPriorityFeePerGas };
   }
 
   _extractGasStats(receipt) {
     const gasPrice = receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0n;
     const gasUsed = receipt.gasUsed ?? 0n;
-    const totalCost = gasUsed * gasPrice;
     return {
       gasUsed: gasUsed.toString(),
       gasPrice: gasPrice.toString(),
-      totalCost: totalCost.toString()
+      totalCost: (gasUsed * gasPrice).toString()
     };
+  }
+
+  async _sendContractTx(method, args) {
+    const gasEstimate = await method.estimateGas(...args);
+    const nonce = await this.getNonce();
+    const gasOverrides = await this._getGasOverrides();
+
+    return this._sendWithRetry(
+      method.bind(this.contract),
+      args,
+      { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
+    );
   }
 
   async revokeCertificate(studentId) {
     try {
-      const gasEstimate = await this.contract.revokeCertificate.estimateGas(studentId);
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.revokeCertificate.bind(this.contract),
-        [studentId],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
-
+      const tx = await this._sendContractTx(this.contract.revokeCertificate, [studentId]);
       console.log('Revoke transaction sent:', tx.hash);
       const receipt = await this._pollForReceipt(tx.hash);
-
       return {
         transactionHash: receipt.hash,
         blockNumber: receipt.blockNumber,
         ...this._extractGasStats(receipt)
       };
-
     } catch (error) {
       console.error('Blockchain revoke error:', error);
       throw new Error(`Revocation failed: ${error.message}`);
@@ -183,22 +170,8 @@ class BlockchainService {
   async issueUnifiedCredential(to, studentId, certificateHash, ipfsCID, tokenURI) {
     try {
       console.log('Minting Unified Credential:', { to, studentId, certificateHash });
-
-      const gasEstimate = await this.contract.issueUnifiedCredential.estimateGas(
-        to,
-        studentId,
-        certificateHash,
-        ipfsCID,
-        tokenURI
-      );
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.issueUnifiedCredential.bind(this.contract),
-        [to, studentId, certificateHash, ipfsCID, tokenURI],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
+      const args = [to, studentId, certificateHash, ipfsCID, tokenURI];
+      const tx = await this._sendContractTx(this.contract.issueUnifiedCredential, args);
 
       console.log('Unified Mint transaction sent:', tx.hash);
       const receipt = await this._pollForReceipt(tx.hash);
@@ -222,37 +195,24 @@ class BlockchainService {
         status: receipt.status === 1 ? 'success' : 'failed',
         ...this._extractGasStats(receipt)
       };
-
     } catch (error) {
       console.error('Unified Mint error:', error);
       throw new Error(`Unified Mint failed: ${error.message}`);
     }
   }
 
-
-
   async revokeSoulboundCredential(tokenId) {
     try {
       console.log('Revoking Soulbound Token:', tokenId);
-      const gasEstimate = await this.contract.revokeToken.estimateGas(tokenId);
-      const nonce = await this.getNonce();
-      const gasOverrides = await this._getGasOverrides();
-
-      const tx = await this._sendWithRetry(
-        this.contract.revokeToken.bind(this.contract),
-        [tokenId],
-        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-      );
+      const tx = await this._sendContractTx(this.contract.revokeToken, [tokenId]);
 
       console.log('Revoke SBT transaction sent:', tx.hash);
       const receipt = await this._pollForReceipt(tx.hash);
-
       return {
         transactionHash: receipt.hash,
         status: 'revoked',
         ...this._extractGasStats(receipt)
       };
-
     } catch (error) {
       console.error('SBT Revoke error:', error);
       throw new Error(`SBT Revoke failed: ${error.message}`);
@@ -262,18 +222,14 @@ class BlockchainService {
   async getCredential(studentId) {
     try {
       const result = await this.contract.getCredential(studentId);
-
       return {
         certificateHash: result[0],
         ipfsCID: result[1],
         issuedAt: new Date(Number(result[2]) * 1000),
         isRevoked: result[3]
       };
-
     } catch (error) {
-      if (error.message.includes('Credential not found')) {
-        return null;
-      }
+      if (error.message.includes('Credential not found')) return null;
       throw new Error(`Failed to get credential: ${error.message}`);
     }
   }
@@ -289,8 +245,7 @@ class BlockchainService {
 
   async getBalance(address = null) {
     try {
-      const targetAddress = address || this.wallet.address;
-      const balance = await this.provider.getBalance(targetAddress);
+      const balance = await this.provider.getBalance(address || this.wallet.address);
       return ethers.formatEther(balance);
     } catch (error) {
       console.error('Get balance error:', error);
@@ -300,11 +255,11 @@ class BlockchainService {
 
   async getNetworkStats() {
     try {
-      if (!this.provider) {
-          throw new Error('Blockchain provider not initialized');
-      }
-      const blockNumber = await this.provider.getBlockNumber();
-      const feeData = await this.provider.getFeeData();
+      if (!this.provider) throw new Error('Blockchain provider not initialized');
+      const [blockNumber, feeData] = await Promise.all([
+        this.provider.getBlockNumber(),
+        this.provider.getFeeData()
+      ]);
       return {
         blockNumber,
         gasPrice: feeData.gasPrice ? ethers.formatUnits(feeData.gasPrice, 'gwei') : '0',
@@ -313,12 +268,7 @@ class BlockchainService {
     } catch (error) {
       console.error('Network stats retrieval failed:', error.message);
       if (error.code) console.error('Error Code:', error.code);
-      return {
-        blockNumber: 0,
-        gasPrice: '0',
-        connected: false,
-        error: error.message
-      };
+      return { blockNumber: 0, gasPrice: '0', connected: false, error: error.message };
     }
   }
 }

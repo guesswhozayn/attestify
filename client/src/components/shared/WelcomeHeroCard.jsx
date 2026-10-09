@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import Button from './Button';
@@ -12,11 +12,10 @@ const WelcomeHeroCard = ({
   refreshing = false,
   className = '',
 }) => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    e.currentTarget.style.setProperty('--card-mouse-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--card-mouse-y', `${e.clientY - rect.top}px`);
   };
 
   return (
@@ -27,11 +26,10 @@ const WelcomeHeroCard = ({
       onMouseMove={handleMouseMove}
       className={`relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] border border-white/8 shadow-none p-8 md:p-12 backdrop-blur-3xl group ${className}`}
     >
-
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.06), transparent 80%)`,
+          background: 'radial-gradient(600px circle at var(--card-mouse-x, 0px) var(--card-mouse-y, 0px), rgba(99, 102, 241, 0.06), transparent 80%)',
         }}
       />
 

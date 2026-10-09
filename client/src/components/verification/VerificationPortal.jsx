@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Upload, Search, Shield, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../shared/Button';
@@ -10,35 +10,32 @@ import { useLocation, useParams } from 'react-router-dom';
 import VerificationResult from './VerificationResult';
 
 const VerificationPortal = () => {
+  const location = useLocation();
+  const { id: urlId } = useParams();
+
+  const getInitialWalletAddress = () => {
+    if (urlId) return urlId;
+    if (location.search) {
+      const params = new URLSearchParams(location.search);
+      return params.get('credentialId') || params.get('registrationNumber') || '';
+    }
+    return '';
+  };
+
   const [file, setFile] = useState(null);
-  const [walletAddress, setWalletAddress] = useState('');
+  const [walletAddress, setWalletAddress] = useState(getInitialWalletAddress);
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
   const [showResultModal, setShowResultModal] = useState(false);
-  const [feed, setFeed] = useState([]);
+  const [feed, setFeed] = useState(() => {
+    const initialId = urlId || (location.search ? (new URLSearchParams(location.search).get('credentialId') || new URLSearchParams(location.search).get('registrationNumber')) : '');
+    return initialId ? [{ message: `Auto-detected ID from URL: ${initialId.substring(0, 10)}...`, type: 'success', time: new Date().toLocaleTimeString() }] : [];
+  });
   const fileInputRef = useRef(null);
-
-  const location = useLocation();
-  const { id: urlId } = useParams();
 
   const addFeedItem = (message, type = 'info') => {
     setFeed(prev => [...prev, { message, type, time: new Date().toLocaleTimeString() }]);
   };
-
-  useEffect(() => {
-
-    if (urlId) {
-        setWalletAddress(urlId);
-        addFeedItem(`Auto-detected ID from URL: ${urlId.substring(0, 10)}...`, 'success');
-    } else if (location.search) {
-        const params = new URLSearchParams(location.search);
-        const credentialId = params.get('credentialId') || params.get('registrationNumber');
-        if (credentialId) {
-            setWalletAddress(credentialId);
-            addFeedItem(`Auto-detected ID from URL: ${credentialId.substring(0, 10)}...`, 'success');
-        }
-    }
-  }, [urlId, location.search]);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];

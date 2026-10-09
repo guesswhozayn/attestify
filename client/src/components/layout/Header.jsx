@@ -12,66 +12,38 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    const detectWallet = async () => {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts.length > 0) {
-                    setWalletAddress(accounts[0]);
-                }
-            } catch (err) {
-                console.error('Error detecting wallet:', err);
-            }
-        }
-    };
+    if (typeof window.ethereum === 'undefined') return;
 
-    detectWallet();
+    window.ethereum.request({ method: 'eth_accounts' })
+      .then(accounts => accounts?.[0] && setWalletAddress(accounts[0]))
+      .catch(err => console.error('Error detecting wallet:', err));
 
-    const handleAccountsChanged = (accounts) => {
-        if (accounts.length > 0) {
-            setWalletAddress(accounts[0]);
-        } else {
-            setWalletAddress(null);
-        }
-    };
-
-    if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.on('accountsChanged', handleAccountsChanged);
-    }
-
-    return () => {
-        if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        }
-    };
+    const handleAccountsChanged = (accounts) => setWalletAddress(accounts?.[0] || null);
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
   }, []);
 
   const copyAddress = () => {
-      if (walletAddress) {
-          navigator.clipboard.writeText(walletAddress);
-          setIsCopied(true);
-          showNotification('Wallet address copied to clipboard', 'success');
-          setTimeout(() => setIsCopied(false), 2000);
-      }
+    if (!walletAddress) return;
+    navigator.clipboard.writeText(walletAddress);
+    setIsCopied(true);
+    showNotification('Wallet address copied to clipboard', 'success');
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const formatAddress = (addr) => {
-      if (!addr) return '';
-      return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-  };
+  const formatAddress = (addr) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
 
   return (
     <div className="sticky top-0 z-30 backdrop-blur-2xl bg-[#030014]/60 border-b border-white/[0.05] px-4 md:px-8 py-4 transition-all duration-300 shadow-[0_4px_30px_-10px_rgba(0,0,0,0.5)]">
       <div className="flex items-center justify-between relative">
-
         <div className="md:hidden">
-            <button
-                onClick={onMenuClick}
-                className="p-2 -ml-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
-                aria-label="Toggle Menu"
-            >
-                <Menu className="w-6 h-6" />
-            </button>
+          <button
+            onClick={onMenuClick}
+            className="p-2 -ml-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+            aria-label="Toggle Menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
         </div>
 
         <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 whitespace-nowrap text-center md:text-left pointer-events-none md:pointer-events-auto flex flex-col items-center md:items-start">
@@ -81,44 +53,43 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
         </div>
 
         <div className="flex items-center space-x-6">
-
           {rightContent}
 
           <div className="hidden lg:flex items-center">
             {walletAddress ? (
-                <Button
-                    onClick={copyAddress}
-                    variant="ghost"
-                    rounded="full"
-                    size="sm"
-                    className="bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 !shadow-none group/wallet transition-all duration-300"
-                >
-                    <div className="relative">
-                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <div className="absolute inset-0 bg-emerald-500 rounded-full blur-sm opacity-50"></div>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                        {formatAddress(walletAddress)}
-                    </span>
-                    {isCopied ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                        <Copy className="w-3.5 h-3.5 text-emerald-500/50 group-hover/wallet:text-emerald-400 transition-colors" />
-                    )}
-                </Button>
+              <Button
+                onClick={copyAddress}
+                variant="ghost"
+                rounded="full"
+                size="sm"
+                className="bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 !shadow-none group/wallet transition-all duration-300"
+              >
+                <div className="relative">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  <div className="absolute inset-0 bg-emerald-500 rounded-full blur-sm opacity-50" />
+                </div>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  {formatAddress(walletAddress)}
+                </span>
+                {isCopied ? (
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-emerald-500/50 group-hover/wallet:text-emerald-400 transition-colors" />
+                )}
+              </Button>
             ) : (
-                <Button
-                    variant="ghost"
-                    rounded="full"
-                    size="sm"
-                    disabled
-                    className="bg-white/[0.02] border border-white/[0.05] px-4 py-2 opacity-60 cursor-not-allowed !shadow-none"
-                >
-                    <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Disconnected
-                    </span>
-                </Button>
+              <Button
+                variant="ghost"
+                rounded="full"
+                size="sm"
+                disabled
+                className="bg-white/[0.02] border border-white/[0.05] px-4 py-2 opacity-60 cursor-not-allowed !shadow-none"
+              >
+                <div className="w-1.5 h-1.5 bg-gray-500 rounded-full" />
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  Disconnected
+                </span>
+              </Button>
             )}
           </div>
 
@@ -141,12 +112,8 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
                 {user?.title || (user?.role === 'ISSUER' ? 'Issuer' : 'Student')}
               </div>
             </div>
-            <div className="cursor-pointer hover:scale-105 transition-transform duration-200 rounded-full">
-               <Avatar
-                   src={user?.avatar}
-                   initials={user?.name}
-                   size="sm"
-               />
+            <div className="hover:scale-105 transition-transform duration-200 rounded-full">
+              <Avatar src={user?.avatar} initials={user?.name} size="sm" />
             </div>
           </div>
         </div>

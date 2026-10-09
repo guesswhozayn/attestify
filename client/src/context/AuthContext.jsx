@@ -5,70 +5,51 @@ const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    try {
+      const userData = localStorage.getItem('user');
+      return userData ? JSON.parse(userData) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('token'));
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
     clearAuth();
     setUser(null);
   }, []);
 
-  const isInitialized = React.useRef(false);
-
-  const initializeAuth = useCallback(async () => {
-    if (isInitialized.current) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
-
-      if (token && userData) {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-
-        try {
-          const response = await authAPI.getCurrentUser();
-          const currentUser = response.data.user;
-
-          setUser(currentUser);
-          localStorage.setItem('user', JSON.stringify(currentUser));
-        } catch (error) {
-          console.error('Token verification failed:', error);
-          if (error.response?.status === 401) {
-            handleLogout();
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Auth initialization error:', error);
-      handleLogout();
-    } finally {
-      setLoading(false);
-      isInitialized.current = true;
-    }
+  useEffect(() => {
+    let active = true;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    authAPI.getCurrentUser()
+      .then(response => {
+        if (!active) return;
+        const currentUser = response.data.user;
+        setUser(currentUser);
+        localStorage.setItem('user', JSON.stringify(currentUser));
+      })
+      .catch(error => {
+        console.error('Token verification failed:', error);
+        if (active && error.response?.status === 401) handleLogout();
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, [handleLogout]);
 
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
-
-  useEffect(() => {
-    const handleUnauthorized = () => {
-      handleLogout();
-    };
+    const handleUnauthorized = () => handleLogout();
     window.addEventListener('auth-unauthorized', handleUnauthorized);
-    return () => {
-      window.removeEventListener('auth-unauthorized', handleUnauthorized);
-    };
+    return () => window.removeEventListener('auth-unauthorized', handleUnauthorized);
   }, [handleLogout]);
 
   const register = useCallback(async (userData) => {
@@ -88,12 +69,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.login({ email, password, selectedRole: role });
       const { token, user: loggedInUser } = response.data;
-
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(loggedInUser));
-
       setUser(loggedInUser);
-
       return { success: true, user: loggedInUser };
     } catch (error) {
       console.error('Login error:', error);
@@ -115,10 +93,10 @@ export const AuthProvider = ({ children }) => {
   }, [handleLogout]);
 
   const updateUser = useCallback((updates) => {
-    setUser(prevUser => {
-      const updatedUser = { ...prevUser, ...updates };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      return updatedUser;
+    setUser(prev => {
+      const updated = { ...prev, ...updates };
+      localStorage.setItem('user', JSON.stringify(updated));
+      return updated;
     });
   }, []);
 
@@ -131,34 +109,21 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: currentUser };
     } catch (error) {
       console.error('Refresh user error:', error);
-      if (error.response?.status === 401) {
-        handleLogout();
-      }
+      if (error.response?.status === 401) handleLogout();
       return { success: false, error: error.message };
     }
   }, [handleLogout]);
 
-  const isAuthenticated = !!user;
-
   const value = useMemo(() => ({
     user,
     loading,
-    isAuthenticated,
+    isAuthenticated: !!user,
     register,
     login,
     logout,
     updateUser,
     refreshUser
-  }), [
-    user,
-    loading,
-    isAuthenticated,
-    register,
-    login,
-    logout,
-    updateUser,
-    refreshUser
-  ]);
+  }), [user, loading, register, login, logout, updateUser, refreshUser]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -16,6 +16,7 @@
   "author": "Attestify Team",
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "^6.4.0",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.79.2",
@@ -29,13 +30,13 @@
     "helmet": "^8.1.0",
     "ioredis": "^5.11.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.3",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.17.2",
     "qrcode": "^1.5.3"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "prisma": "^6.4.0"
   }
 }

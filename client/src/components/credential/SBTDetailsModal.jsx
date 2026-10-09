@@ -6,7 +6,6 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     if (!isOpen || !credential) return null;
 
     const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0x...';
-    const networkName = 'Sepolia Testnet';
     const etherscanUrl = `https://sepolia.etherscan.io/token/${contractAddress}?a=${credential.tokenId}`;
     const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`;
 

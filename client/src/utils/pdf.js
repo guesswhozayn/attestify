@@ -4,19 +4,11 @@ export const extractMetadata = async (file) => {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const pdfDoc = await PDFDocument.load(arrayBuffer);
-
     const subject = pdfDoc.getSubject();
+    if (subject?.trim()) return subject.trim();
+
     const keywords = pdfDoc.getKeywords();
-
-    if (subject && subject.trim().length > 0) {
-        return subject.trim();
-    }
-
-    if (keywords && keywords.trim().length > 0) {
-
-        const parts = keywords.split(',');
-        return parts[0].trim();
-    }
+    if (keywords?.trim()) return keywords.split(',')[0].trim();
 
     return null;
   } catch (error) {

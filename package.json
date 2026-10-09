@@ -7,11 +7,16 @@
     "blockchain"
   ],
   "scripts": {
+    "start": "npm run dev",
     "dev:client": "npm run dev --workspace=@attestify/client",
     "dev:server": "npm run dev --workspace=@attestify/server",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "build:client": "npm run build --workspace=@attestify/client",
-    "build": "npm run build:client"
+    "build": "npm run build:client",
+    "test:server": "node scripts/test-server.js",
+    "test:client": "npm run lint --workspace=@attestify/client && npm run build --workspace=@attestify/client",
+    "test:blockchain": "npm run compile --workspace=@attestify/blockchain",
+    "test": "./scripts/test.sh"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

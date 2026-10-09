@@ -25,11 +25,9 @@ const NetworkStatus = () => {
 
   const hasData = useRef(false);
 
-  const fetchData = useCallback(async () => {
+  const handleRefresh = useCallback(async () => {
     try {
-      if (!hasData.current) setLoading(true);
-      else setRefreshing(true);
-
+      setRefreshing(true);
       const response = await networkAPI.getStats();
       if (response.data.success) {
         setData(response.data.stats);
@@ -38,7 +36,6 @@ const NetworkStatus = () => {
       }
     } catch (err) {
       console.error('Failed to fetch network stats:', err);
-
       if (!hasData.current) setError('Failed to load network status');
     } finally {
       setLoading(false);
@@ -47,8 +44,25 @@ const NetworkStatus = () => {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let active = true;
+    networkAPI.getStats()
+      .then(response => {
+        if (!active) return;
+        if (response.data.success) {
+          setData(response.data.stats);
+          setError(null);
+          hasData.current = true;
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch network stats:', err);
+        if (active && !hasData.current) setError('Failed to load network status');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
 
   if (loading) {
     return (
@@ -64,7 +78,7 @@ const NetworkStatus = () => {
         <Activity className="w-12 h-12 mb-4" />
         <p>{error}</p>
         <Button
-          onClick={fetchData}
+          onClick={handleRefresh}
           variant="secondary"
           size="sm"
           className="mt-4"
@@ -118,7 +132,7 @@ const NetworkStatus = () => {
                     </div>
 
                     <Button
-                      onClick={fetchData}
+                      onClick={handleRefresh}
                       loading={refreshing}
                       rounded="xl"
                       title="Refresh Data"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import CredentialDetails from '../components/credential/CredentialDetails';
@@ -57,11 +57,7 @@ const IssuerDashboard = () => {
         if (isFetching.current) return;
         try {
             isFetching.current = true;
-            if (isRefresh) {
-                setRefreshing(true);
-            } else {
-                setLoading(true);
-            }
+            if (isRefresh) setRefreshing(true);
 
             const [statsResponse, recentResponse] = await Promise.all([
                  credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0, today: 0, thisWeek: 0, verificationRequests: 0, transactionSuccessRate: 100, networkStats: { blockNumber: 0, gasPrice: '0', connected: false } } } }),
@@ -85,16 +81,33 @@ const IssuerDashboard = () => {
     }, [showNotification]);
 
     useEffect(() => {
-        fetchDashboardData();
-
-        const refreshInterval = setInterval(() => {
-            fetchDashboardData(true);
-        }, 30000);
-
-        return () => {
-             clearInterval(refreshInterval);
+        let active = true;
+        const load = () => {
+            Promise.all([
+                 credentialAPI.getStats ? credentialAPI.getStats() : Promise.resolve({ data: { stats: { total: 0, active: 0, revoked: 0, today: 0, thisWeek: 0, verificationRequests: 0, transactionSuccessRate: 100, networkStats: { blockNumber: 0, gasPrice: '0', connected: false } } } }),
+                 credentialAPI.getAll({ limit: 6 })
+            ]).then(([statsRes, recentRes]) => {
+                if (!active) return;
+                if (statsRes.data?.stats) setStats(statsRes.data.stats);
+                setCredentials(recentRes.data?.credentials || []);
+            }).catch(error => {
+                console.error('Failed to fetch dashboard data:', error);
+                if (active) showNotification('Failed to load dashboard data', 'error');
+            }).finally(() => {
+                if (active) {
+                    setLoading(false);
+                    setRefreshing(false);
+                }
+            });
         };
-    }, [fetchDashboardData]);
+
+        load();
+        const refreshInterval = setInterval(load, 30000);
+        return () => {
+            active = false;
+            clearInterval(refreshInterval);
+        };
+    }, [showNotification]);
 
     return (
         <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">

@@ -4,7 +4,7 @@ import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 import QRCodeDisplay from './QRCodeDisplay';
 import { fileAPI } from '../../services/api';
-import { Download, ExternalLink, User, Building, Hash, ShieldAlert, GraduationCap, Award, Shield, ShieldCheck, Copy, Check, Database, Loader2 } from 'lucide-react';
+import { Download, ExternalLink, User, Building, Hash, ShieldAlert, GraduationCap, Award, Shield, ShieldCheck, Copy, Check, Database, Loader2, Clock } from 'lucide-react';
 import VerificationSection from '../verification/VerificationSection';
 import RevokeCredentialModal from './RevokeCredentialModal';
 import SBTDetailsModal from './SBTDetailsModal';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
-import { Upload, Loader2, FileText, Download, CheckCircle, Shield } from 'lucide-react';
+import { Upload, Loader2, FileText, Download, CheckCircle } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 

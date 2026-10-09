@@ -15,18 +15,10 @@ connection.on('error', (err) => {
 
 const issuanceQueue = new Queue('issuanceQueue', { connection });
 
-async function enqueueIssuanceJob(jobData) {
-  return await issuanceQueue.add('issueCredential', jobData, {
+const enqueueIssuanceJob = (jobData) =>
+  issuanceQueue.add('issueCredential', jobData, {
     attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 2000,
-    },
+    backoff: { type: 'exponential', delay: 2000 },
   });
-}
 
-module.exports = {
-  issuanceQueue,
-  enqueueIssuanceJob,
-  connection
-};
+module.exports = { issuanceQueue, enqueueIssuanceJob, connection };

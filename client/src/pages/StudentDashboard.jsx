@@ -49,7 +49,6 @@ const StudentDashboard = () => {
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
-      else setLoading(true);
       setError('');
 
       const targetAddress = address || walletAddress;
@@ -61,15 +60,14 @@ const StudentDashboard = () => {
       }
 
       if (user?.walletAddress && targetAddress.toLowerCase() !== user.walletAddress.toLowerCase()) {
-          setError(`Wallet mismatch: Connected (${targetAddress.slice(0,6)}...${targetAddress.slice(-4)}) does not match your account wallet.`);
-          setLoading(false);
-          setRefreshing(false);
-          setCredential(null);
-          return;
+        setError(`Wallet mismatch: Connected (${targetAddress.slice(0, 6)}...${targetAddress.slice(-4)}) does not match your account wallet.`);
+        setLoading(false);
+        setRefreshing(false);
+        setCredential(null);
+        return;
       }
 
       const response = await credentialAPI.getByWalletAddress(targetAddress);
-
       const docs = response.data.credentials || [];
 
       const total = docs.length;
@@ -79,43 +77,38 @@ const StudentDashboard = () => {
       const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
       setStats({ total, active, sbtCount, uniqueIssuers });
 
-      if (docs.length > 0) {
-         const latestCred = docs[0];
-         setCredential(latestCred);
-      } else {
-           setCredential(null);
-      }
-
+      setCredential(docs.length > 0 ? docs[0] : null);
     } catch (err) {
       console.error('Error fetching credential:', err);
       if (err.response?.status === 403) {
-          setError('Unauthorized: You do not have permission to view credentials for this wallet.');
+        setError('Unauthorized: You do not have permission to view credentials for this wallet.');
       } else {
-          setError('Failed to load your credentials. Please ensure your wallet is connected.');
+        setError('Failed to load your credentials. Please ensure your wallet is connected.');
       }
       setCredential(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [walletAddress, user?.walletAddress]);
+  }, [walletAddress, user]);
 
   useEffect(() => {
-    const init = async () => {
-        try {
-           const address = await blockchainService.connectWallet();
-           setWalletAddress(address);
-           if (address) {
-             fetchCredential(address);
-           } else {
-             setLoading(false);
-           }
-        } catch (e) {
-           console.log("Wallet not auto-connected", e);
-           setLoading(false);
+    let mounted = true;
+    blockchainService.connectWallet()
+      .then(address => {
+        if (!mounted) return;
+        setWalletAddress(address);
+        if (address) {
+          fetchCredential(address);
+        } else {
+          setLoading(false);
         }
-    };
-    init();
+      })
+      .catch(e => {
+        console.log("Wallet not auto-connected", e);
+        if (mounted) setLoading(false);
+      });
+    return () => { mounted = false; };
   }, [fetchCredential]);
 
   const handleShare = useCallback(() => {

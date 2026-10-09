@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
-import Background, { useScrollY } from '../components/shared/Background';
+import Background from '../components/shared/Background';
+import useScrollY from '../utils/useScrollY';
 import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
 
 const Landing = () => {
@@ -157,7 +158,7 @@ const Landing = () => {
                   </span>
                 </h2>
                 <p className="text-gray-400 max-w-2xl mx-auto text-xl">
-                  Attestify isn't just a platform. It's a new primitive for digital trust.
+                  Attestify isn&apos;t just a platform. It&apos;s a new primitive for digital trust.
                 </p>
               </div>
 

@@ -49,27 +49,27 @@ const Profile = () => {
         detectWallet();
     }, []);
 
-    const [formData, setFormData] = useState({
-        name: '',
-        title: '',
-        university: '',
-        about: '',
-        institutionName: '',
-        registrationNumber: ''
-    });
+    const [formData, setFormData] = useState(() => ({
+        name: user?.name || '',
+        title: user?.title || '',
+        university: user?.university || '',
+        about: user?.about || '',
+        institutionName: user?.issuerDetails?.institutionName || user?.name || '',
+        registrationNumber: user?.issuerDetails?.registrationNumber || ''
+    }));
+    const [prevUser, setPrevUser] = useState(user);
 
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                name: user.name || '',
-                title: user.title || '',
-                university: user.university || '',
-                about: user.about || '',
-                institutionName: user.issuerDetails?.institutionName || user.name || '',
-                registrationNumber: user.issuerDetails?.registrationNumber || ''
-            });
-        }
-    }, [user]);
+    if (user !== prevUser) {
+        setPrevUser(user);
+        setFormData({
+            name: user?.name || '',
+            title: user?.title || '',
+            university: user?.university || '',
+            about: user?.about || '',
+            institutionName: user?.issuerDetails?.institutionName || user?.name || '',
+            registrationNumber: user?.issuerDetails?.registrationNumber || ''
+        });
+    }
 
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];

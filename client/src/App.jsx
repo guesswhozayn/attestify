@@ -70,8 +70,6 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
-
-          {}
           <Route element={<Layout />}>
             <Route
               path="/dashboard"

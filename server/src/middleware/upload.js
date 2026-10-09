@@ -3,50 +3,36 @@ const path = require('path');
 const fs = require('fs');
 const { FILE_LIMITS } = require('../config/constants');
 
-const uploadDir = 'uploads';
-if (!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir);
-}
+fs.mkdirSync('uploads', { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    let subDir = '';
-    if (file.fieldname === 'avatar') subDir = 'avatars/';
-    if (file.fieldname === 'certificate') subDir = 'certificates/';
-    if (file.fieldname === 'file') subDir = 'batch/';
-
-    const targetDir = `uploads/${subDir}`;
-    if (!fs.existsSync(targetDir)){
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
-    cb(null, targetDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
-
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/webp') {
-    cb(null, true);
-  } else if (file.mimetype === 'text/csv' || ext === '.csv') {
-    cb(null, true);
-  } else if (file.mimetype === 'application/pdf' || ext === '.pdf') {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type! Please upload an image (JPG, PNG, WEBP), CSV or PDF file.'), false);
-  }
+const SUB_DIRS = {
+  avatar: 'uploads/avatars/',
+  certificate: 'uploads/certificates/',
+  file: 'uploads/batch/'
 };
 
+const ALLOWED_EXTS = new Set(['.csv', '.pdf']);
+
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: FILE_LIMITS.MAX_SIZE
-  }
+  storage: multer.diskStorage({
+    destination(req, file, cb) {
+      const targetDir = SUB_DIRS[file.fieldname] || 'uploads/';
+      fs.mkdirSync(targetDir, { recursive: true });
+      cb(null, targetDir);
+    },
+    filename(req, file, cb) {
+      cb(null, `${file.fieldname}-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`);
+    }
+  }),
+  fileFilter(req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (FILE_LIMITS.ALLOWED_TYPES.includes(file.mimetype) || ALLOWED_EXTS.has(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type! Please upload an image (JPG, PNG, WEBP), CSV or PDF file.'), false);
+    }
+  },
+  limits: { fileSize: FILE_LIMITS.MAX_SIZE }
 });
 
 module.exports = upload;

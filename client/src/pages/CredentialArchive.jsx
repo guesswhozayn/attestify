@@ -31,9 +31,12 @@ const CredentialArchive = () => {
     const isMounted = useRef(true);
     const debounceTimer = useRef(null);
 
+    const isInitial = useRef(true);
+
     const fetchCredentials = useCallback(async (page = 1, search = searchQuery, type = typeFilter, status = statusFilter) => {
         try {
-            setLoading(true);
+            if (!isInitial.current) setLoading(true);
+            isInitial.current = false;
 
             const params = {
                 page,
@@ -62,33 +65,28 @@ const CredentialArchive = () => {
         } finally {
             if (isMounted.current) setLoading(false);
         }
-    }, [showNotification]);
+    }, [searchQuery, typeFilter, statusFilter, showNotification]);
 
-    const fetchStats = useCallback(async () => {
-        try {
-            const response = await credentialAPI.getStats();
-            if (!isMounted.current) return;
-            const s = response.data?.stats;
-            if (s) {
-                setStats({
-                    total: s.total ?? 0,
-                    active: s.active ?? 0,
-                    revoked: s.revoked ?? 0,
-                    uniqueRecipients: 0,
-                    sbtCount: 0
-                });
-            }
-        } catch (e) {
-            console.warn('Stats fetch failed:', e);
-        }
+    const loadStats = useCallback(() => {
+        credentialAPI.getStats()
+            .then(response => {
+                const s = response.data?.stats;
+                if (s) {
+                    setStats({
+                        total: s.total ?? 0,
+                        active: s.active ?? 0,
+                        revoked: s.revoked ?? 0,
+                        uniqueRecipients: 0,
+                        sbtCount: 0
+                    });
+                }
+            })
+            .catch(e => console.warn('Stats fetch failed:', e));
     }, []);
 
     useEffect(() => {
-        isMounted.current = true;
-        fetchCredentials(1);
-        fetchStats();
-        return () => { isMounted.current = false; };
-    }, []);
+        loadStats();
+    }, [loadStats]);
 
     useEffect(() => {
         clearTimeout(debounceTimer.current);
@@ -96,7 +94,7 @@ const CredentialArchive = () => {
             fetchCredentials(currentPage, searchQuery, typeFilter, statusFilter);
         }, 300);
         return () => clearTimeout(debounceTimer.current);
-    }, [searchQuery, typeFilter, statusFilter, currentPage]);
+    }, [fetchCredentials, searchQuery, typeFilter, statusFilter, currentPage]);
 
     const handleFilterChange = (setter) => (value) => {
         setter(value);
@@ -106,12 +104,12 @@ const CredentialArchive = () => {
     const handleCredentialUpload = () => {
         setCurrentPage(1);
         fetchCredentials(1);
-        fetchStats();
+        loadStats();
     };
 
     const handleRevokeSuccess = () => {
         fetchCredentials(currentPage);
-        fetchStats();
+        loadStats();
         setCredentialToRevoke(null);
         if (selectedCredential && selectedCredential._id === credentialToRevoke?._id) {
             setSelectedCredential(null);
@@ -195,7 +193,7 @@ const CredentialArchive = () => {
                         setTypeFilter={handleFilterChange(setTypeFilter)}
                         statusFilter={statusFilter}
                         setStatusFilter={handleFilterChange(setStatusFilter)}
-                        onRefresh={() => { setCurrentPage(1); fetchCredentials(1); fetchStats(); }}
+                        onRefresh={() => { setCurrentPage(1); fetchCredentials(1); loadStats(); }}
                         loading={loading}
                     />
 
