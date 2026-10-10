@@ -149,8 +149,8 @@ const StudentDashboard = () => {
   }
 
   return (
-        <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
-            <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
+        <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
+            <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 relative z-10">
 
         <WelcomeHeroCard
           badge="Student portal"
@@ -167,16 +167,16 @@ const StudentDashboard = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm mb-6"
+              className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold mb-6"
             >
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-rose-100 rounded-xl text-rose-600">
-                   <ShieldAlert className="w-5 h-5 shrink-0" />
+                <div className="p-1.5 bg-rose-100 rounded-lg text-rose-600">
+                   <ShieldAlert className="w-4 h-4 shrink-0" />
                 </div>
                 <span className="text-rose-800 font-medium">{error}</span>
               </div>
               {(error.includes('connect your wallet') || error.includes('Wallet mismatch')) && (
-                <Button onClick={handleConnect} icon={Wallet} variant="danger" size="sm" className="shadow-xs">
+                <Button onClick={handleConnect} icon={Wallet} variant="danger" size="sm" className="shadow-xs text-xs">
                   Disconnect
                 </Button>
               )}
@@ -197,88 +197,88 @@ const StudentDashboard = () => {
            />
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-6"
           >
 
             <div className="lg:col-span-8 space-y-4">
                <div className="flex items-center justify-between px-1">
-                   <h2 className="text-xl font-bold text-stone-900 flex items-center gap-2.5">
-                       <Award className="w-5 h-5 text-stone-700" />
-                       Recent credential
+                   <h2 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                       <Award className="w-4 h-4 text-stone-700" />
+                       Recent certificate
                    </h2>
-                   <span className="text-[11px] font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full border border-stone-200/80">Latest issue</span>
+                   <span className="text-xs text-stone-400 font-normal">Most recent</span>
                </div>
                <DetailedCredentialCard credential={credential} metadata={metadata} />
             </div>
 
-            <div className="lg:col-span-4 space-y-6">
+            <div className="lg:col-span-4 space-y-5">
 
                 <motion.div
-                 initial={{ opacity: 0, y: 20 }}
+                 initial={{ opacity: 0, y: 15 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-                 className="bg-white rounded-3xl p-7 border border-[#E8E4DC] shadow-[0_4px_20px_-4px_rgba(28,25,23,0.05)] relative overflow-hidden group/card"
+                 transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+                 className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-[0_1px_3px_rgba(16,24,40,0.02)] relative overflow-hidden group/card"
                >
-                  <h3 className="text-stone-900 font-bold mb-6 flex items-center gap-3 relative z-10 text-left text-base">
-                     <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
-                        <Share2 className="w-4 h-4" />
+                  <h3 className="text-stone-900 font-bold mb-4 flex items-center gap-2.5 relative z-10 text-left text-sm">
+                     <div className="w-7 h-7 bg-stone-50 rounded-lg border border-stone-200/60 flex items-center justify-center text-stone-700">
+                        <Share2 className="w-3.5 h-3.5" />
                      </div>
-                     Share credential
+                     Share certificate
                   </h3>
-                  <div className="space-y-3 relative z-10 text-left">
+                  <div className="space-y-2.5 relative z-10 text-left">
                      <Button
                         onClick={handleShare}
                         icon={Share2}
                         variant="primary"
-                        className="w-full justify-center py-3.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-sm font-medium transition-all shadow-sm active:scale-[0.99]"
+                        className="w-full justify-center py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-medium transition-all shadow-xs active:scale-[0.99] cursor-pointer"
                      >
-                        Copy verification link
+                        Copy share link
                      </Button>
                       <Button
                         onClick={openIPFSLink}
                         icon={ExternalLink}
                         variant="outline"
-                        className="w-full justify-center py-3.5 bg-white hover:bg-stone-50 text-stone-800 border border-stone-200/90 rounded-xl text-sm font-medium transition-all shadow-xs active:scale-[0.99]"
+                        className="w-full justify-center py-2.5 bg-white hover:bg-stone-50 text-stone-800 border border-[#EAECF0] rounded-xl text-xs font-medium transition-all shadow-2xs active:scale-[0.99] cursor-pointer"
                      >
-                        View original document
+                        View original file
                      </Button>
                   </div>
-                  <p className="text-xs text-stone-500 mt-5 text-center leading-relaxed relative z-10 font-normal">
-                     Send this link to employers or universities so they can verify your credential.
+                  <p className="text-xs text-stone-500 mt-4 text-center leading-relaxed relative z-10 font-normal">
+                     Send this link to anyone who needs to confirm your certificate.
                   </p>
                </motion.div>
 
                 <motion.div
-                 initial={{ opacity: 0, y: 20 }}
+                 initial={{ opacity: 0, y: 15 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-                 className="bg-white rounded-3xl p-7 border border-[#E8E4DC] shadow-[0_4px_20px_-4px_rgba(28,25,23,0.05)] relative overflow-hidden group/card"
+                 transition={{ duration: 0.4, delay: 0.25, ease: "easeOut" }}
+                 className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-[0_1px_3px_rgba(16,24,40,0.02)] relative overflow-hidden group/card"
                >
-                  <h3 className="text-stone-900 font-bold mb-6 flex items-center gap-3 relative z-10 text-left text-base">
-                     <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
-                        <Hash className="w-4 h-4" />
+                  <h3 className="text-stone-900 font-bold mb-4 flex items-center gap-2.5 relative z-10 text-left text-sm">
+                     <div className="w-7 h-7 bg-stone-50 rounded-lg border border-stone-200/60 flex items-center justify-center text-stone-700">
+                        <Hash className="w-3.5 h-3.5" />
                      </div>
-                     Blockchain proof
+                     Certificate record
                   </h3>
 
-                  <div className="space-y-5 relative z-10 text-left">
-                     <div className="space-y-2">
-                         <div className="flex justify-between items-center text-xs font-semibold text-stone-600 px-0.5">
-                            <span>Certificate hash</span>
-                            <span className="text-[#25562C] flex items-center gap-1.5 bg-[#EDF5EE] border border-[#CFE6D3] px-2 py-0.5 rounded-full text-[11px] font-medium">
+                  <div className="space-y-4 relative z-10 text-left">
+                     <div className="space-y-1.5">
+                         <div className="flex justify-between items-center text-xs text-stone-600 px-0.5 font-medium">
+                            <span>Certificate ID</span>
+                            <span className="text-emerald-700 flex items-center gap-1 text-xs font-medium">
                                <CheckCircle className="w-3 h-3" /> Verified
                             </span>
                          </div>
-                        <div className="font-mono text-stone-700 text-[11px] bg-[#FAF8F5] p-3.5 rounded-xl border border-[#E8E4DC] break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">
+                        <div className="font-mono text-stone-700 text-[11px] bg-[#F8F9FA] p-3 rounded-xl border border-stone-200/80 break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">
                            {credential.certificateHash}
                         </div>
                      </div>
-                     <div className="space-y-2">
-                         <span className="text-stone-600 text-xs font-semibold block text-left px-0.5">File storage ID (IPFS)</span>
-                         <div className="font-mono text-stone-700 text-[11px] bg-[#FAF8F5] p-3.5 rounded-xl border border-[#E8E4DC] break-all cursor-text selection:bg-stone-200 hover:border-stone-400 transition-colors text-left leading-relaxed">
+                     <div className="space-y-1.5">
+                         <span className="text-stone-600 text-xs font-medium block text-left px-0.5">File storage reference</span>
+                         <div className="font-mono text-stone-700 text-[11px] bg-[#F8F9FA] p-3 rounded-xl border border-stone-200/80 break-all cursor-text selection:bg-stone-200 hover:border-stone-400 transition-colors text-left leading-relaxed">
                            {credential.ipfsCID}
                         </div>
                      </div>

@@ -60,8 +60,8 @@ const CredentialBadge = ({ credential, onClick, index = 0 }) => {
                     </span>
 
                     {isSBT && (
-                        <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-bold">
-                            SBT
+                        <span className="text-[11px] font-semibold text-stone-600">
+                            Permanent
                         </span>
                     )}
                 </div>

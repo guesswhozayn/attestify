@@ -33,7 +33,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
     const getStatusStyles = () => {
         if (isRevoked) {
             return {
-                container: 'bg-[#FDF0EE] border-[#F8D0CD] text-[#9E2D2D]',
+                text: 'text-rose-600',
                 dot: 'bg-rose-600',
                 label: 'Revoked'
             };
@@ -41,26 +41,26 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
         switch (cred.status) {
             case 'PENDING':
                 return {
-                    container: 'bg-[#FEF7EA] border-[#FBE2BA] text-[#8A580C]',
+                    text: 'text-amber-700',
                     dot: 'bg-amber-600 animate-pulse',
                     label: 'Pending'
                 };
             case 'PROCESSING':
                 return {
-                    container: 'bg-[#FEF7EA] border-[#FBE2BA] text-[#8A580C]',
+                    text: 'text-amber-700',
                     dot: 'bg-amber-600 animate-pulse',
                     label: 'Processing'
                 };
             case 'FAILED':
                 return {
-                    container: 'bg-[#FDF0EE] border-[#F8D0CD] text-[#9E2D2D]',
+                    text: 'text-rose-600',
                     dot: 'bg-rose-600',
                     label: 'Failed'
                 };
             case 'COMPLETED':
             default:
                 return {
-                    container: 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]',
+                    text: 'text-emerald-700',
                     dot: 'bg-emerald-600 animate-pulse',
                     label: 'Active'
                 };
@@ -88,15 +88,9 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                         <h3 className="text-base font-bold text-stone-900 truncate leading-snug group-hover:text-stone-700 transition-colors">
                             {cred.transcriptData?.program || cred.certificationData?.title || cred.courseName || cred.degreeName || 'Untitled credential'}
                         </h3>
-                        <div className="flex items-center gap-2 mt-1.5">
-                             <div className="px-2 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-[10px] font-mono text-stone-600">
-                                {cred._id ? `#${cred._id.substring(cred._id.length - 8)}` : 'ID-SYSTEM'}
-                             </div>
-                             {isSBT ? (
-                                <span className="px-2 py-0.5 rounded-md bg-[#F3EFFC] text-[#5E3A9B] border border-[#E1D5F8] text-[10px] font-bold">SBT</span>
-                             ) : (
-                                <span className="px-2 py-0.5 rounded-md bg-[#EEF4FB] text-[#235D96] border border-[#D5E4F5] text-[10px] font-bold">NFT</span>
-                             )}
+                        <div className="flex items-center gap-2 mt-1 text-xs text-stone-500 font-mono">
+                            <span>{cred._id ? `#${cred._id.substring(cred._id.length - 8)}` : 'ID-SYSTEM'}</span>
+                            <span className="font-sans font-medium text-stone-400">• {isSBT ? 'Direct record' : 'Certificate'}</span>
                         </div>
                     </div>
                 </div>
@@ -129,7 +123,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                 </div>
 
                 <div className="lg:w-[27%] flex items-center justify-end gap-5 lg:pl-6 border-l border-stone-200/80">
-                    <div className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-2 shrink-0 ${statusStyles.container}`}>
+                    <div className={`text-xs font-medium flex items-center gap-2 shrink-0 ${statusStyles.text}`}>
                         <div className={`w-1.5 h-1.5 rounded-full ${statusStyles.dot}`}></div>
                         {statusStyles.label}
                     </div>
@@ -182,7 +176,7 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                         </div>
                     </div>
 
-                    <div className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border flex items-center gap-1.5 shrink-0 ${statusStyles.container}`}>
+                    <div className={`text-xs font-medium flex items-center gap-1.5 shrink-0 ${statusStyles.text}`}>
                         <div className={`w-1.5 h-1.5 rounded-full ${statusStyles.dot}`}></div>
                         {statusStyles.label}
                     </div>
@@ -205,15 +199,11 @@ const CredentialTableRow = React.memo(({ cred, idx, onView, onRevoke }) => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-1">
-                        {isSBT ? (
-                            <span className="px-1.5 py-0.5 rounded text-[8px] bg-[#F3EFFC] text-[#5E3A9B] border border-[#E1D5F8] font-bold uppercase tracking-wider">SBT Token</span>
-                        ) : (
-                            <span className="px-1.5 py-0.5 rounded text-[8px] bg-[#EEF4FB] text-[#235D96] border border-[#D5E4F5] font-bold uppercase tracking-wider">NFT Token</span>
-                        )}
-                         <div className="px-1.5 py-0.5 rounded text-[8px] font-mono text-stone-500">
-                            {cred._id ? `#${cred._id.substring(cred._id.length - 6)}` : 'ID'}
-                         </div>
+                    <div className="flex flex-col items-end gap-0.5 text-right">
+                        <span className="text-[11px] font-medium text-stone-600">{isSBT ? 'Direct record' : 'Certificate'}</span>
+                        <span className="text-[10px] font-mono text-stone-400">
+                            #{cred._id ? cred._id.substring(cred._id.length - 6) : 'ID'}
+                        </span>
                     </div>
                 </div>
 

@@ -24,8 +24,8 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 <ShieldCheck className="w-6 h-6 text-stone-800" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-stone-900 tracking-tight">Soulbound token</h3>
-                                <p className="text-xs text-stone-500 font-medium">Non-transferable blockchain credential</p>
+                                <h3 className="text-lg font-bold text-stone-900 tracking-tight">Direct credential record</h3>
+                                <p className="text-xs text-stone-500 font-medium">Permanent academic record</p>
                             </div>
                         </div>
                         <button
@@ -41,13 +41,11 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                 <div className="p-6 sm:p-7 space-y-6">
 
                     <div className="flex justify-center">
-                        <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold ${
-                            credential.isRevoked
-                                ? 'bg-[#FDF0EE] border-[#F8D0CD] text-[#9E2D2D]'
-                                : 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]'
+                        <div className={`flex items-center gap-2 text-xs font-semibold ${
+                            credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
                         }`}>
                             <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
-                            {credential.isRevoked ? 'Revoked' : 'Active on-chain'}
+                            <span>{credential.isRevoked ? 'Revoked' : 'Active and valid'}</span>
                         </div>
                     </div>
 
@@ -78,15 +76,15 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                     <p className="text-xs font-semibold text-stone-900">Ethereum (Sepolia)</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#EDF5EE] rounded-full border border-[#CFE6D3]">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
                                 <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-pulse"></div>
-                                <span className="text-[11px] font-semibold text-[#25562C]">Online</span>
+                                <span>Online</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Explorer & Proofs</h4>
+                        <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Links & references</h4>
                         <div className="grid grid-cols-2 gap-3">
                             <a
                                 href={etherscanUrl}

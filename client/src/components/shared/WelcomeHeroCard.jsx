@@ -28,12 +28,9 @@ const WelcomeHeroCard = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 border border-stone-200/80 cursor-default">
-                <span className="w-1.5 h-1.5 rounded-full bg-stone-800" />
-                <span className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
-                  {badge}
-                </span>
-              </div>
+              <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                {badge}
+              </span>
             </motion.div>
           )}
 

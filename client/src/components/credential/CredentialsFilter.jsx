@@ -13,57 +13,58 @@ const CredentialsFilter = ({
     loading = false
 }) => {
     return (
-        <div className="bg-white border border-[#E8E4DC] rounded-2xl p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(28,25,23,0.03)] space-y-5">
-            <div className="flex flex-col xl:flex-row gap-5 items-center justify-between">
+        <div className="bg-white border border-[#EAECF0] rounded-2xl p-5 sm:p-6 shadow-[0_1px_3px_rgba(16,24,40,0.02)] space-y-5">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
 
-                <div className="relative w-full xl:max-w-2xl group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="relative w-full sm:max-w-xl group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-stone-400 group-focus-within:text-stone-800 transition-colors" />
                     </div>
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search credentials by name, wallet, or ID..."
-                        className="block w-full pl-11 pr-11 py-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
+                        placeholder="Search credentials by student name, wallet address, or ID..."
+                        className="block w-full pl-10 pr-10 py-2.5 bg-[#F8F9FA] hover:bg-white focus:bg-white border border-stone-200/80 rounded-xl text-xs font-medium text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400/20 focus:border-stone-400 transition-all shadow-2xs"
                     />
                     {searchQuery && (
                         <button
                             type="button"
                             onClick={() => setSearchQuery('')}
-                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
+                            className="absolute inset-y-0 right-3 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
                         >
-                            <X className="w-4 h-4" />
+                            <X className="w-3.5 h-3.5" />
                         </button>
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 w-full xl:w-auto">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <Button
                         onClick={onRefresh}
                         loading={loading}
                         variant="outline"
                         icon={RefreshCw}
-                        className="text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border-stone-200 aspect-square !p-0 flex items-center justify-center w-10 h-10 shadow-2xs"
-                        title="Refresh"
-                    />
+                        className="text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border-[#EAECF0] rounded-xl px-3 py-2 text-xs font-semibold shadow-2xs cursor-pointer flex items-center gap-1.5"
+                    >
+                        <span>Refresh</span>
+                    </Button>
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-5 border-t border-[#E8E4DC]">
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl">
-                        <SlidersHorizontal className="w-3.5 h-3.5 text-stone-500" />
-                        <span className="text-xs font-semibold text-stone-600">Filters</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-[#F2F4F7]">
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-500">
+                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                        <span>Filter</span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="flex p-1 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="flex p-1 bg-[#F8F9FA] border border-[#EAECF0] rounded-xl">
                             {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((type) => (
                                 <button
                                     key={type}
                                     onClick={() => setTypeFilter(type)}
-                                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                                         typeFilter === type
                                             ? 'bg-stone-900 text-white shadow-xs'
                                             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
@@ -74,18 +75,14 @@ const CredentialsFilter = ({
                             ))}
                         </div>
 
-                        <div className="flex p-1 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl">
+                        <div className="flex p-1 bg-[#F8F9FA] border border-[#EAECF0] rounded-xl">
                             {['all', 'active', 'revoked'].map((status) => (
                                 <button
                                     key={status}
                                     onClick={() => setStatusFilter(status)}
                                     className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                                         statusFilter === status
-                                            ? status === 'revoked'
-                                                ? 'bg-[#FDF0EE] text-[#9E2D2D] border border-[#F7D4CF]'
-                                                : status === 'active'
-                                                ? 'bg-[#EDF5EE] text-[#25562C] border border-[#CFE6D3]'
-                                                : 'bg-stone-900 text-white shadow-xs'
+                                            ? 'bg-stone-900 text-white shadow-xs'
                                             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
                                     }`}
                                 >
@@ -105,10 +102,10 @@ const CredentialsFilter = ({
                                 setStatusFilter('all');
                                 setSearchQuery('');
                             }}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer"
+                            className="flex items-center gap-1 text-xs font-medium text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
                         >
                             <X className="w-3.5 h-3.5" />
-                            Clear filters
+                            <span>Reset</span>
                         </button>
                     )}
                 </div>

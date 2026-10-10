@@ -10,8 +10,6 @@ const StudentStats = ({ stats }) => {
                 value={stats.total || 0}
                 icon={Shield}
                 subtext="All credentials"
-                gradient="from-indigo-500/10 to-transparent"
-                iconBg="bg-indigo-500/15"
                 delay={0}
             />
             <StatCard
@@ -19,17 +17,13 @@ const StudentStats = ({ stats }) => {
                 value={stats.active || 0}
                 icon={Activity}
                 subtext="Valid now"
-                gradient="from-emerald-500/10 to-transparent"
-                iconBg="bg-emerald-500/15"
                 delay={0.1}
             />
             <StatCard
-                label="Soulbound credentials"
+                label="Direct records"
                 value={stats.sbtCount || 0}
                 icon={Users}
-                subtext="Locked to your wallet"
-                gradient="from-indigo-500/10 to-transparent"
-                iconBg="bg-indigo-500/15"
+                subtext="Issued directly to you"
                 delay={0.2}
             />
             <StatCard
@@ -37,8 +31,6 @@ const StudentStats = ({ stats }) => {
                 value={stats.uniqueIssuers || 0}
                 icon={Building}
                 subtext="Issuing schools"
-                gradient="from-slate-500/10 to-transparent"
-                iconBg="bg-slate-500/15"
                 delay={0.3}
             />
         </div>

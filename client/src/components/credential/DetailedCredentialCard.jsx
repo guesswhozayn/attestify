@@ -35,17 +35,15 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
 
                 <div className="flex items-center gap-3">
                     {isSBT && (
-                        <div className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border bg-stone-100 text-stone-700 border-stone-200">
-                            SBT
-                        </div>
+                        <span className="text-xs font-semibold text-stone-600">
+                            Permanent
+                        </span>
                     )}
-                    <div className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                        credential.isRevoked
-                            ? 'bg-[#FDF0EE] text-[#9E2D2D] border-[#F7D4CF]'
-                            : 'bg-[#EDF5EE] text-[#25562C] border-[#CFE6D3]'
+                    <span className={`text-xs font-medium ${
+                        credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
                     }`}>
                         {credential.isRevoked ? 'Revoked' : 'Valid'}
-                    </div>
+                    </span>
                     <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-stone-800 transition-colors" />
                 </div>
             </div>
@@ -92,13 +90,11 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                             </div>
                         </div>
 
-                        <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
-                            credential.isRevoked
-                                ? 'bg-[#FDF0EE] border-[#F7D4CF] text-[#9E2D2D]'
-                                : 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]'
+                        <div className={`flex items-center gap-1.5 text-xs font-semibold ${
+                            credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
                         }`}>
                             {credential.isRevoked ? <ShieldAlert className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                            {credential.isRevoked ? 'Status: Revoked' : 'Status: Verified'}
+                            <span>{credential.isRevoked ? 'Revoked' : 'Verified'}</span>
                         </div>
                     </div>
 
@@ -168,8 +164,8 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                     <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-emerald-600" /> Status: Active</span>
                 </div>
                 <div className="flex items-center gap-4 text-stone-400">
-                    <span>Archival standard</span>
-                    <span>Immutable cryptographic record</span>
+                    <span>Archival record</span>
+                    <span>Verified certificate</span>
                 </div>
             </div>
 
@@ -185,17 +181,15 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
                         </div>
                         <div>
                             <span className="block text-[10px] font-bold uppercase tracking-wider text-stone-500">Verified credential</span>
-                            <span className="text-xs font-bold text-stone-800 uppercase">{credential.type} {isSBT ? 'SBT' : 'NFT'}</span>
+                            <span className="text-xs font-bold text-stone-800 uppercase">{credential.type}</span>
                         </div>
                     </div>
 
-                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border flex items-center gap-1 ${
-                        credential.isRevoked
-                            ? 'bg-[#FDF0EE] border-[#F7D4CF] text-[#9E2D2D]'
-                            : 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]'
+                    <div className={`text-xs font-semibold flex items-center gap-1 ${
+                        credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
                     }`}>
-                        {credential.isRevoked ? <ShieldAlert className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                        {credential.isRevoked ? 'Revoked' : 'Verified'}
+                        {credential.isRevoked ? <ShieldAlert className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                        <span>{credential.isRevoked ? 'Revoked' : 'Verified'}</span>
                     </div>
                 </div>
 

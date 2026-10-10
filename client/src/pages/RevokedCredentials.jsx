@@ -3,13 +3,12 @@ import { motion } from 'framer-motion';
 import CredentialTable from '../components/credential/CredentialTable';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import { credentialAPI } from '../services/api';
-import { ShieldAlert, AlertTriangle, FileWarning } from 'lucide-react';
+import { AlertTriangle, FileWarning, ShieldAlert } from 'lucide-react';
 
 const RevokedCredentials = () => {
   const [credentials, setCredentials] = useState([]);
   const [selectedCredential, setSelectedCredential] = useState(null);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     let active = true;
@@ -26,55 +25,68 @@ const RevokedCredentials = () => {
     return () => { active = false; };
   }, []);
 
-    return (
-    <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
-      <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
+      <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 relative z-10">
 
+        {/* Header Bar */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden shadow-[0_4px_24px_-4px_rgba(28,25,23,0.03)]"
+          transition={{ duration: 0.4 }}
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
-           <div className="p-4 bg-white/80 rounded-2xl border border-[#F7D4CF] text-[#9E2D2D] shrink-0 relative z-10 shadow-xs">
-              <AlertTriangle className="w-8 h-8" />
-           </div>
-
-           <div className="flex-1 relative z-10 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-stone-900 mb-2 tracking-tight">Revoked credentials</h2>
-              <p className="text-stone-600 max-w-2xl text-base leading-relaxed">
-                 These credentials were canceled by your institution. They are permanently marked as revoked on the cryptographic ledger and cannot be re-validated.
-              </p>
-           </div>
-
-           <div className="text-center md:text-right relative z-10 min-w-[150px]">
-              <div className="text-5xl font-bold text-stone-900 mb-1">{credentials.length}</div>
-              <div className="text-xs text-[#9E2D2D] font-bold uppercase tracking-wider border border-[#F7D4CF] px-3 py-1 rounded-full bg-white inline-block">Total revoked</div>
-           </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+              Revoked Credentials
+            </h1>
+            <p className="text-xs text-stone-500 font-medium mt-0.5">
+              Canceled credentials that are no longer valid.
+            </p>
+          </div>
         </motion.div>
 
+        {/* Alert Summary Card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-          className="space-y-6"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-white border border-[#EAECF0] rounded-2xl p-6 shadow-[0_1px_3px_rgba(16,24,40,0.02)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5"
         >
-           <div className="flex items-center justify-between border-b border-[#E8E4DC] pb-4 px-2">
-              <div className="flex items-center space-x-3">
-                 <div className="p-2 bg-stone-100 rounded-xl border border-stone-200">
-                    <FileWarning className="w-5 h-5 text-stone-700" />
-                 </div>
-                 <h3 className="text-xl font-bold text-stone-900 tracking-tight">Revoked registry</h3>
-              </div>
-           </div>
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-stone-900 tracking-tight">Canceled Certificates</h2>
+              <p className="text-xs text-stone-500 leading-relaxed max-w-2xl mt-0.5">
+                Revocations are permanent. Anyone who verifies these records will see that they have been revoked.
+              </p>
+            </div>
+          </div>
 
-           <div className="min-h-[300px]">
-               <CredentialTable
-                 credentials={credentials}
-                 onView={setSelectedCredential}
-                 loading={loading}
-               />
-           </div>
+          <div className="flex sm:flex-col items-baseline sm:items-end justify-between w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-stone-100 shrink-0">
+            <div className="text-3xl font-bold text-stone-900 font-mono tracking-tight">{credentials.length}</div>
+            <span className="text-xs text-stone-500 font-medium mt-1">
+              Total revoked
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Table Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="space-y-4"
+        >
+          <div className="min-h-[300px]">
+            <CredentialTable
+              credentials={credentials}
+              onView={setSelectedCredential}
+              loading={loading}
+            />
+          </div>
         </motion.div>
       </main>
 

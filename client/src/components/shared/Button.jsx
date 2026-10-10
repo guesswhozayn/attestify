@@ -18,6 +18,23 @@ const variants = {
   ghost: 'text-zinc-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30',
 };
 
+const filterConflictingStyles = (variantStyle, customClassName) => {
+  if (!customClassName) return variantStyle;
+  const classes = variantStyle.split(' ');
+  const hasCustomBg = customClassName.includes('bg-');
+  const hasCustomText = customClassName.includes('text-');
+  const hasCustomBorder = customClassName.includes('border-');
+  const hasCustomShadow = customClassName.includes('shadow-');
+
+  return classes.filter(cls => {
+    if (hasCustomBg && (cls.startsWith('bg-') || cls.startsWith('hover:bg-'))) return false;
+    if (hasCustomText && (cls.startsWith('text-') || cls.startsWith('hover:text-'))) return false;
+    if (hasCustomBorder && (cls.startsWith('border-') || cls === 'border' || cls.startsWith('hover:border-'))) return false;
+    if (hasCustomShadow && (cls.startsWith('shadow-') || cls.startsWith('hover:shadow-'))) return false;
+    return true;
+  }).join(' ');
+};
+
 const sizes = {
   sm: 'px-3.5 py-1.5 text-xs font-medium',
   md: 'px-5 py-2.5 text-sm font-medium',
@@ -38,18 +55,25 @@ const Button = ({
   className = '',
   icon: Icon,
   iconClassName = '',
-  rounded = '2xl',
+  rounded = 'xl',
   noWrapper = false,
   ...props
 }) => {
-  const baseStyles = 'tracking-normal transition-all duration-200 flex flex-row items-center justify-center gap-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090d] disabled:cursor-not-allowed group overflow-hidden relative select-none';
-  const variantStyles = variants[variant] || '';
-  const roundedClassName = roundedStyles[rounded] || roundedStyles['2xl'];
-  const combinedClassName = `${baseStyles} ${variantStyles} ${sizes[size] || sizes.md} ${roundedClassName} ${className}`;
+  const baseStyles = 'tracking-normal transition-all duration-200 flex flex-row items-center justify-center gap-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed group overflow-hidden relative select-none cursor-pointer';
+  const cleanVariantStyles = filterConflictingStyles(variants[variant] || '', className);
+  const roundedClassName = roundedStyles[rounded] || roundedStyles['xl'];
+  const combinedClassName = `${baseStyles} ${cleanVariantStyles} ${sizes[size] || sizes.md} ${roundedClassName} ${className}`;
 
   if (href) {
     return (
-      <a href={href} target={target} rel={rel} className={combinedClassName} {...props}>
+      <a
+        href={href}
+        target={target}
+        rel={rel}
+        data-button-variant={variant}
+        className={combinedClassName}
+        {...props}
+      >
         {Icon && <Icon className={`w-4 h-4 shrink-0 ${iconClassName}`} />}
         {children && <span>{children}</span>}
       </a>
@@ -60,6 +84,7 @@ const Button = ({
     <button
       onClick={onClick}
       disabled={disabled || loading}
+      data-button-variant={variant}
       className={combinedClassName}
       {...props}
     >

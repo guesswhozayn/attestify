@@ -95,46 +95,42 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const getStatusStyles = () => {
     if (credential.isRevoked) {
       return {
-        container: 'bg-red-500/10 border-red-500/20 text-red-500',
+        text: 'text-rose-600',
         icon: ShieldAlert,
-        label: 'REVOKED'
+        label: 'Revoked'
       };
     }
     switch (credential.status) {
       case 'PENDING':
         return {
-          container: 'bg-zinc-500/10 border-zinc-500/20 text-zinc-400',
+          text: 'text-amber-700',
           icon: Clock,
-          label: 'PENDING'
+          label: 'Pending'
         };
       case 'PROCESSING':
         return {
-          container: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+          text: 'text-amber-700',
           icon: Loader2,
-          label: 'PROCESSING'
+          label: 'Processing'
         };
       case 'FAILED':
         return {
-          container: 'bg-red-500/10 border-red-500/20 text-red-400',
+          text: 'text-rose-600',
           icon: ShieldAlert,
-          label: 'FAILED'
+          label: 'Failed'
         };
       case 'COMPLETED':
       default:
         return {
-          container: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+          text: 'text-emerald-700',
           icon: ShieldCheck,
-          label: 'VERIFIED SECURE'
+          label: 'Verified'
         };
     }
   };
 
   const statusStyles = getStatusStyles();
   const StatusIcon = statusStyles.icon;
-
-  const iconColor = isTranscript
-    ? 'text-indigo-400'
-    : 'text-emerald-400';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Credential details" size="2xl">
@@ -215,24 +211,20 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center md:items-end gap-2.5 shrink-0">
-                  <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold ${
-                    credential.isRevoked
-                      ? 'bg-[#FDF0EE] border-[#F7D4CF] text-[#9E2D2D]'
-                      : 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]'
-                  }`}>
-                    <StatusIcon className="w-3.5 h-3.5" />
-                    {statusStyles.label}
+                <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
+                  <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
+                    <StatusIcon className="w-4 h-4" />
+                    <span>{statusStyles.label}</span>
                   </div>
                   {isSBT && (
-                    <Button
+                    <button
+                      type="button"
                       onClick={() => setShowSBTModal(true)}
-                      variant="outline"
-                      className="flex items-center gap-1.5 px-3 py-1 bg-white border-[#E8E4DC] rounded-full text-stone-700 text-xs font-semibold hover:bg-stone-50"
+                      className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl text-stone-700 text-xs font-medium hover:bg-stone-50 cursor-pointer transition-colors shadow-2xs"
                     >
-                      <Shield className="w-3 h-3 text-stone-500" />
-                      SOULBOUND
-                    </Button>
+                      <Shield className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Direct record</span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -304,7 +296,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                                       <td className="px-5 py-3 text-stone-900 font-semibold">{course.name}</td>
                                       <td className="px-5 py-3 text-center text-stone-600 font-bold">{course.credits}</td>
                                       <td className="px-5 py-3 text-right">
-                                        <span className="px-2 py-0.5 bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C] rounded-md font-bold text-xs">
+                                        <span className="font-bold text-xs text-stone-900">
                                           {course.grade}
                                         </span>
                                       </td>
@@ -356,13 +348,13 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">Blockchain verification</h3>
-                    <p className="text-xs text-stone-400 font-medium">Cryptographic proof</p>
+                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">Record verification</h3>
+                    <p className="text-xs text-stone-400 font-medium">Network confirmation</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-[#EDF5EE] border border-[#CFE6D3] rounded-full text-xs font-semibold text-[#25562C]">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
                   <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></div>
-                  VERIFIED
+                  <span>Verified</span>
                 </div>
               </div>
 
@@ -443,7 +435,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <div className="pt-5 border-t border-[#E8E4DC] space-y-4">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Soulbound token details</span>
+                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Direct record details</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
@@ -476,9 +468,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <span className="text-stone-700 font-medium block text-sm">{formatDate(credential.issueDate)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 px-3.5 py-1.5 bg-[#EDF5EE] border border-[#CFE6D3] rounded-full text-xs font-semibold text-[#25562C]">
-                <ShieldCheck className="w-4 h-4" />
-                VERIFIED AUTHENTIC
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Verified authentic</span>
               </div>
             </div>
 
@@ -494,7 +486,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                  <QRCodeDisplay credentialId={credential._id} />
                </div>
                <p className="text-xs text-stone-500 text-center leading-relaxed">
-                 Scan with any mobile camera to instantly verify this record on the ledger.
+                 Scan with a phone camera to view and verify this certificate.
                </p>
             </div>
 

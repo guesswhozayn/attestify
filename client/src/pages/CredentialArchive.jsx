@@ -119,56 +119,47 @@ const CredentialArchive = () => {
     const { currentPage: pg, totalPages } = pagination;
 
     return (
-        <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
-            <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-10 relative z-10">
+        <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
+            <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 relative z-10">
 
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8"
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
-                    <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 border border-stone-200">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            <span className="text-xs font-semibold text-stone-600">Credentials registry</span>
-                        </div>
-
-                        <div className="space-y-2">
-                            <h1 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-none">
-                                All credentials
-                            </h1>
-                            <p className="text-stone-500 max-w-2xl text-base font-normal leading-relaxed">
-                                View and manage all credentials issued by your institution.
-                            </p>
-                        </div>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+                            Credentials
+                        </h1>
+                        <p className="text-xs text-stone-500 font-normal mt-0.5">
+                            Search, filter, and view certificates issued by your school.
+                        </p>
                     </div>
 
-                    <div className="flex items-center gap-3 w-full lg:w-auto">
+                    <div className="flex items-center gap-2.5">
                         <Button
                             onClick={() => setShowUploadModal(true)}
                             variant="primary"
                             icon={Plus}
-                            className="flex-1 lg:flex-none bg-stone-900 hover:bg-stone-800 text-white rounded-xl py-3 px-5 text-sm font-medium shadow-sm"
+                            className="bg-stone-900 hover:bg-stone-800 text-white rounded-xl py-2 px-4 text-xs font-medium shadow-xs cursor-pointer"
                         >
-                            Issue credential
+                            Issue certificate
                         </Button>
                         <Button
                             onClick={() => setShowBulkModal(true)}
                             variant="outline"
-                            className="flex-1 lg:flex-none bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 rounded-xl py-3 px-5 text-sm font-medium shadow-xs"
+                            className="bg-white hover:bg-stone-50 text-stone-800 border border-[#EAECF0] rounded-xl py-2 px-4 text-xs font-medium shadow-2xs cursor-pointer"
                         >
-                            Issue in bulk
+                            Bulk issue
                         </Button>
                     </div>
                 </motion.div>
 
-                <div className="bg-white rounded-2xl p-4 border border-[#E8E4DC] shadow-[0_4px_20px_-4px_rgba(28,25,23,0.03)]">
+                <div>
                     <CredentialsStats stats={stats} />
                 </div>
+
 
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}

@@ -10,9 +10,9 @@ const LoadingSpinner = ({ size = 'md', text = 'Loading...' }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <Loader2 className={`${sizes[size]} text-indigo-500 animate-spin`} />
-      {text && <p className="text-gray-400">{text}</p>}
+    <div className="flex flex-col items-center justify-center space-y-3.5">
+      <Loader2 className={`${sizes[size]} text-stone-900 animate-spin`} />
+      {text && <p className="text-stone-500 text-xs font-medium tracking-wide">{text}</p>}
     </div>
   );
 };
