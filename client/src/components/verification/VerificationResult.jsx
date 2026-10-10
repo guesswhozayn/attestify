@@ -11,8 +11,8 @@ const VerificationResult = ({ result }) => {
   const statusConfig = {
     success: {
       icon: CheckCircle,
-      label: 'DOCUMENT VALIDATED',
-      subtext: 'Verified Secure Record',
+      label: 'Document verified',
+      subtext: 'Valid credential',
       borderColor: 'border-emerald-500/30',
       bgColor: 'bg-emerald-500/5',
       shadowColor: 'shadow-emerald-500/20',
@@ -22,8 +22,8 @@ const VerificationResult = ({ result }) => {
     },
     revoked: {
       icon: ShieldAlert,
-      label: 'RECORD REVOKED',
-      subtext: 'No Longer Active',
+      label: 'Credential revoked',
+      subtext: 'No longer valid',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',
       shadowColor: 'shadow-red-500/20',
@@ -33,7 +33,7 @@ const VerificationResult = ({ result }) => {
     },
     failed: {
       icon: XCircle,
-      label: 'VERIFICATION FAILED',
+      label: 'Verification failed',
       subtext: result.message || 'Document details do not match',
       borderColor: 'border-red-500/30',
       bgColor: 'bg-red-500/5',
@@ -61,24 +61,21 @@ const VerificationResult = ({ result }) => {
         className={`absolute left-0 right-0 h-px bg-gradient-to-r from-transparent ${config.gradientVia} to-transparent z-20 pointer-events-none`}
       />
 
-      <div className={`relative overflow-hidden rounded-3xl border ${config.borderColor} bg-black/40 backdrop-blur-2xl shadow-[0_0_50px_-10px_rgba(0,0,0,0.5)]`}>
+      <div className={`relative overflow-hidden rounded-2xl border ${config.borderColor} bg-[#0e1017]/90 backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_20px_50px_-15px_rgba(0,0,0,0.7)]`}>
 
-        <div className={`absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 ${config.borderColor} rounded-tl-2xl`} />
-        <div className={`absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 ${config.borderColor} rounded-tr-2xl`} />
-        <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 ${config.borderColor} rounded-bl-2xl`} />
-        <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 ${config.borderColor} rounded-br-2xl`} />
+        <div className={`absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 ${config.borderColor} rounded-tl-xl`} />
+        <div className={`absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 ${config.borderColor} rounded-tr-xl`} />
+        <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 ${config.borderColor} rounded-bl-xl`} />
+        <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 ${config.borderColor} rounded-br-xl`} />
 
         <div className={`p-8 border-b border-white/5 relative overflow-hidden`}>
-
-           <div className={`absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none opacity-20`}></div>
-
            <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-5">
                  <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className={`p-4 rounded-2xl ${config.bgColor} border ${config.borderColor} shadow-[0_0_20px_rgba(0,0,0,0.2)]`}
+                    className={`p-4 rounded-xl ${config.bgColor} border ${config.borderColor} shadow-[0_0_20px_rgba(0,0,0,0.2)]`}
                  >
                     <StatusIcon className={`w-8 h-8 ${config.textColor}`} />
                  </motion.div>
@@ -88,7 +85,7 @@ const VerificationResult = ({ result }) => {
                       initial={{ y: 10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.3 }}
-                      className={`text-2xl font-black tracking-tighter text-white mb-1`}
+                      className={`text-2xl font-bold tracking-tight text-white mb-1`}
                     >
                       {config.label}
                     </motion.h2>
@@ -112,7 +109,7 @@ const VerificationResult = ({ result }) => {
                 transition={{ delay: 0.5 }}
                 className="hidden sm:flex flex-col items-end"
               >
-                 <span className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Match Accuracy</span>
+                 <span className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Match accuracy</span>
                  <div className="flex items-end gap-1">
                     <span className={`text-3xl font-black ${config.textColor} leading-none`}>
                        {isSuccess ? '100' : '0'}
@@ -129,21 +126,21 @@ const VerificationResult = ({ result }) => {
 
                  <InfoGroup
                     icon={User}
-                    label="Recipient Name"
+                    label="Recipient name"
                     value={result.credential.studentName}
                     delay={0.6}
                   />
 
                  <InfoGroup
                     icon={Award}
-                    label="Issuing Institution"
+                    label="Issuing institution"
                     value={result.credential.university}
                     delay={0.7}
                   />
 
                  <InfoGroup
                     icon={Calendar}
-                    label="Issuance Date"
+                    label="Date issued"
                     value={new Date(result.credential.issueDate).toLocaleDateString(undefined, {
                         year: 'numeric',
                         month: 'long',
@@ -161,7 +158,7 @@ const VerificationResult = ({ result }) => {
                     >
                        <div className="flex items-center gap-2 text-gray-500">
                           <Hash className="w-3 h-3" />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">Recipient Account ID</span>
+                          <span className="text-[10px] uppercase tracking-widest font-bold">Recipient wallet address</span>
                        </div>
                        <div className="bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-xs text-indigo-300 break-all hover:bg-white/5 transition-colors cursor-text select-all">
                           {result.credential.studentWalletAddress}
@@ -188,19 +185,19 @@ const VerificationResult = ({ result }) => {
 
                   <h3 className="text-red-400 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
                      <Activity className="w-4 h-4" />
-                     Revocation Status
+                     Revocation details
                   </h3>
 
                   <div className="space-y-3 relative z-10">
                      <div className="flex justify-between items-center text-sm border-b border-red-500/10 pb-2">
-                        <span className="text-gray-500">Timestamp</span>
+                        <span className="text-gray-500">Date revoked</span>
                         <span className="text-white font-mono">
                            {result.credential.revokedAt ? new Date(result.credential.revokedAt).toLocaleString() : 'N/A'}
                         </span>
                      </div>
                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-500">Reason Code</span>
-                        <span className="text-white font-medium">{result.credential.revocationReason || 'ADMIN_ACTION'}</span>
+                        <span className="text-gray-500">Reason</span>
+                        <span className="text-white font-medium">{result.credential.revocationReason || 'Canceled by issuer'}</span>
                      </div>
                   </div>
               </motion.div>
@@ -222,7 +219,7 @@ const VerificationResult = ({ result }) => {
                     className="w-full sm:w-auto font-mono text-xs uppercase hover:bg-white/10"
                     icon={ExternalLink}
                  >
-                    View Verification Receipt
+                    View on Etherscan
                  </Button>
               </motion.div>
            )}

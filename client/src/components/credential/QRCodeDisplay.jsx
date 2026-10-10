@@ -28,25 +28,25 @@ const QRCodeDisplay = ({ credentialId }) => {
   };
 
   return (
-    <div>
-      <h3 className="text-white font-semibold mb-4">QR CODE</h3>
-      <div className="bg-white p-4 rounded-lg inline-block">
+    <div className="flex flex-col items-center sm:items-start">
+      <h3 className="text-stone-900 font-bold mb-4 text-sm tracking-tight">QR code verification</h3>
+      <div className="bg-white p-4 rounded-2xl inline-block border border-[#ECE7DE] shadow-2xs">
         <QRCodeSVG
           id="qr-code"
           value={qrValue}
-          size={200}
+          size={180}
           level="H"
-          includeMargin={true}
+          includeMargin={false}
         />
       </div>
       <Button
         onClick={downloadQR}
-        variant="ghost"
+        variant="secondary"
         size="sm"
-        className="mt-3 w-full"
+        className="mt-3.5 w-full justify-center text-xs font-semibold"
         icon={Download}
       >
-        Download QR Code
+        Download QR code
       </Button>
     </div>
   );

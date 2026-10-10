@@ -115,7 +115,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     }
 
     setLoading(true);
-    setLoadingMessage('Initializing issuance...');
+    setLoadingMessage('Preparing credential...');
 
     try {
       const formDataToSend = new FormData();
@@ -138,7 +138,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       const response = await credentialAPI.issue(formDataToSend);
       const { credentialId } = response.data;
 
-      setLoadingMessage('Job enqueued. Waiting for background worker...');
+      setLoadingMessage('Queued. Processing credential...');
 
       const pollStatus = () => {
         return new Promise((resolve, reject) => {
@@ -148,15 +148,15 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
               const { status, credential } = statusRes.data;
 
               if (status === 'PENDING') {
-                setLoadingMessage('Preparing PDF generation & IPFS upload...');
+                setLoadingMessage('Generating PDF and storing file...');
               } else if (status === 'PROCESSING') {
-                setLoadingMessage('Minting Unified Soulbound Credential on Ethereum...');
+                setLoadingMessage('Issuing credential on the blockchain...');
               } else if (status === 'COMPLETED') {
                 clearInterval(interval);
                 resolve(credential);
               } else if (status === 'FAILED') {
                 clearInterval(interval);
-                reject(new Error(credential.error || 'Issuance failed on the background worker'));
+                reject(new Error(credential.error || 'Issuance failed'));
               }
             } catch (err) {
               clearInterval(interval);
@@ -168,7 +168,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
       const finalCredential = await pollStatus();
 
-      showNotification('Credential issued successfully! Transaction confirmed.', 'success');
+      showNotification('Credential issued successfully', 'success');
       onSuccess(finalCredential);
       onClose();
 
@@ -181,14 +181,14 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Issue New Credential" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Issue credential" size="xl">
 
       {loading && (
-        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-all rounded-2xl">
-            <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl flex flex-col items-center max-w-sm w-full">
-                <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
-                <h3 className="text-white text-lg font-bold mb-2">Processing Transaction</h3>
-                <p className="text-gray-400 text-center text-sm">
+        <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-xs flex flex-col items-center justify-center z-50 transition-all rounded-3xl">
+            <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-2xl flex flex-col items-center max-w-sm w-full">
+                <Loader2 className="w-10 h-10 text-stone-900 animate-spin mb-3" />
+                <h3 className="text-stone-900 text-base font-bold mb-1">Issuing credential</h3>
+                <p className="text-stone-500 text-center text-xs">
                     {loadingMessage}
                 </p>
             </div>
@@ -196,11 +196,11 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       )}
 
       <div className="relative group flex flex-col">
-        <div className="relative z-10 space-y-8 pb-4">
-          <div className="space-y-8">
+        <div className="relative z-10 space-y-6 pb-2">
+          <div className="space-y-6">
 
         <div>
-           <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-4">Credential Type</label>
+           <label className="block text-xs font-bold text-stone-500 ml-1 uppercase tracking-wider mb-3">Credential type</label>
            <div className="grid grid-cols-2 gap-4">
              <TypeSelectionCard
                active={credentialType === 'CERTIFICATION'}
@@ -221,14 +221,14 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
            </div>
         </div>
 
-        <div className="bg-white/[0.02] p-6 rounded-3xl border border-white/[0.06] space-y-6">
-           <h3 className="text-xs font-bold text-gray-400 flex items-center gap-2 ml-4 uppercase tracking-wider">
-              <User className="w-4 h-4 text-indigo-400" />
-              Recipient Details
+        <div className="bg-[#FAF8F5] p-6 rounded-2xl border border-[#E8E4DC] space-y-5">
+           <h3 className="text-xs font-bold text-stone-600 flex items-center gap-2 ml-1 uppercase tracking-wider">
+              <User className="w-4 h-4 text-stone-700" />
+              Recipient details
            </h3>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
              <Input
-               label="Student Name"
+               label="Student name"
                name="studentName"
                value={formData.studentName}
                onChange={handleChange}
@@ -237,7 +237,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                required
              />
              <Input
-               label="Student Wallet Address"
+               label="Student wallet address"
                name="studentWalletAddress"
                value={formData.studentWalletAddress}
                onChange={handleChange}
@@ -246,7 +246,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                required
              />
              <Input
-               label="University / Organization"
+               label="Institution"
                name="university"
                value={formData.university}
                onChange={handleChange}
@@ -254,10 +254,10 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                icon={Building}
                required
                disabled={true}
-               className="opacity-60 cursor-not-allowed"
+               className="opacity-70 cursor-not-allowed"
              />
              <Input
-               label="Issue Date"
+               label="Issue date"
                type="date"
                name="issueDate"
                value={formData.issueDate}
@@ -267,12 +267,12 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
              />
            </div>
 
-           <div className="border-t border-white/[0.06] pt-6">
-             <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-3">Profile Image</label>
-             <div className="flex items-center space-x-4 p-4 bg-black/20 border border-white/10 rounded-2xl border-dashed hover:border-indigo-500/30 transition-colors group">
-               <div className="flex-shrink-0">
+           <div className="border-t border-[#E8E4DC] pt-5">
+             <label className="block text-xs font-bold text-stone-500 ml-1 uppercase tracking-wider mb-2">Student photo</label>
+             <div className="flex items-center space-x-4 p-4 bg-white border border-[#E8E4DC] rounded-xl border-dashed hover:border-stone-400 transition-colors">
+               <div className="shrink-0">
                   {formData.studentImage && formData.studentImage instanceof File ? (
-                     <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
+                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-stone-300">
                         <img
                           src={imagePreviewUrl}
                           alt="Preview"
@@ -280,8 +280,8 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                         />
                      </div>
                   ) : (
-                     <div className="w-16 h-16 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-colors">
-                        <Image className="w-7 h-7" />
+                     <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
+                        <Image className="w-6 h-6" />
                      </div>
                   )}
                </div>
@@ -295,24 +295,24 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                   />
                   <label
                     htmlFor="student-image-upload"
-                    className="cursor-pointer text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                    className="cursor-pointer text-sm font-semibold text-stone-900 hover:text-stone-700 transition-colors"
                   >
-                    Upload Student Photo
+                    Upload student photo
                   </label>
-                  <p className="text-xs text-gray-500 mt-1">Recommended: Square JPG/PNG, max 2MB</p>
+                  <p className="text-xs text-stone-400 mt-0.5">Square JPG/PNG, max 2MB</p>
                </div>
              </div>
            </div>
         </div>
 
-        <div className="bg-white/[0.02] p-6 rounded-3xl border border-white/[0.06] space-y-6">
-           <h3 className="text-xs font-bold text-gray-400 flex items-center gap-2 ml-4 uppercase tracking-wider">
-             {credentialType === 'TRANSCRIPT' ? <BookOpen className="w-4 h-4 text-indigo-400" /> : <Award className="w-4 h-4 text-emerald-400" />}
-             {credentialType === 'TRANSCRIPT' ? 'Academic Records' : 'Certification Details'}
+        <div className="bg-[#FAF8F5] p-6 rounded-2xl border border-[#E8E4DC] space-y-5">
+           <h3 className="text-xs font-bold text-stone-600 flex items-center gap-2 ml-1 uppercase tracking-wider">
+             {credentialType === 'TRANSCRIPT' ? <BookOpen className="w-4 h-4 text-stone-700" /> : <Award className="w-4 h-4 text-stone-700" />}
+             {credentialType === 'TRANSCRIPT' ? 'Academic record' : 'Certification details'}
            </h3>
 
            {credentialType === 'TRANSCRIPT' ? (
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <Input
                     label="Program"
@@ -329,14 +329,14 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                    icon={Building}
                  />
                  <Input
-                   label="Admission Year"
+                   label="Admission year"
                    value={transcriptData.admissionYear}
                    onChange={(e) => setTranscriptData({...transcriptData, admissionYear: e.target.value})}
                    placeholder="Year"
                    icon={Calendar}
                  />
                  <Input
-                   label="Graduation Year"
+                   label="Graduation year"
                    value={transcriptData.graduationYear}
                    onChange={(e) => setTranscriptData({...transcriptData, graduationYear: e.target.value})}
                    placeholder="Year"
@@ -350,34 +350,34 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                    icon={Award}
                  />
                </div>
-                  <div className="border-t border-white/[0.06] pt-6">
-                  <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-4">Course Records</label>
-                  <div className="space-y-3">
+                  <div className="border-t border-[#E8E4DC] pt-5">
+                  <label className="block text-xs font-bold text-stone-500 ml-1 uppercase tracking-wider mb-3">Courses</label>
+                  <div className="space-y-2.5">
                     {transcriptData.courses.map((course, index) => (
-                      <div key={index} className="flex gap-3 items-center group">
+                      <div key={index} className="flex gap-2.5 items-center">
                         <input
                           placeholder="Code"
                           value={course.code}
                           onChange={(e) => updateCourse(index, 'code', e.target.value)}
-                          className="w-24 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                          className="w-24 bg-white border border-[#E8E4DC] text-stone-900 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-stone-400 placeholder-stone-400"
                         />
                         <input
                           placeholder="Subject Name"
                           value={course.name}
                           onChange={(e) => updateCourse(index, 'name', e.target.value)}
-                          className="flex-1 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                          className="flex-1 bg-white border border-[#E8E4DC] text-stone-900 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-stone-400 placeholder-stone-400"
                         />
                         <input
                           placeholder="Credits"
                           value={course.credits}
                           onChange={(e) => updateCourse(index, 'credits', e.target.value)}
-                          className="w-20 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                          className="w-20 bg-white border border-[#E8E4DC] text-stone-900 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-stone-400 placeholder-stone-400"
                         />
                         <input
                           placeholder="Grade"
                           value={course.grade}
                           onChange={(e) => updateCourse(index, 'grade', e.target.value)}
-                          className="w-20 bg-white/[0.03] border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 focus:outline-none transition-all placeholder-gray-600"
+                          className="w-20 bg-white border border-[#E8E4DC] text-stone-900 px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-stone-400 placeholder-stone-400"
                         />
                         <Button
                           onClick={() => removeCourse(index)}
@@ -385,32 +385,32 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                           rounded="xl"
                           size="sm"
                           icon={Trash2}
-                          className="!p-2.5 opacity-60 group-hover:opacity-100"
+                          className="!p-2 text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100"
                         />
                       </div>
                     ))}
                   </div>
                   <Button
                     onClick={addCourse}
-                    variant="secondary"
+                    variant="outline"
                     size="sm"
                     icon={Plus}
-                    className="mt-4"
+                    className="mt-3 bg-white text-stone-700 border-stone-200 hover:bg-stone-50"
                   >
-                    Add Course Record
+                    Add course
                   </Button>
                 </div>
               </div>
            ) : (
-             <div className="space-y-5">
+             <div className="space-y-4">
                <Input
-                 label="Certification Title"
+                 label="Certification title"
                  value={certificationData.title}
                  onChange={(e) => setCertificationData({...certificationData, title: e.target.value})}
                  placeholder="e.g. Advanced React Patterns"
                  icon={Award}
                />
-               <div className="grid grid-cols-2 gap-5">
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                  <Input
                    label="Level"
                    value={certificationData.level}
@@ -434,11 +434,11 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                  />
                </div>
                <div>
-                 <label className="block text-xs font-bold text-gray-400 ml-4 uppercase tracking-wider mb-2">Description</label>
+                 <label className="block text-xs font-bold text-stone-500 ml-1 uppercase tracking-wider mb-2">Description</label>
                  <textarea
                    value={certificationData.description}
                    onChange={(e) => setCertificationData({...certificationData, description: e.target.value})}
-                   className="w-full bg-black/40 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 h-28 resize-none text-sm placeholder-gray-600 transition-all"
+                   className="w-full bg-white border border-[#E8E4DC] text-stone-900 px-4 py-3 rounded-xl focus:outline-none focus:border-stone-400 h-28 resize-none text-sm placeholder-stone-400"
                    placeholder="Briefly describe the skills validated by this certification..."
                  />
                </div>
@@ -446,14 +446,14 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
            )}
         </div>
 
-        <div className="pt-6 border-t border-white/[0.08]">
+        <div className="pt-4 border-t border-[#E8E4DC]">
           <Button
             onClick={handleSubmit}
             loading={loading}
             disabled={loading}
-            variant={credentialType === 'TRANSCRIPT' ? 'primary' : 'success'}
+            variant="primary"
             size="lg"
-            className="w-full justify-center shadow-xl py-5 gap-4"
+            className="w-full justify-center bg-stone-900 hover:bg-stone-800 text-white rounded-xl py-4 font-semibold text-sm shadow-sm cursor-pointer"
           >
             Issue {credentialType === 'TRANSCRIPT' ? 'Transcript' : 'Certification'}
           </Button>

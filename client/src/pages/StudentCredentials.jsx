@@ -99,35 +99,25 @@ const StudentCredentials = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-            </div>
-
+        <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
             <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/20 to-blue-900/20 border border-white/[0.08] p-8 md:p-10 backdrop-blur-xl"
+          className="relative overflow-hidden rounded-3xl bg-white border border-[#E8E4DC] p-8 md:p-10 shadow-[0_4px_24px_-4px_rgba(28,25,23,0.04)]"
         >
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -mr-20 -mt-20 pointer-events-none"></div>
-
             <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                   <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-                            <Shield className="w-6 h-6 text-indigo-400" />
+                   <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2.5 bg-stone-100 rounded-xl border border-stone-200 text-stone-800">
+                            <Shield className="w-5 h-5 text-stone-700" />
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Academic Records</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold text-stone-900 tracking-tight">My credentials</h1>
                    </div>
-                   <p className="text-gray-400 max-w-2xl text-lg leading-relaxed">
-                      Your verifiable digital identity. Review your certificates, transcripts, and on-chain mastery records.
+                   <p className="text-stone-500 max-w-2xl text-base leading-relaxed">
+                      View and share your certificates, transcripts, and credentials.
                    </p>
                 </div>
 
@@ -136,10 +126,10 @@ const StudentCredentials = () => {
                       onClick={() => fetchCredentials(true)}
                       loading={refreshing}
                       rounded="xl"
-                      title="Refresh Records"
+                      title="Refresh credentials"
                       icon={RefreshCw}
-                      variant="secondary"
-                      className="aspect-square !p-0 flex items-center justify-center w-10 h-10"
+                      variant="outline"
+                      className="aspect-square !p-0 flex items-center justify-center w-10 h-10 bg-white hover:bg-stone-50 text-stone-700 border-stone-200"
                     />
                 </div>
             </div>
@@ -154,54 +144,44 @@ const StudentCredentials = () => {
                     className="space-y-6"
                 >
 
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/[0.02] p-2 rounded-2xl border border-white/[0.05] backdrop-blur-sm">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-2.5 rounded-2xl border border-[#E8E4DC] shadow-xs">
 
-                        <div className="flex p-1 space-x-1 bg-black/20 rounded-xl">
+                        <div className="flex p-1 space-x-1 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC]">
                            {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((tab) => (
-                             <Button
+                             <button
                                key={tab}
                                onClick={() => setActiveTab(tab)}
-                               variant={activeTab === tab ? 'primary' : 'ghost'}
-                               size="sm"
-                               rounded="lg"
-                               className={`px-4 py-2 !shadow-none ${
+                               className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                                  activeTab === tab
-                                   ? 'text-white'
-                                   : 'text-gray-400'
+                                   ? 'bg-stone-900 text-white shadow-xs'
+                                   : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
                                }`}
                              >
-                               {tab === 'all' ? 'All Records' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}
-                             </Button>
+                               {tab === 'all' ? 'All credentials' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}
+                             </button>
                            ))}
                         </div>
 
                         <div className="relative w-full md:w-80 group">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-4 w-4 text-gray-500 group-focus-within:text-indigo-400 transition-colors" />
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <Search className="h-4 w-4 text-stone-400 group-focus-within:text-stone-800 transition-colors" />
                             </div>
                             <input
                                 type="text"
                                 placeholder="Search credentials..."
                                 onChange={(e) => handleSearch(e.target.value)}
-                                className="block w-full pl-10 pr-4 py-2.5 bg-black/20 border border-white/[0.05] rounded-xl text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all focus:bg-black/40"
+                                className="block w-full pl-10 pr-4 py-2.5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
                             />
                         </div>
                     </div>
 
                     <div className="min-h-[400px]">
                         {(!walletAddress) ? (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5 }}
-                                className="flex flex-col items-center justify-center py-24 px-4 bg-white/[0.02] border border-white/[0.06] border-dashed rounded-3xl text-center backdrop-blur-xl"
-                            >
-                                <div className="w-20 h-20 bg-white/[0.03] rounded-full flex items-center justify-center mb-6 shadow-xl ring-8 ring-white/[0.02]">
-                                    <Wallet className="w-8 h-8 text-gray-500" />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Wallet Not Connected</h3>
-                                <p className="text-gray-500 max-w-sm mx-auto mb-6">Connect your wallet to access your decentralized academic vault.</p>
-                            </motion.div>
+                            <EmptyState
+                                icon={Wallet}
+                                title="Wallet not connected"
+                                message="Connect your wallet to view your credentials."
+                            />
                         ) : (
                             <CredentialTable
                                 credentials={filteredCredentials}

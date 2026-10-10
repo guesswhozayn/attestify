@@ -48,26 +48,26 @@ const Footer = () => {
   );
 
   return (
-    <footer className="relative bg-black pt-24 pb-12 overflow-hidden border-t border-white/10 z-10">
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <footer className="relative bg-[#06070a] pt-20 pb-12 overflow-hidden border-t border-white/[0.08] z-10">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[250px] bg-indigo-600/[0.05] rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           <div className="lg:col-span-5 space-y-8">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+              <div className="relative w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-md">
                 <Shield className="w-5 h-5 text-indigo-400" />
               </div>
-              <span className="font-sans text-2xl font-black tracking-[-0.05em] lowercase text-white">
+              <span className="font-sans text-2xl font-bold tracking-tight lowercase text-white">
                 attestify<span className="text-indigo-500">.</span>
               </span>
             </div>
             <p className="text-gray-400 text-base leading-relaxed max-w-md font-medium">
-              Building the trust layer for the internet. Empowering students and institutions with blockchain-verified credentials that are owned forever.
+              Verifiable academic credentials for students and institutions. Permanent, secure, and easy to share.
             </p>
 
             <div className="pt-4">
-              <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wide">Stay Updated</h4>
+              <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wide">Stay updated</h4>
               <div className="flex flex-col sm:flex-row gap-2 max-w-md">
                 <div className="relative flex-1">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -95,7 +95,7 @@ const Footer = () => {
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-sm text-gray-500 font-medium">
-            &copy; 2026 Attestify Protocol. All rights reserved.
+            &copy; 2026 Attestify. All rights reserved.
           </div>
 
           <div className="flex items-center gap-6">
@@ -111,7 +111,7 @@ const Footer = () => {
           </div>
 
           <div className="text-sm text-gray-600 flex items-center gap-2">
-            Made with <span className="text-red-500 animate-pulse">♥</span> for Web3
+            Made with <span className="text-red-500 animate-pulse">♥</span> for education
           </div>
         </div>
       </div>

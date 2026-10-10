@@ -26,44 +26,30 @@ const RevokedCredentials = () => {
     return () => { active = false; };
   }, []);
 
-  return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-
-          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-      </div>
-
+    return (
+    <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
       <main className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8 relative z-10">
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-red-900/10 border border-red-500/20 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden backdrop-blur-xl"
+          className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden shadow-[0_4px_24px_-4px_rgba(28,25,23,0.03)]"
         >
-
-           <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-transparent pointer-events-none"></div>
-           <div className="absolute -right-10 -top-10 text-red-500/5 rotate-12">
-               <ShieldAlert className="w-80 h-80" />
-           </div>
-
-           <div className="p-5 bg-red-500/10 rounded-full border border-red-500/20 text-red-500 flex-shrink-0 relative z-10 shadow-[0_0_30px_-10px_rgba(239,68,68,0.3)]">
-              <AlertTriangle className="w-10 h-10" />
+           <div className="p-4 bg-white/80 rounded-2xl border border-[#F7D4CF] text-[#9E2D2D] shrink-0 relative z-10 shadow-xs">
+              <AlertTriangle className="w-8 h-8" />
            </div>
 
            <div className="flex-1 relative z-10 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Revocation Registry</h2>
-              <p className="text-red-200/80 max-w-2xl text-lg leading-relaxed">
-                 These credentials have been permanently invalidated by the institution. They are no longer considered valid proof of qualification and will appear as &quot;Revoked&quot; during verification.
+              <h2 className="text-3xl font-bold text-stone-900 mb-2 tracking-tight">Revoked credentials</h2>
+              <p className="text-stone-600 max-w-2xl text-base leading-relaxed">
+                 These credentials were canceled by your institution. They are permanently marked as revoked on the cryptographic ledger and cannot be re-validated.
               </p>
            </div>
 
            <div className="text-center md:text-right relative z-10 min-w-[150px]">
-              <div className="text-5xl font-bold text-white mb-1 drop-shadow-lg">{credentials.length}</div>
-              <div className="text-xs text-red-400 font-bold uppercase tracking-widest border border-red-500/30 px-3 py-1 rounded-full bg-red-500/10 inline-block">Revoked Items</div>
+              <div className="text-5xl font-bold text-stone-900 mb-1">{credentials.length}</div>
+              <div className="text-xs text-[#9E2D2D] font-bold uppercase tracking-wider border border-[#F7D4CF] px-3 py-1 rounded-full bg-white inline-block">Total revoked</div>
            </div>
         </motion.div>
 
@@ -73,12 +59,12 @@ const RevokedCredentials = () => {
           transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
           className="space-y-6"
         >
-           <div className="flex items-center justify-between border-b border-white/5 pb-4 px-2">
+           <div className="flex items-center justify-between border-b border-[#E8E4DC] pb-4 px-2">
               <div className="flex items-center space-x-3">
-                 <div className="p-2 bg-red-500/10 rounded-lg">
-                    <FileWarning className="w-5 h-5 text-red-400" />
+                 <div className="p-2 bg-stone-100 rounded-xl border border-stone-200">
+                    <FileWarning className="w-5 h-5 text-stone-700" />
                  </div>
-                 <h3 className="text-xl font-bold text-white tracking-tight">Revoked List</h3>
+                 <h3 className="text-xl font-bold text-stone-900 tracking-tight">Revoked registry</h3>
               </div>
            </div>
 

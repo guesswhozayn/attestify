@@ -7,15 +7,16 @@ import { Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, G
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
+import { useNotification } from '../context/NotificationContext';
 import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
 import StudentStats from '../components/credential/StudentStats';
 import Avatar from '../components/shared/Avatar';
-import Background from '../components/shared/Background';
 import WelcomeHeroCard from '../components/shared/WelcomeHeroCard';
 import EmptyState from '../components/shared/EmptyState';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [credential, setCredential] = useState(null);
   const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ const StudentDashboard = () => {
   const welcomeTitle = (
     <>
       Welcome,{' '}
-      <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-500 dark:from-indigo-300 dark:via-white dark:to-indigo-300 bg-size-[200%_auto] animate-shimmer">
+      <span className="text-stone-900 font-bold">
         {user?.name?.split(' ')[0] || 'Student'}
       </span>
     </>
@@ -115,8 +116,8 @@ const StudentDashboard = () => {
     if (!credential || !walletAddress) return;
     const shareUrl = `${window.location.origin}/verify?walletAddress=${walletAddress}`;
     navigator.clipboard.writeText(shareUrl);
-    alert('Verification link copied to clipboard!');
-  }, [credential, walletAddress]);
+    showNotification('Verification link copied to clipboard', 'success');
+  }, [credential, walletAddress, showNotification]);
 
   const openIPFSLink = useCallback(() => {
     if (credential?.ipfsCID) {
@@ -141,21 +142,18 @@ const StudentDashboard = () => {
     return (
       <div className="min-h-screen bg-transparent">
         <div className="flex flex-col items-center justify-center h-[calc(100vh-120px)]">
-          <LoadingSpinner size="lg" text="Retrieving secure records..." />
+          <LoadingSpinner size="lg" text="Loading credentials..." />
         </div>
       </div>
     );
   }
 
   return (
-        <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-
-            <Background />
-
+        <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
             <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
 
         <WelcomeHeroCard
-          badge="Student Vault"
+          badge="Student portal"
           title={welcomeTitle}
           avatar={welcomeAvatar}
           onRefresh={() => fetchCredential(walletAddress, true)}
@@ -169,16 +167,16 @@ const StudentDashboard = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm mb-6"
+              className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm mb-6"
             >
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-red-500/10 rounded-lg">
-                   <ShieldAlert className="w-5 h-5 text-red-500 shrink-0" />
+                <div className="p-2 bg-rose-100 rounded-xl text-rose-600">
+                   <ShieldAlert className="w-5 h-5 shrink-0" />
                 </div>
-                <span className="text-red-200 font-medium">{error}</span>
+                <span className="text-rose-800 font-medium">{error}</span>
               </div>
               {(error.includes('connect your wallet') || error.includes('Wallet mismatch')) && (
-                <Button onClick={handleConnect} icon={Wallet} variant="danger" size="sm" className="shadow-lg shadow-red-500/20">
+                <Button onClick={handleConnect} icon={Wallet} variant="danger" size="sm" className="shadow-xs">
                   Disconnect
                 </Button>
               )}
@@ -188,14 +186,14 @@ const StudentDashboard = () => {
         {!walletAddress ? (
            <EmptyState
              icon={Wallet}
-             title="Wallet Not Connected"
-             message="Connect your Ethereum wallet to access your academic credential vault."
+             title="Wallet not connected"
+             message="Connect your wallet to view your credentials."
            />
         ) : !credential ? (
            <EmptyState
              icon={FileText}
-             title="No Credentials Found"
-             message="You haven't received any credentials yet. Once issued by an issuer, they will appear here instantly."
+             title="No credentials found"
+             message="You have not received any credentials yet. Once an institution issues one to your wallet, it will appear here."
            />
         ) : (
           <motion.div
@@ -205,13 +203,13 @@ const StudentDashboard = () => {
             className="grid grid-cols-1 lg:grid-cols-12 gap-8"
           >
 
-            <div className="lg:col-span-8 space-y-2">
+            <div className="lg:col-span-8 space-y-4">
                <div className="flex items-center justify-between px-1">
-                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                       <Award className="w-5 h-5 text-indigo-400" />
-                       Recent Credential
+                   <h2 className="text-xl font-bold text-stone-900 flex items-center gap-2.5">
+                       <Award className="w-5 h-5 text-stone-700" />
+                       Recent credential
                    </h2>
-                   <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded-md border border-white/5 shadow-sm dark:shadow-none">Latest Issue</span>
+                   <span className="text-[11px] font-semibold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full border border-stone-200/80">Latest issue</span>
                </div>
                <DetailedCredentialCard credential={credential} metadata={metadata} />
             </div>
@@ -222,36 +220,34 @@ const StudentDashboard = () => {
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-                 className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 shadow-sm dark:shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
+                 className="bg-white rounded-3xl p-7 border border-[#E8E4DC] shadow-[0_4px_20px_-4px_rgba(28,25,23,0.05)] relative overflow-hidden group/card"
                >
-                  <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                  <h3 className="text-white font-bold mb-6 flex items-center gap-3 relative z-10 text-left">
-                     <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
-                        <Share2 className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-stone-900 font-bold mb-6 flex items-center gap-3 relative z-10 text-left text-base">
+                     <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
+                        <Share2 className="w-4 h-4" />
                      </div>
-                     Share & Verify
+                     Share credential
                   </h3>
                   <div className="space-y-3 relative z-10 text-left">
                      <Button
                         onClick={handleShare}
                         icon={Share2}
-                        variant="white"
-                        className="w-full justify-center py-4 transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl"
+                        variant="primary"
+                        className="w-full justify-center py-3.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-sm font-medium transition-all shadow-sm active:scale-[0.99]"
                      >
-                        Copy Verification Link
+                        Copy verification link
                      </Button>
                       <Button
                         onClick={openIPFSLink}
                         icon={ExternalLink}
                         variant="outline"
-                        className="w-full justify-center py-4 border-white/10 hover:border-white/20 backdrop-blur-md transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl"
+                        className="w-full justify-center py-3.5 bg-white hover:bg-stone-50 text-stone-800 border border-stone-200/90 rounded-xl text-sm font-medium transition-all shadow-xs active:scale-[0.99]"
                      >
-                        View Original Document
+                        View original document
                      </Button>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-6 text-center leading-relaxed relative z-10 font-medium">
-                     Provide this link to employers or institutions. They can instantly verify the authenticity of this credential.
+                  <p className="text-xs text-stone-500 mt-5 text-center leading-relaxed relative z-10 font-normal">
+                     Send this link to employers or universities so they can verify your credential.
                   </p>
                </motion.div>
 
@@ -259,30 +255,30 @@ const StudentDashboard = () => {
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-                 className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 backdrop-blur-xl relative overflow-hidden group/card shadow-sm dark:shadow-2xl"
+                 className="bg-white rounded-3xl p-7 border border-[#E8E4DC] shadow-[0_4px_20px_-4px_rgba(28,25,23,0.05)] relative overflow-hidden group/card"
                >
-                  <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                  <h3 className="text-white font-bold mb-8 flex items-center gap-3 relative z-10 text-left">
-                     <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
-                        <Hash className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-stone-900 font-bold mb-6 flex items-center gap-3 relative z-10 text-left text-base">
+                     <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
+                        <Hash className="w-4 h-4" />
                      </div>
-                     On-Chain Proof
+                     Blockchain proof
                   </h3>
 
-                  <div className="space-y-6 relative z-10 text-left">
-                     <div className="space-y-3">
-                         <div className="flex justify-between items-center text-[11px] font-bold text-emerald-400/60 px-1">
-                            <span>Certificate Hash</span>
-                            <span className="text-emerald-400 flex items-center gap-1.5 bg-emerald-400/10 px-2 py-1 rounded-md text-[10px] shadow-sm dark:shadow-lg shadow-emerald-500/10"><CheckCircle className="w-3 h-3" /> Verified</span>
+                  <div className="space-y-5 relative z-10 text-left">
+                     <div className="space-y-2">
+                         <div className="flex justify-between items-center text-xs font-semibold text-stone-600 px-0.5">
+                            <span>Certificate hash</span>
+                            <span className="text-[#25562C] flex items-center gap-1.5 bg-[#EDF5EE] border border-[#CFE6D3] px-2 py-0.5 rounded-full text-[11px] font-medium">
+                               <CheckCircle className="w-3 h-3" /> Verified
+                            </span>
                          </div>
-                        <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/5 break-all hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 cursor-text selection:bg-indigo-500/30 text-left">
+                        <div className="font-mono text-stone-700 text-[11px] bg-[#FAF8F5] p-3.5 rounded-xl border border-[#E8E4DC] break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">
                            {credential.certificateHash}
                         </div>
                      </div>
-                     <div className="space-y-3">
-                         <span className="text-gray-500 text-[11px] font-bold block text-left">IPFS CID</span>
-                         <div className="font-mono text-gray-400 text-[10px] bg-black/60 p-4 rounded-xl border border-white/5 break-all cursor-text selection:bg-indigo-500/30 hover:border-indigo-500/30 hover:text-indigo-200 transition-all duration-300 text-left">
+                     <div className="space-y-2">
+                         <span className="text-stone-600 text-xs font-semibold block text-left px-0.5">File storage ID (IPFS)</span>
+                         <div className="font-mono text-stone-700 text-[11px] bg-[#FAF8F5] p-3.5 rounded-xl border border-[#E8E4DC] break-all cursor-text selection:bg-stone-200 hover:border-stone-400 transition-colors text-left leading-relaxed">
                            {credential.ipfsCID}
                         </div>
                      </div>

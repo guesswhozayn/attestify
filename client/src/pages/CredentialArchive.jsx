@@ -119,64 +119,54 @@ const CredentialArchive = () => {
     const { currentPage: pg, totalPages } = pagination;
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-                <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-            </div>
-
-            <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 relative z-10">
+        <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-200 overflow-x-hidden font-sans relative pb-20">
+            <main className="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-10 relative z-10">
 
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10"
+                    className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8"
                 >
-                    <div className="space-y-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md">
+                    <div className="space-y-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 border border-stone-200">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
-                            <span className="text-[11px] font-bold text-indigo-300">Institutional Registry</span>
+                            <span className="text-xs font-semibold text-stone-600">Credentials registry</span>
                         </div>
 
                         <div className="space-y-2">
-                            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none flex flex-col md:flex-row md:items-center gap-4">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-zinc-500">Credential</span>
-                                <span className="text-indigo-500">Archive</span>
+                            <h1 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-none">
+                                All credentials
                             </h1>
-                            <p className="text-zinc-500 max-w-2xl text-lg font-medium leading-relaxed">
-                                Manage your institution&apos;s complete issuance history. Access immutable records, verify cryptographic proof-of-state, and maintain the integrity of your digital credentials.
+                            <p className="text-stone-500 max-w-2xl text-base font-normal leading-relaxed">
+                                View and manage all credentials issued by your institution.
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 w-full lg:w-auto">
+                    <div className="flex items-center gap-3 w-full lg:w-auto">
                         <Button
                             onClick={() => setShowUploadModal(true)}
-                            variant="white"
+                            variant="primary"
                             icon={Plus}
-                            size="lg"
-                            className="flex-1 lg:flex-none font-bold"
+                            className="flex-1 lg:flex-none bg-stone-900 hover:bg-stone-800 text-white rounded-xl py-3 px-5 text-sm font-medium shadow-sm"
                         >
-                            Issue
+                            Issue credential
                         </Button>
                         <Button
                             onClick={() => setShowBulkModal(true)}
                             variant="outline"
-                            size="lg"
-                            className="flex-1 lg:flex-none font-bold"
+                            className="flex-1 lg:flex-none bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 rounded-xl py-3 px-5 text-sm font-medium shadow-xs"
                         >
-                            Bulk Sync
+                            Issue in bulk
                         </Button>
                     </div>
                 </motion.div>
 
-                <div className="bg-white/[0.01] border border-white/[0.04] rounded-[3rem] p-2 backdrop-blur-3xl shadow-2xl">
+                <div className="bg-white rounded-2xl p-4 border border-[#E8E4DC] shadow-[0_4px_20px_-4px_rgba(28,25,23,0.03)]">
                     <CredentialsStats stats={stats} />
                 </div>
 
@@ -184,7 +174,7 @@ const CredentialArchive = () => {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="space-y-10"
+                    className="space-y-8"
                 >
                     <CredentialsFilter
                         searchQuery={searchQuery}
@@ -197,7 +187,7 @@ const CredentialArchive = () => {
                         loading={loading}
                     />
 
-                    <div className="min-h-[600px] px-2">
+                    <div className="min-h-[500px]">
                         <CredentialTable
                             credentials={credentials}
                             onView={setSelectedCredential}
@@ -210,24 +200,24 @@ const CredentialArchive = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center justify-center gap-4"
+                            className="flex items-center justify-center gap-3 pt-4"
                         >
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={pg <= 1}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/4 border border-white/8 text-zinc-400 hover:text-white hover:border-indigo-500/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-semibold"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 hover:border-stone-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium shadow-2xs cursor-pointer"
                             >
-                                <ChevronLeft className="w-4 h-4" /> Prev
+                                <ChevronLeft className="w-4 h-4" /> Previous
                             </button>
 
-                            <span className="text-zinc-500 text-sm font-medium px-4 py-2 bg-white/2 border border-white/5 rounded-xl tabular-nums">
-                                Page <span className="text-white font-bold">{pg}</span> of <span className="text-white font-bold">{totalPages}</span>
+                            <span className="text-stone-500 text-sm font-medium px-4 py-2 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl tabular-nums">
+                                Page <span className="text-stone-900 font-bold">{pg}</span> of <span className="text-stone-900 font-bold">{totalPages}</span>
                             </span>
 
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={pg >= totalPages}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/4 border border-white/8 text-zinc-400 hover:text-white hover:border-indigo-500/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-semibold"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 hover:border-stone-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium shadow-2xs cursor-pointer"
                             >
                                 Next <ChevronRight className="w-4 h-4" />
                             </button>

@@ -5,6 +5,7 @@ import { Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building, Shield } fr
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
+import Background from '../components/shared/Background';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -40,15 +41,11 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-12">
+    <div className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-12">
 
       <BackButton force={true} fallbackPath="/" />
 
-      <div className="absolute inset-0 w-full h-full pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-      </div>
+      <Background />
 
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center">
 
@@ -71,12 +68,12 @@ const Login = () => {
                   </span>
                 </h1>
                 <p className="text-gray-400 text-lg sm:text-xl md:text-2xl leading-relaxed">
-                  Issue tamper-proof academic credentials on Ethereum. Verifiable instantly, owned forever.
+                  Issue tamper-proof academic credentials. Fast verification and permanent records.
                 </p>
              </div>
 
              <div className="pt-4 hidden lg:block">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by innovative teams</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by universities and institutions</p>
                 <div className="flex gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                     <div className="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
                         <Building className="w-6 h-6" />
@@ -94,7 +91,7 @@ const Login = () => {
              </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
+        <div className="bg-[#0e1017]/90 backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_25px_60px_-15px_rgba(0,0,0,0.85)] animate-in slide-in-from-right-8 duration-700">
 
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
@@ -106,7 +103,7 @@ const Login = () => {
            </div>
 
            <div className="mb-8">
-             <h2 className="text-2xl font-bold tracking-tight mb-2">Welcome Back</h2>
+             <h2 className="text-2xl font-bold tracking-tight mb-2">Welcome back</h2>
              <p className="text-gray-400">Sign in to manage your credentials.</p>
            </div>
 
@@ -181,7 +178,7 @@ const Login = () => {
                    size="lg"
                    className="w-full"
                  >
-                   {loading ? 'Signing in...' : 'Sign In'}
+                   {loading ? 'Signing in...' : 'Sign in'}
                    {!loading && <ArrowRight className="ml-2 w-5 h-5" />}
                  </Button>
               </div>

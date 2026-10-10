@@ -47,7 +47,7 @@ const About = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
       <Background />
 
       <div
@@ -83,7 +83,7 @@ const About = () => {
             Digital Credentials.
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
             We are building the decentralized standard for academic and professional verification.
             Owned by users, secured by Ethereum, and verifiable by anyone.
           </p>
@@ -97,13 +97,13 @@ const About = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
               viewport={{ once: true }}
-              className="p-8 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl hover:bg-white/[0.05] transition-colors group"
+              className="p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl hover:bg-white/[0.05] transition-colors group"
             >
               <div className={`w-14 h-14 rounded-2xl ${item.bg} ${item.border} border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                 <item.icon className={`w-7 h-7 ${item.color}`} />
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
-              <p className="text-gray-400 leading-relaxed text-lg">{item.desc}</p>
+              <p className="text-zinc-400 leading-relaxed text-lg">{item.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -116,7 +116,7 @@ const About = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">The Origin Story</h2>
-            <div className="space-y-6 text-gray-400 text-lg leading-relaxed">
+            <div className="space-y-6 text-zinc-400 text-lg leading-relaxed">
               <p>
                 In a world of rampant credential fraud and diploma mills, the value of genuine academic achievement is being diluted. Traditional verification methods are slow, expensive, and manual.
               </p>
@@ -136,8 +136,8 @@ const About = () => {
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-3xl blur-2xl" />
-            <div className="relative bg-gray-900/40 border border-white/10 rounded-3xl p-8 backdrop-blur-xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-2xl blur-2xl" />
+            <div className="relative bg-[#0e1017]/90 border border-white/10 rounded-2xl p-8 backdrop-blur-xl overflow-hidden">
               <div className="absolute top-0 right-0 p-12 opacity-10">
                 <Rocket className="w-64 h-64 text-white" />
               </div>
@@ -146,17 +146,17 @@ const About = () => {
                 <div className="flex items-center gap-4">
                   <div className="text-5xl font-bold text-white">2026</div>
                   <div className="h-px flex-1 bg-white/20" />
-                  <div className="text-gray-400 uppercase tracking-widest text-sm font-bold">Founded</div>
+                  <div className="text-zinc-400 uppercase tracking-widest text-sm font-bold">Founded</div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-5xl font-bold text-white">Eth</div>
                   <div className="h-px flex-1 bg-white/20" />
-                  <div className="text-gray-400 uppercase tracking-widest text-sm font-bold">Native</div>
+                  <div className="text-zinc-400 uppercase tracking-widest text-sm font-bold">Native</div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-5xl font-bold text-white">100%</div>
                   <div className="h-px flex-1 bg-white/20" />
-                  <div className="text-gray-400 uppercase tracking-widest text-sm font-bold">Open Source</div>
+                  <div className="text-zinc-400 uppercase tracking-widest text-sm font-bold">Open Source</div>
                 </div>
               </div>
             </div>
@@ -168,14 +168,14 @@ const About = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 rounded-3xl p-12 md:p-20 relative overflow-hidden"
+          className="text-center bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 rounded-2xl p-12 md:p-20 relative overflow-hidden"
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none" />
 
           <div className="relative z-10">
             <Users className="w-16 h-16 text-indigo-400 mx-auto mb-8" />
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Join the Movement</h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+            <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-10">
               We are open source and community driven. Help us build the future of digital trust.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">

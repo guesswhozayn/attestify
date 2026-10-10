@@ -13,30 +13,28 @@ const CredentialsFilter = ({
     loading = false
 }) => {
     return (
-        <div className="bg-[#0b0b0b]/50 border border-white/4 rounded-[2.5rem] p-6 backdrop-blur-3xl shadow-2xl space-y-6">
-            <div className="flex flex-col xl:flex-row gap-6 items-center justify-between">
+        <div className="bg-white border border-[#E8E4DC] rounded-2xl p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(28,25,23,0.03)] space-y-5">
+            <div className="flex flex-col xl:flex-row gap-5 items-center justify-between">
 
                 <div className="relative w-full xl:max-w-2xl group">
-                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search className="h-4 w-4 text-stone-400 group-focus-within:text-stone-800 transition-colors" />
                     </div>
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search Registry by name, wallet, or record ID..."
-                        className="block w-full pl-14 pr-14 py-4 bg-white/1 border border-white/4 rounded-2xl text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all focus:bg-white/3 shadow-inner"
+                        placeholder="Search credentials by name, wallet, or ID..."
+                        className="block w-full pl-11 pr-11 py-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
                     />
                     {searchQuery && (
-                        <Button
+                        <button
+                            type="button"
                             onClick={() => setSearchQuery('')}
-                            variant="ghost"
-                            rounded="full"
-                            size="sm"
-                            className="absolute inset-y-0 right-0 pr-6! flex items-center text-zinc-600 hover:text-white bg-transparent! border-none!"
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
                         >
-                            <X className="w-5 h-5" />
-                        </Button>
+                            <X className="w-4 h-4" />
+                        </button>
                     )}
                 </div>
 
@@ -44,57 +42,55 @@ const CredentialsFilter = ({
                     <Button
                         onClick={onRefresh}
                         loading={loading}
-                        variant="ghost"
+                        variant="outline"
                         icon={RefreshCw}
-                        className="text-zinc-500 hover:text-white hover:bg-white/5 border border-white/4 hover:border-white/10 shadow-xl active:scale-90 aspect-square !p-0 flex items-center justify-center w-10 h-10"
-                        title="Sync Registry"
+                        className="text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border-stone-200 aspect-square !p-0 flex items-center justify-center w-10 h-10 shadow-2xs"
+                        title="Refresh"
                     />
-
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-6 border-t border-white/4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-5 border-t border-[#E8E4DC]">
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/2 border border-white/4 rounded-xl">
-                        <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-600" />
-                        <span className="text-[11px] font-bold text-zinc-500">Active Filters</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl">
+                        <SlidersHorizontal className="w-3.5 h-3.5 text-stone-500" />
+                        <span className="text-xs font-semibold text-stone-600">Filters</span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-
-                        <div className="flex p-1 bg-black/40 border border-white/4 rounded-xl shadow-inner">
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex p-1 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl">
                             {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((type) => (
-                                <Button
+                                <button
                                     key={type}
                                     onClick={() => setTypeFilter(type)}
-                                    variant={typeFilter === type ? 'primary' : 'ghost'}
-                                    rounded="lg"
-                                    className={`px-5 py-1 text-[11px] font-bold shadow-none! ${
+                                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                                         typeFilter === type
-                                            ? 'text-white'
-                                            : 'text-zinc-500 hover:text-zinc-300'
+                                            ? 'bg-stone-900 text-white shadow-xs'
+                                            : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
                                     }`}
                                 >
                                     {type === 'all' ? 'All' : type === 'TRANSCRIPT' ? 'Academic' : 'Certificates'}
-                                </Button>
+                                </button>
                             ))}
                         </div>
 
-                        <div className="flex p-1 bg-black/40 border border-white/4 rounded-xl shadow-inner">
+                        <div className="flex p-1 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl">
                             {['all', 'active', 'revoked'].map((status) => (
-                                <Button
+                                <button
                                     key={status}
                                     onClick={() => setStatusFilter(status)}
-                                    variant={statusFilter === status ? (status === 'revoked' ? 'danger' : 'success') : 'ghost'}
-                                    rounded="lg"
-                                    className={`px-5 py-1 text-[11px] font-bold shadow-none! ${
+                                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                                         statusFilter === status
-                                            ? 'text-white'
-                                            : 'text-zinc-500 hover:text-zinc-300'
+                                            ? status === 'revoked'
+                                                ? 'bg-[#FDF0EE] text-[#9E2D2D] border border-[#F7D4CF]'
+                                                : status === 'active'
+                                                ? 'bg-[#EDF5EE] text-[#25562C] border border-[#CFE6D3]'
+                                                : 'bg-stone-900 text-white shadow-xs'
+                                            : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
                                     }`}
                                 >
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
-                                </Button>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -102,20 +98,18 @@ const CredentialsFilter = ({
 
                 <div className="flex items-center gap-4">
                     {(typeFilter !== 'all' || statusFilter !== 'all' || searchQuery) && (
-                        <Button
+                        <button
+                            type="button"
                             onClick={() => {
                                 setTypeFilter('all');
                                 setStatusFilter('all');
                                 setSearchQuery('');
                             }}
-                            variant="ghost"
-                            size="sm"
-                            rounded="full"
-                            icon={X}
-                            className="text-[11px] font-bold text-red-500/60 hover:text-red-400 hover:bg-red-500/5 hover:border-red-500/30 border-red-500/10! transition-all"
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer"
                         >
-                            Clear Archive
-                        </Button>
+                            <X className="w-3.5 h-3.5" />
+                            Clear filters
+                        </button>
                     )}
                 </div>
             </div>

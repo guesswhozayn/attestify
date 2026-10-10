@@ -28,23 +28,23 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 py-6 pointer-events-none">
-      <div className={`w-full max-w-6xl pointer-events-auto transition-all duration-500 ease-in-out border flex items-center justify-between group/nav hover:border-white/20 ${
+    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 py-5 pointer-events-none">
+      <div className={`w-full max-w-6xl pointer-events-auto transition-all duration-500 ease-in-out border flex items-center justify-between group/nav ${
         isScrolled
-          ? 'bg-black/90 backdrop-blur-lg border-white/10 rounded-2xl px-6 py-2 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.8)]'
-          : 'bg-[#030014]/60 backdrop-blur-lg border-white/5 rounded-full px-6 py-2 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)]'
+          ? 'bg-[#0a0b12]/90 backdrop-blur-xl border-white/[0.08] rounded-2xl px-6 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_32px_-8px_rgba(0,0,0,0.8)]'
+          : 'bg-[#0a0b12]/75 backdrop-blur-xl border-white/[0.07] rounded-full px-6 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_10px_25px_-10px_rgba(0,0,0,0.5)]'
       }`}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 cursor-pointer group/logo" onClick={() => navigate('/')}>
             <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover/logo:opacity-50 transition-opacity duration-500" />
-              <div className="relative w-10 h-10 rounded-full bg-linear-to-br from-gray-900 to-black p-px border border-white/10 group-hover/logo:scale-110 transition-transform duration-300">
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-indigo-400 group-hover/logo:text-white transition-colors" />
+              <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover/logo:opacity-40 transition-opacity duration-500" />
+              <div className="relative w-9 h-9 rounded-full bg-[#12141f] p-px border border-white/10 group-hover/logo:scale-105 transition-transform duration-300">
+                <div className="w-full h-full rounded-full bg-[#0a0b12] flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-indigo-400 group-hover:text-white transition-colors" />
                 </div>
               </div>
             </div>
-            <span className="font-sans text-xl font-black tracking-[-0.05em] lowercase text-white group-hover/logo:text-indigo-200 transition-colors">
+            <span className="font-sans text-xl font-bold tracking-tight lowercase text-white group-hover/logo:text-indigo-200 transition-colors">
               attestify<span className="text-indigo-500">.</span>
             </span>
           </div>
@@ -83,7 +83,7 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
               className="hidden sm:flex text-white"
             >
               <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-              Return
+              Back
             </Button>
           )}
 
@@ -114,12 +114,12 @@ const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSid
             <Button
               onClick={() => navigate('/login')}
               variant="white"
-              className="hover:scale-105 active:scale-95 transition-all p-2! md:px-6! md:py-2.5! rounded-full md:rounded-2xl bg-transparent! md:bg-white! text-white! md:text-black!"
+              className="hover:scale-[1.02] active:scale-[0.98] transition-all p-2! md:px-5! md:py-2! rounded-full bg-transparent! md:bg-white! text-white! md:text-black!"
               noWrapper
             >
               <span className="relative z-10 flex flex-row items-center justify-center">
                 <LogIn className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
-                <span className="hidden md:inline font-medium text-sm">Sign In</span>
+                <span className="hidden md:inline font-medium text-sm">Sign in</span>
               </span>
             </Button>
           )}

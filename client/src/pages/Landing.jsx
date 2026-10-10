@@ -1,13 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building } from 'lucide-react';
+import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building, ArrowRight, ExternalLink, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import Background from '../components/shared/Background';
 import useScrollY from '../utils/useScrollY';
-import PilotIntegrationHub from '../components/landing/PilotIntegrationHub';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -21,8 +20,6 @@ const Landing = () => {
       <Navbar />
 
       <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-40 overflow-hidden">
-
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
 
@@ -145,10 +142,7 @@ const Landing = () => {
               ))}
           </div>
       </div>
-
       <div className="py-32 bg-black relative overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-20">
                 <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tighter">
@@ -320,8 +314,6 @@ const Landing = () => {
 
       <div className="py-32 relative bg-black overflow-hidden">
 
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
@@ -335,87 +327,83 @@ const Landing = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="grid md:grid-cols-3 gap-8"
+             transition={{ duration: 1 }}
+            className="grid md:grid-cols-3 gap-6 lg:gap-8"
           >
 
              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="group relative h-[400px] rounded-3xl border border-white/10 bg-gray-900/40 overflow-hidden hover:border-indigo-500/50 transition-all duration-500"
-             >
-                <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                   <Lock className="w-32 h-32 text-indigo-500 rotate-12" />
-                </div>
-
-                 <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
-                   <div className="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mb-6">
-                      <Shield className="w-6 h-6 text-indigo-400" />
-                   </div>
-                   <h3 className="text-2xl font-bold text-white mb-4">Immutable Trust</h3>
-                   <p className="text-gray-400 leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Once issued, a credential cannot be altered, faked, or deleted. It is cryptographically anchored to the blockchain forever.
-                   </p>
-                 </div>
-             </motion.div>
-
-             <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="group relative h-[400px] rounded-3xl border border-white/10 bg-gray-900/40 overflow-hidden hover:border-purple-500/50 transition-all duration-500"
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="group relative rounded-2xl border border-white/[0.08] bg-[#0d0f17]/85 backdrop-blur-xl p-8 flex flex-col justify-between hover:border-indigo-500/35 hover:-translate-y-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_15px_35px_-15px_rgba(0,0,0,0.6)] transition-all duration-300"
              >
-                <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-indigo-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
 
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                   <Users className="w-32 h-32 text-purple-500 -rotate-12" />
-                </div>
-
-                 <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
-                   <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-6">
-                      <Wallet className="w-6 h-6 text-purple-400" />
+                <div>
+                   <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-105 transition-transform duration-300 shadow-sm">
+                      <Shield className="w-6 h-6" />
                    </div>
-                   <h3 className="text-2xl font-bold text-white mb-4">Sovereign Control</h3>
-                   <p className="text-gray-400 leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Students own their data. No more begging universities for transcripts. Your wallet, your credentials, your future.
+                   <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">Immutable trust</h3>
+                   <p className="text-zinc-400 text-sm sm:text-base leading-relaxed font-normal">
+                      Once issued, a credential cannot be altered, forged, or deleted. It is cryptographically anchored to the blockchain forever.
                    </p>
-                 </div>
+                </div>
+                <div className="pt-6 mt-6 border-t border-white/[0.05] flex items-center text-xs font-semibold text-indigo-400/90 group-hover:text-indigo-300 transition-colors">
+                   <span>Cryptographic consensus</span>
+                </div>
              </motion.div>
 
              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="group relative h-[400px] rounded-3xl border border-white/10 bg-gray-900/40 overflow-hidden hover:border-emerald-500/50 transition-all duration-500"
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="group relative rounded-2xl border border-white/[0.08] bg-[#0d0f17]/85 backdrop-blur-xl p-8 flex flex-col justify-between hover:border-indigo-500/35 hover:-translate-y-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_15px_35px_-15px_rgba(0,0,0,0.6)] transition-all duration-300"
              >
-                <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-indigo-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
 
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                   <Zap className="w-32 h-32 text-emerald-500 rotate-6" />
-                </div>
-
-                 <div className="absolute inset-x-0 bottom-0 p-8 transform translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500">
-                   <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mb-6">
-                      <CheckCircle className="w-6 h-6 text-emerald-400" />
+                <div>
+                   <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-105 transition-transform duration-300 shadow-sm">
+                      <Wallet className="w-6 h-6" />
                    </div>
-                   <h3 className="text-2xl font-bold text-white mb-4">Instant Verification</h3>
-                   <p className="text-gray-400 leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Employers can verify credentials in milliseconds with 100% mathematical certainty. Zero cost, zero friction.
+                   <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">Sovereign control</h3>
+                   <p className="text-zinc-400 text-sm sm:text-base leading-relaxed font-normal">
+                      Students own and manage their data directly. No university intermediaries or transcript fees required to prove credentials.
                    </p>
-                 </div>
+                </div>
+                <div className="pt-6 mt-6 border-t border-white/[0.05] flex items-center text-xs font-semibold text-indigo-400/90 group-hover:text-indigo-300 transition-colors">
+                   <span>Self-sovereign identity</span>
+                </div>
+             </motion.div>
+
+             <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="group relative rounded-2xl border border-white/[0.08] bg-[#0d0f17]/85 backdrop-blur-xl p-8 flex flex-col justify-between hover:border-indigo-500/35 hover:-translate-y-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_15px_35px_-15px_rgba(0,0,0,0.6)] transition-all duration-300"
+             >
+                <div className="absolute inset-0 bg-indigo-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+
+                <div>
+                   <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-105 transition-transform duration-300 shadow-sm">
+                      <CheckCircle className="w-6 h-6" />
+                   </div>
+                   <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">Instant verification</h3>
+                   <p className="text-zinc-400 text-sm sm:text-base leading-relaxed font-normal">
+                      Employers and institutions verify certificates in milliseconds with zero fees and mathematical certainty.
+                   </p>
+                </div>
+                <div className="pt-6 mt-6 border-t border-white/[0.05] flex items-center text-xs font-semibold text-indigo-400/90 group-hover:text-indigo-300 transition-colors">
+                   <span>Deterministic validation</span>
+                </div>
              </motion.div>
           </motion.div>
         </div>
       </div>
 
       <div className="py-24 bg-black border-y border-white/5 relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:32px_32px]"></div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -444,52 +432,160 @@ const Landing = () => {
           </motion.div>
       </div>
 
-      <div className="py-32 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
-           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="py-28 bg-gradient-to-b from-gray-950 via-black to-black relative overflow-hidden">
+           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
 
-           <div className="max-w-7xl mx-auto px-4 relative z-10">
+           <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
                <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="text-center mb-20"
+                transition={{ duration: 0.7 }}
+                className="text-center mb-16"
                >
-                   <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-300 to-white">
-                     Ready to pioneer the future?
+                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md mb-6">
+                     <span className="relative flex h-2 w-2">
+                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                       <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
+                     </span>
+                     <span className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">Pioneer Cohort • Academic Pilot 2026</span>
+                   </div>
+                   <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-white">
+                     Partner with Attestify
                    </h2>
-                   <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                     Join the Attestify Pilot Program. We are partnering with forward-thinking institutions
-                     to define the global standard for digital trust.
+                   <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                     Modernize academic verification across your institution in under 72 hours with zero infrastructure overhead.
                    </p>
                </motion.div>
 
-               <div className="mb-20">
-                  <PilotIntegrationHub />
-               </div>
+               <div className="rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-2xl p-6 sm:p-10 lg:p-12 shadow-[0_0_60px_rgba(0,0,0,0.6)]">
+                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+                   
+                   <div className="lg:col-span-7 flex flex-col justify-between">
+                     <div>
+                       <div className="inline-block px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider text-indigo-400 mb-4">
+                         The Onboarding Journey
+                       </div>
+                       <h3 className="text-2xl sm:text-3xl font-bold text-white mb-8 tracking-tight leading-snug">
+                         From traditional registrar database to verifiable blockchain in 3 steps
+                       </h3>
 
-               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="flex flex-row flex-wrap items-center justify-center gap-4 sm:gap-6 px-4"
-               >
-                  <Button
-                    onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Pilot Program Inquiry')}
-                    variant="white"
-                    className="hover:-translate-y-1 px-5! py-2.5! sm:px-10! sm:py-4! text-xs sm:text-lg font-black w-auto shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                  >
-                      Apply for Pilot
-                  </Button>
-                  <Button
-                    onClick={() => navigate('/partnership-guide')}
-                    variant="secondary"
-                    className="hover:-translate-y-1 px-5! py-2.5! sm:px-10! sm:py-4! text-xs sm:text-lg font-black w-auto border-white/10"
-                  >
-                      View Partnership Guide
-                  </Button>
-               </motion.div>
+                       <div className="space-y-6 mb-10">
+                         <div className="flex gap-4 items-start">
+                           <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-sm">
+                             01
+                           </div>
+                           <div>
+                             <h4 className="text-white font-semibold text-base mb-1">Institutional Binding</h4>
+                             <p className="text-gray-400 text-sm leading-relaxed">
+                               Authorize your official university signing wallet on the Attestify registry. No prior blockchain expertise required.
+                             </p>
+                           </div>
+                         </div>
+
+                         <div className="flex gap-4 items-start">
+                           <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold text-sm">
+                             02
+                           </div>
+                           <div>
+                             <h4 className="text-white font-semibold text-base mb-1">Plug-and-Play Issuance</h4>
+                             <p className="text-gray-400 text-sm leading-relaxed">
+                               Issue credentials in bulk using simple CSV uploads or sync graduated cohorts directly through our clean REST APIs.
+                             </p>
+                           </div>
+                         </div>
+
+                         <div className="flex gap-4 items-start">
+                           <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                             03
+                           </div>
+                           <div>
+                             <h4 className="text-white font-semibold text-base mb-1">Instant Global Verification</h4>
+                             <p className="text-gray-400 text-sm leading-relaxed">
+                               Students receive immutable, soulbound credentials. Employers and academic bodies verify authenticity in 0 seconds with zero fees.
+                             </p>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+
+                     <div className="flex flex-row flex-wrap items-center gap-4 pt-4 border-t border-white/5">
+                        <Button
+                          onClick={() => window.open('mailto:attestifyteam@gmail.com?subject=Pilot Program Inquiry')}
+                          variant="white"
+                          className="hover:-translate-y-0.5 px-6! py-3! sm:px-8! sm:py-3.5! text-sm font-bold w-auto shadow-[0_0_25px_rgba(255,255,255,0.15)] flex items-center gap-2"
+                        >
+                            <span>Apply for Pilot</span>
+                            <ArrowRight className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          onClick={() => navigate('/partnership-guide')}
+                          variant="secondary"
+                          className="hover:-translate-y-0.5 px-6! py-3! sm:px-8! sm:py-3.5! text-sm font-bold w-auto border-white/10"
+                        >
+                            View Partnership Guide
+                        </Button>
+                     </div>
+                   </div>
+
+                   <div className="lg:col-span-5 flex flex-col justify-between gap-6">
+                     <div className="p-6 sm:p-7 rounded-2xl bg-black/40 border border-white/10 flex flex-col justify-between">
+                       <div>
+                         <h4 className="text-white font-bold text-base mb-4 flex items-center gap-2">
+                           <Shield className="w-5 h-5 text-indigo-400" />
+                           <span>Institutional Guarantees</span>
+                         </h4>
+                         <ul className="space-y-3.5 text-sm text-gray-400">
+                           <li className="flex items-start gap-2.5">
+                             <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                             <span><strong className="text-white font-medium">100% Subsidized Gas:</strong> All on-chain issuance & revocation transactions sponsored.</span>
+                           </li>
+                           <li className="flex items-start gap-2.5">
+                             <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                             <span><strong className="text-white font-medium">Sub-Second Latency:</strong> Cryptographic SHA-256 validation verified globally in &lt; 1s.</span>
+                           </li>
+                           <li className="flex items-start gap-2.5">
+                             <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                             <span><strong className="text-white font-medium">Open Source Core:</strong> Zero vendor lock-in. Full sovereignty over institutional data.</span>
+                           </li>
+                         </ul>
+                       </div>
+                     </div>
+
+                     <div className="p-6 sm:p-7 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 relative overflow-hidden flex flex-col justify-between">
+                       <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+                       <div>
+                         <div className="flex items-center justify-between gap-2 mb-3">
+                           <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Live Network Anchor</span>
+                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-medium text-emerald-400">
+                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                             Sepolia Active
+                           </span>
+                         </div>
+                         <p className="text-xs text-gray-400 mb-4">
+                           Smart contract registry deployed and audited for tamper-proof institutional credentialing.
+                         </p>
+                         <div className="p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-xs text-gray-300 flex items-center justify-between">
+                           <span className="truncate">0xce209eD4923DA8FDbf6C5a942245210a9Bc0809a</span>
+                           <a
+                             href="https://sepolia.etherscan.io/address/0xce209eD4923DA8FDbf6C5a942245210a9Bc0809a"
+                             target="_blank"
+                             rel="noreferrer"
+                             className="text-indigo-400 hover:text-indigo-300 flex-shrink-0 ml-2"
+                           >
+                             <ExternalLink className="w-3.5 h-3.5" />
+                           </a>
+                         </div>
+                       </div>
+                       <div className="mt-4 pt-4 border-t border-indigo-500/10 flex items-center justify-between text-[11px] text-gray-500">
+                         <span>ERC-5192 Soulbound Standards</span>
+                         <span>IPFS SHA-256 Storage</span>
+                       </div>
+                     </div>
+                   </div>
+
+                 </div>
+               </div>
            </div>
       </div>
 

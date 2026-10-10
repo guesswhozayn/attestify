@@ -1,28 +1,25 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 import CredentialTable from '../credential/CredentialTable';
+import { SkeletonTable } from '../shared/Skeleton';
 
 const RecentActivityList = ({ credentials, onCredentialClick, loading }) => {
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 bg-black/20 rounded-4xl border border-white/4 border-dashed">
-                <div className="relative">
-                    <div className="w-12 h-12 border-2 border-indigo-500/20 rounded-full"></div>
-                    <div className="absolute top-0 w-12 h-12 border-t-2 border-indigo-500 rounded-full animate-spin"></div>
-                </div>
-                <div className="text-zinc-600 text-xs font-black uppercase tracking-[0.2em] mt-6 animate-pulse">Scanning Registry...</div>
+            <div className="py-2">
+                <SkeletonTable rows={3} />
             </div>
         );
     }
 
     if (!credentials || credentials.length === 0) {
         return (
-             <div className="flex flex-col items-center justify-center p-20 bg-black/20 rounded-4xl border border-white/4 border-dashed text-center">
-                <div className="w-16 h-16 bg-white/2 rounded-3xl flex items-center justify-center mb-6 border border-white/4">
-                    <Clock className="w-8 h-8 text-zinc-700" />
+             <div className="flex flex-col items-center justify-center p-16 bg-white rounded-2xl border border-[#E8E4DC] text-center shadow-[0_1px_3px_rgba(28,25,23,0.02)]">
+                <div className="w-12 h-12 bg-stone-100 rounded-xl flex items-center justify-center mb-4 border border-stone-200/80">
+                    <Clock className="w-6 h-6 text-stone-500" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Registry Silent</h3>
-                <p className="text-zinc-500 text-sm font-medium">No recent credentials found on our servers.</p>
+                <h3 className="text-lg font-bold text-stone-900 mb-1">No recent activity</h3>
+                <p className="text-stone-500 text-sm font-normal">No credentials have been issued recently.</p>
              </div>
         );
     }

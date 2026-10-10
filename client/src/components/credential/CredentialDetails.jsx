@@ -137,15 +137,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
     : 'text-emerald-400';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Identity Registry Detail" size="2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Credential details" size="2xl">
       <div className="space-y-8 pb-4">
         {credential.status === 'FAILED' && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-400 text-sm flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">Credential Issuance Failed</p>
+              <p className="font-bold">Credential issuance failed</p>
               <p className="text-xs text-red-400/80 mt-1">
-                {credential.processingError || 'An unknown error occurred during the background minting process. Please contact support or re-issue this credential.'}
+                {credential.processingError || 'An error occurred while creating this credential on the blockchain. Please try issuing it again or contact support.'}
               </p>
             </div>
           </div>
@@ -155,34 +155,22 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-amber-400 text-sm flex items-start gap-3">
             <Loader2 className="w-5 h-5 shrink-0 mt-0.5 animate-spin" />
             <div>
-              <p className="font-bold">Issuance in Progress</p>
+              <p className="font-bold">Issuance in progress</p>
               <p className="text-xs text-amber-400/80 mt-1">
-                This credential is currently being processed by the background worker (status: {credential.status}). On-chain registry records and downloads will be available once the transaction completes.
+                This credential is being processed on the blockchain. Records and downloads will be available once completed.
               </p>
             </div>
           </div>
         )}
 
         <div
-          onMouseMove={handleMouseMove}
-          className="relative overflow-hidden rounded-[2rem] bg-[#0a0a0a] border border-white/[0.08] p-8 md:p-10 backdrop-blur-3xl group"
+          className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-[#FAF8F5] border border-[#E8E4DC] p-7 md:p-8 shadow-xs"
         >
+          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6">
 
-          <div
-            className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-            style={{
-              background: `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99, 102, 241, 0.08), transparent 80%)`
-            }}
-          />
-
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none group-hover:bg-indigo-500/15 transition-colors duration-700"></div>
-
-          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-
-            <div className="relative shrink-0 group/avatar">
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full blur-xl opacity-20 group-hover/avatar:opacity-40 transition-opacity duration-500"></div>
-              <div className="w-32 h-32 rounded-full bg-[#0a0a0a] border-2 border-white/10 flex items-center justify-center shrink-0 shadow-2xl overflow-hidden relative z-10 p-1">
-                <div className="w-full h-full rounded-full bg-white/[0.03] flex items-center justify-center overflow-hidden">
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 rounded-2xl bg-white border border-[#E8E4DC] flex items-center justify-center shrink-0 shadow-xs overflow-hidden p-1">
+                <div className="w-full h-full rounded-xl bg-[#FAF8F5] flex items-center justify-center overflow-hidden">
                   {credential.issuedBy?.issuerDetails?.branding && (credential.issuedBy.issuerDetails.branding.logo || credential.issuedBy.issuerDetails.branding.logoCID) ? (
                     <img
                       src={credential.issuedBy.issuerDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.logoCID}`}
@@ -196,52 +184,54 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-12 h-12 text-white/20" />
+                    <User className="w-8 h-8 text-stone-400" />
                   )}
                 </div>
               </div>
             </div>
 
             <div className="flex-1 text-center md:text-left min-w-0">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3">
                 <div className="min-w-0">
-                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3 break-words leading-none uppercase">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight mb-2 break-words">
                     {credential.studentName}
                   </h2>
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors">
-                      <Building className="w-4 h-4 text-indigo-400" />
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{credential.university || credential.issuedBy?.name}</span>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl">
+                      <Building className="w-3.5 h-3.5 text-stone-500" />
+                      <span className="text-xs font-semibold text-stone-700">{credential.university || credential.issuedBy?.name}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl group/chip">
-                      <Hash className="w-3.5 h-3.5 text-zinc-600" />
-                      <span className="text-[10px] font-mono text-zinc-400 truncate max-w-[100px]">{credential._id}</span>
-                      <Button
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl">
+                      <Hash className="w-3.5 h-3.5 text-stone-400" />
+                      <span className="text-xs font-mono text-stone-600 truncate max-w-[120px]">{credential._id}</span>
+                      <button
+                        type="button"
                         onClick={() => copyToClipboard(credential._id, 'id')}
-                        variant="ghost"
-                        className="!p-1 text-zinc-400 hover:text-white"
-                        size="sm"
-                        rounded="md"
+                        className="p-1 text-stone-400 hover:text-stone-800 cursor-pointer"
                       >
-                        {copiedField === 'id' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      </Button>
+                        {copiedField === 'id' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center md:items-end gap-3 shrink-0">
-                  <div className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full border text-[10px] font-black tracking-[0.2em] shadow-lg shadow-black/20 ${statusStyles.container}`}>
-                    <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
+                <div className="flex flex-col items-center md:items-end gap-2.5 shrink-0">
+                  <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold ${
+                    credential.isRevoked
+                      ? 'bg-[#FDF0EE] border-[#F7D4CF] text-[#9E2D2D]'
+                      : 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]'
+                  }`}>
+                    <StatusIcon className="w-3.5 h-3.5" />
                     {statusStyles.label}
                   </div>
                   {isSBT && (
                     <Button
                       onClick={() => setShowSBTModal(true)}
-                      variant="ghost"
-                      className="flex items-center gap-2.5 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400 text-[9px] font-black tracking-[0.2em] hover:bg-purple-500/20 shadow-none normal-case"
+                      variant="outline"
+                      className="flex items-center gap-1.5 px-3 py-1 bg-white border-[#E8E4DC] rounded-full text-stone-700 text-xs font-semibold hover:bg-stone-50"
                     >
-                      <Shield className="w-3.5 h-3.5" />
-                      SECURE RECORD
+                      <Shield className="w-3 h-3 text-stone-500" />
+                      SOULBOUND
                     </Button>
                   )}
                 </div>
@@ -250,73 +240,71 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-1">
 
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-6">
 
-            <div className="bg-[#0b0b0b] border border-white/[0.06] rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group/card">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-
-              <div className="flex items-center gap-4 mb-8 relative z-10">
-                <div className={`p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06] ${iconColor}`}>
-                   {isTranscript ? <GraduationCap className="w-6 h-6" /> : <Award className="w-6 h-6" />}
+            <div className="bg-white border border-[#E8E4DC] rounded-3xl p-7 shadow-xs relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-6 relative z-10">
+                <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] text-stone-700">
+                   {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white tracking-tight uppercase">
-                    {isTranscript ? 'Academic Ledger' : 'Certification Registry'}
+                  <h3 className="text-lg font-bold text-stone-900 tracking-tight">
+                    {isTranscript ? 'Academic transcript' : 'Certificate details'}
                   </h3>
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Authentic Decentralized Record</p>
+                  <p className="text-xs text-stone-400 font-medium">Verified credential record</p>
                 </div>
               </div>
 
               <div className="relative z-10">
                 {isTranscript && displayMetadata ? (
-                   <div className="space-y-10">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-1.5 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:border-white/10 transition-colors">
-                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Academic Program</span>
-                          <p className="text-white font-bold text-lg leading-tight">{displayMetadata.program}</p>
+                   <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1 p-3.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Program</span>
+                          <p className="text-stone-900 font-bold text-base">{displayMetadata.program}</p>
                         </div>
-                        <div className="space-y-1.5 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:border-white/10 transition-colors">
-                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Department</span>
-                          <p className="text-white font-bold text-lg leading-tight">{displayMetadata.department}</p>
+                        <div className="space-y-1 p-3.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Department</span>
+                          <p className="text-stone-900 font-bold text-base">{displayMetadata.department}</p>
                         </div>
-                        <div className="space-y-1.5 p-6 rounded-2xl bg-indigo-500/[0.03] border border-indigo-500/10 hover:border-indigo-500/30 transition-colors">
-                          <span className="text-[10px] font-black text-indigo-400/60 uppercase tracking-[0.2em]">Cumulative GPA</span>
-                          <p className="text-4xl font-black text-white mt-2 leading-none">{displayMetadata.cgpa}</p>
+                        <div className="space-y-1 p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Cumulative GPA</span>
+                          <p className="text-3xl font-mono font-bold text-stone-900 mt-1">{displayMetadata.cgpa}</p>
                         </div>
-                        <div className="space-y-1.5 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:border-white/10 transition-colors">
-                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Duration</span>
-                          <div className="flex items-center gap-3 mt-2">
-                            <span className="text-white font-black text-xl">{displayMetadata.admissionYear}</span>
-                            <div className="w-6 h-0.5 bg-zinc-800"></div>
-                            <span className="text-white font-black text-xl">{displayMetadata.graduationYear}</span>
+                        <div className="space-y-1 p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Duration</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-stone-900 font-bold text-lg">{displayMetadata.admissionYear}</span>
+                            <span className="text-stone-400">-</span>
+                            <span className="text-stone-900 font-bold text-lg">{displayMetadata.graduationYear}</span>
                           </div>
                         </div>
                       </div>
 
                       {displayMetadata.courses?.length > 0 && (
-                        <div className="space-y-4">
-                           <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] px-1">Curriculum Breakdown</h4>
-                           <div className="border border-white/[0.06] rounded-2xl overflow-hidden bg-white/[0.01] shadow-inner">
-                            <div className="overflow-x-auto custom-scrollbar max-h-[350px]">
+                        <div className="space-y-3">
+                           <h4 className="text-xs font-bold text-stone-600 uppercase tracking-wider px-1">Course breakdown</h4>
+                           <div className="border border-[#E8E4DC] rounded-xl overflow-hidden bg-white">
+                            <div className="overflow-x-auto max-h-[300px]">
                               <table className="w-full text-xs">
                                 <thead>
-                                  <tr className="bg-white/[0.04] text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">
-                                    <th className="px-6 py-4 text-left">Code</th>
-                                    <th className="px-6 py-4 text-left">Title</th>
-                                    <th className="px-6 py-4 text-center">Unit</th>
-                                    <th className="px-6 py-4 text-right">Merit</th>
+                                  <tr className="bg-[#FAF8F5] text-stone-500 text-[10px] font-bold uppercase tracking-wider border-b border-[#E8E4DC]">
+                                    <th className="px-5 py-3 text-left">Code</th>
+                                    <th className="px-5 py-3 text-left">Title</th>
+                                    <th className="px-5 py-3 text-center">Credits</th>
+                                    <th className="px-5 py-3 text-right">Grade</th>
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/[0.04]">
+                                <tbody className="divide-y divide-[#E8E4DC]">
                                   {displayMetadata.courses.map((course, i) => (
-                                    <tr key={i} className="text-zinc-400 hover:bg-white/[0.02] transition-colors group/row">
-                                      <td className="px-6 py-4 font-mono text-[10px] text-indigo-400/80">{course.code}</td>
-                                      <td className="px-6 py-4 text-zinc-200 font-bold group-hover/row:text-white">{course.name}</td>
-                                      <td className="px-6 py-4 text-center text-zinc-400 font-black">{course.credits}</td>
-                                      <td className="px-6 py-4 text-right">
-                                        <span className="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-black text-[10px]">
+                                    <tr key={i} className="text-stone-700 hover:bg-[#FAF8F5] transition-colors">
+                                      <td className="px-5 py-3 font-mono text-xs font-semibold text-stone-600">{course.code}</td>
+                                      <td className="px-5 py-3 text-stone-900 font-semibold">{course.name}</td>
+                                      <td className="px-5 py-3 text-center text-stone-600 font-bold">{course.credits}</td>
+                                      <td className="px-5 py-3 text-right">
+                                        <span className="px-2 py-0.5 bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C] rounded-md font-bold text-xs">
                                           {course.grade}
                                         </span>
                                       </td>
@@ -330,133 +318,121 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       )}
                    </div>
                 ) : credential.certificationData ? (
-                   <div className="space-y-10">
-                      <div className="p-8 rounded-[1.5rem] bg-gradient-to-br from-white/[0.03] to-transparent border-l-4 border-indigo-500 shadow-xl">
-                         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] block mb-3">Registry Endorsement</span>
-                         <h4 className="text-2xl sm:text-3xl font-black text-white mb-4 break-words leading-tight uppercase">{displayMetadata?.title}</h4>
-                         <p className="text-zinc-400 text-sm leading-relaxed font-medium">{displayMetadata?.description}</p>
+                   <div className="space-y-6">
+                      <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-2">Credential summary</span>
+                         <h4 className="text-2xl font-bold text-stone-900 mb-2 leading-tight">{displayMetadata?.title}</h4>
+                         <p className="text-stone-600 text-sm leading-relaxed">{displayMetadata?.description}</p>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                          <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-center sm:text-left transition-transform hover:scale-[1.02]">
-                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] block mb-1">Merit</span>
-                            <p className="text-white font-bold text-lg">{displayMetadata?.level || 'N/A'}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Level</span>
+                            <p className="text-stone-900 font-bold text-base">{displayMetadata?.level || 'N/A'}</p>
                           </div>
-                          <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-center sm:text-left transition-transform hover:scale-[1.02]">
-                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] block mb-1">Timeline</span>
-                            <p className="text-white font-bold text-lg">{displayMetadata?.duration || 'N/A'}</p>
+                          <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Duration</span>
+                            <p className="text-stone-900 font-bold text-base">{displayMetadata?.duration || 'N/A'}</p>
                           </div>
-                          <div className="p-5 rounded-2xl bg-indigo-500/[0.03] border border-indigo-500/10 text-center sm:text-left transition-transform hover:scale-[1.02]">
-                            <span className="text-[10px] font-black text-indigo-400/60 uppercase tracking-[0.2em] block mb-1">Score</span>
-                            <p className="text-2xl font-black text-white">{displayMetadata?.score || 'N/A'}</p>
+                          <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Score</span>
+                            <p className="text-xl font-bold font-mono text-stone-900">{displayMetadata?.score || 'N/A'}</p>
                           </div>
                       </div>
                    </div>
                 ) : (
-                  <div className="p-10 rounded-2xl bg-white/[0.01] border border-white/[0.04] flex flex-col items-center justify-center text-center">
-                    <Database className="w-10 h-10 text-zinc-500 mb-4" />
-                    <p className="text-zinc-400 font-bold uppercase tracking-widest text-[11px]">Primary On-Chain Record</p>
+                  <div className="p-8 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] flex flex-col items-center justify-center text-center">
+                    <Database className="w-8 h-8 text-stone-400 mb-2" />
+                    <p className="text-stone-500 font-semibold text-xs">Blockchain credential record</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="bg-[#0b0b0b] border border-white/[0.06] rounded-[2rem] p-8 shadow-2xl relative group/card">
-              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent"></div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 relative z-10">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                    <ShieldCheck className="w-6 h-6 text-emerald-400" />
+            <div className="bg-white border border-[#E8E4DC] rounded-3xl p-7 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C]">
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-white tracking-tight uppercase">On-Chain Evidence</h3>
-                    <p className="text-[10px] text-emerald-500/60 font-black uppercase tracking-widest mt-1">Hashed Cryptographic Proof</p>
+                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">Blockchain verification</h3>
+                    <p className="text-xs text-stone-400 font-medium">Cryptographic proof</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500/5 border border-emerald-500/20 rounded-full text-[9px] font-black text-emerald-400 tracking-[0.2em] shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-                  LIVE VERIFICATION
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-[#EDF5EE] border border-[#CFE6D3] rounded-full text-xs font-semibold text-[#25562C]">
+                  <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></div>
+                  VERIFIED
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-10 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
-                        <span>Transaction Hash</span>
-                        <div className="flex items-center gap-2">
-                           {copiedField === 'tx' && <span className="text-[8px] text-emerald-400 font-black uppercase">COPIED</span>}
-                           <Button
-                              onClick={() => copyToClipboard(credential.transactionHash, 'tx')}
-                              variant="ghost"
-                              className="!p-1 text-zinc-500 hover:text-white"
-                              size="sm"
-                              rounded="md"
-                           >
-                              <Copy className="w-3.5 h-3.5" />
-                           </Button>
-                        </div>
-                      </label>
-                      <div className="text-[10px] font-mono text-zinc-400 break-all p-5 bg-black/40 rounded-2xl border border-white/[0.04] shadow-inner group/hash relative overflow-hidden">
-                        <div className="absolute inset-0 bg-indigo-500/[0.01] opacity-0 group-hover/hash:opacity-100 transition-opacity"></div>
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
+                        <span>Transaction hash</span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(credential.transactionHash, 'tx')}
+                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                        >
+                          {copiedField === 'tx' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
                         {credential.transactionHash}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl flex flex-col items-center">
-                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Block</span>
-                        <p className="text-white font-black text-xs">{credential.blockNumber || '-'}</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-center">
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">Block</span>
+                        <p className="text-stone-900 font-bold text-xs">{credential.blockNumber || '-'}</p>
                       </div>
-                      <div className="p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl flex flex-col items-center">
-                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Gas Used</span>
-                        <p className="text-white font-black text-xs">{(credential.gasUsed || 0).toLocaleString()}</p>
+                      <div className="p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-center">
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">Gas</span>
+                        <p className="text-stone-900 font-bold text-xs">{(credential.gasUsed || 0).toLocaleString()}</p>
                       </div>
-                      <div className="p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl flex flex-col items-center">
-                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Gwei</span>
-                        <p className="text-white font-black text-xs">
+                      <div className="p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-center">
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">Gwei</span>
+                        <p className="text-stone-900 font-bold text-xs">
                           {credential.gasPrice ? Number(ethers.formatUnits(credential.gasPrice, 'gwei')).toFixed(1) : '0.0'}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
-                        <span>IPFS Content ID</span>
-                        <Button
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                      <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
+                        <span>File storage ID (IPFS)</span>
+                        <button
+                          type="button"
                           onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')}
-                          variant="ghost"
-                          className="!p-1 text-zinc-500 hover:text-white"
-                          size="sm"
-                          rounded="md"
+                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
                         >
                           <Copy className="w-3.5 h-3.5" />
-                        </Button>
-                      </label>
-                      <div className="text-[10px] font-mono text-zinc-400 break-all p-5 bg-black/40 rounded-2xl border border-white/[0.04] shadow-inner">
+                        </button>
+                      </div>
+                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
                         {credential.ipfsCID}
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
-                        <span>Certificate Fingerprint</span>
-                        <Button
+                    <div className="space-y-1.5">
+                      <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
+                        <span>Certificate hash</span>
+                        <button
+                          type="button"
                           onClick={() => copyToClipboard(credential.certificateHash, 'cert')}
-                          variant="ghost"
-                          className="!p-1 text-zinc-500 hover:text-white"
-                          size="sm"
-                          rounded="md"
+                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
                         >
                           <Copy className="w-3.5 h-3.5" />
-                        </Button>
-                      </label>
-                      <div className="text-[10px] font-mono text-zinc-400 break-all p-5 bg-black/40 rounded-2xl border border-white/[0.04] shadow-inner">
+                        </button>
+                      </div>
+                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
                         {credential.certificateHash}
                       </div>
                     </div>
@@ -464,161 +440,113 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 </div>
 
                 {isSBT && (
-                  <div className="pt-10 border-t border-white/[0.04] space-y-6">
+                  <div className="pt-5 border-t border-[#E8E4DC] space-y-4">
                     <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-purple-400" />
-                      <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em]">Soulbound Token (SBT) Details</span>
+                      <Shield className="w-4 h-4 text-purple-600" />
+                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Soulbound token details</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
-                          <span>Token ID (Reference Index)</span>
-                          <div className="flex items-center gap-2">
-                            {copiedField === 'tokenId' && <span className="text-[8px] text-purple-400 font-black uppercase">COPIED</span>}
-                            <Button
-                              onClick={() => copyToClipboard(credential.tokenId, 'tokenId')}
-                              variant="ghost"
-                              className="!p-1 text-zinc-500 hover:text-white"
-                              size="sm"
-                              rounded="md"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </label>
-                        <div className="text-[11px] font-mono text-purple-300 font-bold p-5 bg-purple-500/[0.03] rounded-2xl border border-purple-500/10 shadow-inner">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <span className="text-xs font-semibold text-stone-600 block">Token ID</span>
+                        <div className="text-xs font-mono text-purple-900 font-bold p-3.5 bg-purple-50 rounded-xl border border-purple-200">
                           #{credential.tokenId}
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center justify-between px-1">
-                          <span>Smart Contract Address</span>
-                          <div className="flex items-center gap-2">
-                            {copiedField === 'contract' && <span className="text-[8px] text-purple-400 font-black uppercase">COPIED</span>}
-                            <Button
-                              onClick={() => copyToClipboard(contractAddress, 'contract')}
-                              variant="ghost"
-                              className="!p-1 text-zinc-500 hover:text-white"
-                              size="sm"
-                              rounded="md"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </label>
-                        <div className="text-[11px] font-mono text-purple-300 break-all p-5 bg-purple-500/[0.03] rounded-2xl border border-purple-500/10 shadow-inner">
+                      <div className="space-y-1.5">
+                        <span className="text-xs font-semibold text-stone-600 block">Contract address</span>
+                        <div className="text-xs font-mono text-purple-900 break-all p-3.5 bg-purple-50 rounded-xl border border-purple-200">
                           {contractAddress}
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
-
-                <div className="pt-10 border-t border-white/[0.04] grid grid-cols-2 md:grid-cols-4 gap-8">
-                  <div className="space-y-1">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] block">Verifications</span>
-                    <p className="text-2xl font-black text-white leading-none">{credential.verificationCount || 0}</p>
-                  </div>
-                  <div className="col-span-2 space-y-1">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] block">Last Event</span>
-                    <p className="text-zinc-400 font-bold text-xs tracking-tight uppercase">{formatDate(credential.lastVerifiedAt, true)}</p>
-                  </div>
-                  <div className="space-y-1 text-right">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] block">Settlement</span>
-                    <p className="text-xl font-black text-indigo-400 leading-none">
-                      {credential.totalCost ? Number(ethers.formatEther(credential.totalCost)).toFixed(6) : '0.000'}
-                      <span className="text-[10px] text-zinc-500 font-black ml-1 uppercase">ETH</span>
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-8 bg-indigo-500/[0.02] border border-white/[0.06] rounded-[2rem] shadow-2xl group/auth relative overflow-hidden">
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
-              <div className="flex flex-col sm:flex-row items-center gap-8 relative z-10 w-full sm:w-auto">
-                <div className="space-y-1 text-center sm:text-left">
-                  <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Authorized Issuer</span>
-                  <span className="text-white font-black block text-sm uppercase">{credential.issuedBy?.name}</span>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl">
+              <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued by</span>
+                  <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name}</span>
                 </div>
-                <div className="w-px h-8 bg-zinc-800 hidden sm:block"></div>
-                <div className="space-y-1 text-center sm:text-left">
-                  <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Issued On</span>
-                  <span className="text-zinc-400 font-bold block text-sm tracking-tight">{formatDate(credential.issueDate).toUpperCase()}</span>
+                <div className="w-px h-6 bg-stone-300 hidden sm:block"></div>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Date issued</span>
+                  <span className="text-stone-700 font-medium block text-sm">{formatDate(credential.issueDate)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 px-5 py-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl text-[9px] font-black text-emerald-400 tracking-[0.2em] relative z-10 w-full sm:w-auto justify-center">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 bg-[#EDF5EE] border border-[#CFE6D3] rounded-full text-xs font-semibold text-[#25562C]">
                 <ShieldCheck className="w-4 h-4" />
-                INTEGRITY SECURED
+                VERIFIED AUTHENTIC
               </div>
             </div>
 
           </div>
 
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-5">
 
             <VerificationSection certificate={credential} />
 
-            <div className="bg-[#0b0b0b] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col items-center shadow-2xl relative group/qr overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-b from-black/[0.1] to-transparent opacity-0 group-hover/qr:opacity-100 transition-opacity"></div>
-               <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-8 relative z-10">Mobile Registry Access</span>
-               <div className="p-3 bg-white border border-zinc-100 rounded-3xl mb-6 shadow-xl relative z-10 transition-transform group-hover/qr:scale-105 duration-500">
+            <div className="bg-white border border-[#E8E4DC] rounded-3xl p-6 flex flex-col items-center shadow-xs">
+               <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-5">Scan to verify</span>
+               <div className="p-3 bg-white border border-stone-200 rounded-2xl mb-4 shadow-xs">
                  <QRCodeDisplay credentialId={credential._id} />
                </div>
-               <p className="text-[10px] font-bold text-zinc-400 text-center px-4 leading-relaxed relative z-10 uppercase tracking-tighter">
-                 Scan with any mobile terminal to securely verify this record on the public ledger.
+               <p className="text-xs text-stone-500 text-center leading-relaxed">
+                 Scan with any mobile camera to instantly verify this record on the ledger.
                </p>
             </div>
 
             {user?.role === 'ISSUER' && user?.id === (credential.issuedBy?._id || credential.issuedBy) && !credential.isRevoked && (
-               <div className="bg-[#0b0b0b] border border-red-500/10 rounded-[2rem] p-8 shadow-2xl">
-                  <h4 className="text-[10px] font-black text-red-400/60 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+               <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-3xl p-6">
+                  <h4 className="text-xs font-bold text-[#9E2D2D] uppercase tracking-wider mb-4 flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4" />
-                    Management CLI
+                    Issuer actions
                   </h4>
                   <Button
                     onClick={() => setShowRevokeModal(true)}
                     variant="danger"
-                    className="w-full justify-center py-4 bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400 font-black rounded-2xl active:scale-95 transition-all"
+                    className="w-full justify-center py-3 bg-white hover:bg-rose-50 border border-[#F7D4CF] text-[#9E2D2D] font-semibold text-xs rounded-xl shadow-xs"
                     icon={ShieldAlert}
                   >
-                    Revoke Certificate
+                    Revoke credential
                   </Button>
                </div>
             )}
 
-            <div className="flex flex-col gap-4 pt-4">
+            <div className="flex flex-col gap-3">
               <Button
                 onClick={downloadCredential}
-                variant="secondary"
+                variant="primary"
                 loading={isDownloading}
                 disabled={credential.status === 'FAILED' || credential.status === 'PROCESSING' || credential.status === 'PENDING'}
-                className="w-full justify-center py-4 font-black text-sm uppercase tracking-widest rounded-2xl active:scale-95 transition-all"
+                className="w-full justify-center py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm rounded-xl shadow-sm cursor-pointer"
                 icon={Download}
               >
-                {isDownloading ? 'Downloading...' : 'Download Evidence'}
+                {isDownloading ? 'Downloading...' : 'Download certificate'}
               </Button>
               <Button
                 onClick={viewOnEtherscan}
                 variant="outline"
                 disabled={!credential.transactionHash}
-                className="w-full justify-center py-4 border-white/[0.06] hover:border-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl active:scale-95 transition-all backdrop-blur-3xl"
+                className="w-full justify-center py-3.5 bg-white hover:bg-stone-50 text-stone-800 border-stone-200 font-semibold text-sm rounded-xl shadow-2xs cursor-pointer"
                 icon={ExternalLink}
               >
-                View Explorer
+                View on Etherscan
               </Button>
             </div>
 
             {(credential.issuedBy?.issuerDetails?.branding?.signature || credential.issuedBy?.issuerDetails?.branding?.signatureCID) && (
-               <div className="pt-8 text-center border-t border-white/[0.06]">
-                  <div className="bg-white/5 p-4 rounded-2xl border border-white/[0.06] inline-block mx-auto mb-4 hover:shadow-2xl transition-all">
+               <div className="pt-6 text-center border-t border-[#E8E4DC]">
+                  <div className="bg-[#FAF8F5] p-3 rounded-xl border border-[#E8E4DC] inline-block mx-auto mb-2">
                     <img
                       src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`}
                       alt="Authority Signature"
-                      className="h-10 opacity-60 object-contain hover:opacity-100 transition-opacity"
+                      className="h-9 object-contain"
                     />
                   </div>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">Cryptographic Endorsement</p>
+                  <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Authorized signature</p>
                </div>
             )}
 

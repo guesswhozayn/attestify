@@ -41,7 +41,7 @@ const Register = () => {
     try {
       const address = await blockchainService.connectWallet();
       setFormData(prev => ({ ...prev, [field]: address }));
-      showNotification('Wallet connected successfully!', 'success');
+      showNotification('Wallet connected', 'success');
     } catch (error) {
       console.error(error);
       showNotification(error.message || 'Failed to connect wallet', 'error');
@@ -77,7 +77,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans flex items-center justify-center relative overflow-hidden p-4 sm:p-6 md:p-8">
 
       <BackButton />
 
@@ -104,12 +104,12 @@ const Register = () => {
                   </span>
                 </h1>
                 <p className="text-gray-400 text-lg sm:text-xl md:text-2xl leading-relaxed">
-                  Join the network. Issue or verify credentials instantly upon Ethereum.
+                  Issue or verify credentials on Ethereum with tamper-proof records.
                 </p>
              </div>
 
              <div className="pt-4 hidden lg:block">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by innovative teams</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Trusted by universities and institutions</p>
                 <div className="flex gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                     <div className="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
                         <Building className="w-6 h-6" />
@@ -127,7 +127,7 @@ const Register = () => {
              </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl animate-in slide-in-from-right-8 duration-700">
+        <div className="bg-[#0e1017]/90 backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_25px_60px_-15px_rgba(0,0,0,0.85)] animate-in slide-in-from-right-8 duration-700">
 
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-3 group">
@@ -140,10 +140,10 @@ const Register = () => {
 
            <div className="mb-8">
              <h2 className="text-2xl font-bold tracking-tight mb-2">
-               Create Account
+               Create account
              </h2>
              <p className="text-gray-400">
-               Join the decentralized trust network.
+               Create an account to manage or issue credentials.
              </p>
            </div>
 
@@ -180,7 +180,7 @@ const Register = () => {
                {formData.role !== 'ISSUER' && (
                   <div className="md:col-span-1">
                       <Input
-                        label="Full Name"
+                        label="Full name"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
@@ -193,7 +193,7 @@ const Register = () => {
 
                <div className={formData.role === 'ISSUER' ? 'md:col-span-1' : ''}>
                  <Input
-                   label="Email Address"
+                   label="Email address"
                    type="email"
                    name="email"
                    value={formData.email}
@@ -207,7 +207,7 @@ const Register = () => {
                {formData.role === 'ISSUER' ? (
                  <>
                    <Input
-                     label="Organization Name"
+                     label="Institution name"
                      name="institutionName"
                      value={formData.institutionName}
                      onChange={handleChange}
@@ -217,7 +217,7 @@ const Register = () => {
                    />
                    <div className="md:col-span-2">
                      <Input
-                       label="Registration / License No"
+                       label="Registration or license number"
                        name="registrationNumber"
                        value={formData.registrationNumber}
                        onChange={handleChange}
@@ -230,7 +230,7 @@ const Register = () => {
                        <div className="flex items-end gap-3">
                          <div className="flex-1">
                            <Input
-                             label="Authorized Wallet Address"
+                             label="Authorized wallet address"
                              name="authorizedWalletAddress"
                              value={formData.authorizedWalletAddress}
                              onChange={handleChange}
@@ -255,7 +255,7 @@ const Register = () => {
                ) : (
                  <>
                     <Input
-                      label="University / Organization"
+                      label="Institution"
                       name="university"
                       value={formData.university}
                       onChange={handleChange}
@@ -267,7 +267,7 @@ const Register = () => {
                       <div className="flex items-end gap-3">
                         <div className="flex-1">
                           <Input
-                            label="Wallet Address"
+                            label="Wallet address"
                             name="walletAddress"
                             value={formData.walletAddress}
                             onChange={handleChange}
@@ -317,7 +317,7 @@ const Register = () => {
                  />
 
                  <Input
-                    label="Confirm Password"
+                    label="Confirm password"
                     type="password"
                     name="confirmPassword"
                     value={formData.confirmPassword}
@@ -336,7 +336,7 @@ const Register = () => {
                  disabled={loading}
                  className="w-full"
                >
-                 {loading ? 'Creating Account...' : 'Create Account'}
+                 {loading ? 'Creating account...' : 'Create account'}
                  {!loading && <ArrowRight className="ml-2 w-5 h-5" />}
                </Button>
             </div>
@@ -345,7 +345,7 @@ const Register = () => {
           <p className="mt-8 text-center text-gray-400 text-sm">
             Already have an account?{' '}
             <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors">
-              Sign In
+              Sign in
             </Link>
           </p>
         </div>

@@ -28,85 +28,78 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className={`fixed inset-y-0 left-0 z-50 w-64 md:w-20 bg-black backdrop-blur-3xl md:bg-black/80 border-r border-white/[0.06] flex flex-col items-center py-6 h-full transition-transform duration-300 ease-in-out ${
+    <div className={`fixed inset-y-0 left-0 z-50 w-64 md:w-20 bg-white/95 backdrop-blur-xl md:bg-white/95 border-r border-[#E8E4DC] flex flex-col items-center py-6 h-full transition-transform duration-300 ease-in-out shadow-[0_1px_3px_rgba(28,25,23,0.02)] ${
       isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
     }`}>
       <button
         onClick={onClose}
-        className="md:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
-        aria-label="Close Sidebar"
+        className="md:hidden absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
+        aria-label="Close sidebar"
       >
         <X className="w-5 h-5" />
       </button>
 
       <div className="relative z-10 mb-8 cursor-pointer group" onClick={() => handleNavigate('/dashboard')}>
-        <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover:opacity-50 transition-opacity duration-500" />
-        <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-gray-900 to-black p-[1px] border border-white/10 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-purple-500/20">
-          <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-            <Shield className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors" />
-          </div>
+        <div className="relative w-11 h-11 rounded-xl bg-stone-900 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-xs">
+          <Shield className="w-5 h-5 text-white" />
         </div>
       </div>
 
-      <div className="relative z-10 flex-1 flex flex-col space-y-4 w-full px-3">
+      <div className="relative z-10 flex-1 flex flex-col space-y-2 w-full px-3">
         {menuItems.filter(item => item.roles.includes(user?.role)).map((item) => {
           const Icon = item.icon;
           const active = location.pathname === item.path;
 
           return (
-            <Button
+            <button
               key={item.path}
               onClick={() => handleNavigate(item.path)}
-              variant={active ? 'primary' : 'ghost'}
-              rounded="2xl"
-              className={`relative p-3 !shadow-none !justify-center ${
+              className={`relative p-3 rounded-xl flex items-center md:justify-center w-full transition-all duration-150 group cursor-pointer ${
                 active
-                  ? 'bg-linear-to-tr from-indigo-600 to-indigo-500 shadow-indigo-500/25 ring-1 ring-white/10'
-                  : 'text-gray-400'
+                  ? 'bg-stone-900 text-white shadow-xs'
+                  : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100/80'
               }`}
             >
-              <Icon className="w-6 h-6" />
-              <div className="hidden md:block absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
+              <Icon className="w-5 h-5 shrink-0" />
+              <div className="hidden md:block absolute left-full ml-3 px-2.5 py-1 bg-stone-900 text-stone-50 text-[11px] font-medium rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50 shadow-md translate-x-1 group-hover:translate-x-0">
                 {item.label}
-                <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45" />
+                <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-stone-900 transform rotate-45" />
               </div>
-              <span className="md:hidden ml-4 font-semibold text-sm tracking-wide">{item.label}</span>
-            </Button>
+              <span className="md:hidden ml-3 font-semibold text-sm tracking-tight">{item.label}</span>
+            </button>
           );
         })}
       </div>
 
-      <div className="relative z-10 flex flex-col space-y-4 w-full px-3 mt-auto">
-        <div className="h-px bg-white/[0.06] w-full mx-auto" />
-        <Button
+      <div className="relative z-10 flex flex-col space-y-2 w-full px-3 mt-auto">
+        <div className="h-px bg-stone-200/80 w-full mx-auto my-2" />
+        <button
           onClick={() => handleNavigate('/settings')}
-          variant={location.pathname === '/settings' ? 'secondary' : 'ghost'}
-          rounded="2xl"
-          className={`relative p-3 !shadow-none !justify-center ${
-            location.pathname === '/settings' ? 'bg-white/[0.05] border border-white/[0.08]' : 'text-gray-400'
+          className={`relative p-3 rounded-xl flex items-center md:justify-center w-full transition-all duration-150 group cursor-pointer ${
+            location.pathname === '/settings'
+              ? 'bg-stone-100 text-stone-900 border border-stone-200/80 font-medium'
+              : 'text-stone-500 hover:text-stone-900 hover:bg-stone-100/80'
           }`}
         >
-          <Settings className="w-6 h-6" />
-          <div className="hidden md:block absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-white/10 text-white text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
+          <Settings className="w-5 h-5 shrink-0" />
+          <div className="hidden md:block absolute left-full ml-3 px-2.5 py-1 bg-stone-900 text-stone-50 text-[11px] font-medium rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50 shadow-md translate-x-1 group-hover:translate-x-0">
             Settings
-            <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-white/10 transform rotate-45" />
+            <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-stone-900 transform rotate-45" />
           </div>
-          <span className="md:hidden ml-4 font-semibold text-sm tracking-wide">Settings</span>
-        </Button>
+          <span className="md:hidden ml-3 font-semibold text-sm tracking-tight">Settings</span>
+        </button>
 
-        <Button
+        <button
           onClick={handleLogout}
-          variant="ghost"
-          rounded="2xl"
-          className="relative p-3 !shadow-none !justify-center text-gray-500 hover:bg-red-500/10 hover:text-red-400"
+          className="relative p-3 rounded-xl flex items-center md:justify-center w-full transition-all duration-150 group text-stone-500 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
         >
-          <LogOut className="w-6 h-6" />
-          <div className="hidden md:block absolute left-full ml-4 px-3 py-1.5 bg-black/90 border border-red-900/30 text-red-200 text-[11px] font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl backdrop-blur-xl translate-x-2 group-hover:translate-x-0">
-            Logout
-            <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-black/90 border-l border-b border-red-900/30 transform rotate-45" />
+          <LogOut className="w-5 h-5 shrink-0" />
+          <div className="hidden md:block absolute left-full ml-3 px-2.5 py-1 bg-stone-900 text-stone-50 text-[11px] font-medium rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50 shadow-md translate-x-1 group-hover:translate-x-0">
+            Log out
+            <div className="absolute top-1/2 -left-1 -mt-1 w-2 h-2 bg-stone-900 transform rotate-45" />
           </div>
-          <span className="md:hidden ml-4 font-semibold text-sm tracking-wide">Logout</span>
-        </Button>
+          <span className="md:hidden ml-3 font-semibold text-sm tracking-tight">Log out</span>
+        </button>
       </div>
     </div>
   );

@@ -57,20 +57,20 @@ const VerificationSection = React.memo(({ certificate }) => {
 
   return (
     <>
-      <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col">
+      <div className="bg-[#FAF8F5] border border-[#ECE7DE] rounded-2xl p-5 flex flex-col">
 
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 bg-indigo-500/10 rounded-lg">
-              <ShieldCheck className="w-4 h-4 text-indigo-400" />
+            <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
+              <ShieldCheck className="w-4 h-4 text-stone-700" />
             </div>
             <div>
-              <h3 className="text-white text-sm font-bold tracking-tight leading-none mb-1">Verify Proof</h3>
-              <p className="text-[10px] text-gray-500 font-medium">Validate file hash locally</p>
+              <h3 className="text-stone-900 text-sm font-bold tracking-tight leading-none mb-1">Verify document</h3>
+              <p className="text-[11px] text-stone-500 font-medium">Check cryptographic validity</p>
             </div>
           </div>
-          <div className="px-2 py-0.5 rounded bg-emerald-500/5 border border-emerald-500/10 text-[11px] font-bold text-emerald-500">
-            Gas Free
+          <div className="px-2.5 py-0.5 rounded-full bg-[#EDF5EE] border border-[#CFE6D3] text-[11px] font-semibold text-[#25562C]">
+            Instant check
           </div>
         </div>
 
@@ -82,20 +82,20 @@ const VerificationSection = React.memo(({ certificate }) => {
               onChange={handleFileChange}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
-            <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
-              file ? 'border-indigo-500/30 bg-indigo-500/[0.04]' : 'border-white/5 hover:border-indigo-500/20 hover:bg-white/[0.02]'
+            <div className={`border-2 border-dashed rounded-xl p-5 text-center transition-all duration-200 ${
+              file ? 'border-stone-400 bg-white' : 'border-stone-200 hover:border-stone-400 bg-white'
             }`}>
               {file ? (
-                <div className="flex flex-col items-center text-indigo-300 py-1">
-                  <FileCheck className="w-6 h-6 mb-2" />
-                  <span className="text-xs font-bold truncate max-w-full px-4">{file.name}</span>
-                  <span className="text-[10px] text-gray-550 mt-1 font-medium opacity-60">Click to change</span>
+                <div className="flex flex-col items-center text-stone-800 py-1">
+                  <FileCheck className="w-6 h-6 mb-2 text-stone-700" />
+                  <span className="text-xs font-bold truncate max-w-full px-4 text-stone-900">{file.name}</span>
+                  <span className="text-[10px] text-stone-500 mt-1 font-medium">Click to change file</span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-gray-500 group-hover:text-gray-400 py-1">
-                  <Upload className="w-7 h-7 mb-2 opacity-40" />
-                  <span className="text-xs font-bold">Upload PDF Proof</span>
-                  <span className="text-[10px] text-gray-600 mt-1 font-medium">Drag and drop here</span>
+                <div className="flex flex-col items-center text-stone-500 group-hover:text-stone-700 py-1">
+                  <Upload className="w-6 h-6 mb-2 text-stone-400" />
+                  <span className="text-xs font-bold text-stone-800">Upload PDF document</span>
+                  <span className="text-[11px] text-stone-400 mt-1 font-medium">Drag and drop or click to browse</span>
                 </div>
               )}
             </div>
@@ -103,23 +103,21 @@ const VerificationSection = React.memo(({ certificate }) => {
         </div>
 
         <div className="mt-5">
-          <Button
+          <button
             onClick={handleVerify}
-            loading={verifying}
             disabled={verifying || !file}
-            variant="white"
-            className="w-full justify-center py-2.5"
-            icon={CheckCircle}
+            className="w-full justify-center py-3 bg-stone-900 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
           >
-            {verifying ? 'Verifying...' : 'Authenticate Now'}
-          </Button>
+            <CheckCircle className="w-4 h-4" />
+            <span>{verifying ? 'Verifying...' : 'Verify document'}</span>
+          </button>
         </div>
       </div>
 
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
-          title="Verification Analysis"
+          title="Verification result"
           size="lg"
       >
           {result && (
@@ -130,9 +128,9 @@ const VerificationSection = React.memo(({ certificate }) => {
                   <Button
                       onClick={() => setShowResultModal(false)}
                       variant="secondary"
-                      className="px-8 py-2.5 text-gray-300 hover:text-white text-xs font-bold rounded-xl border-white/5"
+                      className="px-8 py-2.5 text-stone-700 hover:text-stone-900 text-xs font-semibold rounded-xl"
                   >
-                      Close Report
+                      Close
                   </Button>
               </div>
             </div>

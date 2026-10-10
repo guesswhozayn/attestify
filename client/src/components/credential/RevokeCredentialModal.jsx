@@ -28,48 +28,46 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Revoke Credential" size="md">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title="Revoke credential" size="md">
+      <form onSubmit={handleSubmit} className="space-y-5">
 
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 flex items-start space-x-4">
-          <div className="p-2 bg-red-500/20 rounded-lg text-red-500 shrink-0">
-             <AlertTriangle className="w-6 h-6" />
+        <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-2xl p-4 flex items-start space-x-3.5">
+          <div className="p-2 bg-white rounded-xl text-[#9E2D2D] border border-[#F7D4CF] shrink-0">
+             <AlertTriangle className="w-5 h-5" />
           </div>
           <div className="text-sm">
-            <h4 className="font-bold text-red-300 mb-1">Permanent Action</h4>
-            <p className="text-red-200/70 leading-relaxed">
-              You are about to revoke a blockchain-verified credential. This action is
-              <span className="font-semibold text-red-300"> irreversible </span>
-              and will be permanently recorded in the public ledger.
+            <h4 className="font-bold text-[#9E2D2D] mb-1">Permanent cryptographic revocation</h4>
+            <p className="text-[#9E2D2D]/80 leading-relaxed text-xs">
+              This action cannot be undone. Once revoked, this credential will be permanently marked invalid across all verification endpoints.
             </p>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-300 mb-2">
-            Reason for Revocation
+          <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
+            Reason for revocation
           </label>
           <div className="relative">
              <textarea
                value={reason}
                onChange={(e) => setReason(e.target.value)}
-               className="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition h-36 resize-none"
-               placeholder="e.g. Issued in error, student misconduct..."
+               className="w-full bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl p-3.5 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-400 focus:bg-white transition h-32 resize-none text-sm"
+               placeholder="e.g. Issued in error, administrative cancellation..."
                required
                disabled={loading}
              />
-             <div className="absolute bottom-3 right-3 text-xs text-gray-500">
+             <div className="absolute bottom-2.5 right-3 text-[11px] text-stone-400">
                {reason.length} chars
              </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-2">
+        <div className="grid grid-cols-2 gap-3 pt-2">
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={onClose}
-            className="w-full justify-center bg-gray-800 hover:bg-gray-700 text-gray-300"
+            className="w-full justify-center bg-white hover:bg-stone-50 text-stone-700 border-stone-200 rounded-xl font-semibold text-sm"
             disabled={loading}
           >
             Cancel
@@ -77,12 +75,12 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
           <Button
             type="submit"
             variant="danger"
-            className="w-full justify-center shadow-lg shadow-red-900/20"
+            className="w-full justify-center bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold text-sm shadow-xs cursor-pointer"
             disabled={loading || !reason.trim()}
             loading={loading}
             icon={ShieldAlert}
           >
-            Confirm Revocation
+            Revoke credential
           </Button>
         </div>
       </form>

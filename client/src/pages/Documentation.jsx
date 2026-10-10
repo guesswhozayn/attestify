@@ -81,7 +81,7 @@ const Documentation = () => {
 
   return (
     <div
-      className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
+      className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
     >
       <Background scrollY={scrollY} parallax />
 
@@ -91,7 +91,7 @@ const Documentation = () => {
 
         <aside className="hidden lg:block w-72 flex-shrink-0 relative top-24 h-[calc(100vh-6rem)] p-8 overflow-y-auto custom-scrollbar">
           <div className="fixed">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-8 ml-4">Architecture & Docs</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-8 ml-4">Architecture & Docs</p>
             <div className="space-y-1 relative">
               {sections.map(s => (
                 <Button
@@ -101,11 +101,11 @@ const Documentation = () => {
                   rounded="2xl"
                   noWrapper={true}
                   className={`w-full group !justify-between px-4 py-3 !shadow-none ${
-                    activeSection === s.id ? 'text-white' : 'text-gray-500 hover:text-white'
+                    activeSection === s.id ? 'text-white' : 'text-zinc-500 hover:text-white'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    <s.icon className={`w-4 h-4 mt-0.5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600 group-hover:text-indigo-400'} transition-colors flex-shrink-0`} />
+                    <s.icon className={`w-4 h-4 mt-0.5 ${activeSection === s.id ? 'text-indigo-400' : 'text-zinc-500 group-hover:text-indigo-400'} transition-colors flex-shrink-0`} />
                     <span className="leading-tight normal-case tracking-normal">{s.label}</span>
                   </div>
                   {activeSection === s.id && (
@@ -138,7 +138,7 @@ const Documentation = () => {
               The <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Engine of Truth.</span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed font-medium">
+            <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl leading-relaxed font-medium">
               Explore the theoretical foundations and cryptographic architecture powering Attestify.
             </p>
           </motion.div>
@@ -580,7 +580,7 @@ const Documentation = () => {
               className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-black/95 border-l border-white/10 p-8 shadow-2xl overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-12">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Navigation</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Navigation</span>
                 <Button
                   onClick={() => setMobileNavOpen(false)}
                   variant="secondary"
@@ -607,7 +607,7 @@ const Documentation = () => {
                       className="w-full !justify-between px-5 py-4"
                     >
                       <div className="flex items-center gap-4">
-                        <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600'}`} />
+                        <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-zinc-500'}`} />
                         <span className="normal-case tracking-normal">{s.label}</span>
                       </div>
                       {activeSection === s.id && <ChevronRight className="w-4 h-4 text-indigo-400" />}
@@ -645,14 +645,14 @@ const Section = React.memo(({ id, title, icon: Icon, children }) => (
 Section.displayName = 'Section';
 
 const SectionCard = React.memo(({ title, children }) => (
-  <div className="group relative rounded-3xl border border-white/5 bg-gray-900/60 backdrop-blur-lg p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/[0.04] hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
-    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.03] to-purple-500/[0.03] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+  <div className="group relative rounded-2xl border border-white/5 bg-[#0e1017]/90 backdrop-blur-lg p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/[0.04] hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
+    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.03] to-purple-500/[0.03] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     <div className="relative z-10">
       {title && <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
         {title}
       </h3>}
-      <div className="text-gray-400 leading-relaxed space-y-4 font-medium">{children}</div>
+      <div className="text-zinc-400 leading-relaxed space-y-4 font-medium">{children}</div>
     </div>
   </div>
 ));
@@ -670,7 +670,7 @@ const InfoItem = React.memo(({ label, text }) => (
     </div>
     <span className="text-[15px] leading-relaxed">
       <strong className="text-white font-black uppercase tracking-wider text-[11px] mr-2">{label}:</strong>{' '}
-      <span className="text-gray-400 font-medium">{text}</span>
+      <span className="text-zinc-400 font-medium">{text}</span>
     </span>
   </li>
 ));
@@ -684,9 +684,9 @@ const CodeBlock = React.memo(({ language, children }) => (
         <div className="w-3 h-3 rounded-full bg-yellow-500/40 border border-yellow-500/50" />
         <div className="w-3 h-3 rounded-full bg-green-500/40 border border-green-500/50" />
       </div>
-      <span className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">{language} source</span>
+      <span className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">{language} source</span>
     </div>
-    <pre className="p-6 overflow-x-auto text-sm font-mono text-gray-300 leading-relaxed scrollbar-thin scrollbar-thumb-white/10">
+    <pre className="p-6 overflow-x-auto text-sm font-mono text-zinc-300 leading-relaxed scrollbar-thin scrollbar-thumb-white/10">
       <code>{children}</code>
     </pre>
   </div>
@@ -703,7 +703,7 @@ const VerifyStep = React.memo(({ number, title, children }) => (
         {title}
         <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
       </h4>
-      <p className="text-gray-400 text-[15px] leading-relaxed font-medium">{children}</p>
+      <p className="text-zinc-400 text-[15px] leading-relaxed font-medium">{children}</p>
     </div>
   </div>
 ));
@@ -719,7 +719,7 @@ const FlowStep = React.memo(({ number, title, children }) => (
     </div>
     <div className="pb-10">
       <h4 className="text-white font-bold mb-2 group-hover:text-indigo-400 transition-colors">{title}</h4>
-      <p className="text-gray-400 text-[15px] leading-relaxed font-medium">{children}</p>
+      <p className="text-zinc-400 text-[15px] leading-relaxed font-medium">{children}</p>
     </div>
   </div>
 ));
@@ -729,23 +729,23 @@ const ArchCard = React.memo(({ title, tech, description }) => (
   <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/[0.04] group shadow-lg">
     <h4 className="text-white font-bold mb-1.5 flex items-center justify-between">
       {title}
-      <Server className="w-4 h-4 text-gray-600 group-hover:text-indigo-400 transition-colors" />
+      <Server className="w-4 h-4 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
     </h4>
     <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-4 inline-block bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">{tech}</p>
-    <p className="text-gray-400 text-sm leading-relaxed font-medium">{description}</p>
+    <p className="text-zinc-400 text-sm leading-relaxed font-medium">{description}</p>
   </div>
 ));
 ArchCard.displayName = 'ArchCard';
 
 const FAQItem = React.memo(({ question, children }) => (
-  <div className="group relative rounded-3xl border border-white/5 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-white/20">
+  <div className="group relative rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl p-8 transition-all duration-500 hover:border-white/20">
     <h3 className="text-white font-bold text-lg mb-4 flex items-start gap-4">
       <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 transition-colors group-hover:bg-indigo-500/20">
         <HelpCircle className="w-5 h-5 text-indigo-400" />
       </div>
       <span className="mt-1.5">{question}</span>
     </h3>
-    <p className="text-gray-400 leading-relaxed pl-14 font-medium">{children}</p>
+    <p className="text-zinc-400 leading-relaxed pl-14 font-medium">{children}</p>
   </div>
 ));
 FAQItem.displayName = 'FAQItem';

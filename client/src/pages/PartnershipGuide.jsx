@@ -104,7 +104,7 @@ const PartnershipGuide = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
       <Background scrollY={scrollY} parallax />
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
@@ -113,7 +113,7 @@ const PartnershipGuide = () => {
 
         <aside className="hidden lg:block w-72 shrink-0 relative top-24 h-[calc(100vh-6rem)] p-8 overflow-y-auto">
           <div className="fixed">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-8 ml-4">Partnership Guide</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-8 ml-4">Partnership Guide</p>
             <div className="space-y-1 relative">
               {sections.map(s => (
                 <Button
@@ -123,11 +123,11 @@ const PartnershipGuide = () => {
                   rounded="2xl"
                   noWrapper={true}
                   className={`w-full group justify-between! px-4 py-3 shadow-none! ${
-                    activeSection === s.id ? 'text-white' : 'text-gray-500 hover:text-white'
+                    activeSection === s.id ? 'text-white' : 'text-zinc-500 hover:text-white'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    <s.icon className={`w-4 h-4 mt-0.5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600 group-hover:text-indigo-400'} transition-colors shrink-0`} />
+                    <s.icon className={`w-4 h-4 mt-0.5 ${activeSection === s.id ? 'text-indigo-400' : 'text-zinc-500 group-hover:text-indigo-400'} transition-colors shrink-0`} />
                     <span className="leading-tight normal-case tracking-normal">{s.label}</span>
                   </div>
                   {activeSection === s.id && (
@@ -160,7 +160,7 @@ const PartnershipGuide = () => {
               Shape the <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-white to-purple-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">Future of Trust.</span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed font-medium">
+            <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl leading-relaxed font-medium">
               Join an elite circle of academic and professional institutions redefining how the world handles human achievement.
             </p>
           </motion.div>
@@ -206,7 +206,7 @@ const PartnershipGuide = () => {
                                 <span className="text-[10px] font-black text-indigo-400/60 group-hover:text-indigo-400 tracking-widest">{step.tag}</span>
                             </div>
                             <h4 className="text-lg font-bold text-white mb-2 tracking-tight">{step.title}</h4>
-                            <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                            <p className="text-zinc-400 text-sm leading-relaxed">{step.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -239,7 +239,7 @@ const PartnershipGuide = () => {
                     </div>
                     <div>
                       <h4 className="text-lg font-bold text-white mb-2">{benefit.title}</h4>
-                      <p className="text-gray-400 text-sm leading-relaxed">{benefit.desc}</p>
+                      <p className="text-zinc-400 text-sm leading-relaxed">{benefit.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -252,12 +252,12 @@ const PartnershipGuide = () => {
                 <SectionCard title="Sovereignty">
                     <p className="text-sm">Graduates maintain sovereignty over their own academic records, but institutions retain the authority to revoke or update them on-chain.</p>
                 </SectionCard>
-                <div className="relative p-10 rounded-3xl border border-white/10 bg-linear-to-br from-indigo-500/10 via-transparent to-purple-500/10 overflow-hidden flex flex-col justify-center text-center">
+                <div className="relative p-10 rounded-2xl border border-white/10 bg-linear-to-br from-indigo-500/10 via-transparent to-purple-500/10 overflow-hidden flex flex-col justify-center text-center">
                     <div className="absolute inset-0 bg-white/2 bg-size-[24px_24px]"></div>
                     <div className="relative z-10">
                         <div className="text-8xl font-black text-white/5 leading-none mb-6">OPEN</div>
                         <h3 className="text-xl font-bold text-white mb-3 tracking-tighter">100% Free & Unlimited</h3>
-                        <p className="text-gray-400 text-sm mb-6 max-w-xs mx-auto">No licenses, no limits. We are removing all barriers for established institutions to adopt decentralized standards.</p>
+                        <p className="text-zinc-400 text-sm mb-6 max-w-xs mx-auto">No licenses, no limits. We are removing all barriers for established institutions to adopt decentralized standards.</p>
                         <div className="flex items-center justify-center gap-2 text-indigo-400 font-bold tracking-widest uppercase text-[10px]">
                             <CheckCircle className="w-3.5 h-3.5" /> Completely Open-Source
                         </div>
@@ -271,7 +271,7 @@ const PartnershipGuide = () => {
                 <div className="text-center py-12">
                     <Rocket className="w-16 h-16 text-indigo-400 mx-auto mb-8" />
                     <h2 className="text-3xl md:text-5xl font-black text-white mb-6 uppercase tracking-tighter">Ready to lead?</h2>
-                    <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+                    <p className="text-zinc-400 text-lg mb-10 max-w-xl mx-auto">
                         Spaces in our 2026 Pioneer Program are limited to 50 select institutions. Secure your place in the decentralized academic future today.
                     </p>
                     <div className="flex justify-center">
@@ -312,7 +312,7 @@ const PartnershipGuide = () => {
               className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-black/95 border-l border-white/10 p-8 shadow-2xl overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-12">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Navigation</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Navigation</span>
                 <Button
                   onClick={() => setMobileNavOpen(false)}
                   variant="secondary"
@@ -339,7 +339,7 @@ const PartnershipGuide = () => {
                       className="w-full justify-between! px-5 py-4"
                     >
                       <div className="flex items-center gap-4">
-                        <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-gray-600'}`} />
+                        <s.icon className={`w-5 h-5 ${activeSection === s.id ? 'text-indigo-400' : 'text-zinc-500'}`} />
                         <span className="normal-case tracking-normal">{s.label}</span>
                       </div>
                       {activeSection === s.id && <ChevronRight className="w-4 h-4 text-indigo-400" />}
@@ -376,14 +376,14 @@ const Section = React.memo(({ id, title, icon: Icon, children }) => (
 Section.displayName = 'Section';
 
 const SectionCard = React.memo(({ title, children }) => (
-  <div className="group relative rounded-3xl border border-white/5 bg-gray-900/60 backdrop-blur-lg p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/4 hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
-    <div className="absolute inset-0 bg-linear-to-br from-indigo-500/3 to-purple-500/3 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+  <div className="group relative rounded-2xl border border-white/5 bg-[#0e1017]/90 backdrop-blur-lg p-8 sm:p-10 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/4 hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]">
+    <div className="absolute inset-0 bg-linear-to-br from-indigo-500/3 to-purple-500/3 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     <div className="relative z-10">
       {title && <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
         {title}
       </h3>}
-      <div className="text-gray-400 leading-relaxed space-y-4 font-medium">{children}</div>
+      <div className="text-zinc-400 leading-relaxed space-y-4 font-medium">{children}</div>
     </div>
   </div>
 ));

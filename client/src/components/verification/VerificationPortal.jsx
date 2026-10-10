@@ -116,39 +116,36 @@ const VerificationPortal = () => {
             />
         )}
 
-        <div className="relative bg-[#050505] border border-white/10 rounded-[3rem] p-6 sm:p-10 shadow-3xl overflow-hidden flex flex-col gap-8">
-
-           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none opacity-50"></div>
-
-           <div className="relative z-10 flex items-center justify-between border-b border-white/5 pb-6">
+        <div className="relative bg-[#0e1017]/90 border border-white/[0.08] rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col gap-8">
+           <div className="relative z-10 flex items-center justify-between border-b border-white/[0.06] pb-6">
               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                 <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-sm">
                     <Shield className="w-6 h-6 text-indigo-400" />
                  </div>
                  <div>
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tighter text-white">VERIFICATION PORTAL</h2>
-                    <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Verify a credential</h2>
+                    <div className="flex items-center gap-2 mt-0.5">
                        <div className={`w-2 h-2 rounded-full ${verifying ? 'bg-indigo-500' : 'bg-emerald-500'} animate-pulse`}></div>
-                       <span className={`text-[10px] font-black uppercase tracking-widest ${verifying ? 'text-indigo-500' : 'text-emerald-500'}`}>
-                          {verifying ? 'Processing...' : 'System Ready'}
+                       <span className={`text-[10px] font-bold uppercase tracking-widest ${verifying ? 'text-indigo-400' : 'text-emerald-400'}`}>
+                          {verifying ? 'Verifying...' : 'Ready'}
                        </span>
                     </div>
                  </div>
               </div>
 
               <div className="hidden sm:flex flex-col items-end">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Security Network</span>
-                <span className="text-[10px] font-mono text-indigo-400">SECURE LEDGER</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Network</span>
+                <span className="text-[11px] font-mono text-indigo-400 font-semibold">Sepolia</span>
               </div>
            </div>
 
            <div className="relative z-10 space-y-8">
 
               <div
-                className={`relative border-2 border-dashed rounded-[2rem] p-8 sm:p-12 text-center transition-all duration-500 cursor-pointer group/zone ${
+                className={`relative border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all duration-300 cursor-pointer group/zone ${
                    file
                    ? 'border-emerald-500/40 bg-emerald-500/5'
-                   : 'border-white/5 bg-white/[0.01] hover:border-indigo-500/40 hover:bg-indigo-500/5'
+                   : 'border-white/[0.08] bg-white/[0.02] hover:border-indigo-500/40 hover:bg-indigo-500/[0.03]'
                 }`}
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -160,24 +157,24 @@ const VerificationPortal = () => {
                   ref={fileInputRef}
                 />
 
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 transition-all duration-500 shadow-2xl ${
-                   file ? 'bg-emerald-500 text-white' : 'bg-black border border-white/10 text-gray-500 group-hover/zone:border-indigo-500/50 group-hover/zone:text-indigo-400'
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 shadow-xl ${
+                   file ? 'bg-emerald-500 text-white' : 'bg-[#0a0b12] border border-white/10 text-zinc-500 group-hover/zone:border-indigo-500/40 group-hover/zone:text-indigo-400'
                 }`}>
                   <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate px-4">
-                  {file ? file.name : "UPLOAD CERTIFICATE"}
+                  {file ? file.name : "Upload credential (PDF)"}
                 </h3>
-                <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-gray-500">
-                  {file ? "Document Loaded Successfully" : "Supported format: PDF"}
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  {file ? "Document loaded" : "Supported format: PDF"}
                 </p>
               </div>
 
               <div className="space-y-3">
                  <div className="flex items-center justify-between px-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Credential Reference ID</label>
-                    {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID CAPTURED</span>)}
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Credential reference ID or wallet address</label>
+                    {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID detected</span>)}
                  </div>
                  <div className="relative group/input">
                     <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -201,7 +198,7 @@ const VerificationPortal = () => {
                 size="xl"
                 className="w-full hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                {verifying ? 'Verifying Document Status...' : 'Verify Document'}
+                {verifying ? 'Verifying credential...' : 'Verify credential'}
               </Button>
            </div>
 
@@ -212,7 +209,7 @@ const VerificationPortal = () => {
              </div>
 
              <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
-                <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Verification Log</span>
+                <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Verification log</span>
                 <div className="flex gap-1.5">
                    <div className="w-2 h-2 rounded-full bg-red-500/40 border border-red-500/20"></div>
                    <div className="w-2 h-2 rounded-full bg-yellow-500/40 border border-yellow-500/20"></div>
@@ -223,7 +220,7 @@ const VerificationPortal = () => {
              <div className="flex-1 overflow-y-auto space-y-2.5 custom-scrollbar pr-2 pb-2">
                 {feed.length === 0 ? (
                    <div className="h-full flex flex-col items-center justify-center opacity-30 italic">
-                      <p className="text-[11px] text-gray-400">Awaiting document upload or reference ID...</p>
+                      <p className="text-[11px] text-gray-400">Upload a PDF or enter an ID to verify.</p>
                    </div>
                 ) : (
                    feed.map((item, idx) => (
@@ -250,7 +247,7 @@ const VerificationPortal = () => {
                 {verifying && (
                    <div className="flex items-center gap-2 text-[11px] text-indigo-400 animate-pulse mt-2">
                       <span className="select-none inline-block w-4">›</span>
-                      <span>Analyzing document details...</span>
+                      <span>Checking credential details...</span>
                    </div>
                 )}
              </div>
@@ -268,7 +265,7 @@ const VerificationPortal = () => {
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
-          title="VERIFICATION RESULT"
+          title="Verification result"
           size="lg"
       >
           {result && (
@@ -282,9 +279,9 @@ const VerificationPortal = () => {
                       size="lg"
                       icon={RefreshCw}
                       className="px-8 uppercase tracking-widest text-xs font-bold border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-300 animate-none"
-                      title="Verify Another"
+                      title="Verify another credential"
                   >
-                      Verify Another
+                      Verify another credential
                   </Button>
               </div>
             </div>

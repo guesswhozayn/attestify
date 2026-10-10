@@ -2,26 +2,27 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 const roundedStyles = {
+  'xl': 'rounded-xl',
   '2xl': 'rounded-2xl',
   'full': 'rounded-full',
   'none': 'rounded-none'
 };
 
 const variants = {
-  primary: 'bg-gradient-to-br from-indigo-600 to-violet-700 text-white border border-indigo-400/20 hover:from-indigo-500 hover:to-violet-600 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 backdrop-blur-sm disabled:opacity-50',
-  secondary: 'bg-white/5 text-white hover:bg-white/10 border border-white/10 backdrop-blur-md shadow-inner disabled:opacity-50',
-  white: 'bg-white text-black hover:bg-gray-100 border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] disabled:opacity-50',
-  success: 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border border-emerald-400/20 hover:from-emerald-500 hover:to-teal-600 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 backdrop-blur-sm disabled:opacity-50',
-  danger: 'bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 disabled:opacity-20',
-  outline: 'bg-white/5 text-white border border-white/10 backdrop-blur-md hover:bg-white/10 disabled:opacity-20',
-  ghost: 'text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-20',
+  primary: 'bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/25 shadow-md shadow-indigo-950/60 hover:shadow-indigo-900/40 disabled:opacity-50',
+  secondary: 'bg-white/[0.06] text-zinc-200 hover:text-white hover:bg-white/[0.1] border border-white/10 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] disabled:opacity-50',
+  white: 'bg-white text-zinc-950 hover:bg-zinc-100 font-semibold border border-white/20 shadow-sm disabled:opacity-50',
+  success: 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/25 shadow-md shadow-emerald-950/60 hover:shadow-emerald-900/40 disabled:opacity-50',
+  danger: 'bg-rose-500/10 text-rose-400 border border-rose-500/25 hover:bg-rose-500/20 disabled:opacity-30',
+  outline: 'bg-transparent text-zinc-300 hover:text-white border border-white/15 hover:border-white/25 hover:bg-white/[0.04] disabled:opacity-30',
+  ghost: 'text-zinc-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30',
 };
 
 const sizes = {
-  sm: 'px-4 py-1.5 text-xs font-medium',
-  md: 'px-6 py-2.5 text-sm font-medium',
-  lg: 'px-8 py-3.5 text-base md:text-lg font-black',
-  xl: 'px-10 py-5 text-xl font-black tracking-widest',
+  sm: 'px-3.5 py-1.5 text-xs font-medium',
+  md: 'px-5 py-2.5 text-sm font-medium',
+  lg: 'px-7 py-3 text-sm md:text-base font-semibold',
+  xl: 'px-9 py-4 text-base md:text-lg font-bold',
 };
 
 const Button = ({
@@ -41,7 +42,7 @@ const Button = ({
   noWrapper = false,
   ...props
 }) => {
-  const baseStyles = 'tracking-wide transition-all duration-300 flex flex-row items-center justify-center gap-2.5 active:scale-95 disabled:cursor-not-allowed group overflow-hidden relative';
+  const baseStyles = 'tracking-normal transition-all duration-200 flex flex-row items-center justify-center gap-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090d] disabled:cursor-not-allowed group overflow-hidden relative select-none';
   const variantStyles = variants[variant] || '';
   const roundedClassName = roundedStyles[rounded] || roundedStyles['2xl'];
   const combinedClassName = `${baseStyles} ${variantStyles} ${sizes[size] || sizes.md} ${roundedClassName} ${className}`;
@@ -49,7 +50,7 @@ const Button = ({
   if (href) {
     return (
       <a href={href} target={target} rel={rel} className={combinedClassName} {...props}>
-        {Icon && <Icon className={`w-4 h-4 ${iconClassName}`} />}
+        {Icon && <Icon className={`w-4 h-4 shrink-0 ${iconClassName}`} />}
         {children && <span>{children}</span>}
       </a>
     );
@@ -63,14 +64,11 @@ const Button = ({
       {...props}
     >
       {loading ? (
-        <Loader2 className={`w-5 h-5 animate-spin relative z-10 ${iconClassName}`} />
+        <Loader2 className={`w-4 h-4 animate-spin shrink-0 relative z-10 ${iconClassName}`} />
       ) : Icon ? (
-        <Icon className={`w-4 h-4 relative z-10 ${iconClassName}`} />
+        <Icon className={`w-4 h-4 shrink-0 relative z-10 ${iconClassName}`} />
       ) : null}
       {children && (noWrapper ? children : <span className="relative z-10 flex flex-row items-center gap-2">{children}</span>)}
-      {(variant === 'success' || variant === 'primary') && !disabled && !loading && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-      )}
     </button>
   );
 };

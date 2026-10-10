@@ -35,7 +35,7 @@ const NotFound          = lazy(() => import('./pages/NotFound'));
 const PartnershipGuide  = lazy(() => import('./pages/PartnershipGuide'));
 
 const PageLoader = () => (
-  <div className="min-h-screen bg-black flex items-center justify-center">
+  <div className="min-h-dvh bg-[#08090d] flex items-center justify-center">
     <LoadingSpinner size="lg" text="Loading..." />
   </div>
 );
@@ -45,10 +45,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
+      <div className="min-h-dvh bg-[#08090d] flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/[0.08] rounded-full blur-[120px]"></div>
         <div className="relative z-10 flex flex-col items-center">
-            <LoadingSpinner size="xl" text="Initializing Secure Access..." />
+            <LoadingSpinner size="xl" text="Loading..." />
         </div>
       </div>
     );

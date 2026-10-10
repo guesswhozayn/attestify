@@ -1,15 +1,11 @@
 import { Lock } from 'lucide-react';
 import BackButton from '../components/shared/BackButton';
+import Background from '../components/shared/Background';
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 font-sans relative">
-
-      <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-700"></div>
-          <div className="absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen"></div>
-          <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-      </div>
+    <div className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans relative">
+      <Background />
       <BackButton />
 
       <main className="relative z-10 pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,7 +18,7 @@ const PrivacyPolicy = () => {
             <p className="text-gray-400 text-lg">Last updated: May 15, 2026</p>
         </div>
 
-        <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-xl space-y-12">
+        <div className="glass-panel rounded-2xl p-8 md:p-12 space-y-12">
 
             <section>
                 <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>

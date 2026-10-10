@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, ShieldCheck, Hash, Database, Globe, Share2, Copy} from 'lucide-react';
+import { X, ExternalLink, ShieldCheck, Hash, Database, Globe, Share2, Copy } from 'lucide-react';
 import Button from '../shared/Button';
 
 const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
@@ -14,111 +14,105 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
-            <div className="bg-[#0a0a0a] border border-white/[0.08] rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.1)] animate-in zoom-in-95 duration-500">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white border border-[#E8E4DC] rounded-3xl w-full max-w-lg overflow-hidden shadow-[0_20px_50px_-15px_rgba(28,25,23,0.15)] animate-in zoom-in-95 duration-200">
 
-                <div className="relative p-8 border-b border-white/[0.06] bg-gradient-to-br from-indigo-500/[0.05] to-transparent">
-                    <div className="flex items-center justify-between relative z-10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-indigo-500/10 rounded-[1.25rem] border border-indigo-500/20">
-                                <ShieldCheck className="w-7 h-7 text-indigo-400" />
+                <div className="relative p-6 sm:p-7 border-b border-[#E8E4DC] bg-[#FAF8F5]">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3.5">
+                            <div className="p-3 bg-stone-100 rounded-2xl border border-stone-200 text-stone-800">
+                                <ShieldCheck className="w-6 h-6 text-stone-800" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Security Record</h3>
-                                <p className="text-[11px] text-indigo-400/60 font-bold mt-1">Permanent Digital Proof</p>
+                                <h3 className="text-lg font-bold text-stone-900 tracking-tight">Soulbound token</h3>
+                                <p className="text-xs text-stone-500 font-medium">Non-transferable blockchain credential</p>
                             </div>
                         </div>
-                        <Button
+                        <button
                             onClick={onClose}
-                            variant="ghost"
-                            rounded="full"
-                            size="sm"
-                            className="!p-3 text-zinc-500 hover:text-white"
+                            className="p-2 text-stone-400 hover:text-stone-800 hover:bg-stone-200/60 rounded-xl transition-colors cursor-pointer"
+                            aria-label="Close modal"
                         >
-                            <X className="w-6 h-6" />
-                        </Button>
+                            <X className="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
 
-                <div className="p-8 space-y-8">
+                <div className="p-6 sm:p-7 space-y-6">
 
                     <div className="flex justify-center">
-                        <div className={`flex items-center gap-3 px-6 py-2.5 rounded-full border text-[11px] font-bold shadow-lg ${
+                        <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold ${
                             credential.isRevoked
-                                ? 'bg-red-500/10 border-red-500/20 text-red-400'
-                                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse'
+                                ? 'bg-[#FDF0EE] border-[#F8D0CD] text-[#9E2D2D]'
+                                : 'bg-[#EDF5EE] border-[#CFE6D3] text-[#25562C]'
                         }`}>
-                            <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-red-500' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}></div>
-                            {credential.isRevoked ? 'Record Inactive' : 'Record Active'}
+                            <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
+                            {credential.isRevoked ? 'Revoked' : 'Active on-chain'}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-5">
+                    <div className="grid grid-cols-1 gap-3.5">
 
                         <DataField
-                            label="Reference Index"
+                            label="Token ID"
                             value={credential.tokenId || 'N/A'}
                             icon={Hash}
-                            onCopy={() => copyToClipboard(credential.tokenId, 'Token ID')}
+                            onCopy={() => copyToClipboard(credential.tokenId)}
                         />
 
                         <DataField
-                            label="Security Protocol Address"
+                            label="Smart contract address"
                             value={contractAddress}
                             icon={Database}
                             isAddress
-                            onCopy={() => copyToClipboard(contractAddress, 'Contract Address')}
+                            onCopy={() => copyToClipboard(contractAddress)}
                         />
 
-                        <div className="bg-white/[0.02] rounded-[1.5rem] p-5 border border-white/[0.04] flex items-center justify-between group hover:border-white/10 transition-colors shadow-inner">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2.5 bg-white/[0.04] rounded-xl">
-                                    <Globe className="w-5 h-5 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
+                        <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group transition-colors">
+                            <div className="flex items-center gap-3.5">
+                                <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80">
+                                    <Globe className="w-4 h-4 text-stone-600" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-bold text-zinc-600">Verification Ledger</p>
-                                    <p className="text-sm font-bold text-zinc-200">Secure Blockchain Registry</p>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Network</p>
+                                    <p className="text-xs font-semibold text-stone-900">Ethereum (Sepolia)</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-                                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></div>
-                                <span className="text-[11px] font-bold text-indigo-300">Online</span>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#EDF5EE] rounded-full border border-[#CFE6D3]">
+                                <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-pulse"></div>
+                                <span className="text-[11px] font-semibold text-[#25562C]">Online</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] px-2">Verification Records</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Button
+                    <div className="space-y-3">
+                        <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Explorer & Proofs</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                            <a
                                 href={etherscanUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                variant="ghost"
-                                rounded="2xl"
-                                className="flex-col items-center justify-center p-6 !bg-white/[0.02] hover:!bg-indigo-500/10 border border-white/[0.04] hover:border-indigo-500/30 transition-all !h-auto !shadow-none"
+                                className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
                             >
-                                <ExternalLink className="w-6 h-6 text-zinc-500 group-hover:text-indigo-400 mb-3 transition-colors shrink-0" />
-                                <span className="text-[11px] font-bold text-zinc-500 group-hover:text-white text-center truncate w-full">Receipt Link</span>
-                            </Button>
-                            <Button
+                                <ExternalLink className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
+                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">Etherscan</span>
+                            </a>
+                            <a
                                 href={ipfsUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                variant="ghost"
-                                rounded="2xl"
-                                className="flex-col items-center justify-center p-6 !bg-white/[0.02] hover:!bg-purple-500/10 border border-white/[0.04] hover:border-purple-500/30 transition-all !h-auto !shadow-none"
+                                className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
                             >
-                                <Share2 className="w-6 h-6 text-zinc-500 group-hover:text-purple-400 mb-3 transition-colors shrink-0" />
-                                <span className="text-[10px] font-black text-zinc-500 group-hover:text-white text-center uppercase tracking-widest truncate w-full">Storage Link</span>
-                            </Button>
+                                <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
+                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <div className="p-8 bg-white/[0.02] flex justify-center border-t border-white/[0.04]">
-                    <Button onClick={onClose} variant="secondary" className="w-full justify-center py-4">
-                        Close Records
+                <div className="p-5 bg-[#FAF8F5] flex justify-center border-t border-[#ECE7DE]">
+                    <Button onClick={onClose} variant="secondary" className="w-full justify-center py-3 text-xs font-semibold uppercase tracking-wider">
+                        Close
                     </Button>
                 </div>
             </div>
@@ -127,28 +121,25 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
 };
 
 const DataField = ({ label, value, icon: Icon, isAddress, onCopy }) => (
-    <div className="bg-white/[0.02] rounded-[1.5rem] p-5 border border-white/[0.04] flex items-center justify-between group hover:border-indigo-500/20 transition-all shadow-inner">
-        <div className="flex items-center gap-4 min-w-0">
-            <div className="p-2.5 bg-white/[0.04] rounded-xl group-hover:bg-indigo-500/10 transition-colors">
-                <Icon className="w-5 h-5 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
+    <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group hover:border-stone-400 transition-colors">
+        <div className="flex items-center gap-3.5 min-w-0">
+            <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80 group-hover:bg-stone-200/60 transition-colors shrink-0">
+                <Icon className="w-4 h-4 text-stone-600" />
             </div>
-            <div className="min-w-0 space-y-1">
-                <p className="text-[10px] font-bold text-zinc-600 truncate">{label}</p>
-                <p className={`text-xs font-mono text-zinc-200 break-all leading-relaxed ${isAddress ? 'text-indigo-300/60' : ''}`}>
+            <div className="min-w-0 space-y-0.5">
+                <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider truncate">{label}</p>
+                <p className={`text-xs font-mono text-stone-800 break-all select-all ${isAddress ? 'text-stone-900 font-semibold' : ''}`}>
                     {value}
                 </p>
             </div>
         </div>
-        <Button
+        <button
             onClick={onCopy}
-            variant="ghost"
-            rounded="xl"
-            size="sm"
-            className="p-3 text-zinc-600 hover:text-indigo-400 opacity-0 group-hover:opacity-100"
+            className="p-2 text-stone-400 hover:text-stone-800 rounded-lg hover:bg-stone-200/60 transition-all opacity-0 group-hover:opacity-100 shrink-0 cursor-pointer"
             title={`Copy ${label}`}
         >
-            <Copy className="w-5 h-5" />
-        </Button>
+            <Copy className="w-4 h-4" />
+        </button>
     </div>
 );
 

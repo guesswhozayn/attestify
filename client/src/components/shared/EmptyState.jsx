@@ -1,25 +1,22 @@
 import { motion } from 'framer-motion';
+
 const EmptyState = ({ icon: Icon, title, message, children }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 15 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, ease: 'easeOut' }}
-    className="flex flex-col items-center justify-center py-24 px-8 bg-[#0a0a0a] border border-white/[0.06] border-dashed rounded-[2.5rem] text-center backdrop-blur-3xl group relative overflow-hidden"
+    transition={{ duration: 0.3, ease: 'easeOut' }}
+    className="flex flex-col items-center justify-center py-16 px-8 bg-white border border-[#E8E4DC] border-dashed rounded-3xl text-center shadow-[0_4px_20px_-4px_rgba(28,25,23,0.03)] group relative overflow-hidden"
   >
-    <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/[0.02] to-transparent pointer-events-none" />
-
-    <div className="w-24 h-24 bg-white/[0.03] rounded-3xl flex items-center justify-center mb-8 shadow-2xl ring-1 ring-white/10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative z-10">
-      <Icon className="w-10 h-10 text-gray-500 group-hover:text-indigo-400 transition-colors" />
+    <div className="w-14 h-14 bg-[#FAF8F5] rounded-2xl flex items-center justify-center mb-5 border border-[#E8E4DC] group-hover:scale-105 transition-all duration-300 relative z-10 text-stone-600 group-hover:text-stone-900">
+      <Icon className="w-7 h-7" />
     </div>
 
-    <h3 className="text-3xl font-bold text-white mb-4 tracking-tight relative z-10">{title}</h3>
-    <p className="text-gray-500 max-w-md mx-auto leading-relaxed text-lg font-medium relative z-10 mb-8">
+    <h3 className="text-xl sm:text-2xl font-bold text-stone-900 mb-2 tracking-tight relative z-10">{title}</h3>
+    <p className="text-stone-500 max-w-md mx-auto leading-relaxed text-sm relative z-10 mb-6 font-normal">
       {message}
     </p>
 
     {children && <div className="relative z-10">{children}</div>}
-
-    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] -mb-32 pointer-events-none transition-colors group-hover:bg-indigo-500/10" />
   </motion.div>
 );
 

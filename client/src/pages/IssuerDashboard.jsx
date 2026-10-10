@@ -41,15 +41,15 @@ const IssuerDashboard = () => {
     const welcomeTitle = (
       <>
         Welcome,{' '}
-        <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-300 via-white to-indigo-300 bg-size-[200%_auto] animate-shimmer">
+        <span className="text-stone-900 font-bold">
           {user?.issuerDetails?.institutionName || user?.name || 'Issuer'}
         </span>
       </>
     );
 
     const welcomeAvatar = (
-      <div className="w-12 h-12 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-500">
-        <Shield className="w-6 h-6 text-indigo-400" />
+      <div className="w-10 h-10 rounded-xl bg-stone-900 flex items-center justify-center text-white shadow-xs">
+        <Shield className="w-5 h-5 text-white" />
       </div>
     );
 
@@ -110,15 +110,13 @@ const IssuerDashboard = () => {
     }, [showNotification]);
 
     return (
-        <div className="min-h-screen bg-transparent text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative pb-20">
-
-            <Background />
+        <div className="min-h-screen bg-transparent text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 relative z-10 space-y-6 md:space-y-10">
 
                 <WelcomeHeroCard
-                  badge="Issuer Command"
+                  badge="Issuer overview"
                   title={welcomeTitle}
-                  subtitle="Manage your institution's digital footprint. Issue secure digital credentials and monitor verification status in real-time."
+                  subtitle="Issue credentials to students and track verification status."
                   avatar={welcomeAvatar}
                   onRefresh={() => fetchDashboardData(true)}
                   refreshing={refreshing}
@@ -130,71 +128,60 @@ const IssuerDashboard = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <StatCard
-                                label="Total Issued"
+                                label="Total issued"
                                 value={stats.total}
                                 icon={Award}
-                                subtext="All-time verified"
-                                gradient="from-indigo-500 to-transparent"
-                                iconBg="bg-indigo-500/10"
+                                subtext="All time"
                                 delay={0.1}
                             />
                             <StatCard
-                                label="Active Now"
+                                label="Active"
                                 value={stats.active}
                                 icon={CheckCircle}
-                                subtext="Live credentials"
-                                gradient="from-emerald-500 to-transparent"
-                                iconBg="bg-emerald-500/10"
+                                subtext="Valid credentials"
                                 delay={0.2}
                             />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <StatCard variant="mini" label="Today" value={stats.today} icon={Clock} iconBg="bg-pink-500/10" iconColor="text-pink-400" delay={0.3} />
-                            <StatCard variant="mini" label="Weekly" value={stats.thisWeek} icon={Calendar} iconBg="bg-violet-500/10" iconColor="text-violet-400" delay={0.35} />
-                            <StatCard variant="mini" label="Revoked" value={stats.revoked} icon={Filter} iconBg="bg-red-500/10" iconColor="text-red-400" delay={0.4} />
+                            <StatCard variant="mini" label="Today" value={stats.today} icon={Clock} delay={0.3} />
+                            <StatCard variant="mini" label="This week" value={stats.thisWeek} icon={Calendar} delay={0.35} />
+                            <StatCard variant="mini" label="Revoked" value={stats.revoked} icon={Filter} delay={0.4} />
                         </div>
 
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between px-2">
+                            <div className="flex items-center justify-between px-1">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-                                        <FileText className="w-5 h-5 text-indigo-400" />
+                                    <div className="p-2.5 bg-stone-100 rounded-xl border border-stone-200/80">
+                                        <FileText className="w-5 h-5 text-stone-700" />
                                     </div>
-                                    <h2 className="text-2xl font-bold text-white tracking-tight">Recent Issuances</h2>
+                                    <h2 className="text-xl font-bold text-stone-900 tracking-tight">Recent issuances</h2>
                                 </div>
-                                <Button
-                                    variant="outline"
-                                    icon={ArrowRight}
-                                    className="border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-2xl px-6 text-sm flex-row-reverse"
+                                <button
                                     onClick={() => navigate('/credentials')}
+                                    className="border border-stone-200 hover:border-stone-300 bg-white hover:bg-stone-50 rounded-xl px-4 py-2 text-xs font-semibold text-stone-800 flex items-center gap-2 shadow-2xs cursor-pointer transition-all active:scale-95"
                                 >
-                                    View All
-                                </Button>
+                                    <span>View all</span>
+                                    <ArrowRight className="w-3.5 h-3.5 text-stone-500" />
+                                </button>
                             </div>
 
                             <div className="min-h-[300px]">
-                                {loading ? (
-                                    <div className="flex flex-col items-center justify-center h-full p-20 bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] border-dashed">
-                                        <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                        <div className="text-zinc-500 font-medium animate-pulse">Retrieving records...</div>
-                                    </div>
-                                ) : credentials.length > 0 ? (
+                                {loading || credentials.length > 0 ? (
                                     <RecentActivityList
                                         credentials={credentials}
                                         onCredentialClick={setSelectedCredential}
                                         loading={loading}
                                     />
                                 ) : (
-                                    <EmptyState icon={Award} title="No Records Found" message="Your issuance list is empty. Start by creating your first secure digital credential.">
-                                        <Button
+                                    <EmptyState icon={Award} title="No credentials yet" message="You have not issued any credentials yet. Start by creating your first credential.">
+                                        <button
                                             onClick={() => setShowUploadModal(true)}
-                                            icon={Plus}
-                                            variant="success"
-                                            className="h-12 px-6"
+                                            className="h-11 px-6 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
                                         >
-                                            Issue Credential
-                                        </Button>
+                                            <Plus className="w-4 h-4" />
+                                            <span>Issue credential</span>
+                                        </button>
                                     </EmptyState>
                                 )}
                             </div>
@@ -207,110 +194,102 @@ const IssuerDashboard = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="bg-[#0a0a0a] rounded-4xl p-8 border border-white/8 shadow-2xl backdrop-blur-xl relative overflow-hidden group/card"
+                            className="bg-white rounded-2xl p-6 md:p-7 border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.03),0_8px_24px_-6px_rgba(28,25,23,0.04)] relative overflow-hidden group/card"
                         >
-                            <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                            <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-left">
-                                <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 group-hover/card:bg-indigo-500/20 transition-colors">
-                                    <Plus className="w-4 h-4 text-indigo-400" />
+                            <h3 className="text-stone-900 font-bold mb-5 flex items-center gap-3 text-left">
+                                <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80">
+                                    <Plus className="w-4 h-4 text-stone-700" />
                                 </div>
-                                Quick Actions
+                                Quick actions
                             </h3>
 
-                            <div className="space-y-4">
-                                <Button
+                            <div className="space-y-3">
+                                <button
                                     onClick={() => setShowUploadModal(true)}
-                                    variant="white"
-                                    icon={Plus}
-                                    className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
+                                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold uppercase tracking-wider shadow-xs transition-all cursor-pointer active:scale-[0.98]"
                                 >
-                                    Issue Credential
-                                </Button>
-                                <Button
+                                    <Plus className="w-4 h-4" />
+                                    <span>Issue credential</span>
+                                </button>
+                                <button
                                     onClick={() => setShowBulkModal(true)}
-                                    variant="outline"
-                                    icon={Users}
-                                    className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
+                                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs transition-all cursor-pointer active:scale-[0.98]"
                                 >
-                                    Bulk Sync
-                                </Button>
-                                <Button
+                                    <Users className="w-4 h-4 text-stone-600" />
+                                    <span>Issue in bulk</span>
+                                </button>
+                                <button
                                     onClick={() => navigate('/settings')}
-                                    variant="outline"
-                                    className="w-full justify-center py-3.5 sm:py-4 uppercase tracking-widest text-xs"
+                                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-700 border border-stone-200/70 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]"
                                 >
-                                    Issuer Settings
-                                </Button>
+                                    <span>Issuer settings</span>
+                                </button>
                             </div>
                         </motion.div>
 
                         <motion.div
-                             initial={{ opacity: 0, x: 20 }}
-                             animate={{ opacity: 1, x: 0 }}
-                             transition={{ duration: 0.5, delay: 0.4 }}
-                             className="rounded-4xl bg-[#0c0c0c] border border-white/8 backdrop-blur-xl p-8 space-y-8 group/card overflow-hidden relative"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5, delay: 0.4 }}
+                            className="rounded-2xl bg-white border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.03),0_8px_24px_-6px_rgba(28,25,23,0.04)] p-6 md:p-7 space-y-5 overflow-hidden relative"
                         >
-                            <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-
-                             <div className="flex items-center justify-between mb-4 md:mb-2 text-left">
-                                <h3 className="text-white font-bold flex items-center gap-3">
-                                    <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 group-hover/card:bg-emerald-500/20 transition-colors">
-                                        <Zap className="w-4 h-4 text-emerald-400" />
+                            <div className="flex items-center justify-between mb-2 text-left">
+                                <h3 className="text-stone-900 font-bold flex items-center gap-3">
+                                    <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-700">
+                                        <Zap className="w-4 h-4 text-emerald-600" />
                                     </div>
-                                    System Status
+                                    System status
                                 </h3>
-                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'} text-[11px] font-bold border shadow-lg`}>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
+                                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${stats.networkStats?.connected ? 'bg-[#EDF5EE] text-[#25562C] border-[#CFE6D3]' : 'bg-[#FDF0EE] text-[#9E2D2D] border-[#F8D0CD]'} text-xs font-semibold border`}>
+                                    <div className={`w-1.5 h-1.5 rounded-full ${stats.networkStats?.connected ? 'bg-emerald-600' : 'bg-rose-600'}`}></div>
                                     {stats.networkStats?.connected ? 'Online' : 'Offline'}
                                 </div>
                             </div>
 
-                             <div className="grid gap-3">
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center group/item hover:bg-white/10 transition-colors">
-                                    <span className="text-zinc-500 text-[11px] font-bold">Ledger Registry</span>
-                                    <span className="text-zinc-300 text-xs font-medium">Decentralized Network</span>
+                            <div className="grid gap-2.5">
+                                <div className="p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/70 flex justify-between items-center">
+                                    <span className="text-stone-500 text-[11px] font-semibold uppercase tracking-wider">Network</span>
+                                    <span className="text-stone-800 text-xs font-semibold">Ethereum (Sepolia)</span>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition-colors">
-                                    <span className="text-zinc-500 text-[11px] font-bold">Secured Block</span>
-                                    <span className="text-white font-mono text-sm font-bold tracking-tighter">
+                                <div className="p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/70 flex justify-between items-center">
+                                    <span className="text-stone-500 text-[11px] font-semibold uppercase tracking-wider">Current block</span>
+                                    <span className="text-stone-900 font-mono text-xs font-bold">
                                         #{stats.networkStats?.blockNumber || 10482}
                                     </span>
                                 </div>
 
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center hover:bg-white/10 transition-colors">
+                                <div className="p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/70 flex justify-between items-center">
                                     <div className="flex flex-col">
-                                        <span className="text-zinc-500 text-[11px] font-bold">Network Cost</span>
-                                        <span className="text-[10px] text-zinc-600 mt-0.5">Estimated fee</span>
+                                        <span className="text-stone-500 text-[11px] font-semibold uppercase tracking-wider">Network fee</span>
+                                        <span className="text-[10px] text-stone-400">Estimated gas</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-white font-mono text-sm font-bold">Optimal</span>
-                                        <span className="text-zinc-500 text-[10px] ml-1 font-bold">Lvl 1</span>
+                                        <span className="text-stone-800 font-medium text-xs">Standard</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[11px] font-bold text-emerald-400/60 px-1">
-                                    <span>Success Rate</span>
-                                    <span>{stats.transactionSuccessRate}%</span>
+                            <div className="space-y-2 pt-1">
+                                <div className="flex justify-between text-xs font-semibold text-stone-600 px-0.5">
+                                    <span>Success rate</span>
+                                    <span className="text-emerald-700 font-bold">{stats.transactionSuccessRate}%</span>
                                 </div>
-                                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                                <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden border border-stone-200/80">
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${stats.transactionSuccessRate}%` }}
                                         transition={{ duration: 1.5, ease: "easeOut" }}
-                                        className="h-full bg-linear-to-r from-emerald-500 to-teal-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                        className="h-full bg-emerald-600 rounded-full"
                                     ></motion.div>
                                 </div>
                             </div>
                         </motion.div>
 
-                        <div className="p-6 rounded-4xl bg-indigo-500/5 border border-indigo-500/10 text-center">
-                            <span className="text-indigo-400 text-xs font-bold block mb-2">Network Verification</span>
-                            <p className="text-zinc-500 text-[11px] leading-relaxed">
-                                All issued credentials are secure digital records that are tamper-proof and verifiable.
+                        <div className="p-5 rounded-2xl bg-[#FAF8F5] border border-[#ECE7DE] text-center">
+                            <span className="text-stone-800 text-xs font-bold block mb-1">Cryptographic verification</span>
+                            <p className="text-stone-500 text-[11px] leading-relaxed">
+                                All issued credentials are secure digital records that are tamper-proof and verifiable on-chain.
                             </p>
                         </div>
                     </div>
