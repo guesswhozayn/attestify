@@ -3,8 +3,6 @@ import { useLocation, Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
-import Background from '../shared/Background';
-
 const pageTitles = {
   '/dashboard': 'Dashboard',
   '/credentials': 'Credentials',
@@ -22,9 +20,7 @@ const Layout = () => {
   const title = getPageTitle(location.pathname);
 
   return (
-    <div className="min-h-dvh bg-[#FAF7F2] flex selection:bg-stone-900 selection:text-white text-stone-900 font-sans dashboard-light relative">
-      <Background variant="warm" />
-
+    <div className="min-h-dvh bg-white flex selection:bg-stone-900 selection:text-white text-stone-900 font-sans dashboard-light relative">
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
       {isMobileMenuOpen && (

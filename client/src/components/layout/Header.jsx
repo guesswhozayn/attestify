@@ -34,7 +34,7 @@ const Header = ({ title, showSearch = true, onSearch, searchPlaceholder = "Searc
   const formatAddress = (addr) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
 
   return (
-    <div className="sticky top-0 z-30 backdrop-blur-xl bg-[#FAF7F2]/85 border-b border-[#E8E4DC] px-4 md:px-8 py-3.5 transition-all duration-300">
+    <div className="sticky top-0 z-30 backdrop-blur-md bg-white/95 border-b border-[#E8E4DC] px-4 md:px-8 py-3.5 transition-all duration-300">
       <div className="flex items-center justify-between relative">
         <div className="md:hidden">
           <button

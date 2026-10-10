@@ -12,37 +12,13 @@ const WelcomeHeroCard = ({
   refreshing = false,
   className = '',
 }) => {
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--card-mouse-x', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--card-mouse-y', `${e.clientY - rect.top}px`);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      onMouseMove={handleMouseMove}
-      className={`relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.03),0_10px_30px_-6px_rgba(28,25,23,0.04)] p-7 sm:p-9 md:p-11 group ${className}`}
+      className={`relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.03),0_10px_30px_-6px_rgba(28,25,23,0.04)] p-7 sm:p-9 md:p-11 ${className}`}
     >
-      <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-        style={{
-          background: 'radial-gradient(600px circle at var(--card-mouse-x, 0px) var(--card-mouse-y, 0px), rgba(245, 238, 226, 0.6), transparent 80%)',
-        }}
-      />
-
-      <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-amber-100/25 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none group-hover:bg-amber-100/40 transition-colors duration-700" />
-
-      {/* Subtle fine paper texture */}
-      <div
-        className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none"
-        style={{
-          backgroundImage:
-            'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")',
-        }}
-      />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">
         <div className="space-y-4 md:space-y-5 flex flex-col items-center md:items-start text-center md:text-left">

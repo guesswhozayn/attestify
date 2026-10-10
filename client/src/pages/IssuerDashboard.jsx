@@ -11,7 +11,6 @@ import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StatCard from '../components/shared/StatCard';
-import Background from '../components/shared/Background';
 import WelcomeHeroCard from '../components/shared/WelcomeHeroCard';
 import EmptyState from '../components/shared/EmptyState';
 

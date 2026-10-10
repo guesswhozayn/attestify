@@ -90,6 +90,10 @@
     border: 1px solid #ede8df;
   }
 
+  .dashboard-light {
+    background-color: #ffffff !important;
+  }
+
   .dashboard-light [data-modal-panel] {
     background-color: #ffffff !important;
     border-color: #e8e4dc !important;
