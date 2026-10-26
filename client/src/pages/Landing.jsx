@@ -64,12 +64,12 @@ const Landing = () => {
             Verifiable instantly, owned forever, and mathematically secure.
           </motion.p>
 
-          <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Button onClick={() => navigate('/register')} variant="white" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
-              Start Issuing Now
+          <div className="flex flex-row flex-wrap justify-center gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+            <Button onClick={() => navigate('/register')} variant="white" size="lg">
+              Start issuing
             </Button>
-            <Button onClick={() => navigate('/verify')} variant="secondary" className="hover:-translate-y-1 !px-5 !py-2.5 sm:!px-8 sm:!py-3.5 text-xs sm:text-base md:text-lg font-black w-auto">
-              Verify Credential
+            <Button onClick={() => navigate('/verify')} variant="secondary" size="lg">
+              Verify
             </Button>
           </div>
 
@@ -318,7 +318,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
             <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight flex items-center justify-center gap-2 flex-wrap">
-              Why <span className="font-sans text-5xl sm:text-6xl md:text-8xl font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+              Why <span className="font-mono text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-xl">The three pillars of the new standard.</p>
           </div>
@@ -515,7 +515,7 @@ const Landing = () => {
                           variant="white"
                           className="hover:-translate-y-0.5 px-6! py-3! sm:px-8! sm:py-3.5! text-sm font-bold w-auto shadow-[0_0_25px_rgba(255,255,255,0.15)] flex items-center gap-2"
                         >
-                            <span>Apply for Pilot</span>
+                            <span>Apply</span>
                             <ArrowRight className="w-4 h-4" />
                         </Button>
                         <Button
@@ -523,7 +523,7 @@ const Landing = () => {
                           variant="secondary"
                           className="hover:-translate-y-0.5 px-6! py-3! sm:px-8! sm:py-3.5! text-sm font-bold w-auto border-white/10"
                         >
-                            View Partnership Guide
+                            Partnership guide
                         </Button>
                      </div>
                    </div>

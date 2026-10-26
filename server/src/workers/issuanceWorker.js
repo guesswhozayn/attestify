@@ -1,6 +1,6 @@
 const { Worker } = require('bullmq');
 const { connection } = require('../services/queueService');
-const credentialIssuanceService = require('../services/credentialIssuanceService');
+const credentialService = require('../services/credentialService');
 const Credential = require('../models/Credential');
 
 const issuanceWorker = new Worker('issuanceQueue', async (job) => {
@@ -14,7 +14,7 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
       data.studentImageBuffer = Buffer.from(data.studentImageBuffer.data);
     }
 
-    const result = await credentialIssuanceService.processIssuance(data, user);
+    const result = await credentialService.processIssuance(data, user);
     console.log(`[Worker] Job ${job.id} completed successfully.`);
     return result;
   } catch (error) {

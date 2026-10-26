@@ -123,7 +123,7 @@ const NotFound = () => {
                                 variant="secondary"
                                 className="w-full sm:w-auto text-xs font-semibold tracking-wide"
                             >
-                                Go back
+                                Back
                             </Button>
                         </div>
 
@@ -135,7 +135,7 @@ const NotFound = () => {
                                     icon={LayoutDashboard}
                                     className="text-zinc-400 hover:text-white text-xs font-medium"
                                 >
-                                    Go to dashboard <Compass className="w-3.5 h-3.5 ml-1.5" />
+                                    Dashboard <Compass className="w-3.5 h-3.5 ml-1.5" />
                                 </Button>
                             </div>
                         )}

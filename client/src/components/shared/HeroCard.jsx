@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import Button from './Button';
 
-const WelcomeHeroCard = ({
+const HeroCard = ({
   badge,
   title,
   subtitle,
@@ -82,5 +82,5 @@ const WelcomeHeroCard = ({
   );
 };
 
-WelcomeHeroCard.displayName = 'WelcomeHeroCard';
-export default React.memo(WelcomeHeroCard);
+HeroCard.displayName = 'HeroCard';
+export default React.memo(HeroCard);

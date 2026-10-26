@@ -5,9 +5,8 @@ const blockchainService = require('./blockchainService');
 const ipfsService = require('./ipfsService');
 const hashService = require('./hashService');
 const pdfService = require('./pdfService');
-const emailService = require('./emailService');
 
-class CredentialIssuanceService {
+class CredentialService {
   async prepareSBTMetadata(user, credentialData, ipfsCID) {
     const metadata = {
       name: `${credentialData.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credentialData.studentName}`,
@@ -95,20 +94,8 @@ class CredentialIssuanceService {
       $inc: { 'issuerDetails.certificatesIssued': 1 }
     });
 
-    const studentUser = await User.findOne({ walletAddress: normalizedStudentWallet });
-    if (studentUser?.email) {
-      emailService.sendCertificateIssued(studentUser.email, {
-        studentName, university: institutionName, issueDate: parsedIssueDate,
-        transactionHash: blockchainResult.transactionHash,
-        id: credential._id, ipfsCID: ipfsResult.ipfsHash,
-        certificateLink: `${process.env.FRONTEND_URL}/dashboard`,
-        loginLink: `${process.env.FRONTEND_URL}/login`,
-        tokenId: credential.tokenId
-      }).catch(err => console.error(`[EmailService] Failed to send issuance email to ${studentUser.email}:`, err));
-    }
-
     return { credential, blockchainResult, ipfsResult };
   }
 }
 
-module.exports = new CredentialIssuanceService();
+module.exports = new CredentialService();

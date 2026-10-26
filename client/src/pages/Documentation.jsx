@@ -557,7 +557,7 @@ const Documentation = () => {
 
           <div className="flex items-center justify-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300 py-8 mt-20">
               <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Powered by</span>
-              <span className="font-sans text-lg font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+              <span className="font-mono text-lg font-bold tracking-tight lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
           </div>
         </main>
       </div>

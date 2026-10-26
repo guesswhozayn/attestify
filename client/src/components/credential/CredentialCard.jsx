@@ -2,7 +2,7 @@ import React from 'react';
 import { Award, ShieldAlert, CheckCircle, GraduationCap, ChevronRight, Box, Activity, ExternalLink, Database } from 'lucide-react';
 import { getCredentialMeta } from '../../utils/credential';
 
-const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onClick }) => {
+const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) => {
 
     if (!credential) return null;
 
@@ -234,4 +234,4 @@ const DetailedCredentialCard = ({ credential, metadata, minimalist = false, onCl
     );
 };
 
-export default React.memo(DetailedCredentialCard);
+export default React.memo(CredentialCard);

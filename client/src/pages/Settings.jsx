@@ -119,9 +119,8 @@ const Settings = () => {
                   loading={loading}
                   size="md"
                   variant="primary"
-                  className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-semibold shadow-xs cursor-pointer transition-all"
                 >
-                  Update Password
+                  Save
                 </Button>
               </div>
             </div>

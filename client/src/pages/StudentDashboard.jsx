@@ -8,10 +8,9 @@ import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
-import DetailedCredentialCard from '../components/credential/DetailedCredentialCard';
+import CredentialCard from '../components/credential/CredentialCard';
 import StudentStats from '../components/credential/StudentStats';
-import Avatar from '../components/shared/Avatar';
-import WelcomeHeroCard from '../components/shared/WelcomeHeroCard';
+import HeroCard from '../components/shared/HeroCard';
 import EmptyState from '../components/shared/EmptyState';
 
 const StudentDashboard = () => {
@@ -38,14 +37,6 @@ const StudentDashboard = () => {
     </>
   );
 
-  const welcomeAvatar = (
-    <Avatar
-      src={user?.avatar}
-      initials={user?.name}
-      size="md"
-      className="ring-0"
-    />
-  );
 
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
     try {
@@ -152,10 +143,9 @@ const StudentDashboard = () => {
         <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
             <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 relative z-10">
 
-        <WelcomeHeroCard
+        <HeroCard
           badge="Student portal"
           title={welcomeTitle}
-          avatar={welcomeAvatar}
           onRefresh={() => fetchCredential(walletAddress, true)}
           refreshing={refreshing}
         />
@@ -188,7 +178,16 @@ const StudentDashboard = () => {
              icon={Wallet}
              title="Wallet not connected"
              message="Connect your wallet to view your credentials."
-           />
+           >
+             <Button
+               onClick={handleConnect}
+               icon={Wallet}
+               variant="primary"
+               size="sm"
+             >
+               Connect
+             </Button>
+           </EmptyState>
         ) : !credential ? (
            <EmptyState
              icon={FileText}
@@ -211,7 +210,7 @@ const StudentDashboard = () => {
                    </h2>
                    <span className="text-xs text-stone-400 font-normal">Most recent</span>
                </div>
-               <DetailedCredentialCard credential={credential} metadata={metadata} />
+               <CredentialCard credential={credential} metadata={metadata} />
             </div>
 
             <div className="lg:col-span-4 space-y-5">
@@ -233,17 +232,17 @@ const StudentDashboard = () => {
                         onClick={handleShare}
                         icon={Share2}
                         variant="primary"
-                        className="w-full justify-center py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-medium transition-all shadow-xs active:scale-[0.99] cursor-pointer"
+                        className="w-full justify-center"
                      >
-                        Copy share link
+                        Copy link
                      </Button>
                       <Button
                         onClick={openIPFSLink}
                         icon={ExternalLink}
                         variant="outline"
-                        className="w-full justify-center py-2.5 bg-white hover:bg-stone-50 text-stone-800 border border-[#EAECF0] rounded-xl text-xs font-medium transition-all shadow-2xs active:scale-[0.99] cursor-pointer"
+                        className="w-full justify-center"
                      >
-                        View original file
+                        View file
                      </Button>
                   </div>
                   <p className="text-xs text-stone-500 mt-4 text-center leading-relaxed relative z-10 font-normal">

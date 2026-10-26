@@ -181,11 +181,11 @@ const About = () => {
             <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
               <Button onClick={() => window.open('https://github.com', '_blank')} variant="white" className="px-8 py-4">
                 <Github className="w-5 h-5" />
-                <span>View Source</span>
+                <span>GitHub</span>
               </Button>
               <Button onClick={() => navigate('/contact')} variant="outline" className="px-8 py-4 border-white/10 hover:bg-white/5">
                 <Mail className="w-5 h-5" />
-                <span>Contact Team</span>
+                <span>Contact</span>
               </Button>
             </div>
           </div>

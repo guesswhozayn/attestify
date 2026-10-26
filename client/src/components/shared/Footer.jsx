@@ -53,12 +53,9 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-5">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="relative w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-md">
-                <Shield className="w-5 h-5 text-indigo-400" />
-              </div>
-              <span className="font-sans text-2xl font-bold tracking-tight lowercase text-white">
+              <span className="font-mono text-2xl font-bold tracking-tight lowercase text-white">
                 attestify<span className="text-indigo-500">.</span>
               </span>
             </div>

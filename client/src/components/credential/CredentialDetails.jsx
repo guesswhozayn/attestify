@@ -499,10 +499,10 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <Button
                     onClick={() => setShowRevokeModal(true)}
                     variant="danger"
-                    className="w-full justify-center py-3 bg-white hover:bg-rose-50 border border-[#F7D4CF] text-[#9E2D2D] font-semibold text-xs rounded-xl shadow-xs"
+                    className="w-full justify-center"
                     icon={ShieldAlert}
                   >
-                    Revoke credential
+                    Revoke
                   </Button>
                </div>
             )}
@@ -513,19 +513,19 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 variant="primary"
                 loading={isDownloading}
                 disabled={credential.status === 'FAILED' || credential.status === 'PROCESSING' || credential.status === 'PENDING'}
-                className="w-full justify-center py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm rounded-xl shadow-sm cursor-pointer"
+                className="w-full justify-center"
                 icon={Download}
               >
-                {isDownloading ? 'Downloading...' : 'Download certificate'}
+                {isDownloading ? 'Downloading...' : 'Download'}
               </Button>
               <Button
                 onClick={viewOnEtherscan}
                 variant="outline"
                 disabled={!credential.transactionHash}
-                className="w-full justify-center py-3.5 bg-white hover:bg-stone-50 text-stone-800 border-stone-200 font-semibold text-sm rounded-xl shadow-2xs cursor-pointer"
+                className="w-full justify-center"
                 icon={ExternalLink}
               >
-                View on Etherscan
+                Etherscan
               </Button>
             </div>
 

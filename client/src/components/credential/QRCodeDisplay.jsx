@@ -43,10 +43,10 @@ const QRCodeDisplay = ({ credentialId }) => {
         onClick={downloadQR}
         variant="secondary"
         size="sm"
-        className="mt-3.5 w-full justify-center text-xs font-semibold"
+        className="mt-3.5 w-full justify-center"
         icon={Download}
       >
-        Download QR code
+        Download QR
       </Button>
     </div>
   );

@@ -123,11 +123,10 @@ const StudentCredentials = () => {
                         <Button
                             onClick={() => fetchCredentials(true)}
                             loading={refreshing}
-                            rounded="xl"
                             title="Refresh credentials"
                             icon={RefreshCw}
                             variant="outline"
-                            className="p-2 flex items-center justify-center bg-white hover:bg-stone-50 text-stone-700 border-[#EAECF0] rounded-xl shadow-2xs cursor-pointer"
+                            size="sm"
                         />
                     </div>
                 </motion.div>
@@ -154,7 +153,7 @@ const StudentCredentials = () => {
                                             : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
                                     }`}
                                 >
-                                    {tab === 'all' ? 'All Credentials' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}
+                                    {tab === 'all' ? 'All' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}
                                 </button>
                             ))}
                         </div>

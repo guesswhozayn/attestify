@@ -1,183 +1,120 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, BookOpen, CheckCircle, AlignRight, X, ArrowLeft, LogIn, Rocket } from 'lucide-react';
+import { LogIn, ArrowLeft, AlignRight, X, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
-import Avatar from './Avatar';
 
-const navLinks = [
-  { name: 'Docs', path: '/docs', icon: BookOpen },
-  { name: 'Partners', path: '/partnership-guide', icon: Rocket },
-  { name: 'Verify', path: '/verify', icon: CheckCircle },
-];
-
-const Navbar = ({ showBackSearch = false, showSidebarToggle = false, onToggleSidebar }) => {
+const Navbar = ({ showSidebarToggle = false, onToggleSidebar, onBack, showBack = false }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const isActive = (path) => location.pathname === path;
+  const navLinks = [
+    { name: 'About', path: '/about' },
+    { name: 'Documentation', path: '/docs' },
+    { name: 'Verify', path: '/verify' },
+  ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 py-5 pointer-events-none">
-      <div className={`w-full max-w-6xl pointer-events-auto transition-all duration-500 ease-in-out border flex items-center justify-between group/nav ${
-        isScrolled
-          ? 'bg-[#0a0b12]/90 backdrop-blur-xl border-white/[0.08] rounded-2xl px-6 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_32px_-8px_rgba(0,0,0,0.8)]'
-          : 'bg-[#0a0b12]/75 backdrop-blur-xl border-white/[0.07] rounded-full px-6 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_10px_25px_-10px_rgba(0,0,0,0.5)]'
-      }`}>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 cursor-pointer group/logo" onClick={() => navigate('/')}>
-            <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover/logo:opacity-40 transition-opacity duration-500" />
-              <div className="relative w-9 h-9 rounded-full bg-[#12141f] p-px border border-white/10 group-hover/logo:scale-105 transition-transform duration-300">
-                <div className="w-full h-full rounded-full bg-[#0a0b12] flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-indigo-400 group-hover:text-white transition-colors" />
-                </div>
-              </div>
-            </div>
-            <span className="font-sans text-xl font-bold tracking-tight lowercase text-white group-hover/logo:text-indigo-200 transition-colors">
-              attestify<span className="text-indigo-500">.</span>
-            </span>
-          </div>
+    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 sm:pt-6 px-4 pointer-events-none">
+      <nav className="relative flex items-center justify-between w-full max-w-5xl h-14 md:h-16 px-4 md:px-6 rounded-full bg-stone-900/90 backdrop-blur-md border border-white/10 shadow-lg pointer-events-auto">
+        <div
+          onClick={() => navigate('/')}
+          className="cursor-pointer group flex items-center"
+        >
+          <span className="font-mono text-xl font-bold tracking-tight lowercase text-white">
+            attestify<span className="text-indigo-400">.</span>
+          </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
-            <Button
-              key={link.path}
+            <button
+              key={link.name}
               onClick={() => navigate(link.path)}
-              variant={isActive(link.path) ? 'secondary' : 'ghost'}
-              rounded="full"
-              size="sm"
-              className={`px-5 py-2 border-transparent ${isActive(link.path) ? 'border-white/10 shadow-inner' : ''}`}
+              className={`text-xs font-medium transition-colors cursor-pointer ${
+                location.pathname === link.path
+                  ? 'text-white font-semibold'
+                  : 'text-stone-300 hover:text-white'
+              }`}
             >
-              <link.icon className={`w-4 h-4 ${isActive(link.path) ? 'text-indigo-400' : 'text-gray-500'}`} />
-              <span className={`text-[11px] font-bold ${isActive(link.path) ? 'text-white' : 'text-gray-300'}`}>{link.name}</span>
-              {isActive(link.path) && (
-                <motion.div
-                  layoutId="nav-active"
-                  className="absolute inset-0 rounded-full pointer-events-none"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-            </Button>
+              {link.name}
+            </button>
           ))}
         </div>
 
         <div className="flex items-center gap-3">
-          {showBackSearch && (
+          {showBack && (
             <Button
-              onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/')}
+              onClick={onBack || (() => navigate(-1))}
               variant="secondary"
               size="sm"
               rounded="full"
               className="hidden sm:flex text-white"
             >
-              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="w-3.5 h-3.5 mr-1" />
               Back
             </Button>
           )}
 
-          <div className="h-6 w-px bg-white/5 mx-2 hidden sm:block" />
-
           {user ? (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => navigate('/dashboard')}
-                variant="secondary"
-                rounded="full"
-                size="sm"
-                className="p-1.5! sm:pl-1.5! sm:pr-5! sm:py-1.5! transition-all duration-300 group/dash"
-              >
-                <Avatar
-                  src={user.avatar}
-                  initials={user.name}
-                  size="sm"
-                  className="border-0 shadow-none scale-100 group-hover/dash:scale-110 transition-transform"
-                />
-                <div className="hidden sm:flex flex-col items-start pr-1 gap-0.5">
-                  <span className="text-[10px] font-bold text-white/40 group-hover/dash:text-indigo-400 transition-colors leading-none">Dashboard</span>
-                  <span className="text-[10px] font-medium text-white/90 truncate max-w-[100px]">{(user.name || 'User').split(' ')[0]}</span>
-                </div>
-              </Button>
-            </div>
-          ) : (
-            <Button
-              onClick={() => navigate('/login')}
-              variant="white"
-              className="hover:scale-[1.02] active:scale-[0.98] transition-all p-2! md:px-5! md:py-2! rounded-full bg-transparent! md:bg-white! text-white! md:text-black!"
-              noWrapper
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-stone-900 hover:bg-stone-100 text-xs font-medium transition-colors cursor-pointer"
             >
-              <span className="relative z-10 flex flex-row items-center justify-center">
-                <LogIn className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
-                <span className="hidden md:inline font-medium text-sm">Sign in</span>
-              </span>
-            </Button>
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-stone-900 hover:bg-stone-100 text-xs font-medium transition-colors cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign in</span>
+            </button>
           )}
 
           {showSidebarToggle && (
-            <Button
-              variant="ghost"
-              size="sm"
-              rounded="full"
+            <button
               onClick={onToggleSidebar}
-              className="md:hidden px-2! py-2!"
+              className="md:hidden p-1.5 text-stone-300 hover:text-white rounded-lg"
+              aria-label="Toggle menu"
             >
-              <AlignRight className="w-6 h-6" />
-            </Button>
+              <AlignRight className="w-5 h-5" />
+            </button>
           )}
 
           {!showSidebarToggle && (
-            <Button
-              variant="ghost"
-              size="sm"
-              rounded="full"
-              className="md:hidden px-2! py-2!"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 text-stone-300 hover:text-white rounded-lg"
+              aria-label="Toggle mobile menu"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <AlignRight className="w-6 h-6" />}
-            </Button>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <AlignRight className="w-5 h-5" />}
+            </button>
           )}
         </div>
-      </div>
+      </nav>
 
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-4 top-24 pointer-events-auto md:hidden bg-gray-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 shadow-2xl z-40"
-          >
-            <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Button
-                  key={link.path}
-                  onClick={() => {
-                    navigate(link.path);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  variant={isActive(link.path) ? 'primary' : 'ghost'}
-                  className="w-full justify-start px-4 py-3"
-                >
-                  <link.icon className={`w-5 h-5 ${isActive(link.path) ? 'text-indigo-400' : ''}`} />
-                  <span>{link.name}</span>
-                </Button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed top-24 inset-x-4 bg-stone-900 border border-white/10 rounded-2xl p-4 shadow-xl pointer-events-auto space-y-2">
+          {navLinks.map((link) => (
+            <button
+              key={link.name}
+              onClick={() => {
+                navigate(link.path);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left py-2 px-3 text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 rounded-lg"
+            >
+              {link.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </header>
   );
 };
 

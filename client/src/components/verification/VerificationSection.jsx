@@ -103,14 +103,16 @@ const VerificationSection = React.memo(({ certificate }) => {
         </div>
 
         <div className="mt-5">
-          <button
+          <Button
             onClick={handleVerify}
             disabled={verifying || !file}
-            className="w-full justify-center py-3 bg-stone-900 hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+            loading={verifying}
+            variant="primary"
+            className="w-full justify-center"
+            icon={CheckCircle}
           >
-            <CheckCircle className="w-4 h-4" />
-            <span>{verifying ? 'Verifying...' : 'Verify document'}</span>
-          </button>
+            Verify
+          </Button>
         </div>
       </div>
 

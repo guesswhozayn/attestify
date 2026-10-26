@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { JWT_EXPIRY } = require('../config/constants');
-const emailService = require('../services/emailService');
 const asyncHandler = require('../middleware/asyncHandler');
 
 const generateToken = (userId, role, tokenVersion = 0) =>
@@ -67,12 +66,6 @@ const register = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create(userData);
-
-  if (email) {
-    emailService.sendWelcomeEmail(email, user.name).catch(err =>
-      console.error(`[EmailService] Failed to send welcome email to ${email}:`, err)
-    );
-  }
 
   res.status(201).json({
     success: true,

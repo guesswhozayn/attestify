@@ -142,14 +142,14 @@ const CredentialArchive = () => {
                             onClick={() => setShowUploadModal(true)}
                             variant="primary"
                             icon={Plus}
-                            className="bg-stone-900 hover:bg-stone-800 text-white rounded-xl py-2 px-4 text-xs font-medium shadow-xs cursor-pointer"
+                            size="sm"
                         >
-                            Issue certificate
+                            Issue
                         </Button>
                         <Button
                             onClick={() => setShowBulkModal(true)}
                             variant="outline"
-                            className="bg-white hover:bg-stone-50 text-stone-800 border border-[#EAECF0] rounded-xl py-2 px-4 text-xs font-medium shadow-2xs cursor-pointer"
+                            size="sm"
                         >
                             Bulk issue
                         </Button>
@@ -193,25 +193,28 @@ const CredentialArchive = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="flex items-center justify-center gap-3 pt-4"
                         >
-                            <button
+                            <Button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={pg <= 1}
-                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 hover:border-stone-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium shadow-2xs cursor-pointer"
+                                variant="outline"
+                                size="sm"
+                                icon={ChevronLeft}
                             >
-                                <ChevronLeft className="w-4 h-4" /> Previous
-                            </button>
+                                Previous
+                            </Button>
 
-                            <span className="text-stone-500 text-sm font-medium px-4 py-2 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl tabular-nums">
+                            <span className="text-stone-500 text-xs font-medium px-3 py-1.5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl tabular-nums">
                                 Page <span className="text-stone-900 font-bold">{pg}</span> of <span className="text-stone-900 font-bold">{totalPages}</span>
                             </span>
 
-                            <button
+                            <Button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={pg >= totalPages}
-                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 hover:border-stone-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium shadow-2xs cursor-pointer"
+                                variant="outline"
+                                size="sm"
                             >
-                                Next <ChevronRight className="w-4 h-4" />
-                            </button>
+                                Next <ChevronRight className="w-3.5 h-3.5" />
+                            </Button>
                         </motion.div>
                     )}
                 </motion.div>

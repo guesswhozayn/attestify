@@ -9,13 +9,13 @@ const roundedStyles = {
 };
 
 const variants = {
-  primary: 'bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/25 shadow-md shadow-indigo-950/60 hover:shadow-indigo-900/40 disabled:opacity-50',
-  secondary: 'bg-white/[0.06] text-zinc-200 hover:text-white hover:bg-white/[0.1] border border-white/10 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] disabled:opacity-50',
-  white: 'bg-white text-zinc-950 hover:bg-zinc-100 font-semibold border border-white/20 shadow-sm disabled:opacity-50',
-  success: 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/25 shadow-md shadow-emerald-950/60 hover:shadow-emerald-900/40 disabled:opacity-50',
-  danger: 'bg-rose-500/10 text-rose-400 border border-rose-500/25 hover:bg-rose-500/20 disabled:opacity-30',
-  outline: 'bg-transparent text-zinc-300 hover:text-white border border-white/15 hover:border-white/25 hover:bg-white/[0.04] disabled:opacity-30',
-  ghost: 'text-zinc-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30',
+  primary: 'bg-stone-900 hover:bg-stone-800 text-white border border-stone-800 shadow-xs disabled:opacity-50',
+  secondary: 'bg-stone-100 hover:bg-stone-200 text-stone-900 border border-stone-200 shadow-2xs disabled:opacity-50',
+  white: 'bg-white text-stone-900 hover:bg-stone-50 border border-stone-200 font-semibold shadow-xs disabled:opacity-50',
+  success: 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 shadow-xs disabled:opacity-50',
+  danger: 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 shadow-2xs disabled:opacity-50',
+  outline: 'bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 shadow-2xs disabled:opacity-50',
+  ghost: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 disabled:opacity-40',
 };
 
 const filterConflictingStyles = (variantStyle, customClassName) => {

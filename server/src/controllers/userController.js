@@ -13,12 +13,13 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (about) updateFields.about = about;
 
   if (walletAddress) {
-    if (req.user.role === 'ISSUER') {
+    const currentWallet = req.user.issuerDetails?.authorizedWalletAddress || req.user.walletAddress;
+    if (req.user.role === 'ISSUER' && currentWallet && currentWallet.toLowerCase() !== walletAddress.toLowerCase().trim()) {
       return res.status(400).json({ error: 'Institutional wallet addresses cannot be changed through the profile. Please contact support for administrative wallet migration.' });
     }
 
     const normalizedWallet = walletAddress.toLowerCase().trim();
-    if (normalizedWallet !== req.user.walletAddress?.toLowerCase()) {
+    if (normalizedWallet !== currentWallet?.toLowerCase()) {
       const escapedWallet = normalizedWallet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const existingWallet = await User.findOne({
         walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
@@ -28,6 +29,9 @@ const updateProfile = asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Wallet address is already associated with another account' });
       }
       updateFields.walletAddress = normalizedWallet;
+      if (req.user.role === 'ISSUER') {
+        updateFields['issuerDetails.authorizedWalletAddress'] = normalizedWallet;
+      }
     }
   }
 
@@ -47,6 +51,11 @@ const updateProfile = asyncHandler(async (req, res) => {
       }
       updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
     }
+    if (issuerDetails.website !== undefined) updateFields['issuerDetails.website'] = issuerDetails.website;
+    if (issuerDetails.contactEmail !== undefined) updateFields['issuerDetails.contactEmail'] = issuerDetails.contactEmail;
+    if (issuerDetails.phone !== undefined) updateFields['issuerDetails.phone'] = issuerDetails.phone;
+    if (issuerDetails.address !== undefined) updateFields['issuerDetails.address'] = issuerDetails.address;
+    if (issuerDetails.accreditation !== undefined) updateFields['issuerDetails.accreditation'] = issuerDetails.accreditation;
   }
 
   const user = await User.findByIdAndUpdate(

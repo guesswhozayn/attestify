@@ -61,8 +61,6 @@ function App() {
         <Routes>
 
           <Route path="/" element={<Landing />} />
-          <Route path="/verify" element={<VerifyPage />} />
-          <Route path="/verify/:id" element={<VerifyPage />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
           <Route path="/docs" element={<Documentation />} />
@@ -71,6 +69,8 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
           <Route element={<Layout />}>
+            <Route path="/verify" element={<VerifyPage />} />
+            <Route path="/verify/:id" element={<VerifyPage />} />
             <Route
               path="/dashboard"
               element={

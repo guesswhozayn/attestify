@@ -104,13 +104,18 @@ class UserModel {
     delete data._id;
     delete data.id;
 
-    if (data['issuerDetails.institutionName'] || data['issuerDetails.registrationNumber']) {
+    const issuerPrefix = 'issuerDetails.';
+    const hasIssuerUpdates = Object.keys(data).some(k => k.startsWith(issuerPrefix));
+    if (hasIssuerUpdates) {
       const current = await prisma.user.findUnique({ where: { id: String(id) } });
       const currentDetails = current?.issuerDetails || {};
-      if (data['issuerDetails.institutionName']) currentDetails.institutionName = data['issuerDetails.institutionName'];
-      if (data['issuerDetails.registrationNumber']) currentDetails.registrationNumber = data['issuerDetails.registrationNumber'];
-      delete data['issuerDetails.institutionName'];
-      delete data['issuerDetails.registrationNumber'];
+      for (const [k, v] of Object.entries(data)) {
+        if (k.startsWith(issuerPrefix)) {
+          const subKey = k.slice(issuerPrefix.length);
+          currentDetails[subKey] = v;
+          delete data[k];
+        }
+      }
       data.issuerDetails = currentDetails;
     }
 

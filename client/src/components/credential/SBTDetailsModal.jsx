@@ -109,7 +109,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                 </div>
 
                 <div className="p-5 bg-[#FAF8F5] flex justify-center border-t border-[#ECE7DE]">
-                    <Button onClick={onClose} variant="secondary" className="w-full justify-center py-3 text-xs font-semibold uppercase tracking-wider">
+                    <Button onClick={onClose} variant="secondary" className="w-full justify-center">
                         Close
                     </Button>
                 </div>

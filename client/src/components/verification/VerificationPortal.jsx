@@ -1,12 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { Upload, Search, Shield, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { Upload, Search, RefreshCw, X, CheckCircle2 } from 'lucide-react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import Button from '../shared/Button';
 import { verifyAPI } from '../../services/api';
 import { generateFileHash } from '../../utils/hash';
 import { extractMetadata } from '../../utils/pdf';
-import Modal from '../shared/Modal';
-import { useLocation, useParams } from 'react-router-dom';
 import VerificationResult from './VerificationResult';
 
 const VerificationPortal = () => {
@@ -17,44 +15,37 @@ const VerificationPortal = () => {
     if (urlId) return urlId;
     if (location.search) {
       const params = new URLSearchParams(location.search);
-      return params.get('credentialId') || params.get('registrationNumber') || '';
+      return params.get('walletAddress') || params.get('credentialId') || params.get('registrationNumber') || '';
     }
     return '';
   };
 
+  const [activeTab, setActiveTab] = useState(urlId ? 'id' : 'file');
   const [file, setFile] = useState(null);
   const [walletAddress, setWalletAddress] = useState(getInitialWalletAddress);
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
-  const [showResultModal, setShowResultModal] = useState(false);
-  const [feed, setFeed] = useState(() => {
-    const initialId = urlId || (location.search ? (new URLSearchParams(location.search).get('credentialId') || new URLSearchParams(location.search).get('registrationNumber')) : '');
-    return initialId ? [{ message: `Auto-detected ID from URL: ${initialId.substring(0, 10)}...`, type: 'success', time: new Date().toLocaleTimeString() }] : [];
-  });
   const fileInputRef = useRef(null);
-
-  const addFeedItem = (message, type = 'info') => {
-    setFeed(prev => [...prev, { message, type, time: new Date().toLocaleTimeString() }]);
-  };
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.name.endsWith('.pdf'))) {
       setFile(selectedFile);
-      addFeedItem(`File loaded: ${selectedFile.name}`, 'info');
-
       try {
         const extractedId = await extractMetadata(selectedFile);
         if (extractedId) {
           setWalletAddress(extractedId);
-          addFeedItem(`Successfully extracted ID from metadata`, 'success');
-        } else {
-          addFeedItem(`No ID metadata found in file`, 'warning');
         }
       } catch {
-        addFeedItem(`Metadata extraction failed`, 'error');
+        // Fallback to manual entry or direct hash
       }
     }
+  };
+
+  const clearFile = (e) => {
+    e?.stopPropagation();
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleVerify = async () => {
@@ -62,92 +53,101 @@ const VerificationPortal = () => {
 
     setVerifying(true);
     setResult(null);
-    setFeed([]);
-
-    addFeedItem("Initializing secure check...", "info");
 
     try {
       let response;
-      if (file && walletAddress) {
-        addFeedItem("Creating secure file fingerprint...", "info");
+      if (activeTab === 'file' && file && walletAddress) {
         const fileHash = await generateFileHash(file);
-        addFeedItem(`Fingerprint: ${fileHash.substring(0, 32)}...`, "info");
-
-        addFeedItem("Searching verification registry...", "info");
         response = await verifyAPI.verifyByHash(walletAddress, fileHash);
+      } else if (activeTab === 'id' && walletAddress) {
+        response = await verifyAPI.checkExists(walletAddress);
+      } else if (file) {
+        const fileHash = await generateFileHash(file);
+        response = await verifyAPI.verifyByHash('credential', fileHash);
       } else if (walletAddress) {
-        addFeedItem(`Checking record for ID: ${walletAddress.substring(0, 10)}...`, "info");
         response = await verifyAPI.checkExists(walletAddress);
       }
 
-      addFeedItem("Validating authority signatures...", "info");
-      addFeedItem("Verification check completed.", "success");
-
       setResult(response.data);
-      setTimeout(() => setShowResultModal(true), 800);
     } catch {
-      addFeedItem("Verification failed: Record mismatch or network error", "error");
       setResult({
         valid: false,
-        message: 'Verification failed. Please try again.',
+        message: 'Could not confirm validity. No matching blockchain record found.',
       });
-      setShowResultModal(true);
     } finally {
       setVerifying(false);
     }
   };
 
+  const handleReset = () => {
+    setFile(null);
+    setWalletAddress('');
+    setResult(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center p-6 w-full max-w-7xl mx-auto min-h-screen">
+    <div className="w-full flex flex-col items-center space-y-6">
+      <div className="flex flex-col items-center text-center space-y-1.5 max-w-lg">
+        <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+          Verify Credential
+        </h1>
+        <p className="text-xs sm:text-sm text-stone-500 leading-relaxed font-normal">
+          Validate certificate authenticity directly against the Ethereum Sepolia ledger.
+        </p>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="w-full max-w-3xl relative"
-      >
+      <div className="w-full bg-white border border-[#EAECF0] rounded-3xl p-6 sm:p-9 shadow-[0_1px_3px_rgba(16,24,40,0.02),0_8px_24px_-4px_rgba(16,24,40,0.04)]">
+        {result ? (
+          <div className="space-y-6">
+            <VerificationResult result={result} />
 
-        {verifying && (
-            <motion.div
-              initial={{ top: '0%' }}
-              animate={{ top: '100%' }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="absolute left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,1)] z-20 pointer-events-none rounded-full"
-            />
-        )}
-
-        <div className="relative bg-[#0e1017]/90 border border-white/[0.08] rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_25px_60px_-15px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col gap-8">
-           <div className="relative z-10 flex items-center justify-between border-b border-white/[0.06] pb-6">
-              <div className="flex items-center gap-4">
-                 <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 shadow-sm">
-                    <Shield className="w-6 h-6 text-indigo-400" />
-                 </div>
-                 <div>
-                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Verify a credential</h2>
-                    <div className="flex items-center gap-2 mt-0.5">
-                       <div className={`w-2 h-2 rounded-full ${verifying ? 'bg-indigo-500' : 'bg-emerald-500'} animate-pulse`}></div>
-                       <span className={`text-[10px] font-bold uppercase tracking-widest ${verifying ? 'text-indigo-400' : 'text-emerald-400'}`}>
-                          {verifying ? 'Verifying...' : 'Ready'}
-                       </span>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="hidden sm:flex flex-col items-end">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Network</span>
-                <span className="text-[11px] font-mono text-indigo-400 font-semibold">Sepolia</span>
-              </div>
-           </div>
-
-           <div className="relative z-10 space-y-8">
-
-              <div
-                className={`relative border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all duration-300 cursor-pointer group/zone ${
-                   file
-                   ? 'border-emerald-500/40 bg-emerald-500/5'
-                   : 'border-white/[0.08] bg-white/[0.02] hover:border-indigo-500/40 hover:bg-indigo-500/[0.03]'
+            <div className="flex justify-center pt-4 border-t border-stone-100">
+              <Button
+                onClick={handleReset}
+                variant="secondary"
+                size="md"
+                icon={RefreshCw}
+              >
+                Verify another
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex bg-stone-100/80 p-1.5 rounded-2xl border border-stone-200/60 text-xs font-semibold text-stone-600">
+              <button
+                type="button"
+                onClick={() => setActiveTab('file')}
+                className={`flex-1 py-2 px-3 rounded-xl transition-all cursor-pointer ${
+                  activeTab === 'file'
+                    ? 'bg-white text-stone-900 shadow-xs'
+                    : 'hover:text-stone-900 text-stone-500'
                 }`}
+              >
+                Upload Document
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('id')}
+                className={`flex-1 py-2 px-3 rounded-xl transition-all cursor-pointer ${
+                  activeTab === 'id'
+                    ? 'bg-white text-stone-900 shadow-xs'
+                    : 'hover:text-stone-900 text-stone-500'
+                }`}
+              >
+                ID / Address
+              </button>
+            </div>
+
+            {activeTab === 'file' ? (
+              <div
                 onClick={() => fileInputRef.current?.click()}
+                className={`group border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center transition-all cursor-pointer select-none ${
+                  file
+                    ? 'border-emerald-300 bg-emerald-50/40'
+                    : 'border-stone-200 bg-stone-50/70 hover:bg-stone-50 hover:border-stone-400'
+                }`}
               >
                 <input
                   type="file"
@@ -157,137 +157,96 @@ const VerificationPortal = () => {
                   ref={fileInputRef}
                 />
 
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 shadow-xl ${
-                   file ? 'bg-emerald-500 text-white' : 'bg-[#0a0b12] border border-white/10 text-zinc-500 group-hover/zone:border-indigo-500/40 group-hover/zone:text-indigo-400'
-                }`}>
-                  <Upload className="w-8 h-8 sm:w-10 sm:h-10" />
-                </div>
-
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate px-4">
-                  {file ? file.name : "Upload credential (PDF)"}
-                </h3>
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                  {file ? "Document loaded" : "Supported format: PDF"}
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                 <div className="flex items-center justify-between px-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Credential reference ID or wallet address</label>
-                    {walletAddress && (<span className="text-[10px] font-bold text-indigo-400">ID detected</span>)}
-                 </div>
-                 <div className="relative group/input">
-                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                       <Search className="h-5 w-5 text-gray-600 group-focus-within/input:text-indigo-400 transition-colors" />
-                    </div>
-                    <input
-                       type="text"
-                       placeholder="0x..."
-                       value={walletAddress}
-                       onChange={(e) => setWalletAddress(e.target.value)}
-                       className="block w-full pl-14 pr-6 py-5 bg-black/50 border border-white/5 focus:border-indigo-500/30 rounded-2xl text-white placeholder-gray-800 transition-all font-mono text-sm sm:text-base outline-none shadow-inner"
-                    />
-                 </div>
-              </div>
-
-              <Button
-                onClick={handleVerify}
-                loading={verifying}
-                disabled={verifying || !walletAddress}
-                variant="white"
-                size="xl"
-                className="w-full hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                {verifying ? 'Verifying credential...' : 'Verify credential'}
-              </Button>
-           </div>
-
-           <div className="relative z-10 bg-black/80 border border-white/5 rounded-2xl p-5 font-mono overflow-hidden flex flex-col h-48 sm:h-56 mt-4 shadow-inner">
-
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
-                <Search className="w-32 h-32" />
-             </div>
-
-             <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
-                <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">Verification log</span>
-                <div className="flex gap-1.5">
-                   <div className="w-2 h-2 rounded-full bg-red-500/40 border border-red-500/20"></div>
-                   <div className="w-2 h-2 rounded-full bg-yellow-500/40 border border-yellow-500/20"></div>
-                   <div className="w-2 h-2 rounded-full bg-emerald-500/40 border border-emerald-500/20"></div>
-                </div>
-             </div>
-
-             <div className="flex-1 overflow-y-auto space-y-2.5 custom-scrollbar pr-2 pb-2">
-                {feed.length === 0 ? (
-                   <div className="h-full flex flex-col items-center justify-center opacity-30 italic">
-                      <p className="text-[11px] text-gray-400">Upload a PDF or enter an ID to verify.</p>
-                   </div>
-                ) : (
-                   feed.map((item, idx) => (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, x: -5 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-[11px] leading-relaxed flex gap-3"
-                      >
-                         <span className="text-indigo-500/50 shrink-0 select-none">[{item.time}]</span>
-                         <span className={`break-words ${
-                            item.type === 'error' ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]' :
-                            item.type === 'success' ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.2)]' :
-                            item.type === 'warning' ? 'text-yellow-400' : 'text-gray-300'
-                         }`}>
-                            <span className="select-none inline-block w-4">
-                                {item.type === 'error' ? '×' : item.type === 'success' ? '✓' : '›'}
-                            </span>
-                            {item.message}
-                         </span>
-                      </motion.div>
-                   ))
-                )}
-                {verifying && (
-                   <div className="flex items-center gap-2 text-[11px] text-indigo-400 animate-pulse mt-2">
-                      <span className="select-none inline-block w-4">›</span>
-                      <span>Checking credential details...</span>
-                   </div>
-                )}
-             </div>
-           </div>
-
-           <div className="pt-2">
-                             <div className="flex items-center justify-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300 py-8 opacity-60">
-                  <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Powered by</span>
-                  <span className="font-sans text-lg font-black tracking-[-0.05em] lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
-               </div>
-           </div>
-
-        </div>
-      </motion.div>
-      <Modal
-          isOpen={showResultModal}
-          onClose={() => setShowResultModal(false)}
-          title="Verification result"
-          size="lg"
-      >
-          {result && (
-            <div className="space-y-6 pt-2">
-              <VerificationResult result={result} />
-
-              <div className="flex justify-center pt-8 border-t border-white/5">
-                  <Button
-                      onClick={() => setShowResultModal(false)}
-                      variant="secondary"
-                      size="lg"
-                      icon={RefreshCw}
-                      className="px-8 uppercase tracking-widest text-xs font-bold border-red-500/20 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-300 animate-none"
-                      title="Verify another credential"
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3.5 transition-transform group-hover:scale-105 shadow-2xs ${
+                      file ? 'bg-emerald-600 text-white' : 'bg-white border border-stone-200 text-stone-600'
+                    }`}
                   >
-                      Verify another credential
-                  </Button>
-              </div>
-            </div>
-          )}
-      </Modal>
+                    {file ? <CheckCircle2 className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
+                  </div>
 
+                  {file ? (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-xs font-semibold text-stone-900 truncate max-w-xs">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={clearFile}
+                          className="p-1 text-stone-400 hover:text-stone-800 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer"
+                          title="Remove file"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-emerald-700 font-medium">Ready for verification</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <h3 className="text-sm font-semibold text-stone-900">
+                        Drop credential PDF here
+                      </h3>
+                      <p className="text-xs text-stone-400 font-normal">
+                        or click to browse from device
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 text-left">
+                <label className="text-xs font-semibold text-stone-700">
+                  Credential ID or Wallet Address
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-stone-400 group-focus-within:text-stone-700 transition-colors" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="0x... or certificate reference ID"
+                    value={walletAddress}
+                    onChange={(e) => setWalletAddress(e.target.value)}
+                    className="block w-full pl-10 pr-9 py-2.5 bg-stone-50 hover:bg-white focus:bg-white border border-stone-200 focus:border-stone-400 rounded-xl text-stone-900 placeholder-stone-400 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-stone-400 transition-all shadow-2xs"
+                  />
+                  {walletAddress && (
+                    <button
+                      type="button"
+                      onClick={() => setWalletAddress('')}
+                      className="absolute inset-y-0 right-3 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <Button
+              onClick={handleVerify}
+              loading={verifying}
+              disabled={verifying || (activeTab === 'file' ? !file : !walletAddress)}
+              variant="primary"
+              size="lg"
+              className="w-full justify-center"
+            >
+              {verifying ? 'Checking ledger...' : 'Verify'}
+            </Button>
+
+            <p className="text-[11px] text-stone-400 text-center leading-relaxed font-normal">
+              Verified locally via cryptographic hash. Document content is never stored or uploaded.
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity pt-2">
+        <span className="text-[11px] font-medium text-stone-500">powered by</span>
+        <Link to="/" className="inline-flex items-center font-mono text-xs font-bold lowercase text-stone-700 hover:text-stone-950">
+          attestify<span className="text-indigo-600">.</span>
+        </Link>
+      </div>
     </div>
   );
 };

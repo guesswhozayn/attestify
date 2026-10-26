@@ -80,7 +80,7 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
             loading={loading}
             icon={ShieldAlert}
           >
-            Revoke credential
+            Revoke
           </Button>
         </div>
       </form>
