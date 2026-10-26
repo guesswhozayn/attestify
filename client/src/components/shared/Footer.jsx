@@ -74,7 +74,7 @@ const Footer = () => {
                     className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 h-[46px] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
                   />
                 </div>
-                <Button variant="white" size="md" className="font-bold !h-[46px] min-w-[120px] w-full sm:w-auto">
+                <Button variant="white" size="md">
                   Subscribe
                 </Button>
               </div>

@@ -179,13 +179,11 @@ const About = () => {
               We are open source and community driven. Help us build the future of digital trust.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-              <Button onClick={() => window.open('https://github.com', '_blank')} variant="white" className="px-8 py-4">
-                <Github className="w-5 h-5" />
-                <span>GitHub</span>
+              <Button onClick={() => window.open('https://github.com', '_blank')} variant="white" size="lg" icon={Github}>
+                GitHub
               </Button>
-              <Button onClick={() => navigate('/contact')} variant="outline" className="px-8 py-4 border-white/10 hover:bg-white/5">
-                <Mail className="w-5 h-5" />
-                <span>Contact</span>
+              <Button onClick={() => navigate('/contact')} variant="secondary" size="lg" icon={Mail}>
+                Contact
               </Button>
             </div>
           </div>
