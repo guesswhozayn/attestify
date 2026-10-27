@@ -33,7 +33,6 @@ model User {
   university        String       @default("Not Specified")
   title             String       @default("")
   about             String       @default("")
-  avatar            String?
   walletAddress     String?
   isActive          Boolean      @default(true)
   issuerDetails     Json?

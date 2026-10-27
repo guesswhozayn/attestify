@@ -6,7 +6,6 @@ const { FILE_LIMITS } = require('../config/constants');
 fs.mkdirSync('uploads', { recursive: true });
 
 const SUB_DIRS = {
-  avatar: 'uploads/avatars/',
   certificate: 'uploads/certificates/',
   file: 'uploads/batch/'
 };

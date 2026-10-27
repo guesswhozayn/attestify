@@ -1,6 +1,5 @@
 const crypto = require('crypto');
-const Credential = require('../models/Credential');
-const User = require('../models/User');
+const { prisma } = require('../config/database');
 const blockchainService = require('./blockchainService');
 const ipfsService = require('./ipfsService');
 const hashService = require('./hashService');
@@ -23,7 +22,7 @@ class CredentialService {
         { trait_type: "Status", value: "Verified" }
       ]
     };
-    const result = await ipfsService.uploadJSON(metadata, `SBT_Metadata_${credentialData._id}.json`);
+    const result = await ipfsService.uploadJSON(metadata, `SBT_Metadata_${credentialData.id}.json`);
     return `ipfs://${result.ipfsHash}`;
   }
 
@@ -66,7 +65,7 @@ class CredentialService {
     }
 
     const metadataURI = await this.prepareSBTMetadata(reqUser, {
-      _id: credentialId, studentWalletAddress: normalizedStudentWallet,
+      id: credentialId, studentWalletAddress: normalizedStudentWallet,
       studentName, university: institutionName, issueDate: parsedIssueDate, type
     }, ipfsResult.ipfsHash);
 
@@ -74,25 +73,63 @@ class CredentialService {
       normalizedStudentWallet, credentialId, certificateHash, ipfsResult.ipfsHash, metadataURI
     );
 
-    const credential = await Credential.findByIdAndUpdate(credentialId, {
-      studentWalletAddress: normalizedStudentWallet,
-      studentName, university: institutionName, issueDate: parsedIssueDate, type,
-      transcriptData, certificationData, issuedBy: reqUser._id,
-      studentImage: studentImageUrl, certificateHash,
-      ipfsCID: ipfsResult.ipfsHash,
-      transactionHash: blockchainResult.transactionHash,
-      blockNumber: blockchainResult.blockNumber,
-      gasUsed: blockchainResult.gasUsed,
-      gasPrice: blockchainResult.gasPrice,
-      totalCost: blockchainResult.totalCost,
-      tokenId: blockchainResult.tokenId,
-      metadata: { fileSize: pdfBuffer.length, fileType: 'application/pdf', originalFileName: `Certificate_${credentialId}.pdf` },
-      status: 'COMPLETED'
-    }, { new: true, upsert: true });
-
-    await User.findByIdAndUpdate(reqUser._id, {
-      $inc: { 'issuerDetails.certificatesIssued': 1 }
+    const userId = reqUser.id;
+    const credential = await prisma.credential.upsert({
+      where: { id: credentialId },
+      update: {
+        studentWalletAddress: normalizedStudentWallet,
+        studentName,
+        university: institutionName,
+        issueDate: parsedIssueDate,
+        type,
+        transcriptData,
+        certificationData,
+        issuedById: userId,
+        studentImage: studentImageUrl,
+        certificateHash,
+        ipfsCID: ipfsResult.ipfsHash,
+        transactionHash: blockchainResult.transactionHash,
+        blockNumber: blockchainResult.blockNumber,
+        gasUsed: blockchainResult.gasUsed,
+        gasPrice: blockchainResult.gasPrice,
+        totalCost: blockchainResult.totalCost,
+        tokenId: blockchainResult.tokenId,
+        metadata: { fileSize: pdfBuffer.length, fileType: 'application/pdf', originalFileName: `Certificate_${credentialId}.pdf` },
+        status: 'COMPLETED'
+      },
+      create: {
+        id: credentialId,
+        studentWalletAddress: normalizedStudentWallet,
+        studentName,
+        university: institutionName,
+        issueDate: parsedIssueDate,
+        type,
+        transcriptData,
+        certificationData,
+        issuedById: userId,
+        studentImage: studentImageUrl,
+        certificateHash,
+        ipfsCID: ipfsResult.ipfsHash,
+        transactionHash: blockchainResult.transactionHash,
+        blockNumber: blockchainResult.blockNumber,
+        gasUsed: blockchainResult.gasUsed,
+        gasPrice: blockchainResult.gasPrice,
+        totalCost: blockchainResult.totalCost,
+        tokenId: blockchainResult.tokenId,
+        metadata: { fileSize: pdfBuffer.length, fileType: 'application/pdf', originalFileName: `Certificate_${credentialId}.pdf` },
+        status: 'COMPLETED'
+      }
     });
+
+    const userRecord = await prisma.user.findUnique({ where: { id: userId } });
+    if (userRecord?.issuerDetails) {
+      const issuerDetails = { ...userRecord.issuerDetails };
+      issuerDetails.certificatesIssued = (issuerDetails.certificatesIssued || 0) + 1;
+      await prisma.user.update({
+        where: { id: userId },
+        data: { issuerDetails }
+      });
+    }
 
     return { credential, blockchainResult, ipfsResult };
   }

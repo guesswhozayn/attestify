@@ -10,8 +10,13 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  if (err.code === 11000) {
-    return res.status(400).json({ error: `${Object.keys(err.keyPattern || {})[0] || 'Field'} already exists` });
+  if (err.code === 'P2002') {
+    const target = Array.isArray(err.meta?.target) ? err.meta.target.join(', ') : (err.meta?.target || 'field');
+    return res.status(400).json({ error: `Unique constraint failed: ${target} already exists` });
+  }
+
+  if (err.code === 'P2025') {
+    return res.status(404).json({ error: err.meta?.cause || 'Record not found' });
   }
 
   if (err.name === 'JsonWebTokenError') return res.status(401).json({ error: 'Invalid token' });

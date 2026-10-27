@@ -1,6 +1,5 @@
 const axios = require('axios');
-const Credential = require('../models/Credential');
-const User = require('../models/User');
+const { prisma } = require('../config/database');
 const ipfsService = require('../services/ipfsService');
 const asyncHandler = require('../middleware/asyncHandler');
 
@@ -18,15 +17,17 @@ const streamIPFSFile = async (cid, res, defaultContentType, filename) => {
 };
 
 const downloadCertificate = asyncHandler(async (req, res) => {
-  const credential = await Credential.findById(req.params.id);
+  const credential = await prisma.credential.findUnique({ where: { id: req.params.id } });
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
   if (!credential.ipfsCID) return res.status(404).json({ error: 'Certificate file not found' });
 
   const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
-  const isIssuer = req.user?.role === 'ISSUER' && req.user._id.toString() === credential.issuedBy.toString();
+  const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
 
   if (!isOwner && !isIssuer) {
-    const student = await User.findOne({ walletAddress: credential.studentWalletAddress });
+    const student = await prisma.user.findFirst({
+      where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
+    });
     if (student?.preferences?.visibility === false) {
       return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
     }

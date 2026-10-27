@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, ExternalLink, ShieldCheck, Hash, Database, Globe, Share2, Copy } from 'lucide-react';
+import { ExternalLink, ShieldCheck, Hash, Database, Globe, Share2, Copy } from 'lucide-react';
+import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 
 const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
@@ -14,107 +15,90 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white border border-[#E8E4DC] rounded-3xl w-full max-w-lg overflow-hidden shadow-[0_20px_50px_-15px_rgba(28,25,23,0.15)] animate-in zoom-in-95 duration-200">
+        <Modal isOpen={isOpen} onClose={onClose} title="Direct credential record" size="md">
+            <div className="space-y-6">
+                <div className="flex justify-between items-center p-4 rounded-2xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-stone-100 rounded-xl border border-stone-200 text-stone-800">
+                            <ShieldCheck className="w-5 h-5 text-stone-800" />
+                        </div>
+                        <div>
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Record type</span>
+                            <span className="text-xs font-bold text-stone-900">Permanent academic record</span>
+                        </div>
+                    </div>
+                    <div className={`flex items-center gap-1.5 text-xs font-semibold ${
+                        credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
+                    }`}>
+                        <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
+                        <span>{credential.isRevoked ? 'Revoked' : 'Active and valid'}</span>
+                    </div>
+                </div>
 
-                <div className="relative p-6 sm:p-7 border-b border-[#E8E4DC] bg-[#FAF8F5]">
-                    <div className="flex items-center justify-between">
+                <div className="grid grid-cols-1 gap-3.5">
+                    <DataField
+                        label="Token ID"
+                        value={credential.tokenId || 'N/A'}
+                        icon={Hash}
+                        onCopy={() => copyToClipboard(credential.tokenId)}
+                    />
+
+                    <DataField
+                        label="Smart contract address"
+                        value={contractAddress}
+                        icon={Database}
+                        isAddress
+                        onCopy={() => copyToClipboard(contractAddress)}
+                    />
+
+                    <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group transition-colors">
                         <div className="flex items-center gap-3.5">
-                            <div className="p-3 bg-stone-100 rounded-2xl border border-stone-200 text-stone-800">
-                                <ShieldCheck className="w-6 h-6 text-stone-800" />
+                            <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80">
+                                <Globe className="w-4 h-4 text-stone-600" />
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-stone-900 tracking-tight">Direct credential record</h3>
-                                <p className="text-xs text-stone-500 font-medium">Permanent academic record</p>
+                            <div className="space-y-0.5">
+                                <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Network</p>
+                                <p className="text-xs font-semibold text-stone-900">Ethereum (Sepolia)</p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 text-stone-400 hover:text-stone-800 hover:bg-stone-200/60 rounded-xl transition-colors cursor-pointer"
-                            aria-label="Close modal"
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
+                            <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-pulse"></div>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-3">
+                    <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Links & references</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                        <a
+                            href={etherscanUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
                         >
-                            <X className="w-5 h-5" />
-                        </button>
+                            <ExternalLink className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
+                            <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">Etherscan</span>
+                        </a>
+                        <a
+                            href={ipfsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
+                        >
+                            <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
+                            <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
+                        </a>
                     </div>
                 </div>
 
-                <div className="p-6 sm:p-7 space-y-6">
-
-                    <div className="flex justify-center">
-                        <div className={`flex items-center gap-2 text-xs font-semibold ${
-                            credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
-                        }`}>
-                            <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
-                            <span>{credential.isRevoked ? 'Revoked' : 'Active and valid'}</span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3.5">
-
-                        <DataField
-                            label="Token ID"
-                            value={credential.tokenId || 'N/A'}
-                            icon={Hash}
-                            onCopy={() => copyToClipboard(credential.tokenId)}
-                        />
-
-                        <DataField
-                            label="Smart contract address"
-                            value={contractAddress}
-                            icon={Database}
-                            isAddress
-                            onCopy={() => copyToClipboard(contractAddress)}
-                        />
-
-                        <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group transition-colors">
-                            <div className="flex items-center gap-3.5">
-                                <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80">
-                                    <Globe className="w-4 h-4 text-stone-600" />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Network</p>
-                                    <p className="text-xs font-semibold text-stone-900">Ethereum (Sepolia)</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
-                                <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-pulse"></div>
-                                <span>Online</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Links & references</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                            <a
-                                href={etherscanUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
-                            >
-                                <ExternalLink className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
-                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">Etherscan</span>
-                            </a>
-                            <a
-                                href={ipfsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
-                            >
-                                <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
-                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="p-5 bg-[#FAF8F5] flex justify-center border-t border-[#ECE7DE]">
-                    <Button onClick={onClose} variant="secondary" className="w-full justify-center">
+                <div className="pt-2 flex justify-end">
+                    <Button onClick={onClose} variant="secondary" size="sm" className="w-full sm:w-auto px-6">
                         Close
                     </Button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 };
 

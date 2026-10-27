@@ -1,7 +1,6 @@
 const fs = require('fs');
 const isIdentifier = (val) => typeof val === 'string' && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val) || /^[0-9a-fA-F]{24}$/.test(val));
-const Credential = require('../models/Credential');
-const User = require('../models/User');
+const { prisma } = require('../config/database');
 const hashService = require('../services/hashService');
 const blockchainService = require('../services/blockchainService');
 const asyncHandler = require('../middleware/asyncHandler');
@@ -13,22 +12,31 @@ const safeUnlink = (filePath) => {
 };
 
 const recordVerification = (credentialId) =>
-  Credential.updateOne(
-    { _id: credentialId },
-    { $inc: { verificationCount: 1 }, $set: { lastVerifiedAt: new Date() } }
-  );
+  prisma.credential.update({
+    where: { id: credentialId },
+    data: {
+      verificationCount: { increment: 1 },
+      lastVerifiedAt: new Date()
+    }
+  });
 
 async function findCredential(identifier, certificateHash = null) {
   if (isIdentifier(identifier)) {
-    const cred = await Credential.findById(identifier).populate('issuedBy', 'name university email');
+    const cred = await prisma.credential.findUnique({
+      where: { id: identifier },
+      include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+    });
     if (cred) return cred;
   }
 
   if (certificateHash) {
-    return Credential.findOne({
-      studentWalletAddress: identifier.toLowerCase(),
-      certificateHash
-    }).populate('issuedBy', 'name university email');
+    return prisma.credential.findFirst({
+      where: {
+        studentWalletAddress: { equals: identifier.toLowerCase().trim(), mode: 'insensitive' },
+        certificateHash
+      },
+      include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+    });
   }
 
   return null;
@@ -37,13 +45,15 @@ async function findCredential(identifier, certificateHash = null) {
 async function checkPrivacy(credential, reqUser) {
   const isOwner = reqUser?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
   const isIssuer = reqUser?.role === 'ISSUER' && (
-    reqUser._id.toString() === credential.issuedBy?._id?.toString() ||
+    reqUser.id === credential.issuedById ||
     reqUser.walletAddress?.toLowerCase() === credential.issuedBy?.walletAddress?.toLowerCase()
   );
 
   if (isOwner || isIssuer) return true;
 
-  const student = await User.findOne({ walletAddress: credential.studentWalletAddress });
+  const student = await prisma.user.findFirst({
+    where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
+  });
   return student?.preferences?.visibility !== false;
 }
 
@@ -116,8 +126,8 @@ const verifyWithFile = asyncHandler(async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
     }
 
-    const isValidOnChain = await blockchainService.verifyCredential(credential._id.toString(), uploadedHash);
-    await recordVerification(credential._id);
+    const isValidOnChain = await blockchainService.verifyCredential(credential.id, uploadedHash);
+    await recordVerification(credential.id);
     safeUnlink(tempFilePath);
 
     return res.json(buildVerificationResponse(credential, isValidOnChain, uploadedHash));
@@ -130,15 +140,20 @@ const verifyWithFile = asyncHandler(async (req, res) => {
 
 const checkExists = asyncHandler(async (req, res) => {
   const { walletAddress } = req.params;
-  const normalizedWallet = walletAddress.toLowerCase();
+  const normalizedWallet = walletAddress.toLowerCase().trim();
 
   let credentials = [];
   if (isIdentifier(walletAddress)) {
-    const cred = await Credential.findById(walletAddress).populate('issuedBy', 'name university').lean();
+    const cred = await prisma.credential.findUnique({
+      where: { id: walletAddress },
+      include: { issuedBy: { select: { name: true, university: true } } }
+    });
     if (cred) credentials = [cred];
   } else {
-    credentials = await Credential.find({ studentWalletAddress: normalizedWallet })
-      .populate('issuedBy', 'name university').lean();
+    credentials = await prisma.credential.findMany({
+      where: { studentWalletAddress: { equals: normalizedWallet, mode: 'insensitive' } },
+      include: { issuedBy: { select: { name: true, university: true } } }
+    });
   }
 
   if (!credentials.length) {
@@ -146,10 +161,11 @@ const checkExists = asyncHandler(async (req, res) => {
   }
 
   const actualWalletAddress = credentials[0].studentWalletAddress;
-  const escapedWallet = actualWalletAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const student = await User.findOne({
-    walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
-    role: 'STUDENT'
+  const student = await prisma.user.findFirst({
+    where: {
+      walletAddress: { equals: actualWalletAddress, mode: 'insensitive' },
+      role: 'STUDENT'
+    }
   });
 
   if (student?.preferences?.visibility === false) {
@@ -197,8 +213,8 @@ const verifyByHash = asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
   }
 
-  const isValidOnChain = await blockchainService.verifyCredential(credential._id.toString(), hash);
-  await recordVerification(credential._id);
+  const isValidOnChain = await blockchainService.verifyCredential(credential.id, hash);
+  await recordVerification(credential.id);
 
   return res.json(buildVerificationResponse(credential, isValidOnChain, hash));
 });

@@ -1,8 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const csv = require('csv-parser');
-const Credential = require('../models/Credential');
-const User = require('../models/User');
+const { prisma } = require('../config/database');
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const asyncHandler = require('../middleware/asyncHandler');
@@ -43,20 +42,25 @@ const issueCredential = asyncHandler(async (req, res) => {
     studentImageBuffer, studentImageName, credentialId
   };
 
-  await Credential.create({
-    _id: credentialId,
-    studentWalletAddress: studentWalletAddress.toLowerCase(),
-    studentName,
-    university: req.user.issuerDetails?.institutionName || university || 'Attestify',
-    issueDate: new Date(issueDate),
-    type,
-    issuedBy: req.user._id,
-    certificateHash: 'PENDING_' + credentialId,
-    status: 'PENDING'
+  await prisma.credential.create({
+    data: {
+      id: credentialId,
+      studentWalletAddress: studentWalletAddress.toLowerCase().trim(),
+      studentName,
+      university: req.user.issuerDetails?.institutionName || university || 'Attestify',
+      issueDate: new Date(issueDate),
+      type,
+      issuedById: req.user.id,
+      certificateHash: 'PENDING_' + credentialId,
+      status: 'PENDING'
+    }
   });
 
   const job = await enqueueIssuanceJob({ data, user: req.user });
-  await Credential.findByIdAndUpdate(credentialId, { jobId: job.id });
+  await prisma.credential.update({
+    where: { id: credentialId },
+    data: { jobId: job.id }
+  });
 
   res.status(202).json({
     success: true,
@@ -116,7 +120,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
       const credentialId = crypto.randomUUID();
       const data = {
-        studentWalletAddress: row.studentWalletAddress,
+        studentWalletAddress: row.studentWalletAddress.toLowerCase().trim(),
         studentName: row.studentName,
         university: row.university || req.user.issuerDetails?.institutionName || 'Attestify University',
         issueDate: issueDate.toISOString(),
@@ -124,27 +128,35 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
         studentImageBuffer: null, studentImageName: null, credentialId
       };
 
-      await Credential.create({
-        _id: credentialId,
-        studentWalletAddress: data.studentWalletAddress.toLowerCase(),
-        studentName: data.studentName,
-        university: data.university,
-        issueDate: new Date(data.issueDate),
-        type: data.type,
-        issuedBy: req.user._id,
-        certificateHash: 'PENDING_' + credentialId,
-        status: 'PENDING'
+      await prisma.credential.create({
+        data: {
+          id: credentialId,
+          studentWalletAddress: data.studentWalletAddress,
+          studentName: data.studentName,
+          university: data.university,
+          issueDate: new Date(data.issueDate),
+          type: data.type,
+          issuedById: req.user.id,
+          certificateHash: 'PENDING_' + credentialId,
+          status: 'PENDING'
+        }
       });
 
       try {
         const job = await enqueueIssuanceJob({ data, user: req.user });
-        await Credential.findByIdAndUpdate(credentialId, { jobId: job.id });
+        await prisma.credential.update({
+          where: { id: credentialId },
+          data: { jobId: job.id }
+        });
         summary.success++;
       } catch (queueErr) {
         console.error('Failed to enqueue job for credential:', credentialId, queueErr);
-        await Credential.findByIdAndUpdate(credentialId, {
-          status: 'FAILED',
-          processingError: 'Failed to add to processing queue: ' + queueErr.message
+        await prisma.credential.update({
+          where: { id: credentialId },
+          data: {
+            status: 'FAILED',
+            processingError: 'Failed to add to processing queue: ' + queueErr.message
+          }
         });
         summary.failed++;
       }
@@ -156,7 +168,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
   if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
 
-  summary.message = `Processed ${summary.total} records. Successfully issued ${summary.success} credentials.`;
+  summary.message = `Processed ${summary.total} records. Successfully queued ${summary.success} credentials.`;
   res.json({ success: true, summary });
 });
 
@@ -166,35 +178,45 @@ const getCredentials = asyncHandler(async (req, res) => {
     type = null, sortBy = 'createdAt', sortOrder = 'desc'
   } = req.query;
 
-  const query = {};
+  const where = {};
   if (req.user.role === 'ISSUER') {
-    query.issuedBy = req.user._id;
+    where.issuedById = req.user.id;
   } else {
     if (!req.user.walletAddress) return res.status(400).json({ error: 'User wallet address not found' });
-    query.studentWalletAddress = req.user.walletAddress.toLowerCase();
+    where.studentWalletAddress = { equals: req.user.walletAddress.toLowerCase().trim(), mode: 'insensitive' };
   }
 
-  if (type) query.type = type;
+  if (type) where.type = type;
+  if (revoked !== null) where.isRevoked = revoked === 'true';
 
   if (search) {
-    const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    query.$or = [
-      { studentName: new RegExp(escapedSearch, 'i') },
-      { studentWalletAddress: new RegExp(escapedSearch, 'i') },
-      { university: new RegExp(escapedSearch, 'i') }
+    where.OR = [
+      { studentName: { contains: search, mode: 'insensitive' } },
+      { studentWalletAddress: { contains: search, mode: 'insensitive' } },
+      { university: { contains: search, mode: 'insensitive' } }
     ];
   }
 
-  if (revoked !== null) query.isRevoked = revoked === 'true';
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const skip = (pageNum - 1) * take;
+  const allowedSortFields = new Set(['createdAt', 'issueDate', 'studentName', 'university', 'type']);
+  const safeSortBy = allowedSortFields.has(sortBy) ? sortBy : 'createdAt';
+  const safeSortOrder = sortOrder === 'asc' ? 'asc' : 'desc';
 
   const [credentials, count] = await Promise.all([
-    Credential.find(query)
-      .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .populate('issuedBy', 'name email university issuerDetails')
-      .lean(),
-    Credential.countDocuments(query)
+    prisma.credential.findMany({
+      where,
+      orderBy: { [safeSortBy]: safeSortOrder },
+      skip,
+      take,
+      include: {
+        issuedBy: {
+          select: { id: true, name: true, email: true, university: true, issuerDetails: true }
+        }
+      }
+    }),
+    prisma.credential.count({ where })
   ]);
 
   res.json({
@@ -202,25 +224,31 @@ const getCredentials = asyncHandler(async (req, res) => {
     credentials,
     pagination: {
       total: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page),
-      perPage: parseInt(limit)
+      totalPages: Math.ceil(count / take),
+      currentPage: pageNum,
+      perPage: take
     }
   });
 });
 
 const getCredentialById = asyncHandler(async (req, res) => {
-  const credential = await Credential.findById(req.params.id)
-    .populate('issuedBy', 'name email university issuerDetails')
-    .populate('revokedBy', 'name email');
+  const credential = await prisma.credential.findUnique({
+    where: { id: req.params.id },
+    include: {
+      issuedBy: { select: { id: true, name: true, email: true, university: true, issuerDetails: true } },
+      revokedByUser: { select: { id: true, name: true, email: true } }
+    }
+  });
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
 
   const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
-  const isIssuer = req.user?.role === 'ISSUER' && req.user._id.toString() === credential.issuedBy._id.toString();
+  const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
 
   if (!isOwner && !isIssuer) {
-    const student = await User.findOne({ walletAddress: credential.studentWalletAddress });
+    const student = await prisma.user.findFirst({
+      where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
+    });
     if (student?.preferences?.visibility === false) {
       return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
     }
@@ -243,30 +271,39 @@ const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   }
 
   if (req.user.role === 'ISSUER' && currentWallet !== targetWallet) {
-    const student = await User.findOne({ walletAddress: targetWallet });
+    const student = await prisma.user.findFirst({
+      where: { walletAddress: { equals: targetWallet, mode: 'insensitive' } }
+    });
     if (student?.preferences?.visibility === false) {
       return res.status(403).json({ error: 'Unauthorized: This student profile is private.' });
     }
   }
 
-  const credentials = await Credential.find({ studentWalletAddress: targetWallet })
-    .populate('issuedBy', 'name email university issuerDetails')
-    .sort({ createdAt: -1 });
+  const credentials = await prisma.credential.findMany({
+    where: { studentWalletAddress: { equals: targetWallet, mode: 'insensitive' } },
+    include: {
+      issuedBy: { select: { id: true, name: true, email: true, university: true, issuerDetails: true } }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
 
   res.json({ success: true, credentials });
 });
 
 const revokeCredential = asyncHandler(async (req, res) => {
   const { reason } = req.body;
-  const credential = await Credential.findById(req.params.id).populate('issuedBy');
+  const credential = await prisma.credential.findUnique({
+    where: { id: req.params.id },
+    include: { issuedBy: true }
+  });
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
-  if (credential.issuedBy?._id.toString() !== req.user._id.toString()) {
+  if (credential.issuedById !== req.user.id) {
     return res.status(403).json({ error: 'Unauthorized: Only the original issuer can revoke this credential.' });
   }
   if (credential.isRevoked) return res.status(400).json({ error: 'Credential already revoked' });
 
-  const blockchainResult = await blockchainService.revokeCertificate(credential._id.toString());
+  const blockchainResult = await blockchainService.revokeCertificate(credential.id);
 
   if (credential.tokenId) {
     try {
@@ -276,14 +313,18 @@ const revokeCredential = asyncHandler(async (req, res) => {
     }
   }
 
-  credential.isRevoked = true;
-  credential.revokedAt = new Date();
-  credential.revokedBy = req.user._id;
-  credential.revocationReason = reason;
-  credential.revocationGasUsed = blockchainResult.gasUsed;
-  credential.revocationGasPrice = blockchainResult.gasPrice;
-  credential.revocationTotalCost = blockchainResult.totalCost;
-  await credential.save();
+  await prisma.credential.update({
+    where: { id: credential.id },
+    data: {
+      isRevoked: true,
+      revokedAt: new Date(),
+      revokedById: req.user.id,
+      revocationReason: reason,
+      revocationGasUsed: blockchainResult.gasUsed,
+      revocationGasPrice: blockchainResult.gasPrice,
+      revocationTotalCost: blockchainResult.totalCost
+    }
+  });
 
   res.json({
     success: true,
@@ -294,15 +335,15 @@ const revokeCredential = asyncHandler(async (req, res) => {
 });
 
 const getStats = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
   const isIssuer = req.user.role === 'ISSUER';
 
-  const query = {};
+  const where = {};
   if (isIssuer) {
-    query.issuedBy = userId;
+    where.issuedById = userId;
   } else {
     if (!req.user.walletAddress) return res.status(400).json({ error: 'User wallet address not found' });
-    query.studentWalletAddress = req.user.walletAddress.toLowerCase();
+    where.studentWalletAddress = { equals: req.user.walletAddress.toLowerCase().trim(), mode: 'insensitive' };
   }
 
   const now = new Date();
@@ -313,21 +354,26 @@ const getStats = asyncHandler(async (req, res) => {
 
   const [
     total, active, revoked, thisMonth, today, thisWeek,
-    recent, totalCompleted, totalFailed, verificationReqs, gasBalance, networkStats
+    recent, totalCompleted, totalFailed, verificationsAgg, gasBalance, networkStats
   ] = await Promise.all([
-    Credential.countDocuments(query),
-    Credential.countDocuments({ ...query, isRevoked: false }),
-    Credential.countDocuments({ ...query, isRevoked: true }),
-    Credential.countDocuments({ ...query, createdAt: { $gte: startOfMonth } }),
-    Credential.countDocuments({ ...query, createdAt: { $gte: startOfDay } }),
-    Credential.countDocuments({ ...query, createdAt: { $gte: startOfWeek } }),
-    Credential.find(query).sort({ createdAt: -1 }).limit(5).select('studentName university createdAt type').lean(),
-    Credential.countDocuments({ ...query, status: 'COMPLETED' }),
-    Credential.countDocuments({ ...query, status: 'FAILED' }),
-    Credential.aggregate([
-      { $match: query },
-      { $group: { _id: null, total: { $sum: "$verificationCount" } } }
-    ]),
+    prisma.credential.count({ where }),
+    prisma.credential.count({ where: { ...where, isRevoked: false } }),
+    prisma.credential.count({ where: { ...where, isRevoked: true } }),
+    prisma.credential.count({ where: { ...where, createdAt: { gte: startOfMonth } } }),
+    prisma.credential.count({ where: { ...where, createdAt: { gte: startOfDay } } }),
+    prisma.credential.count({ where: { ...where, createdAt: { gte: startOfWeek } } }),
+    prisma.credential.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { studentName: true, university: true, createdAt: true, type: true }
+    }),
+    prisma.credential.count({ where: { ...where, status: 'COMPLETED' } }),
+    prisma.credential.count({ where: { ...where, status: 'FAILED' } }),
+    prisma.credential.aggregate({
+      where,
+      _sum: { verificationCount: true }
+    }),
     (async () => {
       if (!walletAddress) return '0.00';
       try {
@@ -349,7 +395,7 @@ const getStats = asyncHandler(async (req, res) => {
     success: true,
     stats: {
       total, active, revoked, thisMonth, gasBalance, today, thisWeek,
-      verificationRequests: verificationReqs[0]?.total || 0,
+      verificationRequests: verificationsAgg._sum.verificationCount || 0,
       networkStats,
       transactionSuccessRate: totalProcessed > 0 ? Math.round((totalCompleted / totalProcessed) * 100) : 100
     },
@@ -358,9 +404,12 @@ const getStats = asyncHandler(async (req, res) => {
 });
 
 const verifyCredential = asyncHandler(async (req, res) => {
-  const credential = await Credential.findById(req.params.id)
-    .populate('issuedBy', 'name university email issuerDetails')
-    .lean();
+  const credential = await prisma.credential.findUnique({
+    where: { id: req.params.id },
+    include: {
+      issuedBy: { select: { id: true, name: true, university: true, email: true, issuerDetails: true } }
+    }
+  });
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
 
@@ -387,8 +436,10 @@ const verifyCredential = asyncHandler(async (req, res) => {
 });
 
 const getCredentialStatus = asyncHandler(async (req, res) => {
-  const credential = await Credential.findById(req.params.id)
-    .select('status processingError certificateHash transactionHash ipfsCID');
+  const credential = await prisma.credential.findUnique({
+    where: { id: req.params.id },
+    select: { id: true, status: true, processingError: true, certificateHash: true, transactionHash: true, ipfsCID: true }
+  });
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
 
@@ -397,7 +448,7 @@ const getCredentialStatus = asyncHandler(async (req, res) => {
     success: true,
     status: credential.status,
     credential: {
-      id: credential._id,
+      id: credential.id,
       error: credential.processingError,
       certificateHash: isCompleted ? credential.certificateHash : null,
       transactionHash: isCompleted ? credential.transactionHash : null,

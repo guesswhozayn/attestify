@@ -85,10 +85,7 @@ export const networkAPI = {
 export const userAPI = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (data) => api.put('/users/profile', data),
-  changePassword: (data) => api.put('/users/password', data),
-  uploadAvatar: (formData) => api.post('/users/avatar', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  changePassword: (data) => api.put('/users/password', data)
 };
 
 export const fileAPI = {

@@ -15,11 +15,14 @@ import {
   Plus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const isIssuer = user?.role === 'ISSUER';
 
   const handleLogout = () => {
@@ -46,23 +49,31 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 w-60 bg-white border-r border-[#EAECF0] flex flex-col h-full transition-transform duration-200 ease-in-out ${
+      className={`fixed inset-y-0 left-0 z-50 w-60 border-r flex flex-col h-full transition-transform duration-200 ease-in-out ${
+        isDark ? 'bg-[#0e1017] border-white/[0.08]' : 'bg-white border-[#EAECF0]'
+      } ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >
-      <div className="p-5 flex items-center justify-between border-b border-[#F2F4F7]">
+      <div className={`p-5 flex items-center justify-between border-b ${
+        isDark ? 'border-white/[0.08]' : 'border-[#F2F4F7]'
+      }`}>
         <div
           onClick={() => handleNavigate('/dashboard')}
           className="cursor-pointer"
         >
-          <span className="font-mono text-xl font-bold tracking-tight lowercase text-stone-900">
-            attestify<span className="text-indigo-600">.</span>
+          <span className={`font-mono text-xl font-bold tracking-tight lowercase ${
+            isDark ? 'text-white' : 'text-stone-900'
+          }`}>
+            attestify<span className="text-indigo-500">.</span>
           </span>
         </div>
 
         <button
           onClick={onClose}
-          className="md:hidden p-1 text-stone-400 hover:text-stone-900 rounded-lg hover:bg-stone-100"
+          className={`md:hidden p-1 rounded-lg ${
+            isDark ? 'text-stone-400 hover:text-white hover:bg-stone-800' : 'text-stone-400 hover:text-stone-900 hover:bg-stone-100'
+          }`}
           aria-label="Close sidebar"
         >
           <X className="w-4 h-4" />
@@ -82,51 +93,69 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
                 onClick={() => handleNavigate(item.path)}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                   active
-                    ? 'bg-stone-900 text-white'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
+                    ? isDark ? 'bg-white text-stone-950 font-semibold' : 'bg-stone-900 text-white'
+                    : isDark
+                      ? 'text-stone-400 hover:text-white hover:bg-white/[0.06]'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-stone-400'}`} />
+                <Icon className={`w-4 h-4 ${active ? (isDark ? 'text-stone-950' : 'text-white') : (isDark ? 'text-stone-500' : 'text-stone-400')}`} />
                 <span>{item.label}</span>
               </button>
             );
           })}
       </div>
 
-      <div className="p-3 border-t border-[#F2F4F7] space-y-2">
+      <div className={`p-3 border-t space-y-2 ${isDark ? 'border-white/[0.08]' : 'border-[#F2F4F7]'}`}>
         {isIssuer && onQuickIssue && (
           <div className="flex items-center gap-1.5 pb-2">
             <button
               onClick={() => onQuickIssue('single')}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-all shadow-xs"
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium transition-all shadow-xs cursor-pointer ${
+                isDark
+                  ? 'bg-white text-stone-950 hover:bg-stone-200'
+                  : 'bg-stone-900 hover:bg-stone-800 text-white'
+              }`}
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Issue</span>
             </button>
             <button
               onClick={() => onQuickIssue('bulk')}
-              className="p-2 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors shadow-2xs"
+              className={`p-2 rounded-xl border transition-colors shadow-2xs cursor-pointer ${
+                isDark
+                  ? 'border-white/[0.1] text-stone-300 hover:bg-stone-800 hover:text-white'
+                  : 'border-stone-200 text-stone-600 hover:bg-stone-50'
+              }`}
               title="Bulk issue"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-stone-500" />
+              <FileSpreadsheet className={`w-3.5 h-3.5 ${isDark ? 'text-stone-400' : 'text-stone-500'}`} />
             </button>
           </div>
         )}
 
         {user && (
-          <div className="flex items-center justify-between p-2 rounded-xl bg-stone-50 border border-stone-100">
+          <div className={`flex items-center justify-between p-2 rounded-xl border ${
+            isDark
+              ? 'bg-stone-900/60 border-white/[0.06]'
+              : 'bg-stone-50 border-stone-100'
+          }`}>
             <div className="min-w-0 pr-2">
-              <div className="text-xs font-semibold text-stone-900 truncate">
+              <div className={`text-xs font-semibold truncate ${isDark ? 'text-white' : 'text-stone-900'}`}>
                 {user?.issuerDetails?.institutionName || user?.name || 'Account'}
               </div>
-              <div className="text-[10px] text-stone-400 truncate">
+              <div className={`text-[10px] truncate ${isDark ? 'text-stone-400' : 'text-stone-400'}`}>
                 {isIssuer ? 'Issuer' : 'Student'}
               </div>
             </div>
 
             <button
               onClick={handleLogout}
-              className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                isDark
+                  ? 'text-stone-400 hover:text-rose-400 hover:bg-stone-800'
+                  : 'text-stone-400 hover:text-rose-600 hover:bg-white'
+              }`}
               title="Log out"
             >
               <LogOut className="w-3.5 h-3.5" />

@@ -4,13 +4,18 @@ const blockchainService = require('../services/blockchainService');
 
 const getNetworkStats = asyncHandler(async (req, res) => {
   try {
-    const [networkStats, totalIssued, totalRevoked, gasRecords, recent] = await Promise.all([
+    const [networkStats, totalIssued, totalRevoked, [gasAgg], recent] = await Promise.all([
       blockchainService.getNetworkStats(),
       prisma.credential.count(),
       prisma.credential.count({ where: { isRevoked: true } }),
-      prisma.credential.findMany({
-        select: { gasUsed: true, revocationGasUsed: true, totalCost: true, revocationTotalCost: true }
-      }),
+      prisma.$queryRaw`
+        SELECT 
+          COALESCE(SUM(NULLIF(regexp_replace("gasUsed", '[^0-9]', '', 'g'), '')::numeric), 0) +
+          COALESCE(SUM(NULLIF(regexp_replace("revocationGasUsed", '[^0-9]', '', 'g'), '')::numeric), 0) AS total_gas_used,
+          COALESCE(SUM(NULLIF(regexp_replace("totalCost", '[^0-9]', '', 'g'), '')::numeric), 0) +
+          COALESCE(SUM(NULLIF(regexp_replace("revocationTotalCost", '[^0-9]', '', 'g'), '')::numeric), 0) AS total_cost_wei
+        FROM credentials
+      `,
       prisma.credential.findMany({
         take: 10,
         orderBy: { createdAt: 'desc' },
@@ -18,14 +23,8 @@ const getNetworkStats = asyncHandler(async (req, res) => {
       })
     ]);
 
-    let totalGasUsed = 0n;
-    let totalCostWei = 0n;
-    for (const r of gasRecords) {
-      if (r.gasUsed && !isNaN(Number(r.gasUsed))) totalGasUsed += BigInt(Math.trunc(Number(r.gasUsed)));
-      if (r.revocationGasUsed && !isNaN(Number(r.revocationGasUsed))) totalGasUsed += BigInt(Math.trunc(Number(r.revocationGasUsed)));
-      if (r.totalCost && !isNaN(Number(r.totalCost))) totalCostWei += BigInt(Math.trunc(Number(r.totalCost)));
-      if (r.revocationTotalCost && !isNaN(Number(r.revocationTotalCost))) totalCostWei += BigInt(Math.trunc(Number(r.revocationTotalCost)));
-    }
+    const totalGasUsed = BigInt(gasAgg?.total_gas_used ? Math.trunc(Number(gasAgg.total_gas_used)) : 0);
+    const totalCostWei = BigInt(gasAgg?.total_cost_wei ? Math.trunc(Number(gasAgg.total_cost_wei)) : 0);
 
     res.json({
       success: true,

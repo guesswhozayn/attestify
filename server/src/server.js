@@ -43,8 +43,6 @@ app.use('/api/auth/', rateLimit({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/uploads/avatars', express.static(path.join(__dirname, '../uploads/avatars')));
-
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
@@ -86,11 +84,13 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
+let serverInstance;
+
 const startServer = async () => {
   try {
     await connectDB();
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+    serverInstance = app.listen(PORT, () => {
       console.log(`\n  Attestify Backend Server\n  Port: ${PORT}\n  Environment: ${process.env.NODE_ENV || 'development'}\n  Database: Connected\n`);
     });
     require('./workers/issuanceWorker');
@@ -101,6 +101,25 @@ const startServer = async () => {
 };
 
 startServer();
+
+const gracefulShutdown = async (signal) => {
+  console.log(`\n[Server] Received ${signal}. Closing connections...`);
+  if (serverInstance) {
+    serverInstance.close(() => console.log('[Server] HTTP server closed'));
+  }
+  const { prisma } = require('./config/database');
+  const { connection } = require('./services/queueService');
+  try {
+    await prisma.$disconnect();
+    await connection.quit();
+  } catch (e) {
+    console.warn('[Server] Error disconnecting cleanly:', e.message);
+  }
+  process.exit(0);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);

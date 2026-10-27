@@ -1,16 +1,20 @@
-const fs = require('fs');
-const path = require('path');
-const User = require('../models/User');
+const { prisma } = require('../config/database');
 const asyncHandler = require('../middleware/asyncHandler');
 
-const updateProfile = asyncHandler(async (req, res) => {
-  const { name, title, university, about, walletAddress, issuerDetails } = req.body;
+const sanitizeUser = (user) => {
+  if (!user) return null;
+  const { password, ...safeUser } = user;
+  return safeUser;
+};
 
-  const updateFields = {};
-  if (name) updateFields.name = name;
-  if (title) updateFields.title = title;
-  if (university) updateFields.university = university;
-  if (about) updateFields.about = about;
+const updateProfile = asyncHandler(async (req, res) => {
+  const { name, title, university, about, walletAddress, preferences, issuerDetails } = req.body;
+
+  const data = {};
+  if (name !== undefined) data.name = name;
+  if (title !== undefined) data.title = title;
+  if (university !== undefined) data.university = university;
+  if (about !== undefined) data.about = about;
 
   if (walletAddress) {
     const currentWallet = req.user.issuerDetails?.authorizedWalletAddress || req.user.walletAddress;
@@ -20,69 +24,51 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     const normalizedWallet = walletAddress.toLowerCase().trim();
     if (normalizedWallet !== currentWallet?.toLowerCase()) {
-      const escapedWallet = normalizedWallet.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const existingWallet = await User.findOne({
-        walletAddress: { $regex: new RegExp(`^${escapedWallet}$`, 'i') },
-        _id: { $ne: req.user._id }
+      const existingWallet = await prisma.user.findFirst({
+        where: {
+          walletAddress: { equals: normalizedWallet, mode: 'insensitive' },
+          id: { not: req.user.id }
+        }
       });
       if (existingWallet) {
         return res.status(400).json({ error: 'Wallet address is already associated with another account' });
       }
-      updateFields.walletAddress = normalizedWallet;
-      if (req.user.role === 'ISSUER') {
-        updateFields['issuerDetails.authorizedWalletAddress'] = normalizedWallet;
-      }
+      data.walletAddress = normalizedWallet;
     }
   }
 
-  if (req.body.preferences) {
-    updateFields.preferences = { ...req.user.preferences?.toObject(), ...req.body.preferences };
+  if (preferences) {
+    const currentPrefs = (req.user.preferences && typeof req.user.preferences === 'object') ? req.user.preferences : {};
+    data.preferences = { ...currentPrefs, ...preferences };
   }
 
   if (issuerDetails) {
-    if (issuerDetails.institutionName) updateFields['issuerDetails.institutionName'] = issuerDetails.institutionName;
-    if (issuerDetails.registrationNumber) {
-      const existingReg = await User.findOne({
-        'issuerDetails.registrationNumber': issuerDetails.registrationNumber,
-        _id: { $ne: req.user._id }
+    const currentDetails = (req.user.issuerDetails && typeof req.user.issuerDetails === 'object') ? req.user.issuerDetails : {};
+    if (issuerDetails.registrationNumber && issuerDetails.registrationNumber !== currentDetails.registrationNumber) {
+      const existingReg = await prisma.user.findFirst({
+        where: {
+          issuerDetails: { path: ['registrationNumber'], equals: issuerDetails.registrationNumber },
+          id: { not: req.user.id }
+        }
       });
       if (existingReg) {
         return res.status(400).json({ error: 'Registration number already in use by another institution.' });
       }
-      updateFields['issuerDetails.registrationNumber'] = issuerDetails.registrationNumber;
     }
-    if (issuerDetails.website !== undefined) updateFields['issuerDetails.website'] = issuerDetails.website;
-    if (issuerDetails.contactEmail !== undefined) updateFields['issuerDetails.contactEmail'] = issuerDetails.contactEmail;
-    if (issuerDetails.phone !== undefined) updateFields['issuerDetails.phone'] = issuerDetails.phone;
-    if (issuerDetails.address !== undefined) updateFields['issuerDetails.address'] = issuerDetails.address;
-    if (issuerDetails.accreditation !== undefined) updateFields['issuerDetails.accreditation'] = issuerDetails.accreditation;
+
+    const updatedIssuerDetails = { ...currentDetails, ...issuerDetails };
+    if (data.walletAddress && req.user.role === 'ISSUER') {
+      updatedIssuerDetails.authorizedWalletAddress = data.walletAddress;
+    }
+    data.issuerDetails = updatedIssuerDetails;
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    { $set: updateFields },
-    { new: true, runValidators: true }
-  );
+  const updatedUser = await prisma.user.update({
+    where: { id: req.user.id },
+    data
+  });
 
-  res.json({ success: true, user });
+  res.json({ success: true, user: sanitizeUser(updatedUser) });
 });
 
-const uploadAvatar = asyncHandler(async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Please upload a file' });
-
-  if (req.user.avatar?.includes('/uploads/avatars/')) {
-    const oldPath = path.join(__dirname, '../../uploads/avatars', req.user.avatar.split('/uploads/avatars/')[1]);
-    if (fs.existsSync(oldPath)) {
-      try { fs.unlinkSync(oldPath); } catch (err) { console.warn('Failed to delete old avatar:', err.message); }
-    }
-  }
-
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-  const avatarUrl = `${protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
-
-  const user = await User.findByIdAndUpdate(req.user._id, { avatar: avatarUrl }, { new: true });
-
-  res.json({ success: true, avatar: avatarUrl, user });
-});
-
-module.exports = { updateProfile, uploadAvatar };
+module.exports = { updateProfile };

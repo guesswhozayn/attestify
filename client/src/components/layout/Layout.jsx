@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import IssueCredentialModal from '../credential/IssueCredentialModal';
@@ -20,6 +21,7 @@ const getPageTitle = (pathname) => pageTitles[pathname] || (pathname.includes('/
 
 const Layout = () => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSingleModal, setShowSingleModal] = useState(false);
@@ -28,6 +30,7 @@ const Layout = () => {
 
   const isVerify = location.pathname.startsWith('/verify');
   const isPublicVerify = isVerify && !user;
+  const isDark = theme === 'dark';
 
   const handleQuickIssue = (type) => {
     if (type === 'bulk') {
@@ -39,7 +42,11 @@ const Layout = () => {
 
   if (isPublicVerify) {
     return (
-      <div className="min-h-dvh bg-[#F8F9FA] flex flex-col selection:bg-stone-900 selection:text-white text-stone-900 font-sans">
+      <div className={`min-h-dvh flex flex-col font-sans transition-colors ${
+        isDark
+          ? 'bg-[#0a0a0c] selection:bg-stone-100 selection:text-stone-900 text-stone-100'
+          : 'bg-[#F8F9FA] selection:bg-stone-900 selection:text-white text-stone-900'
+      }`}>
         <main className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 w-full">
           <Outlet />
         </main>
@@ -48,7 +55,11 @@ const Layout = () => {
   }
 
   return (
-    <div className="min-h-dvh bg-[#F8F9FA] flex selection:bg-stone-900 selection:text-white text-stone-900 font-sans dashboard-light relative">
+    <div className={`min-h-dvh flex font-sans relative transition-colors ${
+      isDark
+        ? 'dashboard-dark bg-[#0a0a0c] selection:bg-stone-100 selection:text-stone-900 text-stone-100'
+        : 'dashboard-light bg-[#F8F9FA] selection:bg-stone-900 selection:text-white text-stone-900'
+    }`}>
       <Sidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
@@ -57,7 +68,9 @@ const Layout = () => {
 
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-stone-950/25 backdrop-blur-xs z-30 md:hidden transition-opacity"
+          className={`fixed inset-0 z-30 md:hidden transition-opacity backdrop-blur-xs ${
+            isDark ? 'bg-black/60' : 'bg-stone-950/25'
+          }`}
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

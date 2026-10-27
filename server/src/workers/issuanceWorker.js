@@ -1,14 +1,17 @@
 const { Worker } = require('bullmq');
 const { connection } = require('../services/queueService');
 const credentialService = require('../services/credentialService');
-const Credential = require('../models/Credential');
+const { prisma } = require('../config/database');
 
 const issuanceWorker = new Worker('issuanceQueue', async (job) => {
   console.log(`[Worker] Processing job ${job.id} for credential ${job.data.data.credentialId}`);
   const { data, user } = job.data;
 
   try {
-    await Credential.findByIdAndUpdate(data.credentialId, { status: 'PROCESSING', jobId: job.id });
+    await prisma.credential.update({
+      where: { id: data.credentialId },
+      data: { status: 'PROCESSING', jobId: job.id }
+    });
 
     if (data.studentImageBuffer?.type === 'Buffer') {
       data.studentImageBuffer = Buffer.from(data.studentImageBuffer.data);
@@ -19,9 +22,12 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
     return result;
   } catch (error) {
     console.error(`[Worker] Job ${job.id} failed:`, error.message);
-    await Credential.findByIdAndUpdate(data.credentialId, {
-      status: 'FAILED',
-      processingError: error.message
+    await prisma.credential.update({
+      where: { id: data.credentialId },
+      data: {
+        status: 'FAILED',
+        processingError: error.message
+      }
     });
     throw error;
   }
