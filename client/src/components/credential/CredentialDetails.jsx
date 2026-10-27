@@ -483,7 +483,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             <div className="bg-white border border-[#E8E4DC] rounded-3xl p-6 flex flex-col items-center shadow-xs">
                <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-5">Scan to verify</span>
                <div className="p-3 bg-white border border-stone-200 rounded-2xl mb-4 shadow-xs">
-                 <QRCodeDisplay credentialId={credential._id} />
+                 <QRCodeDisplay credentialId={credential.id || credential._id} />
                </div>
                <p className="text-xs text-stone-500 text-center leading-relaxed">
                  Scan with a phone camera to view and verify this certificate.

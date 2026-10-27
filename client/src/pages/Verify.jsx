@@ -45,15 +45,16 @@ const VerifyDashboard = () => {
     if (urlId) return urlId;
     if (location.search) {
       const params = new URLSearchParams(location.search);
-      return params.get('walletAddress') || params.get('credentialId') || params.get('registrationNumber') || '';
+      return params.get('credentialId') || params.get('id') || params.get('walletAddress') || params.get('registrationNumber') || '';
     }
     return '';
   };
 
-  const [activeTab, setActiveTab] = useState(urlId ? 'id' : 'file');
+  const initialTarget = getInitialTarget();
+  const [activeTab, setActiveTab] = useState(initialTarget ? 'id' : 'file');
   const [file, setFile] = useState(null);
   const [computedHash, setComputedHash] = useState('');
-  const [searchTarget, setSearchTarget] = useState(getInitialTarget);
+  const [searchTarget, setSearchTarget] = useState(initialTarget);
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
   const [copiedKey, setCopiedKey] = useState('');
@@ -61,10 +62,13 @@ const VerifyDashboard = () => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (urlId) {
-      handleVerifyTarget(urlId);
+    const target = urlId || (location.search ? new URLSearchParams(location.search).get('credentialId') || new URLSearchParams(location.search).get('id') || new URLSearchParams(location.search).get('walletAddress') : '');
+    if (target) {
+      setSearchTarget(target);
+      setActiveTab('id');
+      handleVerifyTarget(target);
     }
-  }, [urlId]);
+  }, [urlId, location.search]);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0];
@@ -100,11 +104,26 @@ const VerifyDashboard = () => {
 
     try {
       const response = await verifyAPI.checkExists(target.trim());
-      setResult(response.data);
-    } catch {
+      const data = response.data;
+      if (data.credential) {
+        setResult(data);
+      } else if (data.credentials && data.credentials.length > 0) {
+        const first = data.credentials[0];
+        setResult({
+          valid: !first.isRevoked,
+          revoked: first.isRevoked,
+          exists: true,
+          credential: first,
+          credentials: data.credentials,
+          verificationTier: 'ON_CHAIN_REGISTRY'
+        });
+      } else {
+        setResult(data);
+      }
+    } catch (err) {
       setResult({
         valid: false,
-        message: 'No record found with this certificate ID or wallet address.'
+        message: err.response?.data?.message || 'No record found with this certificate ID or wallet address.'
       });
     } finally {
       setVerifying(false);
@@ -121,11 +140,14 @@ const VerifyDashboard = () => {
         setComputedHash(fileHash);
         const queryTarget = searchTarget || 'credential';
         const response = await verifyAPI.verifyByHash(queryTarget, fileHash);
-        setResult(response.data);
-      } catch {
+        setResult({
+          ...response.data,
+          verificationTier: 'CRYPTOGRAPHIC_HASH'
+        });
+      } catch (err) {
         setResult({
           valid: false,
-          message: 'This document does not match any registered certificate. It may have been edited or was not issued through Attestify.'
+          message: err.response?.data?.message || 'This document does not match any registered certificate. It may have been edited or was not issued through Attestify.'
         });
       } finally {
         setVerifying(false);
@@ -159,9 +181,10 @@ const VerifyDashboard = () => {
 
   const isSuccess = result?.valid && !result?.revoked;
   const isRevoked = result?.revoked;
-  const qrVerificationUrl = `${window.location.origin}/verify?${
-    result?.credential?._id ? `credentialId=${result.credential._id}` : `walletAddress=${result?.credential?.studentWalletAddress || ''}`
-  }`;
+  const credentialKey = result?.credential?.id || result?.credential?._id;
+  const qrVerificationUrl = credentialKey
+    ? `${window.location.origin}/verify/${credentialKey}`
+    : `${window.location.origin}/verify?walletAddress=${result?.credential?.studentWalletAddress || ''}`;
 
   return (
     <div
@@ -286,7 +309,9 @@ const VerifyDashboard = () => {
                     }`}
                   >
                     {isSuccess
-                      ? 'Certificate Verified Authentic'
+                      ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
+                        ? 'Document Cryptographically Verified'
+                        : 'Certificate Verified Authentic'
                       : isRevoked
                       ? 'Certificate Revoked'
                       : 'Certificate Not Found'}
@@ -301,7 +326,11 @@ const VerifyDashboard = () => {
                     }`}
                   >
                     {isSuccess
-                      ? 'This credential matches the official institutional registry.'
+                      ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
+                        ? 'The certificate PDF file was cryptographically matched to the tamper-proof on-chain digest.'
+                        : result.onChainVerified
+                        ? 'This credential was cryptographically confirmed against the Ethereum blockchain registry.'
+                        : result.message || 'This credential matches the official institutional registry.'
                       : isRevoked
                       ? 'This credential was formally revoked by the issuing institution.'
                       : result.message || 'No credential matching this document was found.'}
@@ -317,7 +346,15 @@ const VerifyDashboard = () => {
                       : 'bg-stone-200 border-stone-300 text-stone-800 dark:bg-stone-500/20 dark:border-stone-500/30 dark:text-stone-200'
                   }`}
                 >
-                  {isSuccess ? 'GENUINE' : isRevoked ? 'REVOKED' : 'NOT FOUND'}
+                  {isSuccess
+                    ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
+                      ? 'CRYPTOGRAPHIC FILE MATCH (100%)'
+                      : result.onChainVerified
+                      ? 'ON-CHAIN VERIFIED'
+                      : 'OFFICIAL REGISTRY'
+                    : isRevoked
+                    ? 'REVOKED'
+                    : 'NOT FOUND'}
                 </div>
               </div>
 
@@ -383,6 +420,30 @@ const VerifyDashboard = () => {
                           : 'N/A'}
                       </p>
                     </div>
+
+                    {result.credential.studentWalletAddress && (
+                      <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left sm:col-span-2 pt-2 border-t border-stone-200 dark:border-white/[0.08]">
+                        <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
+                          Recipient Wallet
+                        </span>
+                        <div className="flex items-center gap-2 font-mono text-xs text-stone-900 dark:text-stone-200">
+                          <span>
+                            {result.credential.studentWalletAddress.length > 22
+                              ? `${result.credential.studentWalletAddress.slice(0, 10)}...${result.credential.studentWalletAddress.slice(-8)}`
+                              : result.credential.studentWalletAddress}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => copyText(result.credential.studentWalletAddress, 'wallet')}
+                            className="p-1 rounded text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white cursor-pointer"
+                            title="Copy wallet address"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Blockchain Receipt Link */}

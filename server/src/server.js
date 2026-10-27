@@ -40,6 +40,14 @@ app.use('/api/auth/', rateLimit({
   legacyHeaders: false,
 }));
 
+app.use('/api/verify/', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  message: { error: 'Too many verification attempts, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

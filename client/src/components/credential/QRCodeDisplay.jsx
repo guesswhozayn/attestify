@@ -3,7 +3,8 @@ import Button from '../shared/Button';
 import { Download } from 'lucide-react';
 
 const QRCodeDisplay = ({ credentialId }) => {
-  const qrValue = `${window.location.origin}/verify?credentialId=${credentialId}`;
+  if (!credentialId) return null;
+  const qrValue = `${window.location.origin}/verify/${credentialId}`;
 
   const downloadQR = () => {
     const svg = document.getElementById('qr-code');

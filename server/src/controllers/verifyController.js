@@ -58,47 +58,70 @@ async function checkPrivacy(credential, reqUser) {
 }
 
 function buildVerificationResponse(credential, isValidOnChain, hash) {
+  const courseOrTitle = credential.certificationData?.title ||
+    credential.transcriptData?.program ||
+    credential.course ||
+    credential.title ||
+    'Academic Credential';
+
+  const credentialData = {
+    id: credential.id,
+    _id: credential.id,
+    type: credential.type,
+    course: courseOrTitle,
+    title: courseOrTitle,
+    studentName: credential.studentName,
+    studentWalletAddress: credential.studentWalletAddress,
+    university: credential.university,
+    issueDate: credential.issueDate,
+    issuedBy: credential.issuedBy?.name || 'Unknown Issuer',
+    transactionHash: credential.transactionHash,
+    blockNumber: credential.blockNumber,
+    ipfsCID: credential.ipfsCID,
+    certificateHash: credential.certificateHash
+  };
+
   if (credential.isRevoked) {
     return {
-      valid: false, exists: true, revoked: true,
+      valid: false,
+      exists: true,
+      revoked: true,
       message: 'This certificate has been revoked',
       credential: {
-        studentName: credential.studentName,
-        studentWalletAddress: credential.studentWalletAddress,
-        university: credential.university,
+        ...credentialData,
         revokedAt: credential.revokedAt,
         revocationReason: credential.revocationReason
       }
     };
   }
 
-  if (isValidOnChain && hash === credential.certificateHash) {
+  if (hash && hash !== credential.certificateHash) {
     return {
-      valid: true, exists: true,
-      message: 'Certificate is authentic and valid',
-      credential: {
-        studentName: credential.studentName,
-        studentWalletAddress: credential.studentWalletAddress,
-        university: credential.university,
-        issueDate: credential.issueDate,
-        issuedBy: credential.issuedBy?.name || 'Unknown Issuer',
-        transactionHash: credential.transactionHash,
-        blockNumber: credential.blockNumber,
-        ipfsCID: credential.ipfsCID
-      }
-    };
-  }
-
-  if (hash !== credential.certificateHash) {
-    return {
-      valid: false, exists: true,
+      valid: false,
+      exists: true,
+      revoked: false,
       message: 'Certificate hash does not match - possible tampering detected'
     };
   }
 
+  if (isValidOnChain) {
+    return {
+      valid: true,
+      exists: true,
+      revoked: false,
+      message: 'Certificate is authentic and valid',
+      credential: credentialData
+    };
+  }
+
   return {
-    valid: false, exists: true,
-    message: 'On-chain verification failed. The credential may not be minted or the network is unreachable.'
+    valid: credential.status === 'COMPLETED' && !credential.isRevoked,
+    exists: true,
+    revoked: false,
+    message: credential.status === 'COMPLETED'
+      ? 'Certificate verified in institutional registry (On-chain sync pending)'
+      : 'On-chain verification failed. The credential may not be minted or the network is unreachable.',
+    credential: credentialData
   };
 }
 
@@ -130,7 +153,11 @@ const verifyWithFile = asyncHandler(async (req, res) => {
     await recordVerification(credential.id);
     safeUnlink(tempFilePath);
 
-    return res.json(buildVerificationResponse(credential, isValidOnChain, uploadedHash));
+    return res.json({
+      ...buildVerificationResponse(credential, isValidOnChain, uploadedHash),
+      onChainVerified: isValidOnChain,
+      verificationTier: 'CRYPTOGRAPHIC_HASH'
+    });
   } catch (error) {
     console.error('Verify error:', error);
     safeUnlink(tempFilePath);
@@ -142,22 +169,58 @@ const checkExists = asyncHandler(async (req, res) => {
   const { walletAddress } = req.params;
   const normalizedWallet = walletAddress.toLowerCase().trim();
 
-  let credentials = [];
   if (isIdentifier(walletAddress)) {
     const cred = await prisma.credential.findUnique({
       where: { id: walletAddress },
-      include: { issuedBy: { select: { name: true, university: true } } }
+      include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
     });
-    if (cred) credentials = [cred];
-  } else {
-    credentials = await prisma.credential.findMany({
-      where: { studentWalletAddress: { equals: normalizedWallet, mode: 'insensitive' } },
-      include: { issuedBy: { select: { name: true, university: true } } }
+
+    if (!cred) {
+      return res.status(404).json({ valid: false, exists: false, message: 'No credential found with this ID' });
+    }
+
+    if (!await checkPrivacy(cred, req.user)) {
+      return res.status(403).json({
+        exists: true,
+        isPrivate: true,
+        message: 'This student profile is private. Credentials cannot be viewed publicly.'
+      });
+    }
+
+    const providedHash = req.query.h || req.query.hash;
+    if (providedHash && providedHash !== cred.certificateHash) {
+      return res.json({
+        valid: false,
+        exists: true,
+        revoked: cred.isRevoked,
+        message: 'Certificate hash does not match - possible tampering detected'
+      });
+    }
+
+    let isValidOnChain = false;
+    try {
+      isValidOnChain = await blockchainService.verifyCredential(cred.id, cred.certificateHash);
+    } catch (e) {
+      console.warn('Blockchain verify check failed:', e.message);
+    }
+
+    await recordVerification(cred.id);
+    const verificationResp = buildVerificationResponse(cred, isValidOnChain, cred.certificateHash);
+
+    return res.json({
+      ...verificationResp,
+      onChainVerified: isValidOnChain,
+      verificationTier: providedHash ? 'CRYPTOGRAPHIC_HASH' : (isValidOnChain ? 'ON_CHAIN_REGISTRY' : 'REGISTRY_RECORD')
     });
   }
 
+  const credentials = await prisma.credential.findMany({
+    where: { studentWalletAddress: { equals: normalizedWallet, mode: 'insensitive' } },
+    include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+  });
+
   if (!credentials.length) {
-    return res.json({ exists: false, message: 'No credentials found for this Wallet Address' });
+    return res.status(404).json({ valid: false, exists: false, message: 'No credentials found for this Wallet Address' });
   }
 
   const actualWalletAddress = credentials[0].studentWalletAddress;
@@ -170,14 +233,25 @@ const checkExists = asyncHandler(async (req, res) => {
 
   if (student?.preferences?.visibility === false) {
     return res.status(403).json({
-      exists: true, isPrivate: true,
+      exists: true,
+      isPrivate: true,
       message: 'This student profile is private. Credentials cannot be viewed publicly.'
     });
   }
 
-  res.json({
-    exists: true,
-    credentials: credentials.map(c => ({
+  const mappedCredentials = credentials.map(c => {
+    const courseOrTitle = c.certificationData?.title ||
+      c.transcriptData?.program ||
+      c.course ||
+      c.title ||
+      'Academic Credential';
+
+    return {
+      id: c.id,
+      _id: c.id,
+      type: c.type,
+      course: courseOrTitle,
+      title: courseOrTitle,
       studentName: c.studentName,
       studentWalletAddress: c.studentWalletAddress,
       university: c.university,
@@ -186,7 +260,16 @@ const checkExists = asyncHandler(async (req, res) => {
       isRevoked: c.isRevoked,
       transactionHash: c.transactionHash,
       ipfsCID: c.ipfsCID
-    }))
+    };
+  });
+
+  res.json({
+    valid: mappedCredentials.some(c => !c.isRevoked),
+    exists: true,
+    revoked: mappedCredentials.every(c => c.isRevoked),
+    credential: mappedCredentials[0],
+    credentials: mappedCredentials,
+    verificationTier: 'ON_CHAIN_REGISTRY'
   });
 });
 
