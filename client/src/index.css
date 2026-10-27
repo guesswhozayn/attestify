@@ -279,21 +279,72 @@
 
   .dashboard-dark .bg-stone-50,
   .dashboard-dark .bg-stone-50\/60,
+  .dashboard-dark .bg-stone-50\/70,
   .dashboard-dark .bg-stone-50\/80,
   .dashboard-dark .bg-stone-100 {
     background-color: #181920 !important;
   }
 
+  .dashboard-dark .bg-\[\#F2F4F7\] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
   .dashboard-dark .hover\:bg-stone-50:hover,
-  .dashboard-dark .hover\:bg-stone-50\/80:hover {
+  .dashboard-dark .hover\:bg-stone-50\/80:hover,
+  .dashboard-dark .hover\:bg-stone-100:hover,
+  .dashboard-dark .hover\:bg-stone-200\/60:hover,
+  .dashboard-dark .hover\:bg-\[\#FAF8F5\]:hover,
+  .dashboard-dark .hover\:bg-\[\#faf8f5\]:hover {
     background-color: #1a1b24 !important;
+  }
+
+  .dashboard-dark .hover\:bg-rose-50:hover {
+    background-color: rgba(244, 63, 94, 0.15) !important;
+  }
+
+  .dashboard-dark .hover\:bg-emerald-100:hover {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+  }
+
+  .dashboard-dark .hover\:text-stone-800:hover,
+  .dashboard-dark .hover\:text-stone-900:hover,
+  .dashboard-dark .hover\:text-stone-950:hover {
+    color: #ffffff !important;
   }
 
   .dashboard-dark .border-stone-100,
   .dashboard-dark .border-stone-200,
   .dashboard-dark .border-stone-200\/60,
-  .dashboard-dark .border-stone-200\/80 {
+  .dashboard-dark .border-stone-200\/80,
+  .dashboard-dark .border-stone-300 {
     border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .dashboard-dark .hover\:border-stone-300:hover,
+  .dashboard-dark .hover\:border-stone-400:hover {
+    border-color: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  .dashboard-dark [data-sidebar-active="true"] {
+    background-color: #ffffff !important;
+    color: #09090b !important;
+  }
+
+  .dashboard-dark [data-sidebar-active="true"] svg {
+    color: #09090b !important;
+  }
+
+  .dashboard-dark [data-sidebar-action="true"] {
+    background-color: #ffffff !important;
+    color: #09090b !important;
+  }
+
+  .dashboard-dark [data-sidebar-action="true"] svg {
+    color: #09090b !important;
+  }
+
+  .dashboard-dark [data-sidebar-action="true"]:hover {
+    background-color: #e4e4e7 !important;
   }
 
   /* Dark Dashboard Buttons */
@@ -446,11 +497,13 @@
   }
 
   .dashboard-dark .bg-emerald-50,
+  .dashboard-dark .bg-emerald-50\/40,
   .dashboard-dark .bg-emerald-50\/50,
   .dashboard-dark .bg-emerald-100\/70 {
     background-color: rgba(16, 185, 129, 0.12) !important;
   }
 
+  .dashboard-dark .text-emerald-600,
   .dashboard-dark .text-emerald-700,
   .dashboard-dark .text-emerald-800 {
     color: #34d399 !important;
@@ -468,12 +521,14 @@
     background-color: rgba(244, 63, 94, 0.12) !important;
   }
 
+  .dashboard-dark .text-rose-600,
   .dashboard-dark .text-rose-700,
   .dashboard-dark .text-rose-800 {
     color: #fb7185 !important;
   }
 
   .dashboard-dark .border-rose-200,
+  .dashboard-dark .border-rose-200\/60,
   .dashboard-dark .border-rose-200\/80 {
     border-color: rgba(244, 63, 94, 0.25) !important;
   }
@@ -492,10 +547,16 @@
   }
 
   /* Table and filter pill active states */
-  .dashboard-dark .bg-stone-100 button.bg-white {
+  .dashboard-dark .bg-stone-100 button.bg-white,
+  .dashboard-dark .bg-stone-100\/80 button.bg-white {
     background-color: #272833 !important;
     color: #ffffff !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .dashboard-dark .bg-stone-100 button:hover:not(.bg-white),
+  .dashboard-dark .bg-stone-100\/80 button:hover:not(.bg-white) {
+    color: #ffffff !important;
   }
 
   .dashboard-dark .bg-amber-50 {
@@ -514,6 +575,14 @@
   .dashboard-dark .divide-stone-100 > :not([hidden]) ~ :not([hidden]),
   .dashboard-dark .border-stone-100 {
     border-color: rgba(255, 255, 255, 0.07) !important;
+  }
+
+  .dashboard-dark .text-indigo-600 {
+    color: #818cf8 !important;
+  }
+
+  .dashboard-dark .hover\:text-indigo-500:hover {
+    color: #a5b4fc !important;
   }
 }
 

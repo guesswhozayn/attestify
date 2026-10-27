@@ -115,7 +115,7 @@ const VerificationPortal = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="flex bg-stone-100/80 p-1.5 rounded-2xl border border-stone-200/60 text-xs font-semibold text-stone-600">
+            <div className="flex bg-stone-100 p-1.5 rounded-2xl border border-stone-200/60 text-xs font-semibold text-stone-600">
               <button
                 type="button"
                 onClick={() => setActiveTab('file')}
@@ -202,14 +202,14 @@ const VerificationPortal = () => {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-stone-400 group-focus-within:text-stone-700 transition-colors" />
+                    <Search data-input-icon className="h-4 w-4 text-stone-400 group-focus-within:text-stone-900 transition-colors" />
                   </div>
                   <input
                     type="text"
                     placeholder="0x... or certificate reference ID"
                     value={walletAddress}
                     onChange={(e) => setWalletAddress(e.target.value)}
-                    className="block w-full pl-10 pr-9 py-2.5 bg-stone-50 hover:bg-white focus:bg-white border border-stone-200 focus:border-stone-400 rounded-xl text-stone-900 placeholder-stone-400 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-stone-400 transition-all shadow-2xs"
+                    className="block w-full pl-10 pr-9 py-2.5 bg-stone-50 hover:bg-white focus:bg-white border border-stone-200 focus:border-stone-400 rounded-xl text-stone-900 placeholder-stone-400 font-mono text-xs focus:outline-none transition-all shadow-2xs"
                   />
                   {walletAddress && (
                     <button

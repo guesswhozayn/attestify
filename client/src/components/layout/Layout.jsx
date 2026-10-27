@@ -44,8 +44,8 @@ const Layout = () => {
     return (
       <div className={`min-h-dvh flex flex-col font-sans transition-colors ${
         isDark
-          ? 'bg-[#0a0a0c] selection:bg-stone-100 selection:text-stone-900 text-stone-100'
-          : 'bg-[#F8F9FA] selection:bg-stone-900 selection:text-white text-stone-900'
+          ? 'dashboard-dark bg-[#0a0a0c] selection:bg-stone-100 selection:text-stone-900 text-stone-100'
+          : 'dashboard-light bg-[#F8F9FA] selection:bg-stone-900 selection:text-white text-stone-900'
       }`}>
         <main className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 w-full">
           <Outlet />

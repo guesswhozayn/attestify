@@ -147,7 +147,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Issue credential" size="2xl">
       {loading && (
         <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-xs flex flex-col items-center justify-center z-50 rounded-2xl">
-          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
+          <div data-modal-panel className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
             <Loader2 className="w-8 h-8 text-stone-900 animate-spin mb-3" />
             <h3 className="text-stone-900 text-sm font-semibold mb-1">Issuing credential</h3>
             <p className="text-stone-500 text-center text-xs">{loadingMessage}</p>

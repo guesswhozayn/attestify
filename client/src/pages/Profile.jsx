@@ -30,6 +30,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(false);
     const [linkingWallet, setLinkingWallet] = useState(false);
     const [connectedAddress, setConnectedAddress] = useState('');
+    const [isCopied, setIsCopied] = useState(false);
 
     const isIssuer = user?.role === 'ISSUER';
 
@@ -167,7 +168,9 @@ const Profile = () => {
     const copyAddress = (address) => {
         if (!address) return;
         navigator.clipboard.writeText(address);
+        setIsCopied(true);
         showNotification('Address copied to clipboard', 'success');
+        setTimeout(() => setIsCopied(false), 2000);
     };
 
     return (
@@ -229,7 +232,7 @@ const Profile = () => {
                                 {user?.issuerDetails?.institutionName || user?.name || (isIssuer ? 'Institution' : 'Student')}
                             </h2>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-medium self-start sm:self-auto">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 border border-stone-200/60 text-stone-700 text-xs font-medium self-start sm:self-auto">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                             {isIssuer ? 'Verified Registry Identity' : 'Verified Student'}
                         </span>
@@ -310,7 +313,7 @@ const Profile = () => {
                             )}
                         </div>
                     ) : (
-                        <dl className="divide-y divide-stone-100 text-xs">
+                        <dl className="text-xs">
                             <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                                 <dt className="text-stone-500 font-medium">Account Email</dt>
                                 <dd className="sm:col-span-2 text-stone-900 font-mono mt-1 sm:mt-0">{user?.email}</dd>
@@ -337,7 +340,7 @@ const Profile = () => {
                                                     href={user.issuerDetails.website}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-stone-900 underline hover:text-stone-600 transition-colors"
+                                                    className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
                                                 >
                                                     {user.issuerDetails.website}
                                                 </a>
@@ -432,7 +435,7 @@ const Profile = () => {
                                     className="p-1.5 text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 rounded-lg transition-colors cursor-pointer shrink-0"
                                     title="Copy address"
                                 >
-                                    <Copy className="w-3.5 h-3.5" />
+                                    {isCopied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                                 </button>
                             )}
                         </div>
@@ -452,7 +455,7 @@ const Profile = () => {
                                     variant="primary"
                                     size="sm"
                                     icon={Link2}
-                                    className="w-full rounded-xl py-2 text-xs bg-stone-900 hover:bg-stone-800 text-white"
+                                    className="w-full rounded-xl py-2 text-xs"
                                 >
                                     Link wallet
                                 </Button>
@@ -471,7 +474,7 @@ const Profile = () => {
                             Registry Details
                         </span>
 
-                        <div className="space-y-3 text-xs divide-y divide-stone-100">
+                        <div className="space-y-3 text-xs">
                             <div className="flex items-center justify-between pt-1">
                                 <span className="text-stone-500">Authority Type</span>
                                 <span className="font-semibold text-stone-900">

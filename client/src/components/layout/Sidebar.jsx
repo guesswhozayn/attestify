@@ -91,6 +91,7 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
               <button
                 key={item.label}
                 onClick={() => handleNavigate(item.path)}
+                data-sidebar-active={active ? 'true' : undefined}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                   active
                     ? isDark ? 'bg-white text-stone-950 font-semibold' : 'bg-stone-900 text-white'
@@ -111,6 +112,7 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
           <div className="flex items-center gap-1.5 pb-2">
             <button
               onClick={() => onQuickIssue('single')}
+              data-sidebar-action="true"
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium transition-all shadow-xs cursor-pointer ${
                 isDark
                   ? 'bg-white text-stone-950 hover:bg-stone-200'

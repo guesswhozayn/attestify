@@ -142,15 +142,15 @@ const StudentCredentials = () => {
                 >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#EAECF0] shadow-[0_1px_3px_rgba(16,24,40,0.02)]">
 
-                        <div className="flex p-1 space-x-1 bg-[#F8F9FA] rounded-xl border border-[#EAECF0]">
+                        <div className="flex p-0.5 bg-stone-100 rounded-xl border border-stone-200/60">
                             {['all', 'TRANSCRIPT', 'CERTIFICATION'].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                                         activeTab === tab
-                                            ? 'bg-stone-900 text-white shadow-xs'
-                                            : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                                            ? 'bg-white text-stone-900 shadow-xs'
+                                            : 'text-stone-600 hover:text-stone-900'
                                     }`}
                                 >
                                     {tab === 'all' ? 'All' : tab === 'TRANSCRIPT' ? 'Transcripts' : 'Certificates'}

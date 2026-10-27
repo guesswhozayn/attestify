@@ -109,7 +109,7 @@ const VerificationResult = ({ result }) => {
                 <Hash className="w-3.5 h-3.5" />
                 <span>Recipient wallet address</span>
               </div>
-              <div className="p-3 bg-[#F8F9FA] border border-stone-200/80 rounded-xl font-mono text-xs text-stone-800 break-all select-all">
+              <div className="p-3 bg-stone-50 border border-stone-200/80 rounded-xl font-mono text-xs text-stone-800 break-all select-all">
                 {result.credential.studentWalletAddress}
               </div>
             </div>

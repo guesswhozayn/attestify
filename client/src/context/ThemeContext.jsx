@@ -9,6 +9,16 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('attestify_dashboard_theme', theme);
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+      root.style.colorScheme = 'light';
+    }
   }, [theme]);
 
   const toggleTheme = () => {
