@@ -9,13 +9,13 @@ const roundedStyles = {
 };
 
 const variants = {
-  primary: 'bg-white hover:bg-stone-100 text-stone-900 border border-white/20 shadow-xs disabled:opacity-50',
-  secondary: 'bg-white/10 hover:bg-white/15 text-white border border-white/15 backdrop-blur-md shadow-xs disabled:opacity-40',
-  white: 'bg-white text-stone-900 hover:bg-stone-100 border border-white/20 font-semibold shadow-xs disabled:opacity-50',
+  primary: 'bg-stone-900 hover:bg-stone-800 text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 border border-stone-900 dark:border-white/20 shadow-xs disabled:opacity-50',
+  secondary: 'bg-stone-100 hover:bg-stone-200 text-stone-900 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white border border-stone-200 dark:border-white/15 backdrop-blur-md shadow-xs disabled:opacity-40',
+  white: 'bg-white text-stone-900 hover:bg-stone-100 border border-stone-200 dark:border-white/20 font-semibold shadow-xs disabled:opacity-50',
   success: 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 shadow-xs disabled:opacity-50',
-  danger: 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 shadow-2xs disabled:opacity-50',
-  outline: 'bg-transparent hover:bg-white/5 text-stone-200 hover:text-white border border-white/20 shadow-2xs disabled:opacity-40',
-  ghost: 'text-stone-300 hover:text-white hover:bg-white/10 disabled:opacity-40',
+  danger: 'bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 shadow-2xs disabled:opacity-50',
+  outline: 'bg-white hover:bg-stone-50 text-stone-800 border-stone-300 dark:bg-transparent dark:hover:bg-white/5 dark:text-stone-200 dark:hover:text-white dark:border-white/20 shadow-2xs disabled:opacity-40',
+  ghost: 'text-stone-700 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-white dark:hover:bg-white/10 disabled:opacity-40',
 };
 
 const filterConflictingStyles = (variantStyle, customClassName) => {
@@ -27,9 +27,9 @@ const filterConflictingStyles = (variantStyle, customClassName) => {
   const hasCustomShadow = customClassName.includes('shadow-');
 
   return classes.filter(cls => {
-    if (hasCustomBg && (cls.startsWith('bg-') || cls.startsWith('hover:bg-'))) return false;
-    if (hasCustomText && (cls.startsWith('text-') || cls.startsWith('hover:text-'))) return false;
-    if (hasCustomBorder && (cls.startsWith('border-') || cls === 'border' || cls.startsWith('hover:border-'))) return false;
+    if (hasCustomBg && (cls.startsWith('bg-') || cls.startsWith('hover:bg-') || cls.startsWith('dark:bg-') || cls.startsWith('dark:hover:bg-'))) return false;
+    if (hasCustomText && (cls.startsWith('text-') || cls.startsWith('hover:text-') || cls.startsWith('dark:text-') || cls.startsWith('dark:hover:text-'))) return false;
+    if (hasCustomBorder && (cls.startsWith('border-') || cls === 'border' || cls.startsWith('hover:border-') || cls.startsWith('dark:border-') || cls.startsWith('dark:hover:border-'))) return false;
     if (hasCustomShadow && (cls.startsWith('shadow-') || cls.startsWith('hover:shadow-'))) return false;
     return true;
   }).join(' ');
