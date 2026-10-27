@@ -227,79 +227,94 @@ const VerifyDashboard = () => {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-8">
+      <main className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-20 flex flex-col items-center justify-center space-y-8">
         {/* Banner Title */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+        <div className="text-center space-y-2 w-full">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 dark:text-white">
             Verify a Certificate
           </h1>
-          <p className="text-sm sm:text-base text-stone-500 dark:text-stone-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-stone-700 dark:text-stone-300 max-w-md mx-auto leading-relaxed font-normal">
             Verify academic credentials directly against accredited university records.
           </p>
         </div>
 
         {/* Verification Card */}
         <div
-          className={`rounded-2xl p-6 sm:p-8 border transition-colors shadow-xs ${
-            isDark ? 'bg-[#121318] border-white/[0.08]' : 'bg-white border-[#EAECF0]'
+          className={`w-full rounded-2xl p-6 sm:p-8 border transition-colors shadow-xs ${
+            isDark ? 'bg-[#121318] border-white/[0.08]' : 'bg-white border-stone-200 shadow-sm'
           }`}
         >
           {result ? (
             /* Result State */
-            <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="space-y-6 animate-in fade-in duration-300 text-center">
               {/* Status Header */}
               <div
-                className={`rounded-xl p-5 border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                className={`rounded-xl p-6 border flex flex-col items-center text-center gap-3 ${
                   isSuccess
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                    ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30'
                     : isRevoked
-                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                    : 'bg-stone-500/10 border-stone-500/20 text-stone-400'
+                    ? 'bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30'
+                    : 'bg-stone-100 border-stone-300 dark:bg-stone-500/10 dark:border-stone-500/30'
                 }`}
               >
-                <div className="flex items-center gap-3.5">
-                  <div
-                    className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 ${
+                <div
+                  className={`w-14 h-14 rounded-xl border flex items-center justify-center shrink-0 ${
+                    isSuccess
+                      ? 'bg-emerald-100 border-emerald-300 text-emerald-700 dark:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-300'
+                      : isRevoked
+                      ? 'bg-rose-100 border-rose-300 text-rose-700 dark:bg-rose-500/20 dark:border-rose-500/30 dark:text-rose-300'
+                      : 'bg-stone-200 border-stone-300 text-stone-700 dark:bg-stone-500/20 dark:border-stone-500/30 dark:text-stone-300'
+                  }`}
+                >
+                  {isSuccess ? (
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+                  ) : isRevoked ? (
+                    <ShieldAlert className="w-7 h-7 text-rose-600 dark:text-rose-400" />
+                  ) : (
+                    <XCircle className="w-7 h-7 text-stone-600 dark:text-stone-400" />
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <h2
+                    className={`text-xl sm:text-2xl font-bold tracking-tight ${
                       isSuccess
-                        ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
+                        ? 'text-emerald-950 dark:text-emerald-200'
                         : isRevoked
-                        ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
-                        : 'bg-stone-500/20 border-stone-500/30 text-stone-400'
+                        ? 'text-rose-950 dark:text-rose-200'
+                        : 'text-stone-900 dark:text-white'
                     }`}
                   >
-                    {isSuccess ? (
-                      <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                    ) : isRevoked ? (
-                      <ShieldAlert className="w-6 h-6 text-rose-500" />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-stone-400" />
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold tracking-tight">
-                      {isSuccess
-                        ? 'Certificate Verified Authentic'
+                    {isSuccess
+                      ? 'Certificate Verified Authentic'
+                      : isRevoked
+                      ? 'Certificate Revoked'
+                      : 'Certificate Not Found'}
+                  </h2>
+                  <p
+                    className={`text-xs font-medium max-w-md mx-auto ${
+                      isSuccess
+                        ? 'text-emerald-800 dark:text-emerald-300'
                         : isRevoked
-                        ? 'Certificate Revoked'
-                        : 'Certificate Not Found'}
-                    </h2>
-                    <p className="text-xs font-medium opacity-80 mt-0.5">
-                      {isSuccess
-                        ? 'This credential matches the official institutional registry.'
-                        : isRevoked
-                        ? 'This credential was formally revoked by the issuing institution.'
-                        : result.message || 'No credential matching this document was found.'}
-                    </p>
-                  </div>
+                        ? 'text-rose-800 dark:text-rose-300'
+                        : 'text-stone-700 dark:text-stone-300'
+                    }`}
+                  >
+                    {isSuccess
+                      ? 'This credential matches the official institutional registry.'
+                      : isRevoked
+                      ? 'This credential was formally revoked by the issuing institution.'
+                      : result.message || 'No credential matching this document was found.'}
+                  </p>
                 </div>
 
                 <div
-                  className={`px-3 py-1 rounded-md border text-xs font-mono font-bold self-start sm:self-auto ${
+                  className={`px-3.5 py-1 rounded-md border text-xs font-mono font-bold mt-1 ${
                     isSuccess
-                      ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
+                      ? 'bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-300'
                       : isRevoked
-                      ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
-                      : 'bg-stone-500/20 border-stone-500/30 text-stone-400'
+                      ? 'bg-rose-100 border-rose-300 text-rose-800 dark:bg-rose-500/20 dark:border-rose-500/30 dark:text-rose-300'
+                      : 'bg-stone-200 border-stone-300 text-stone-800 dark:bg-stone-500/20 dark:border-stone-500/30 dark:text-stone-200'
                   }`}
                 >
                   {isSuccess ? 'GENUINE' : isRevoked ? 'REVOKED' : 'NOT FOUND'}
@@ -309,56 +324,56 @@ const VerifyDashboard = () => {
               {/* Certificate Details */}
               {result.credential ? (
                 <div
-                  className={`rounded-xl p-5 border space-y-4 ${
+                  className={`rounded-xl p-6 border space-y-5 ${
                     isDark ? 'bg-[#161720] border-white/[0.08]' : 'bg-stone-50 border-stone-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/[0.08]">
-                    <span className="text-xs font-bold tracking-tight uppercase text-stone-400">
+                  <div className="flex items-center justify-between pb-3 border-b border-stone-200 dark:border-white/[0.08]">
+                    <span className="text-xs font-bold tracking-tight uppercase text-stone-700 dark:text-stone-400">
                       Credential Details
                     </span>
-                    <span className="text-xs font-mono text-stone-400">
+                    <span className="text-xs font-mono font-semibold text-stone-700 dark:text-stone-400">
                       {result.credential.type || 'DEGREE'}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className="space-y-1">
-                      <span className="text-stone-400 font-medium flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5" />
+                    <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+                      <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
                         Recipient
                       </span>
-                      <p className="font-bold text-sm text-stone-900 dark:text-stone-100">
+                      <p className="font-bold text-sm text-stone-900 dark:text-white">
                         {result.credential.studentName || 'Not specified'}
                       </p>
                     </div>
 
-                    <div className="space-y-1">
-                      <span className="text-stone-400 font-medium flex items-center gap-1.5">
-                        <Building className="w-3.5 h-3.5" />
+                    <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+                      <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
+                        <Building className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
                         Issuing Institution
                       </span>
-                      <p className="font-bold text-sm text-stone-900 dark:text-stone-100">
+                      <p className="font-bold text-sm text-stone-900 dark:text-white">
                         {result.credential.university || 'Accredited Institution'}
                       </p>
                     </div>
 
-                    <div className="space-y-1">
-                      <span className="text-stone-400 font-medium flex items-center gap-1.5">
-                        <Award className="w-3.5 h-3.5" />
+                    <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+                      <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
+                        <Award className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
                         Degree / Award
                       </span>
-                      <p className="font-semibold text-stone-800 dark:text-stone-200">
+                      <p className="font-semibold text-stone-900 dark:text-stone-100">
                         {result.credential.course || result.credential.title || 'Academic Credential'}
                       </p>
                     </div>
 
-                    <div className="space-y-1">
-                      <span className="text-stone-400 font-medium flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
+                    <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+                      <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
                         Date of Issue
                       </span>
-                      <p className="font-semibold text-stone-800 dark:text-stone-200">
+                      <p className="font-semibold text-stone-900 dark:text-stone-100">
                         {result.credential.issueDate
                           ? new Date(result.credential.issueDate).toLocaleDateString(undefined, {
                               year: 'numeric',
@@ -372,15 +387,14 @@ const VerifyDashboard = () => {
 
                   {/* Blockchain Receipt Link */}
                   {result.credential.transactionHash && (
-                    <div className="pt-3 border-t border-stone-200/60 dark:border-white/[0.08] flex items-center justify-between text-xs">
-                      <span className="text-stone-400">Blockchain Record</span>
+                    <div className="pt-3 border-t border-stone-200 dark:border-white/[0.08] flex items-center justify-center text-xs">
                       <a
                         href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-400 hover:underline inline-flex items-center gap-1 font-mono text-[11px]"
+                        className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
                       >
-                        View on Etherscan
+                        <span>View on Etherscan</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
@@ -388,18 +402,18 @@ const VerifyDashboard = () => {
 
                   {/* Verification QR Seal */}
                   {isSuccess && (
-                    <div className="p-4 rounded-xl bg-white dark:bg-[#121318] border border-stone-200 dark:border-white/[0.08] flex flex-col sm:flex-row items-center gap-4 pt-4">
-                      <div className="p-2 bg-white rounded-lg border border-stone-200 shrink-0">
-                        <QRCodeSVG value={qrVerificationUrl} size={90} level="M" />
+                    <div className="p-5 rounded-xl bg-white dark:bg-[#121318] border border-stone-200 dark:border-white/[0.08] flex flex-col items-center text-center gap-3 pt-5">
+                      <div className="p-2.5 bg-white rounded-lg border border-stone-200 shrink-0 shadow-xs">
+                        <QRCodeSVG value={qrVerificationUrl} size={100} level="M" />
                       </div>
-                      <div className="space-y-1 text-xs text-center sm:text-left">
-                        <span className="font-bold text-stone-900 dark:text-stone-100 block">
+                      <div className="space-y-1 text-xs">
+                        <span className="font-bold text-stone-900 dark:text-white block">
                           Official Verification Link
                         </span>
-                        <p className="text-stone-400 text-[11px] leading-relaxed">
+                        <p className="text-stone-700 dark:text-stone-400 text-[11px] leading-relaxed max-w-sm mx-auto">
                           Scan to confirm this certificate on any mobile device.
                         </p>
-                        <span className="font-mono text-[10px] text-stone-500 block truncate max-w-sm">
+                        <span className="font-mono text-[10px] text-stone-700 dark:text-stone-400 block truncate max-w-xs mx-auto">
                           {qrVerificationUrl}
                         </span>
                       </div>
@@ -409,37 +423,35 @@ const VerifyDashboard = () => {
               ) : null}
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
                 <Button
                   onClick={handleReset}
                   variant="primary"
                   size="md"
                   icon={RefreshCw}
-                  className="rounded-xl cursor-pointer text-xs font-semibold"
+                  className="rounded-xl cursor-pointer text-xs font-semibold px-5"
                 >
                   Verify another certificate
                 </Button>
 
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={handlePrint}
-                    variant="secondary"
-                    size="md"
-                    icon={Printer}
-                    className="rounded-xl text-xs cursor-pointer font-semibold"
-                  >
-                    Print
-                  </Button>
-                  <Button
-                    onClick={() => copyText(qrVerificationUrl, 'share')}
-                    variant="outline"
-                    size="md"
-                    icon={Copy}
-                    className="rounded-xl text-xs cursor-pointer font-semibold"
-                  >
-                    {copiedKey === 'share' ? 'Copied' : 'Copy link'}
-                  </Button>
-                </div>
+                <Button
+                  onClick={handlePrint}
+                  variant="secondary"
+                  size="md"
+                  icon={Printer}
+                  className="rounded-xl text-xs cursor-pointer font-semibold px-5"
+                >
+                  Print
+                </Button>
+                <Button
+                  onClick={() => copyText(qrVerificationUrl, 'share')}
+                  variant="outline"
+                  size="md"
+                  icon={Copy}
+                  className="rounded-xl text-xs cursor-pointer font-semibold px-5"
+                >
+                  {copiedKey === 'share' ? 'Copied' : 'Copy link'}
+                </Button>
               </div>
             </div>
           ) : (
@@ -447,10 +459,10 @@ const VerifyDashboard = () => {
             <div className="space-y-6">
               {/* Tab Selector */}
               <div
-                className={`grid grid-cols-2 p-1 rounded-xl border text-xs font-semibold ${
+                className={`max-w-xs mx-auto grid grid-cols-2 p-1 rounded-xl border text-xs font-semibold ${
                   isDark
-                    ? 'bg-[#181920] border-white/[0.08] text-stone-400'
-                    : 'bg-stone-100 border-stone-200/60 text-stone-600'
+                    ? 'bg-[#181920] border-white/[0.08]'
+                    : 'bg-stone-100 border-stone-200'
                 }`}
               >
                 <button
@@ -460,8 +472,10 @@ const VerifyDashboard = () => {
                     activeTab === 'file'
                       ? isDark
                         ? 'bg-[#272833] text-white shadow-xs'
-                        : 'bg-white text-stone-900 shadow-xs'
-                      : 'hover:text-stone-200'
+                        : 'bg-white text-stone-900 shadow-xs border border-stone-200'
+                      : isDark
+                      ? 'text-stone-300 hover:text-white'
+                      : 'text-stone-700 hover:text-stone-950 font-medium'
                   }`}
                 >
                   <FileCheck2 className="w-3.5 h-3.5" />
@@ -474,8 +488,10 @@ const VerifyDashboard = () => {
                     activeTab === 'id'
                       ? isDark
                         ? 'bg-[#272833] text-white shadow-xs'
-                        : 'bg-white text-stone-900 shadow-xs'
-                      : 'hover:text-stone-200'
+                        : 'bg-white text-stone-900 shadow-xs border border-stone-200'
+                      : isDark
+                      ? 'text-stone-300 hover:text-white'
+                      : 'text-stone-700 hover:text-stone-950 font-medium'
                   }`}
                 >
                   <Search className="w-3.5 h-3.5" />
@@ -490,10 +506,12 @@ const VerifyDashboard = () => {
                     onClick={() => fileInputRef.current?.click()}
                     className={`group border-2 border-dashed rounded-xl p-8 sm:p-12 text-center transition-all cursor-pointer select-none ${
                       file
-                        ? 'border-emerald-500/40 bg-emerald-500/5'
+                        ? isDark
+                          ? 'border-emerald-500/40 bg-emerald-500/10'
+                          : 'border-emerald-500/50 bg-emerald-50/70'
                         : isDark
-                        ? 'border-white/[0.1] bg-[#161720] hover:border-white/[0.25]'
-                        : 'border-stone-200 bg-stone-50/80 hover:border-stone-400'
+                        ? 'border-white/[0.12] bg-[#161720] hover:border-white/[0.25]'
+                        : 'border-stone-300 bg-stone-50/80 hover:border-stone-400'
                     }`}
                   >
                     <input
@@ -504,42 +522,44 @@ const VerifyDashboard = () => {
                       ref={fileInputRef}
                     />
 
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center justify-center">
                       <div
                         className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-transform group-hover:scale-105 ${
                           file
                             ? 'bg-emerald-600 text-white'
                             : isDark
-                            ? 'bg-[#1e2029] text-stone-300 border border-white/[0.08]'
-                            : 'bg-white text-stone-600 border border-stone-200'
+                            ? 'bg-[#1e2029] text-stone-200 border border-white/[0.1]'
+                            : 'bg-white text-stone-700 border border-stone-300 shadow-xs'
                         }`}
                       >
                         {file ? <CheckCircle2 className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
                       </div>
 
                       {file ? (
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 text-center">
                           <div className="flex items-center justify-center gap-2">
-                            <span className="text-sm font-bold truncate max-w-sm">{file.name}</span>
+                            <span className="text-sm font-bold text-stone-900 dark:text-white truncate max-w-sm">
+                              {file.name}
+                            </span>
                             <button
                               type="button"
                               onClick={clearFile}
-                              className="p-1 rounded-lg text-stone-400 hover:text-rose-400 cursor-pointer"
+                              className="p-1 rounded-lg text-stone-500 hover:text-rose-600 dark:text-stone-400 dark:hover:text-rose-400 cursor-pointer"
                               title="Remove file"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-                          <p className="text-xs text-emerald-500 font-medium">
+                          <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
                             Ready to verify
                           </p>
                         </div>
                       ) : (
-                        <div className="space-y-1">
-                          <h3 className="text-sm sm:text-base font-bold">
+                        <div className="space-y-1 text-center">
+                          <h3 className="text-sm sm:text-base font-bold text-stone-900 dark:text-white">
                             Drop your certificate PDF here
                           </h3>
-                          <p className="text-xs text-stone-400">
+                          <p className="text-xs text-stone-700 dark:text-stone-300 font-medium">
                             or click to browse from your computer (PDF up to 25 MB)
                           </p>
                         </div>
@@ -564,12 +584,12 @@ const VerifyDashboard = () => {
               {/* Mode 2: ID Search */}
               {activeTab === 'id' && (
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold block text-stone-400">
+                  <div className="space-y-2 text-center">
+                    <label className="text-xs font-semibold block text-stone-800 dark:text-stone-200">
                       Certificate Reference ID or Student Wallet
                     </label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                    <div className="relative group max-w-lg mx-auto">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-stone-400">
                         <Search className="w-4 h-4" />
                       </div>
                       <input
@@ -580,21 +600,21 @@ const VerifyDashboard = () => {
                         onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
                         className={`block w-full pl-10 pr-10 py-3 rounded-xl font-mono text-xs transition-all focus:outline-none ${
                           isDark
-                            ? 'bg-[#161720] border border-white/[0.1] text-white placeholder-stone-500 focus:border-white'
-                            : 'bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 focus:border-stone-900'
+                            ? 'bg-[#161720] border border-white/[0.12] text-white placeholder-stone-400 focus:border-indigo-400'
+                            : 'bg-stone-50 border border-stone-300 text-stone-900 placeholder-stone-500 focus:border-indigo-600 focus:bg-white'
                         }`}
                       />
                       {searchTarget && (
                         <button
                           type="button"
                           onClick={() => setSearchTarget('')}
-                          className="absolute inset-y-0 right-3 flex items-center text-stone-400 hover:text-stone-200 cursor-pointer"
+                          className="absolute inset-y-0 right-3 flex items-center text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
-                    <p className="text-[11px] text-stone-400">
+                    <p className="text-[11px] text-stone-700 dark:text-stone-300 font-medium">
                       Enter the ID printed on the certificate or the recipient wallet address.
                     </p>
                   </div>
@@ -618,14 +638,14 @@ const VerifyDashboard = () => {
 
         {/* Privacy Note */}
         <div
-          className={`p-4 rounded-xl border text-xs flex items-center justify-center gap-2.5 text-center ${
+          className={`w-full max-w-xl mx-auto p-4 rounded-xl border text-xs flex items-center justify-center gap-2.5 text-center ${
             isDark
-              ? 'bg-[#121318]/50 border-white/[0.06] text-stone-400'
-              : 'bg-white border-[#EAECF0] text-stone-500'
+              ? 'bg-[#121318]/70 border-white/[0.08] text-stone-200'
+              : 'bg-white border-stone-200 text-stone-800 shadow-xs'
           }`}
         >
-          <Lock className="w-4 h-4 text-indigo-500 shrink-0" />
-          <span>
+          <Lock className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+          <span className="font-medium">
             Cryptographic verification is performed locally in your browser. Document files are never uploaded or stored.
           </span>
         </div>
