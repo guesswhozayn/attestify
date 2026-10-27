@@ -68,9 +68,9 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/partnership-guide" element={<PartnershipGuide />} />
+          <Route path="/verify" element={<VerifyPage />} />
+          <Route path="/verify/:id" element={<VerifyPage />} />
           <Route element={<Layout />}>
-            <Route path="/verify" element={<VerifyPage />} />
-            <Route path="/verify/:id" element={<VerifyPage />} />
             <Route
               path="/dashboard"
               element={

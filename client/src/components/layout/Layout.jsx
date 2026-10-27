@@ -14,7 +14,6 @@ const pageTitles = {
   '/profile': 'Profile',
   '/revoked': 'Revoked credentials',
   '/network-status': 'Network status',
-  '/verify': 'Verify credential',
 };
 
 const getPageTitle = (pathname) => pageTitles[pathname] || (pathname.includes('/student/') ? 'Profile' : 'Attestify');
@@ -27,9 +26,6 @@ const Layout = () => {
   const [showSingleModal, setShowSingleModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const title = getPageTitle(location.pathname);
-
-  const isVerify = location.pathname.startsWith('/verify');
-  const isPublicVerify = isVerify && !user;
   const isDark = theme === 'dark';
 
   const handleQuickIssue = (type) => {
@@ -39,20 +35,6 @@ const Layout = () => {
       setShowSingleModal(true);
     }
   };
-
-  if (isPublicVerify) {
-    return (
-      <div className={`min-h-dvh flex flex-col font-sans transition-colors ${
-        isDark
-          ? 'dashboard-dark bg-[#0a0a0c] selection:bg-stone-100 selection:text-stone-900 text-stone-100'
-          : 'dashboard-light bg-[#F8F9FA] selection:bg-stone-900 selection:text-white text-stone-900'
-      }`}>
-        <main className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 w-full">
-          <Outlet />
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className={`min-h-dvh flex font-sans relative transition-colors ${

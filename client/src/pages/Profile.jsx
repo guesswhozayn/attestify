@@ -18,7 +18,11 @@ import {
     Phone,
     MapPin,
     CheckCircle2,
-    Link2
+    Link2,
+    GraduationCap,
+    Calendar,
+    Hash,
+    ExternalLink
 } from 'lucide-react';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
@@ -63,11 +67,19 @@ const Profile = () => {
         detectWallet();
     }, []);
 
+    const studentData = user?.preferences?.studentDetails || user?.studentDetails || {};
+
     const [formData, setFormData] = useState(() => ({
         name: user?.name || '',
         title: user?.title || '',
         university: user?.university || '',
         about: user?.about || '',
+        studentId: studentData.studentId || '',
+        graduationYear: studentData.graduationYear || '',
+        degreeLevel: studentData.degreeLevel || '',
+        enrollmentStatus: studentData.enrollmentStatus || 'Active',
+        linkedin: studentData.linkedin || '',
+        github: studentData.github || '',
         institutionName: user?.issuerDetails?.institutionName || user?.name || '',
         registrationNumber: user?.issuerDetails?.registrationNumber || '',
         website: user?.issuerDetails?.website || '',
@@ -80,11 +92,18 @@ const Profile = () => {
 
     if (user !== prevUser) {
         setPrevUser(user);
+        const currentStudentData = user?.preferences?.studentDetails || user?.studentDetails || {};
         setFormData({
             name: user?.name || '',
             title: user?.title || '',
             university: user?.university || '',
             about: user?.about || '',
+            studentId: currentStudentData.studentId || '',
+            graduationYear: currentStudentData.graduationYear || '',
+            degreeLevel: currentStudentData.degreeLevel || '',
+            enrollmentStatus: currentStudentData.enrollmentStatus || 'Active',
+            linkedin: currentStudentData.linkedin || '',
+            github: currentStudentData.github || '',
             institutionName: user?.issuerDetails?.institutionName || user?.name || '',
             registrationNumber: user?.issuerDetails?.registrationNumber || '',
             website: user?.issuerDetails?.website || '',
@@ -117,6 +136,14 @@ const Profile = () => {
             } else {
                 payload.title = formData.title;
                 payload.university = formData.university;
+                payload.studentDetails = {
+                    studentId: formData.studentId,
+                    graduationYear: formData.graduationYear,
+                    degreeLevel: formData.degreeLevel,
+                    enrollmentStatus: formData.enrollmentStatus,
+                    linkedin: formData.linkedin,
+                    github: formData.github
+                };
             }
 
             const response = await userAPI.updateProfile(payload);
@@ -256,11 +283,53 @@ const Profile = () => {
                                         icon={Building}
                                     />
                                     <Input
-                                        label="Academic Title / Major"
+                                        label="Degree Program / Major"
                                         value={formData.title}
                                         onChange={(e) => setFormData({...formData, title: e.target.value})}
                                         placeholder="e.g. B.S. in Computer Science"
                                         icon={Award}
+                                    />
+                                    <Input
+                                        label="Student ID / Roll Number"
+                                        value={formData.studentId}
+                                        onChange={(e) => setFormData({...formData, studentId: e.target.value})}
+                                        placeholder="e.g. STU-2024-8842"
+                                        icon={Hash}
+                                    />
+                                    <Input
+                                        label="Degree Level"
+                                        value={formData.degreeLevel}
+                                        onChange={(e) => setFormData({...formData, degreeLevel: e.target.value})}
+                                        placeholder="e.g. Undergraduate, Master's"
+                                        icon={GraduationCap}
+                                    />
+                                    <Input
+                                        label="Graduation / Completion Year"
+                                        value={formData.graduationYear}
+                                        onChange={(e) => setFormData({...formData, graduationYear: e.target.value})}
+                                        placeholder="e.g. 2026"
+                                        icon={Calendar}
+                                    />
+                                    <Input
+                                        label="Enrollment Status"
+                                        value={formData.enrollmentStatus}
+                                        onChange={(e) => setFormData({...formData, enrollmentStatus: e.target.value})}
+                                        placeholder="Active, Graduated, Alum"
+                                        icon={CheckCircle2}
+                                    />
+                                    <Input
+                                        label="LinkedIn Profile URL"
+                                        value={formData.linkedin}
+                                        onChange={(e) => setFormData({...formData, linkedin: e.target.value})}
+                                        placeholder="https://linkedin.com/in/username"
+                                        icon={Globe}
+                                    />
+                                    <Input
+                                        label="GitHub / Portfolio URL"
+                                        value={formData.github}
+                                        onChange={(e) => setFormData({...formData, github: e.target.value})}
+                                        placeholder="https://github.com/username"
+                                        icon={ExternalLink}
                                     />
                                 </>
                             )}
@@ -377,11 +446,68 @@ const Profile = () => {
                                         </dd>
                                     </div>
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
-                                        <dt className="text-stone-500 font-medium">Academic Title</dt>
+                                        <dt className="text-stone-500 font-medium">Program / Major</dt>
                                         <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
                                             {user?.title || 'Student'}
                                         </dd>
                                     </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Student ID</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-mono mt-1 sm:mt-0">
+                                            {studentData.studentId || 'Not recorded'}
+                                        </dd>
+                                    </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Degree Level</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                            {studentData.degreeLevel || 'Not recorded'}
+                                        </dd>
+                                    </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Graduation Year</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                            {studentData.graduationYear || 'Not recorded'}
+                                        </dd>
+                                    </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Enrollment Status</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 text-[11px] font-medium border border-stone-200/60">
+                                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                                {studentData.enrollmentStatus || 'Active'}
+                                            </span>
+                                        </dd>
+                                    </div>
+                                    {studentData.linkedin && (
+                                        <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                            <dt className="text-stone-500 font-medium">LinkedIn</dt>
+                                            <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                                <a
+                                                    href={studentData.linkedin.startsWith('http') ? studentData.linkedin : `https://${studentData.linkedin}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
+                                                >
+                                                    {studentData.linkedin}
+                                                </a>
+                                            </dd>
+                                        </div>
+                                    )}
+                                    {studentData.github && (
+                                        <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                            <dt className="text-stone-500 font-medium">GitHub / Portfolio</dt>
+                                            <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                                <a
+                                                    href={studentData.github.startsWith('http') ? studentData.github : `https://${studentData.github}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
+                                                >
+                                                    {studentData.github}
+                                                </a>
+                                            </dd>
+                                        </div>
+                                    )}
                                 </>
                             )}
                         </dl>

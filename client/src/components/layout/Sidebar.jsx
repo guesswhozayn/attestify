@@ -42,7 +42,6 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
       { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
       { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] }
     ] : []),
-    { icon: CheckCircle2, path: '/verify', label: 'Verify', roles: ['ISSUER', 'STUDENT'] },
     { icon: Settings, path: '/settings', label: 'Settings', roles: ['ISSUER', 'STUDENT'] },
     { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] }
   ];

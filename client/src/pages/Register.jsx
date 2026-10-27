@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet } from 'lucide-react';
+import { User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet, Shield } from 'lucide-react';
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
