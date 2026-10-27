@@ -71,7 +71,7 @@ const Header = ({
             onClick={toggleTheme}
             className={`p-2 rounded-xl transition-colors cursor-pointer ${
               isDark
-                ? 'text-amber-400 hover:text-amber-300 hover:bg-white/[0.06]'
+                ? 'text-white hover:text-stone-200 hover:bg-white/[0.06]'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
             }`}
             title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
