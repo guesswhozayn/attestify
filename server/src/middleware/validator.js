@@ -1,6 +1,25 @@
+const fs = require('fs');
+
+const cleanupFiles = (req) => {
+  if (req.file?.path && fs.existsSync(req.file.path)) {
+    try { fs.unlinkSync(req.file.path); } catch (e) {}
+  }
+  if (req.files) {
+    const fileLists = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+    for (const f of fileLists) {
+      if (f?.path && fs.existsSync(f.path)) {
+        try { fs.unlinkSync(f.path); } catch (e) {}
+      }
+    }
+  }
+};
+
 const validate = (schema) => (req, res, next) => {
   const result = schema(req);
-  if (result) return res.status(400).json({ error: result });
+  if (result) {
+    cleanupFiles(req);
+    return res.status(400).json({ error: result });
+  }
   next();
 };
 

@@ -7,7 +7,9 @@ exports.requireRole = (...allowedRoles) => (req, res, next) => {
 exports.requireAdmin = (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required.' });
   if (req.user.role !== 'ISSUER' || !req.user.issuerDetails?.isVerified) {
-    return res.status(403).json({ error: 'Verified Issuer access required.' });
+    return res.status(403).json({ error: 'Verified Issuer access required. Your institutional account is pending verification.' });
   }
   next();
 };
+
+exports.requireVerifiedIssuer = exports.requireAdmin;

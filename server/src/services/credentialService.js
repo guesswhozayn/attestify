@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const fs = require('fs');
 const { prisma } = require('../config/database');
 const blockchainService = require('./blockchainService');
 const ipfsService = require('./ipfsService');
@@ -38,6 +39,45 @@ class CredentialService {
     const institutionName = reqUser.issuerDetails?.institutionName || university || 'Attestify';
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+    const existingCred = await prisma.credential.findUnique({ where: { id: credentialId } });
+    if (existingCred?.status === 'COMPLETED' && existingCred.transactionHash) {
+      return { credential: existingCred };
+    }
+
+    const onChainDetails = await blockchainService.getOnChainIssuanceDetails(credentialId);
+    if (onChainDetails?.isIssued) {
+      const syncedCred = await prisma.credential.upsert({
+        where: { id: credentialId },
+        update: {
+          status: 'COMPLETED',
+          certificateHash: onChainDetails.certificateHash || existingCred?.certificateHash,
+          ipfsCID: onChainDetails.ipfsCID || existingCred?.ipfsCID,
+          transactionHash: onChainDetails.transactionHash || existingCred?.transactionHash,
+          blockNumber: onChainDetails.blockNumber || existingCred?.blockNumber,
+          tokenId: onChainDetails.tokenId || existingCred?.tokenId,
+          processingError: null
+        },
+        create: {
+          id: credentialId,
+          studentWalletAddress: normalizedStudentWallet,
+          studentName,
+          university: institutionName,
+          issueDate: parsedIssueDate,
+          type,
+          transcriptData,
+          certificationData,
+          issuedById: reqUser.id,
+          certificateHash: onChainDetails.certificateHash || '0x',
+          ipfsCID: onChainDetails.ipfsCID || '',
+          transactionHash: onChainDetails.transactionHash || '',
+          blockNumber: onChainDetails.blockNumber || 0,
+          tokenId: onChainDetails.tokenId || null,
+          status: 'COMPLETED'
+        }
+      });
+      return { credential: syncedCred };
+    }
+
     const pdfBuffer = await pdfService.generateCredentialPDF({
       type, studentName,
       studentWalletAddress: normalizedStudentWallet,
@@ -55,12 +95,25 @@ class CredentialService {
     ]);
 
     let studentImageUrl = null;
-    if (studentImageBuffer) {
+    let imageBuffer = studentImageBuffer;
+    if (!imageBuffer && data.studentImagePath && fs.existsSync(data.studentImagePath)) {
       try {
-        const imageIpfsResult = await ipfsService.uploadFile(studentImageBuffer, `${credentialId}_image_${studentImageName}`);
+        imageBuffer = fs.readFileSync(data.studentImagePath);
+      } catch (readErr) {
+        console.warn('Failed to read student image from path:', readErr.message);
+      }
+    }
+
+    if (imageBuffer) {
+      try {
+        const imageIpfsResult = await ipfsService.uploadFile(imageBuffer, `${credentialId}_image_${studentImageName || 'student_image.png'}`);
         studentImageUrl = ipfsService.getIPFSUrl(imageIpfsResult.ipfsHash);
       } catch (uploadError) {
         console.error('Failed to upload student image to IPFS:', uploadError);
+      } finally {
+        if (data.studentImagePath && fs.existsSync(data.studentImagePath)) {
+          try { fs.unlinkSync(data.studentImagePath); } catch (e) {}
+        }
       }
     }
 
@@ -72,6 +125,10 @@ class CredentialService {
     const blockchainResult = await blockchainService.issueUnifiedCredential(
       normalizedStudentWallet, credentialId, certificateHash, ipfsResult.ipfsHash, metadataURI
     );
+
+    if (blockchainResult.status !== 'success' || !blockchainResult.tokenId) {
+      throw new Error(`Blockchain issuance failed: transaction ${blockchainResult?.transactionHash || 'unknown'} did not confirm successfully.`);
+    }
 
     const userId = reqUser.id;
     const credential = await prisma.credential.upsert({

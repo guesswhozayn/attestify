@@ -24,4 +24,18 @@ exports.authenticate = async (req, res, next) => {
   }
 };
 
+exports.optionalAuthenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+      const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+      if (user && user.isActive && user.tokenVersion === decoded.tokenVersion) {
+        req.user = user;
+      }
+    }
+  } catch (e) {}
+  next();
+};
+
 exports.protect = exports.authenticate;

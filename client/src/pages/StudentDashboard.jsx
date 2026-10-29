@@ -6,7 +6,7 @@ import { getIpfsUrl } from '../services/ipfs';
 import { Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
-import { credentialAPI } from '../services/api';
+import { credentialAPI, userAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import CredentialCard from '../components/credential/CredentialCard';
 import StudentStats from '../components/credential/StudentStats';
@@ -14,7 +14,7 @@ import HeroCard from '../components/shared/HeroCard';
 import EmptyState from '../components/shared/EmptyState';
 
 const StudentDashboard = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
   const [credential, setCredential] = useState(null);
   const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
@@ -37,45 +37,41 @@ const StudentDashboard = () => {
     </>
   );
 
-
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
+    const targetAddress = address || walletAddress;
+    if (!targetAddress) {
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     try {
       if (isRefresh) setRefreshing(true);
       setError('');
 
-      const targetAddress = address || walletAddress;
-
-      if (!targetAddress) {
-        setLoading(false);
-        setRefreshing(false);
-        return;
-      }
-
       if (user?.walletAddress && targetAddress.toLowerCase() !== user.walletAddress.toLowerCase()) {
-        setError(`Wallet mismatch: Connected (${targetAddress.slice(0, 6)}...${targetAddress.slice(-4)}) does not match your account wallet.`);
-        setLoading(false);
-        setRefreshing(false);
+        setError(`Wallet mismatch: Connected (${targetAddress.slice(0, 6)}...${targetAddress.slice(-4)}) does not match your account wallet (${user.walletAddress.slice(0, 6)}...${user.walletAddress.slice(-4)}).`);
         setCredential(null);
         return;
       }
 
       const response = await credentialAPI.getByWalletAddress(targetAddress);
       const docs = response.data.credentials || [];
-
       const total = docs.length;
       const revokedCount = docs.filter(d => d.isRevoked).length;
-      const active = total - revokedCount;
-      const sbtCount = docs.filter(d => !!d.tokenId).length;
-      const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
-      setStats({ total, active, sbtCount, uniqueIssuers });
-
-      setCredential(docs.length > 0 ? docs[0] : null);
+      setStats({
+        total,
+        active: total - revokedCount,
+        sbtCount: docs.filter(d => !!d.tokenId).length,
+        uniqueIssuers: new Set(docs.map(d => d.university || d.issuedBy?.name)).size
+      });
+      setCredential(docs[0] || null);
     } catch (err) {
       console.error('Error fetching credential:', err);
       if (err.response?.status === 403) {
         setError('Unauthorized: You do not have permission to view credentials for this wallet.');
       } else {
-        setError('Failed to load your credentials. Please ensure your wallet is connected.');
+        setError('Failed to load credentials for this wallet.');
       }
       setCredential(null);
     } finally {
@@ -86,9 +82,15 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     let mounted = true;
-    blockchainService.connectWallet()
-      .then(address => {
+    if (typeof window.ethereum === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
+    window.ethereum.request({ method: 'eth_accounts' })
+      .then(accounts => {
         if (!mounted) return;
+        const address = accounts?.[0] || null;
         setWalletAddress(address);
         if (address) {
           fetchCredential(address);
@@ -96,11 +98,26 @@ const StudentDashboard = () => {
           setLoading(false);
         }
       })
-      .catch(e => {
-        console.log("Wallet not auto-connected", e);
+      .catch(() => {
         if (mounted) setLoading(false);
       });
-    return () => { mounted = false; };
+
+    const handleAccountsChanged = (accounts) => {
+      const address = accounts?.[0] || null;
+      setWalletAddress(address);
+      if (address) {
+        fetchCredential(address);
+      } else {
+        setCredential(null);
+        setError('');
+      }
+    };
+
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    return () => {
+      mounted = false;
+      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+    };
   }, [fetchCredential]);
 
   const handleShare = useCallback(() => {
@@ -119,15 +136,27 @@ const StudentDashboard = () => {
   const handleConnect = useCallback(async () => {
     try {
       setLoading(true);
+      setError('');
       const address = await blockchainService.connectWallet();
       setWalletAddress(address);
-      setError('');
+
+      if (!user?.walletAddress) {
+        try {
+          const res = await userAPI.updateProfile({ walletAddress: address });
+          if (res.data?.success && res.data?.user) updateUser(res.data.user);
+        } catch {
+          // ignore profile link error
+        }
+      }
+
       fetchCredential(address);
     } catch (err) {
-      console.error("Connection failed:", err);
+      const msg = err.message || 'Failed to connect wallet';
+      setError(msg);
+      showNotification(msg, 'error');
       setLoading(false);
     }
-  }, [fetchCredential]);
+  }, [user, updateUser, fetchCredential, showNotification]);
 
   if (loading) {
     return (
@@ -165,8 +194,8 @@ const StudentDashboard = () => {
                 </div>
                 <span className="text-rose-800 font-medium">{error}</span>
               </div>
-              {(error.includes('connect your wallet') || error.includes('Wallet mismatch')) && (
-                <Button onClick={handleConnect} icon={Wallet} variant="danger" size="sm" className="shadow-xs text-xs">
+              {(error.includes('Wallet mismatch') || error.includes('Unauthorized') || walletAddress) && (
+                <Button onClick={() => { setWalletAddress(null); setError(''); }} variant="secondary" size="sm" className="shadow-xs text-xs">
                   Disconnect
                 </Button>
               )}

@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { ethers } = require('ethers');
 const { prisma } = require('../config/database');
 const { JWT_EXPIRY } = require('../config/constants');
 const asyncHandler = require('../middleware/asyncHandler');
@@ -29,7 +30,8 @@ const register = asyncHandler(async (req, res) => {
   } = req.body;
 
   const normalizedEmail = email?.toLowerCase().trim();
-  const normalizedWallet = walletAddress?.toLowerCase().trim();
+  const rawWallet = role === 'ISSUER' ? (authorizedWalletAddress || walletAddress) : walletAddress;
+  const normalizedWallet = rawWallet?.toLowerCase().trim() || null;
 
   if (!normalizedEmail || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -41,8 +43,17 @@ const register = asyncHandler(async (req, res) => {
   }
 
   if (normalizedWallet) {
+    if (!ethers.isAddress(normalizedWallet)) {
+      return res.status(400).json({ error: 'Invalid Ethereum wallet address format' });
+    }
+
     const existingWallet = await prisma.user.findFirst({
-      where: { walletAddress: { equals: normalizedWallet, mode: 'insensitive' } }
+      where: {
+        OR: [
+          { walletAddress: { equals: normalizedWallet, mode: 'insensitive' } },
+          { issuerDetails: { path: ['authorizedWalletAddress'], equals: normalizedWallet } }
+        ]
+      }
     });
     if (existingWallet) {
       return res.status(400).json({ error: 'Wallet address already registered' });
@@ -72,19 +83,26 @@ const register = asyncHandler(async (req, res) => {
     userData.issuerDetails = {
       institutionName,
       registrationNumber,
-      isVerified: true,
-      authorizedWalletAddress,
+      isVerified: Boolean(process.env.AUTO_VERIFY_ISSUERS === 'true'),
+      authorizedWalletAddress: normalizedWallet,
       certificatesIssued: 0
     };
   }
 
-  const user = await prisma.user.create({ data: userData });
-
-  res.status(201).json({
-    success: true,
-    message: 'Registration successful. Please log in.',
-    user: formatUserResponse(user)
-  });
+  try {
+    const user = await prisma.user.create({ data: userData });
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful. Please log in.',
+      user: formatUserResponse(user)
+    });
+  } catch (err) {
+    if (err.code === 'P2002') {
+      const field = err.meta?.target?.[0] || 'field';
+      return res.status(400).json({ error: `An account with this ${field === 'walletAddress' ? 'wallet address' : 'email'} already exists` });
+    }
+    throw err;
+  }
 });
 
 const login = asyncHandler(async (req, res) => {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const credentialController = require('../controllers/credentialController');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/roleCheck');
 const { validate, validateIssue } = require('../middleware/validator');
 const upload = require('../middleware/upload');
@@ -20,7 +20,7 @@ router.get('/stats', authenticate, credentialController.getStats);
 
 router.get('/status/:id', authenticate, credentialController.getCredentialStatus);
 
-router.get('/verify/:id', credentialController.verifyCredential);
+router.get('/verify/:id', optionalAuthenticate, credentialController.verifyCredential);
 
 router.get('/:id', authenticate, credentialController.getCredentialById);
 

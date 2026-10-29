@@ -7,5 +7,6 @@ const { protect } = require('../middleware/auth');
 router.get('/profile', protect, authController.getCurrentUser);
 router.put('/profile', protect, userController.updateProfile);
 router.put('/password', protect, authController.changePassword);
+router.patch('/:id/verify-issuer', protect, userController.verifyIssuer);
 
 module.exports = router;

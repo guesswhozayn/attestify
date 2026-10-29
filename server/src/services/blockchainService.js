@@ -1,6 +1,8 @@
+const crypto = require('crypto');
 const { ethers } = require('ethers');
 const contractArtifact = require('../config/contractABI.json');
 const SimpleMutex = require('../utils/mutex');
+const { connection } = require('./queueService');
 
 const contractABI = contractArtifact.abi || contractArtifact;
 
@@ -43,6 +45,9 @@ class BlockchainService {
       try {
         const receipt = await this.provider.getTransactionReceipt(txHash);
         if (receipt?.blockNumber) {
+          if (receipt.status === 0) {
+            throw new Error(`Transaction ${txHash} reverted on-chain.`);
+          }
           console.log(`[Blockchain] Receipt confirmed for ${txHash} (attempt ${attempt}, ${Date.now() - start}ms)`);
           return receipt;
         }
@@ -58,25 +63,33 @@ class BlockchainService {
     );
   }
 
-  async getNonce() {
-    await this.nonceMutex.lock();
-    try {
-      if (this.currentNonce == null) {
-        this.currentNonce = await this.provider.getTransactionCount(this.wallet.address, 'pending');
+  async _acquireRedisLock(lockKey, ttlMs = 30000) {
+    if (!connection || connection.status !== 'ready') return null;
+    const token = crypto.randomUUID();
+    const start = Date.now();
+    while (Date.now() - start < ttlMs) {
+      try {
+        const res = await connection.set(lockKey, token, 'PX', ttlMs, 'NX');
+        if (res === 'OK') {
+          return async () => {
+            const luaScript = `
+              if redis.call("get", KEYS[1]) == ARGV[1] then
+                return redis.call("del", KEYS[1])
+              else
+                return 0
+              end
+            `;
+            try {
+              await connection.eval(luaScript, 1, lockKey, token);
+            } catch (e) {}
+          };
+        }
+      } catch (err) {
+        return null;
       }
-      return this.currentNonce++;
-    } finally {
-      this.nonceMutex.unlock();
+      await new Promise(r => setTimeout(r, 200));
     }
-  }
-
-  async _resetNonce() {
-    await this.nonceMutex.lock();
-    try {
-      this.currentNonce = null;
-    } finally {
-      this.nonceMutex.unlock();
-    }
+    return null;
   }
 
   async _sendWithRetry(contractCall, args, overrides) {
@@ -92,22 +105,17 @@ class BlockchainService {
         delete bumpedOverrides.gasPrice;
         console.log(`[Blockchain] Retrying with nonce=${freshNonce}, maxFeePerGas=${gasOverrides.maxFeePerGas}`);
 
-        await this.nonceMutex.lock();
-        try {
-          this.currentNonce = freshNonce + 1;
-        } finally {
-          this.nonceMutex.unlock();
-        }
+        this.currentNonce = freshNonce + 1;
 
         try {
           return await contractCall(...args, bumpedOverrides);
         } catch (retryErr) {
-          await this._resetNonce();
+          this.currentNonce = null;
           throw retryErr;
         }
       }
 
-      await this._resetNonce();
+      this.currentNonce = null;
       throw err;
     }
   }
@@ -140,15 +148,32 @@ class BlockchainService {
   }
 
   async _sendContractTx(method, args) {
-    const gasEstimate = await method.estimateGas(...args);
-    const nonce = await this.getNonce();
-    const gasOverrides = await this._getGasOverrides();
+    let releaseDistributedLock = null;
+    try {
+      releaseDistributedLock = await this._acquireRedisLock('lock:blockchain:tx', 30000);
+    } catch (e) {}
 
-    return this._sendWithRetry(
-      method.bind(this.contract),
-      args,
-      { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
-    );
+    await this.nonceMutex.lock();
+    try {
+      const gasEstimate = await method.estimateGas(...args);
+      const pendingCount = await this.provider.getTransactionCount(this.wallet.address, 'pending');
+      if (this.currentNonce == null || this.currentNonce < pendingCount) {
+        this.currentNonce = pendingCount;
+      }
+      const nonce = this.currentNonce++;
+      const gasOverrides = await this._getGasOverrides();
+
+      return await this._sendWithRetry(
+        method.bind(this.contract),
+        args,
+        { gasLimit: gasEstimate * 120n / 100n, nonce, ...gasOverrides }
+      );
+    } finally {
+      this.nonceMutex.unlock();
+      if (releaseDistributedLock) {
+        await releaseDistributedLock();
+      }
+    }
   }
 
   async revokeCertificate(studentId) {
@@ -188,11 +213,15 @@ class BlockchainService {
         } catch (e) { }
       }
 
+      if (!tokenId) {
+        throw new Error(`SoulboundMinted event not found in receipt for ${receipt.hash}`);
+      }
+
       return {
         transactionHash: receipt.hash,
         tokenId,
         blockNumber: receipt.blockNumber,
-        status: receipt.status === 1 ? 'success' : 'failed',
+        status: 'success',
         ...this._extractGasStats(receipt)
       };
     } catch (error) {
@@ -231,6 +260,64 @@ class BlockchainService {
     } catch (error) {
       if (error.message.includes('Credential not found')) return null;
       throw new Error(`Failed to get credential: ${error.message}`);
+    }
+  }
+
+  async isIssued(studentId) {
+    try {
+      return await this.contract.isIssued(studentId);
+    } catch (error) {
+      console.warn('isIssued check error:', error.message);
+      return false;
+    }
+  }
+
+  async getOnChainIssuanceDetails(studentId) {
+    try {
+      const isIssued = await this.isIssued(studentId);
+      if (!isIssued) return null;
+
+      const cred = await this.getCredential(studentId);
+      let transactionHash = null;
+      let blockNumber = null;
+      let tokenId = null;
+
+      try {
+        const filter = this.contract.filters.CredentialIssued(studentId);
+        const events = await this.contract.queryFilter(filter);
+        if (events.length > 0) {
+          const event = events[events.length - 1];
+          transactionHash = event.transactionHash;
+          blockNumber = event.blockNumber;
+
+          const receipt = await this.provider.getTransactionReceipt(transactionHash);
+          if (receipt) {
+            for (const log of receipt.logs) {
+              try {
+                const parsedLog = this.contract.interface.parseLog(log);
+                if (parsedLog.name === 'SoulboundMinted') {
+                  tokenId = parsedLog.args.tokenId.toString();
+                  break;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+      } catch (logErr) {
+        console.warn('Failed to query past issuance logs:', logErr.message);
+      }
+
+      return {
+        isIssued: true,
+        certificateHash: cred?.certificateHash,
+        ipfsCID: cred?.ipfsCID,
+        transactionHash,
+        blockNumber,
+        tokenId
+      };
+    } catch (error) {
+      console.error('getOnChainIssuanceDetails error:', error.message);
+      return null;
     }
   }
 

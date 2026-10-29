@@ -1,16 +1,28 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const csv = require('csv-parser');
+const { ethers } = require('ethers');
 const { prisma } = require('../config/database');
 const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const asyncHandler = require('../middleware/asyncHandler');
-const { enqueueIssuanceJob } = require('../services/queueService');
+const { enqueueIssuanceJob, enqueueBulkIssuanceJobs } = require('../services/queueService');
 
 const issueCredential = asyncHandler(async (req, res) => {
   const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
+  const studentImageFile = req.files?.['studentImage']?.[0];
+
+  if (!studentWalletAddress || !ethers.isAddress(studentWalletAddress.trim())) {
+    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+      try { fs.unlinkSync(studentImageFile.path); } catch (e) {}
+    }
+    return res.status(400).json({ error: 'Invalid or missing student Ethereum wallet address' });
+  }
 
   if (new Date(issueDate) > new Date()) {
+    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+      try { fs.unlinkSync(studentImageFile.path); } catch (e) {}
+    }
     return res.status(400).json({ error: 'Issue date cannot be in the future.' });
   }
 
@@ -23,23 +35,15 @@ const issueCredential = asyncHandler(async (req, res) => {
     console.warn('Failed to parse JSON data', e);
   }
 
-  const studentImageFile = req.files?.['studentImage']?.[0];
-  let studentImageBuffer = null;
-  let studentImageName = null;
-
-  if (studentImageFile) {
-    studentImageBuffer = fs.readFileSync(studentImageFile.path);
-    studentImageName = studentImageFile.originalname;
-    fs.unlinkSync(studentImageFile.path);
-  }
-
   const credentialId = crypto.randomUUID();
 
   const data = {
     studentWalletAddress, studentName, university, issueDate, type,
     transcriptData: parsedTranscriptData,
     certificationData: parsedCertificationData,
-    studentImageBuffer, studentImageName, credentialId
+    studentImagePath: studentImageFile ? studentImageFile.path : null,
+    studentImageName: studentImageFile ? studentImageFile.originalname : null,
+    credentialId
   };
 
   await prisma.credential.create({
@@ -56,18 +60,32 @@ const issueCredential = asyncHandler(async (req, res) => {
     }
   });
 
-  const job = await enqueueIssuanceJob({ data, user: req.user });
-  await prisma.credential.update({
-    where: { id: credentialId },
-    data: { jobId: job.id }
-  });
+  try {
+    const job = await enqueueIssuanceJob({ data, user: req.user });
+    await prisma.credential.update({
+      where: { id: credentialId },
+      data: { jobId: job.id }
+    });
 
-  res.status(202).json({
-    success: true,
-    message: 'Credential issuance added to processing queue',
-    jobId: job.id,
-    credentialId
-  });
+    res.status(202).json({
+      success: true,
+      message: 'Credential issuance added to processing queue',
+      jobId: job.id,
+      credentialId
+    });
+  } catch (queueErr) {
+    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+      try { fs.unlinkSync(studentImageFile.path); } catch (e) {}
+    }
+    await prisma.credential.update({
+      where: { id: credentialId },
+      data: {
+        status: 'FAILED',
+        processingError: 'Failed to enqueue issuance job: ' + queueErr.message
+      }
+    });
+    throw queueErr;
+  }
 });
 
 const batchIssueCredentials = asyncHandler(async (req, res) => {
@@ -79,96 +97,143 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
     const stream = fs.createReadStream(file.path).pipe(csv());
     for await (const row of stream) rows.push(row);
   } catch (parseError) {
-    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
     return res.status(400).json({ error: 'Failed to process CSV file', details: parseError.message });
+  } finally {
+    if (fs.existsSync(file.path)) {
+      try { fs.unlinkSync(file.path); } catch (e) {}
+    }
   }
 
-  const summary = { total: rows.length, success: 0, failed: 0, message: '' };
+  const MAX_BATCH_SIZE = 500;
+  if (rows.length > MAX_BATCH_SIZE) {
+    return res.status(400).json({ error: `Batch size exceeds maximum limit of ${MAX_BATCH_SIZE} records per upload.` });
+  }
 
-  for (const row of rows) {
+  if (rows.length === 0) {
+    return res.status(400).json({ error: 'The uploaded CSV file is empty.' });
+  }
+
+  const validDbRecords = [];
+  const validQueueJobs = [];
+  const errors = [];
+
+  rows.forEach((row, idx) => {
+    const rowNum = idx + 2;
     try {
-      if (!row.studentName || !row.studentWalletAddress) throw new Error('Missing required fields');
+      if (!row.studentName?.trim() || !row.studentWalletAddress?.trim()) {
+        throw new Error('Missing studentName or studentWalletAddress');
+      }
+      if (!ethers.isAddress(row.studentWalletAddress.trim())) {
+        throw new Error(`Invalid student wallet address: ${row.studentWalletAddress}`);
+      }
 
-      const type = row.type || 'CERTIFICATION';
-      const issueDate = row.issueDate ? new Date(row.issueDate) : new Date();
-      if (issueDate > new Date()) throw new Error('Issue date cannot be in the future');
+      const type = row.type?.trim().toUpperCase() === 'TRANSCRIPT' ? 'TRANSCRIPT' : 'CERTIFICATION';
+      const parsedDate = row.issueDate ? new Date(row.issueDate) : new Date();
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error(`Invalid issueDate: ${row.issueDate}`);
+      }
+      if (parsedDate > new Date()) {
+        throw new Error('Issue date cannot be in the future');
+      }
 
       let transcriptData = {};
       let certificationData = {};
 
       if (type === 'TRANSCRIPT') {
         transcriptData = {
-          program: row.program,
-          department: row.department,
-          admissionYear: row.admissionYear,
-          graduationYear: row.graduationYear,
-          cgpa: row.cgpa,
+          program: row.program || '',
+          department: row.department || '',
+          admissionYear: row.admissionYear || '',
+          graduationYear: row.graduationYear || '',
+          cgpa: row.cgpa || '',
           courses: row.courses ? row.courses.split('|').map(c => {
             const [code, name, grade, credits] = c.split(';');
-            return { code, name, grade, credits };
+            return { code: code || '', name: name || '', grade: grade || '', credits: credits || '' };
           }) : []
         };
       } else {
         certificationData = {
-          title: row.title || row.certificationTitle,
-          description: row.description,
-          level: row.level,
-          score: row.score,
-          duration: row.duration
+          title: row.title || row.certificationTitle || 'Academic Certificate',
+          description: row.description || '',
+          level: row.level || 'Intermediate',
+          score: row.score || '',
+          duration: row.duration || ''
         };
       }
 
       const credentialId = crypto.randomUUID();
-      const data = {
-        studentWalletAddress: row.studentWalletAddress.toLowerCase().trim(),
-        studentName: row.studentName,
-        university: row.university || req.user.issuerDetails?.institutionName || 'Attestify University',
-        issueDate: issueDate.toISOString(),
-        type, transcriptData, certificationData,
-        studentImageBuffer: null, studentImageName: null, credentialId
-      };
+      const university = row.university || req.user.issuerDetails?.institutionName || 'Attestify University';
+      const studentWallet = row.studentWalletAddress.toLowerCase().trim();
 
-      await prisma.credential.create({
-        data: {
-          id: credentialId,
-          studentWalletAddress: data.studentWalletAddress,
-          studentName: data.studentName,
-          university: data.university,
-          issueDate: new Date(data.issueDate),
-          type: data.type,
-          issuedById: req.user.id,
-          certificateHash: 'PENDING_' + credentialId,
-          status: 'PENDING'
-        }
+      validDbRecords.push({
+        id: credentialId,
+        studentWalletAddress: studentWallet,
+        studentName: row.studentName.trim(),
+        university,
+        issueDate: parsedDate,
+        type,
+        issuedById: req.user.id,
+        certificateHash: 'PENDING_' + credentialId,
+        status: 'PENDING'
       });
 
-      try {
-        const job = await enqueueIssuanceJob({ data, user: req.user });
-        await prisma.credential.update({
-          where: { id: credentialId },
-          data: { jobId: job.id }
-        });
-        summary.success++;
-      } catch (queueErr) {
-        console.error('Failed to enqueue job for credential:', credentialId, queueErr);
-        await prisma.credential.update({
-          where: { id: credentialId },
-          data: {
-            status: 'FAILED',
-            processingError: 'Failed to add to processing queue: ' + queueErr.message
-          }
-        });
-        summary.failed++;
+      validQueueJobs.push({
+        data: {
+          studentWalletAddress: studentWallet,
+          studentName: row.studentName.trim(),
+          university,
+          issueDate: parsedDate.toISOString(),
+          type,
+          transcriptData,
+          certificationData,
+          studentImagePath: null,
+          studentImageName: null,
+          credentialId
+        },
+        user: req.user
+      });
+    } catch (err) {
+      errors.push({ row: rowNum, error: err.message });
+    }
+  });
+
+  if (validDbRecords.length > 0) {
+    await prisma.credential.createMany({ data: validDbRecords });
+    try {
+      const enqueued = await enqueueBulkIssuanceJobs(validQueueJobs);
+      if (Array.isArray(enqueued) && enqueued.length === validDbRecords.length) {
+        await Promise.all(
+          enqueued.map((job, i) =>
+            prisma.credential.update({
+              where: { id: validDbRecords[i].id },
+              data: { jobId: job.id }
+            })
+          )
+        );
       }
-    } catch (rowError) {
-      console.error('Validation error for CSV row:', rowError.message);
-      summary.failed++;
+    } catch (queueErr) {
+      console.error('Failed to enqueue bulk issuance jobs:', queueErr);
+      const failedIds = validDbRecords.map(r => r.id);
+      await prisma.credential.updateMany({
+        where: { id: { in: failedIds } },
+        data: { status: 'FAILED', processingError: 'Failed to enqueue: ' + queueErr.message }
+      });
+      return res.status(500).json({
+        error: 'Failed to enqueue batch credentials',
+        details: queueErr.message
+      });
     }
   }
 
-  if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+  const summary = {
+    total: rows.length,
+    queued: validDbRecords.length,
+    success: validDbRecords.length,
+    failed: errors.length,
+    errors: errors.slice(0, 20),
+    message: `Batch processed: ${validDbRecords.length} records queued for issuance, ${errors.length} rejected.`
+  };
 
-  summary.message = `Processed ${summary.total} records. Successfully queued ${summary.success} credentials.`;
   res.json({ success: true, summary });
 });
 
@@ -412,6 +477,21 @@ const verifyCredential = asyncHandler(async (req, res) => {
   });
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
+
+  const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isIssuer = req.user?.role === 'ISSUER' && (
+    req.user.id === credential.issuedById ||
+    req.user.walletAddress?.toLowerCase() === credential.issuedBy?.walletAddress?.toLowerCase()
+  );
+
+  if (!isOwner && !isIssuer) {
+    const student = await prisma.user.findFirst({
+      where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
+    });
+    if (student?.preferences?.visibility === false) {
+      return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
+    }
+  }
 
   let blockchainData = null;
   try {

@@ -24,7 +24,9 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const response = await credentialAPI.batchUpload(formData);
       if (response.data.success) {
-        showNotification(`Batch processed: ${response.data.summary.success} succeeded, ${response.data.summary.failed} failed`, 'success');
+        const queued = response.data.summary.queued ?? response.data.summary.success;
+        const failed = response.data.summary.failed;
+        showNotification(`Batch processed: ${queued} queued for issuance, ${failed} rejected`, failed > 0 ? 'warning' : 'success');
         setBatchSummary(response.data.summary);
 
         if (response.data.summary.failed === 0) {
@@ -77,7 +79,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
           <div data-modal-panel className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
             <Loader2 className="w-8 h-8 text-stone-900 animate-spin mb-3" />
             <h3 className="text-stone-900 text-sm font-semibold mb-1">Processing batch</h3>
-            <p className="text-stone-500 text-center text-xs">Registering credentials on ledger...</p>
+            <p className="text-stone-500 text-center text-xs">Queuing credentials for background issuance...</p>
           </div>
         </div>
       )}

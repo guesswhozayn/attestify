@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const verifyController = require('../controllers/verifyController');
 const upload = require('../middleware/upload');
+const { optionalAuthenticate } = require('../middleware/auth');
 
-router.post('/certificate', upload.single('certificate'),
+router.post('/certificate', optionalAuthenticate, upload.single('certificate'),
   verifyController.verifyWithFile);
 
-router.get('/:walletAddress', verifyController.checkExists);
+router.get('/:walletAddress', optionalAuthenticate, verifyController.checkExists);
 
-router.post('/hash', verifyController.verifyByHash);
+router.post('/hash', optionalAuthenticate, verifyController.verifyByHash);
 
 module.exports = router;

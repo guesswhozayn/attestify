@@ -47,12 +47,46 @@ const StudentCredentials = () => {
     }, [walletAddress, showNotification]);
 
     useEffect(() => {
-        if (!walletAddress) {
-            blockchainService.connectWallet()
-                .then(address => address && setWalletAddress(address))
-                .catch(e => console.log("Wallet not auto-connected", e));
+        let mounted = true;
+        if (typeof window.ethereum === 'undefined') {
+            setLoading(false);
+            return;
         }
-    }, [walletAddress]);
+
+        window.ethereum.request({ method: 'eth_accounts' })
+            .then(accounts => {
+                if (!mounted) return;
+                const address = accounts?.[0] || user?.walletAddress || null;
+                setWalletAddress(address);
+                if (!address) setLoading(false);
+            })
+            .catch(() => {
+                if (mounted) setLoading(false);
+            });
+
+        const handleAccountsChanged = (accounts) => {
+            const address = accounts?.[0] || null;
+            setWalletAddress(address);
+            if (!address) setCredentials([]);
+        };
+
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        return () => {
+            mounted = false;
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        };
+    }, [user]);
+
+    const handleConnect = async () => {
+        try {
+            setLoading(true);
+            const address = await blockchainService.connectWallet();
+            setWalletAddress(address);
+        } catch (err) {
+            showNotification(err.message || 'Failed to connect wallet', 'error');
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!walletAddress) return;
@@ -177,7 +211,16 @@ const StudentCredentials = () => {
                                 icon={Wallet}
                                 title="Wallet not connected"
                                 message="Connect your wallet to view your certificates."
-                            />
+                            >
+                                <Button
+                                    onClick={handleConnect}
+                                    icon={Wallet}
+                                    variant="primary"
+                                    size="sm"
+                                >
+                                    Connect
+                                </Button>
+                            </EmptyState>
                         ) : (
                             <CredentialTable
                                 credentials={filteredCredentials}

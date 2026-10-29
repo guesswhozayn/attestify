@@ -38,4 +38,16 @@ const enqueueIssuanceJob = (jobData) =>
     backoff: { type: 'exponential', delay: 2000 },
   });
 
-module.exports = { issuanceQueue, enqueueIssuanceJob, connection };
+const enqueueBulkIssuanceJobs = (jobsData) =>
+  issuanceQueue.addBulk(
+    jobsData.map(job => ({
+      name: 'issueCredential',
+      data: job,
+      opts: {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 }
+      }
+    }))
+  );
+
+module.exports = { issuanceQueue, enqueueIssuanceJob, enqueueBulkIssuanceJobs, connection };

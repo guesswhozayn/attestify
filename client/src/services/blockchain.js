@@ -62,7 +62,7 @@ class BlockchainService {
               chainId: SEPOLIA_CHAIN_ID,
               chainName: 'Sepolia Test Network',
               nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
-              rpcUrls: ['https://sepolia.infura.io/v3/'],
+              rpcUrls: ['https://rpc.sepolia.org', 'https://ethereum-sepolia-rpc.publicnode.com'],
               blockExplorerUrls: ['https://sepolia.etherscan.io/']
             }]
           });
@@ -93,11 +93,13 @@ class BlockchainService {
         this.signer = await this.provider.getSigner();
       }
 
-      this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.signer);
+      if (this.contractAddress) {
+        this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.signer);
+      }
       return await this.signer.getAddress();
     } catch (error) {
       console.error('Wallet connection error:', error);
-      throw new Error(`Failed to connect wallet: ${error.message}`);
+      throw new Error(error.message || 'Failed to connect wallet');
     }
   }
 

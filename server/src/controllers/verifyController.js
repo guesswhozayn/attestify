@@ -115,11 +115,12 @@ function buildVerificationResponse(credential, isValidOnChain, hash) {
   }
 
   return {
-    valid: credential.status === 'COMPLETED' && !credential.isRevoked,
+    valid: false,
     exists: true,
     revoked: false,
+    onChainVerified: false,
     message: credential.status === 'COMPLETED'
-      ? 'Certificate verified in institutional registry (On-chain sync pending)'
+      ? 'Institutional record exists, but on-chain blockchain proof could not be verified.'
       : 'On-chain verification failed. The credential may not be minted or the network is unreachable.',
     credential: credentialData
   };
@@ -263,12 +264,16 @@ const checkExists = asyncHandler(async (req, res) => {
     };
   });
 
+  const primaryCredential = mappedCredentials.find(c => !c.isRevoked) || mappedCredentials[0];
+
   res.json({
-    valid: mappedCredentials.some(c => !c.isRevoked),
+    valid: !primaryCredential.isRevoked,
     exists: true,
-    revoked: mappedCredentials.every(c => c.isRevoked),
-    credential: mappedCredentials[0],
+    revoked: primaryCredential.isRevoked,
+    credential: primaryCredential,
     credentials: mappedCredentials,
+    hasActiveCredentials: mappedCredentials.some(c => !c.isRevoked),
+    hasRevokedCredentials: mappedCredentials.some(c => c.isRevoked),
     verificationTier: 'ON_CHAIN_REGISTRY'
   });
 });

@@ -33,7 +33,7 @@ model User {
   university        String       @default("Not Specified")
   title             String       @default("")
   about             String       @default("")
-  walletAddress     String?
+  walletAddress     String?      @unique
   isActive          Boolean      @default(true)
   issuerDetails     Json?
   preferences       Json?
@@ -50,7 +50,6 @@ model User {
   revokedCredentials Credential[] @relation("RevokedByUser")
 
   @@index([email])
-  @@index([walletAddress])
   @@map("users")
 }
 
