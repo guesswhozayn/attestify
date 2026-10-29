@@ -323,7 +323,9 @@ class BlockchainService {
 
   async verifyCredential(studentId, hash) {
     try {
-      return await this.contract.verifyCredential(studentId, hash);
+      if (!studentId || !hash) return false;
+      const bytes32Hash = typeof hash === 'string' && !hash.startsWith('0x') ? `0x${hash}` : hash;
+      return await this.contract.verifyCredential(studentId, bytes32Hash);
     } catch (error) {
       console.error('Blockchain verify error:', error);
       return false;

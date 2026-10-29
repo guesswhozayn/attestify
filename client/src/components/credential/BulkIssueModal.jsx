@@ -160,9 +160,9 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
           <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
             <div className="text-xs font-semibold text-stone-900">Batch summary</div>
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-2.5 bg-emerald-50 rounded-lg border border-emerald-200">
-                <div className="text-lg font-bold text-emerald-800">{batchSummary.success}</div>
-                <div className="text-[10px] text-emerald-600">Succeeded</div>
+              <div className="p-2.5 bg-indigo-50 rounded-lg border border-indigo-200">
+                <div className="text-lg font-bold text-indigo-800">{batchSummary.queued ?? batchSummary.success}</div>
+                <div className="text-[10px] text-indigo-600">Queued</div>
               </div>
               <div className="p-2.5 bg-rose-50 rounded-lg border border-rose-200">
                 <div className="text-lg font-bold text-rose-800">{batchSummary.failed}</div>

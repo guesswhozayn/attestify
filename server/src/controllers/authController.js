@@ -18,6 +18,7 @@ const formatUserResponse = (user) => ({
   title: user.title,
   about: user.about,
   isActive: user.isActive,
+  preferences: user.preferences,
   issuerDetails: user.issuerDetails,
   createdAt: user.createdAt,
   tokenVersion: user.tokenVersion
@@ -159,8 +160,8 @@ const changePassword = asyncHandler(async (req, res) => {
   if (!currentPassword || typeof currentPassword !== 'string') {
     return res.status(400).json({ error: 'Current password is required' });
   }
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
-    return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters long' });
   }
   if (newPassword.length > 72) {
     return res.status(400).json({ error: 'New password cannot exceed 72 characters' });

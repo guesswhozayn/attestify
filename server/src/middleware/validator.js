@@ -46,7 +46,7 @@ const isValidCalendarDate = (dateVal) => {
 const validateRegister = (req) => {
   const { email, password, role } = req.body;
   if (!email || !isEmail(email)) return 'A valid email address is required';
-  if (!password || typeof password !== 'string' || password.length < 6) return 'Password must be at least 6 characters long';
+  if (!password || typeof password !== 'string' || password.length < 8) return 'Password must be at least 8 characters long';
   if (password.length > 72) return 'Password cannot exceed 72 characters';
   if (role && !['STUDENT', 'ISSUER'].includes(role)) return 'Role must be STUDENT or ISSUER';
   return null;

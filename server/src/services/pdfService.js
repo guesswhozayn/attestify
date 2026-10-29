@@ -56,8 +56,8 @@ exports.generateCredentialPDF = (data) => {
         info: {
           Title: `${institutionName} - ${isTranscript ? 'Academic Transcript' : 'Certification'}`,
           Author: institutionName,
-          Subject: studentWalletAddress,
-          Keywords: credentialId,
+          Subject: credentialId,
+          Keywords: `${credentialId}, ${studentWalletAddress}`,
           Creator: 'Attestify Protocol',
           Producer: 'Attestify PDF Engine'
         }

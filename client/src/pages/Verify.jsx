@@ -115,7 +115,7 @@ const VerifyDashboard = () => {
           exists: true,
           credential: first,
           credentials: data.credentials,
-          verificationTier: 'ON_CHAIN_REGISTRY'
+          verificationTier: data.verificationTier || 'REGISTRY_RECORD'
         });
       } else {
         setResult(data);

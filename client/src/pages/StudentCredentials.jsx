@@ -98,33 +98,8 @@ const StudentCredentials = () => {
 
     useEffect(() => {
         if (!walletAddress) return;
-        let active = true;
-        Promise.resolve().then(() => {
-            if (active) setLoading(true);
-            return credentialAPI.getByWalletAddress(walletAddress);
-        }).then(response => {
-            if (!active) return;
-            const docs = response.data.credentials || [];
-            const total = docs.length;
-            const activeCount = docs.filter(d => d.status === 'COMPLETED' && !d.isRevoked).length;
-            const sbtCount = docs.filter(d => !!d.tokenId).length;
-            const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
-            setStats({ total, active: activeCount, sbtCount, uniqueIssuers });
-            setCredentials(docs);
-        }).catch(error => {
-            console.error('Failed to fetch credentials:', error);
-            if (active) {
-                if (error.response?.status === 403) {
-                    showNotification('Wallet mismatch: Connected wallet does not match your registered account wallet.', 'error');
-                } else {
-                    showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
-                }
-            }
-        }).finally(() => {
-            if (active) setLoading(false);
-        });
-        return () => { active = false; };
-    }, [walletAddress, showNotification]);
+        fetchCredentials();
+    }, [walletAddress, fetchCredentials]);
 
     const filteredCredentials = useMemo(() => {
         let filtered = credentials;
@@ -134,7 +109,7 @@ const StudentCredentials = () => {
         if (searchQuery) {
             const lower = searchQuery.toLowerCase();
             filtered = filtered.filter(cred =>
-                cred.studentName.toLowerCase().includes(lower) ||
+                (cred.studentName || '').toLowerCase().includes(lower) ||
                 (cred.university && cred.university.toLowerCase().includes(lower)) ||
                 (cred.certificateHash && cred.certificateHash.toLowerCase().includes(lower))
             );

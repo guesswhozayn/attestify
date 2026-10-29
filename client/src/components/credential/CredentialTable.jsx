@@ -133,7 +133,7 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
                                                     <ExternalLink className="w-3.5 h-3.5" />
                                                 </a>
                                             )}
-                                            {onRevoke && !isRevoked && (
+                                            {onRevoke && !isRevoked && cred.status === 'COMPLETED' && (
                                                 <button
                                                     onClick={() => onRevoke(cred)}
                                                     className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"

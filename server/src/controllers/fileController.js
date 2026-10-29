@@ -6,13 +6,30 @@ const asyncHandler = require('../middleware/asyncHandler');
 const streamIPFSFile = async (cid, res, defaultContentType, filename) => {
   const ipfsUrl = ipfsService.getIPFSUrl(cid);
   try {
-    const response = await axios({ method: 'get', url: ipfsUrl, responseType: 'stream' });
+    const response = await axios({
+      method: 'get',
+      url: ipfsUrl,
+      responseType: 'stream',
+      timeout: 30000
+    });
     res.setHeader('Content-Type', defaultContentType || response.headers['content-type'] || 'application/octet-stream');
     if (filename) res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    response.data.on('error', (err) => {
+      console.error('IPFS stream read error:', err.message);
+      if (!res.headersSent) {
+        res.status(502).json({ error: 'Failed to stream file from IPFS' });
+      } else {
+        res.destroy();
+      }
+    });
     response.data.pipe(res);
   } catch (error) {
     console.error('IPFS stream error:', error.message);
-    res.status(502).json({ error: 'Failed to retrieve file from IPFS' });
+    if (!res.headersSent) {
+      res.status(502).json({ error: 'Failed to retrieve file from IPFS' });
+    } else {
+      res.destroy();
+    }
   }
 };
 

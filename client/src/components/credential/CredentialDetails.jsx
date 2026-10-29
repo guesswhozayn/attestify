@@ -461,7 +461,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued by</span>
-                  <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name}</span>
+                  <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name || credential.university || 'Attestify Authority'}</span>
                 </div>
                 <div className="w-px h-6 bg-stone-300 hidden sm:block"></div>
                 <div className="space-y-0.5">
@@ -469,9 +469,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <span className="text-stone-700 font-medium block text-sm">{formatDate(credential.issueDate)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Verified authentic</span>
+              <div className={`flex items-center gap-2 text-xs font-semibold ${statusStyles.text}`}>
+                <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
+                <span>{credential.isRevoked ? 'Revoked' : (statusStyles.label === 'Verified' ? 'Verified authentic' : statusStyles.label)}</span>
               </div>
             </div>
 
@@ -491,7 +491,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                </p>
             </div>
 
-            {user?.role === 'ISSUER' && (user?.id === credential.issuedById || user?.id === credential.issuedBy?.id || user?.id === credential.issuedBy) && !credential.isRevoked && (
+            {user?.role === 'ISSUER' && (user?.id === credential.issuedById || user?.id === credential.issuedBy?.id || user?.id === credential.issuedBy) && !credential.isRevoked && credential.status === 'COMPLETED' && (
                <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-3xl p-6">
                   <h4 className="text-xs font-bold text-[#9E2D2D] uppercase tracking-wider mb-4 flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4" />

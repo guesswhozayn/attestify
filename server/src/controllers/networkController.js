@@ -7,7 +7,7 @@ const getNetworkStats = asyncHandler(async (req, res) => {
   try {
     const [networkStats, totalIssued, totalRevoked, [gasAgg], recent] = await Promise.all([
       blockchainService.getNetworkStats(),
-      prisma.credential.count(),
+      prisma.credential.count({ where: { status: 'COMPLETED' } }),
       prisma.credential.count({ where: { isRevoked: true } }),
       prisma.$queryRaw`
         SELECT 

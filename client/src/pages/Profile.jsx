@@ -90,7 +90,7 @@ const Profile = () => {
     }));
     const [prevUser, setPrevUser] = useState(user);
 
-    if (user !== prevUser) {
+    if (user !== prevUser && !isEditing) {
         setPrevUser(user);
         const currentStudentData = user?.preferences?.studentDetails || user?.studentDetails || {};
         setFormData({

@@ -95,7 +95,7 @@ const IssuerDashboard = () => {
     }
   };
 
-  const activeCount = stats.active || Math.max(0, stats.total - stats.revoked);
+  const activeCount = stats.active ?? Math.max(0, stats.total - stats.revoked);
 
   return (
     <div className="w-full bg-[#F8F9FA] text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-8">

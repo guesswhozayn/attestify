@@ -96,6 +96,16 @@ const CredentialArchive = () => {
         return () => clearTimeout(debounceTimer.current);
     }, [fetchCredentials, searchQuery, typeFilter, statusFilter, currentPage]);
 
+    useEffect(() => {
+        const hasPending = credentials.some(c => c.status === 'PENDING' || c.status === 'PROCESSING');
+        if (!hasPending) return;
+        const interval = setInterval(() => {
+            fetchCredentials(currentPage, searchQuery, typeFilter, statusFilter);
+            loadStats();
+        }, 8000);
+        return () => clearInterval(interval);
+    }, [credentials, fetchCredentials, loadStats, currentPage, searchQuery, typeFilter, statusFilter]);
+
     const handleFilterChange = (setter) => (value) => {
         setter(value);
         setCurrentPage(1);

@@ -111,9 +111,20 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
       const pollStatus = () => {
         return new Promise((resolve, reject) => {
+          const startTime = Date.now();
+          const MAX_POLL_MS = 180000;
+          let consecutiveErrors = 0;
+
           const interval = setInterval(async () => {
+            if (Date.now() - startTime > MAX_POLL_MS) {
+              clearInterval(interval);
+              resolve({ pending: true });
+              return;
+            }
+
             try {
               const statusRes = await credentialAPI.getStatus(credentialId);
+              consecutiveErrors = 0;
               const { status, credential } = statusRes.data;
 
               if (status === 'COMPLETED') {
@@ -124,15 +135,22 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                 reject(new Error(statusRes.data.credential?.error || statusRes.data.error || 'Failed to issue credential'));
               }
             } catch (err) {
-              clearInterval(interval);
-              reject(err);
+              consecutiveErrors++;
+              if (consecutiveErrors >= 5) {
+                clearInterval(interval);
+                reject(err);
+              }
             }
-          }, 2000);
+          }, 2500);
         });
       };
 
-      await pollStatus();
-      showNotification('Credential issued successfully', 'success');
+      const result = await pollStatus();
+      if (result?.pending) {
+        showNotification('Credential queued and confirming on-chain in the background', 'info');
+      } else {
+        showNotification('Credential issued successfully', 'success');
+      }
       onSuccess?.();
       onClose();
     } catch (error) {

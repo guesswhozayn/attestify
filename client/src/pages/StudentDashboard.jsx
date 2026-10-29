@@ -38,7 +38,7 @@ const StudentDashboard = () => {
   );
 
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
-    const targetAddress = address || walletAddress || user?.walletAddress;
+    const targetAddress = address || user?.walletAddress;
     if (!targetAddress) {
       setLoading(false);
       setRefreshing(false);
@@ -78,7 +78,7 @@ const StudentDashboard = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [walletAddress, user]);
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;

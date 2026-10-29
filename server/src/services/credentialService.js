@@ -159,6 +159,7 @@ class CredentialService {
         totalCost: blockchainResult.totalCost,
         tokenId: blockchainResult.tokenId,
         metadata: { fileSize: pdfBuffer.length, fileType: 'application/pdf', originalFileName: `Certificate_${credentialId}.pdf` },
+        processingError: null,
         status: 'COMPLETED'
       },
       create: {

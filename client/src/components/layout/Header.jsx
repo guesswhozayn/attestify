@@ -28,9 +28,11 @@ const Header = ({
     return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
   }, []);
 
+  const activeAddress = walletAddress || user?.issuerDetails?.authorizedWalletAddress || user?.walletAddress;
+
   const copyAddress = () => {
-    if (!walletAddress) return;
-    navigator.clipboard.writeText(walletAddress);
+    if (!activeAddress) return;
+    navigator.clipboard.writeText(activeAddress);
     setIsCopied(true);
     showNotification('Wallet address copied to clipboard', 'success');
     setTimeout(() => setIsCopied(false), 2000);
@@ -81,7 +83,7 @@ const Header = ({
           </button>
 
           <div className="hidden sm:flex items-center">
-            {walletAddress ? (
+            {activeAddress ? (
               <button
                 onClick={copyAddress}
                 className={`flex items-center gap-2 px-2.5 py-1 text-xs font-mono font-medium rounded-lg transition-colors cursor-pointer ${
@@ -92,7 +94,7 @@ const Header = ({
                 title="Click to copy address"
               >
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                <span className="tabular-nums">{formatAddress(walletAddress)}</span>
+                <span className="tabular-nums">{formatAddress(activeAddress)}</span>
                 {isCopied ? (
                   <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
                 ) : (

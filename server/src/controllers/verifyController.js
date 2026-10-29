@@ -197,7 +197,7 @@ const checkExists = asyncHandler(async (req, res) => {
     }
 
     const providedHash = req.query.h || req.query.hash;
-    if (providedHash && providedHash !== cred.certificateHash) {
+    if (providedHash && providedHash.toLowerCase() !== cred.certificateHash?.toLowerCase()) {
       return res.json({
         valid: false,
         exists: true,
@@ -224,7 +224,10 @@ const checkExists = asyncHandler(async (req, res) => {
   }
 
   const credentials = await prisma.credential.findMany({
-    where: { studentWalletAddress: { equals: normalizedWallet, mode: 'insensitive' } },
+    where: {
+      studentWalletAddress: { equals: normalizedWallet, mode: 'insensitive' },
+      status: 'COMPLETED'
+    },
     include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
   });
 
@@ -303,7 +306,7 @@ const verifyByHash = asyncHandler(async (req, res) => {
     return res.json({ valid: false, exists: false, message: 'No matching credential found for this ID/Wallet and Hash' });
   }
 
-  if (credential.certificateHash !== hash) {
+  if (credential.certificateHash?.toLowerCase() !== hash.toLowerCase()) {
     return res.json({
       valid: false, exists: true,
       message: 'Certificate hash does not match. The file provided does not correspond to this credential ID.'

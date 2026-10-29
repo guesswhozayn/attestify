@@ -251,7 +251,13 @@ const getCredentials = asyncHandler(async (req, res) => {
   if (req.user.role === 'ISSUER') {
     where.issuedById = req.user.id;
   } else {
-    if (!req.user.walletAddress) return res.status(400).json({ error: 'User wallet address not found' });
+    if (!req.user.walletAddress) {
+      return res.json({
+        success: true,
+        credentials: [],
+        pagination: { total: 0, totalPages: 1, currentPage: 1, perPage: take }
+      });
+    }
     where.studentWalletAddress = { equals: req.user.walletAddress.toLowerCase().trim(), mode: 'insensitive' };
   }
 
@@ -387,13 +393,17 @@ const revokeCredential = asyncHandler(async (req, res) => {
 
   const blockchainResult = await blockchainService.revokeCertificate(credential.id);
 
+  let sbtResult = null;
   if (credential.tokenId) {
     try {
-      await blockchainService.revokeSoulboundCredential(credential.tokenId);
+      sbtResult = await blockchainService.revokeSoulboundCredential(credential.tokenId);
     } catch (sbtError) {
       console.error('Failed to revoke SBT:', sbtError);
     }
   }
+
+  const totalGasUsed = (BigInt(blockchainResult.gasUsed || 0) + BigInt(sbtResult?.gasUsed || 0)).toString();
+  const totalCost = (BigInt(blockchainResult.totalCost || 0) + BigInt(sbtResult?.totalCost || 0)).toString();
 
   await prisma.credential.update({
     where: { id: credential.id },
@@ -402,9 +412,9 @@ const revokeCredential = asyncHandler(async (req, res) => {
       revokedAt: new Date(),
       revokedById: req.user.id,
       revocationReason: reason,
-      revocationGasUsed: blockchainResult.gasUsed,
+      revocationGasUsed: totalGasUsed,
       revocationGasPrice: blockchainResult.gasPrice,
-      revocationTotalCost: blockchainResult.totalCost
+      revocationTotalCost: totalCost
     }
   });
 
@@ -424,7 +434,18 @@ const getStats = asyncHandler(async (req, res) => {
   if (isIssuer) {
     where.issuedById = userId;
   } else {
-    if (!req.user.walletAddress) return res.status(400).json({ error: 'User wallet address not found' });
+    if (!req.user.walletAddress) {
+      return res.json({
+        success: true,
+        stats: {
+          total: 0, active: 0, revoked: 0, thisMonth: 0, gasBalance: '0.00', today: 0, thisWeek: 0,
+          verificationRequests: 0,
+          networkStats: { blockNumber: 0, gasPrice: '0', connected: false },
+          transactionSuccessRate: 100
+        },
+        recent: []
+      });
+    }
     where.studentWalletAddress = { equals: req.user.walletAddress.toLowerCase().trim(), mode: 'insensitive' };
   }
 
@@ -489,7 +510,7 @@ const verifyCredential = asyncHandler(async (req, res) => {
   const credential = await prisma.credential.findUnique({
     where: { id: req.params.id },
     include: {
-      issuedBy: { select: { id: true, name: true, university: true, email: true, issuerDetails: true } }
+      issuedBy: { select: { id: true, name: true, university: true, email: true, issuerDetails: true, walletAddress: true } }
     }
   });
 
@@ -524,7 +545,7 @@ const verifyCredential = asyncHandler(async (req, res) => {
       isRevoked: credential.isRevoked || (blockchainData?.isRevoked ?? false),
       institutionName: credential.issuedBy?.issuerDetails?.institutionName || credential.university || 'Attestify Institution',
       blockchainProof: blockchainData ? {
-        hashMatch: blockchainData.certificateHash === credential.certificateHash,
+        hashMatch: blockchainData.certificateHash?.toLowerCase() === credential.certificateHash?.toLowerCase(),
         onChain: true,
         isRevokedOnChain: blockchainData.isRevoked
       } : { onChain: false }

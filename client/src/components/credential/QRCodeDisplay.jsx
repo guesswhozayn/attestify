@@ -6,17 +6,24 @@ const QRCodeDisplay = ({ credentialId }) => {
   if (!credentialId) return null;
   const qrValue = `${window.location.origin}/verify/${credentialId}`;
 
+  const elementId = `qr-code-${credentialId}`;
+
   const downloadQR = () => {
-    const svg = document.getElementById('qr-code');
+    const svg = document.getElementById(elementId);
+    if (!svg) return;
     const svgData = new XMLSerializer().serializeToString(svg);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
 
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(svgUrl);
       const pngFile = canvas.toDataURL('image/png');
 
       const downloadLink = document.createElement('a');
@@ -25,7 +32,7 @@ const QRCodeDisplay = ({ credentialId }) => {
       downloadLink.click();
     };
 
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    img.src = svgUrl;
   };
 
   return (
@@ -33,7 +40,7 @@ const QRCodeDisplay = ({ credentialId }) => {
       <h3 className="text-stone-900 font-bold mb-4 text-sm tracking-tight">QR code verification</h3>
       <div className="bg-white p-4 rounded-2xl inline-block border border-[#ECE7DE] shadow-2xs">
         <QRCodeSVG
-          id="qr-code"
+          id={elementId}
           value={qrValue}
           size={180}
           level="H"
