@@ -2,10 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Activity,
   Box,
-  Server,
   Shield,
   Zap,
-  CheckCircle,
   XCircle,
   ExternalLink,
   RefreshCw

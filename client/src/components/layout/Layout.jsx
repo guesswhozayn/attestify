@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -19,7 +18,6 @@ const pageTitles = {
 const getPageTitle = (pathname) => pageTitles[pathname] || (pathname.includes('/student/') ? 'Profile' : 'Attestify');
 
 const Layout = () => {
-  const { user } = useAuth();
   const { theme } = useTheme();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

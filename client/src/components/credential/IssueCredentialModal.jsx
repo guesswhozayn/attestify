@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
 import TypeSelectionCard from './TypeSelectionCard';
-import { Loader2, Calendar, User, Building, Plus, Trash2, BookOpen, Award, Wallet } from 'lucide-react';
+import { Loader2, Plus, Trash2, BookOpen, Award } from 'lucide-react';
 import { credentialAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';

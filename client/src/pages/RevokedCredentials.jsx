@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import CredentialTable from '../components/credential/CredentialTable';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import { credentialAPI } from '../services/api';

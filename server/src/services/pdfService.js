@@ -191,7 +191,6 @@ async function drawCertificate(doc, data) {
 
   const pageWidth = doc.page.width;
   const pageHeight = doc.page.height;
-  const margin = 50;
   const inset = 35;
   const cornerLen = 40;
 

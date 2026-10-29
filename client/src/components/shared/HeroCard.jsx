@@ -1,7 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
-import Button from './Button';
 
 const HeroCard = ({
   badge,

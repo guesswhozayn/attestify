@@ -31,14 +31,6 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const [copiedField, setCopiedField] = useState(null);
   const { user } = useAuth();
 
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
 
   const copyToClipboard = useCallback((text, field) => {
     if (!text) return;

@@ -22,9 +22,6 @@ const sections = [
 const Documentation = () => {
   const [activeSection, setActiveSection] = useState('introduction');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  const [scrollY, setScrollY] = useState(0);
-
   const SCROLL_OFFSET = 110;
 
   const sectionRefs = useRef([]);
@@ -37,8 +34,6 @@ const Documentation = () => {
     }));
 
     const handleScroll = () => {
-      setScrollY(window.scrollY);
-
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
         setActiveSection(prev => {
           const lastId = sections[sections.length - 1].id;
@@ -83,7 +78,7 @@ const Documentation = () => {
     <div
       className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden"
     >
-      <Background scrollY={scrollY} parallax />
+      <Background />
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 

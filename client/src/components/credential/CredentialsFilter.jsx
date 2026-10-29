@@ -1,4 +1,3 @@
-import React from 'react';
 import { Search, X, RefreshCw } from 'lucide-react';
 
 const CredentialsFilter = ({

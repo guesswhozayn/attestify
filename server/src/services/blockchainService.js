@@ -81,10 +81,10 @@ class BlockchainService {
             `;
             try {
               await connection.eval(luaScript, 1, lockKey, token);
-            } catch (e) {}
+            } catch {}
           };
         }
-      } catch (err) {
+      } catch {
         return null;
       }
       await new Promise(r => setTimeout(r, 200));
@@ -151,7 +151,7 @@ class BlockchainService {
     let releaseDistributedLock = null;
     try {
       releaseDistributedLock = await this._acquireRedisLock('lock:blockchain:tx', 30000);
-    } catch (e) {}
+    } catch {}
 
     await this.nonceMutex.lock();
     try {
@@ -210,7 +210,7 @@ class BlockchainService {
             tokenId = parsedLog.args.tokenId.toString();
             break;
           }
-        } catch (e) { }
+        } catch {}
       }
 
       if (!tokenId) {
@@ -299,7 +299,7 @@ class BlockchainService {
                   tokenId = parsedLog.args.tokenId.toString();
                   break;
                 }
-              } catch (e) {}
+              } catch {}
             }
           }
         }

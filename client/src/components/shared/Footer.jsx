@@ -1,6 +1,5 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, Shield } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import Button from './Button';
 
 const platformLinks = [

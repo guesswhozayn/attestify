@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import CredentialTable from '../components/credential/CredentialTable';
-import { Search, Wallet, Shield, RefreshCw } from 'lucide-react';
+import { Search, Wallet, RefreshCw } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';

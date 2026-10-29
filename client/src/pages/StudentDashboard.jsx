@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/blockchain';
 import { getIpfsUrl } from '../services/ipfs';
-import { Share2, Award, Globe, ExternalLink, ShieldAlert, Wallet, CheckCircle, GraduationCap, FileText, Hash } from 'lucide-react';
+import { Share2, Award, ExternalLink, ShieldAlert, Wallet, CheckCircle, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI, userAPI } from '../services/api';
@@ -85,7 +85,6 @@ const StudentDashboard = () => {
     const initialAddress = user?.walletAddress || null;
 
     if (initialAddress) {
-      setWalletAddress(initialAddress);
       fetchCredential(initialAddress);
     }
 

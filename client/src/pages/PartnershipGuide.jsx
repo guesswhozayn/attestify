@@ -30,7 +30,6 @@ const PartnershipGuide = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('mission');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const SCROLL_OFFSET = 110;
   const sectionRefs = useRef([]);
 
@@ -41,8 +40,6 @@ const PartnershipGuide = () => {
     }));
 
     const handleScroll = () => {
-      setScrollY(window.scrollY);
-
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
         setActiveSection(sections[sections.length - 1].id);
         return;
@@ -105,7 +102,7 @@ const PartnershipGuide = () => {
 
   return (
     <div className="min-h-screen bg-[#08090d] text-white selection:bg-indigo-500/30 font-sans relative overflow-x-hidden">
-      <Background scrollY={scrollY} parallax />
+      <Background />
 
       <Navbar onToggleSidebar={() => setMobileNavOpen(!mobileNavOpen)} showSidebarToggle={true} />
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 import { ShieldAlert, AlertTriangle } from 'lucide-react';

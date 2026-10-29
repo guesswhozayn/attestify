@@ -1,7 +1,5 @@
-import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Shield,
   LayoutDashboard,
   FileCheck2,
   Trash2,
@@ -11,7 +9,6 @@ import {
   LogOut,
   X,
   FileSpreadsheet,
-  CheckCircle2,
   Plus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';

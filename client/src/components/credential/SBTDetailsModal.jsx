@@ -1,4 +1,3 @@
-import React from 'react';
 import { ExternalLink, ShieldCheck, Hash, Database, Globe, Share2, Copy } from 'lucide-react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';

@@ -1,11 +1,8 @@
-import React from 'react';
 import {
     FileText,
-    Award,
     ExternalLink,
     ShieldAlert,
-    ChevronRight,
-    Search
+    ChevronRight
 } from 'lucide-react';
 import { SkeletonTable } from '../shared/Skeleton';
 

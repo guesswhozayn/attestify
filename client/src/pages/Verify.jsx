@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -61,41 +61,7 @@ const VerifyDashboard = () => {
 
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const target = urlId || (location.search ? new URLSearchParams(location.search).get('credentialId') || new URLSearchParams(location.search).get('id') || new URLSearchParams(location.search).get('walletAddress') : '');
-    if (target) {
-      setSearchTarget(target);
-      setActiveTab('id');
-      handleVerifyTarget(target);
-    }
-  }, [urlId, location.search]);
-
-  const handleFileChange = async (e) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.name.endsWith('.pdf'))) {
-      setFile(selectedFile);
-      setResult(null);
-      try {
-        const fileHash = await generateFileHash(selectedFile);
-        setComputedHash(fileHash);
-        const extractedId = await extractMetadata(selectedFile);
-        if (extractedId) {
-          setSearchTarget(extractedId);
-        }
-      } catch (err) {
-        console.error('Error generating hash:', err);
-      }
-    }
-  };
-
-  const clearFile = (e) => {
-    e?.stopPropagation();
-    setFile(null);
-    setComputedHash('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const handleVerifyTarget = async (targetOverride) => {
+  const handleVerifyTarget = useCallback(async (targetOverride) => {
     const target = targetOverride || searchTarget;
     if (!target) return;
 
@@ -128,6 +94,40 @@ const VerifyDashboard = () => {
     } finally {
       setVerifying(false);
     }
+  }, [searchTarget]);
+
+  useEffect(() => {
+    const target = urlId || (location.search ? new URLSearchParams(location.search).get('credentialId') || new URLSearchParams(location.search).get('id') || new URLSearchParams(location.search).get('walletAddress') : '');
+    if (target) {
+      setSearchTarget(target);
+      setActiveTab('id');
+      handleVerifyTarget(target);
+    }
+  }, [urlId, location.search, handleVerifyTarget]);
+
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.name.endsWith('.pdf'))) {
+      setFile(selectedFile);
+      setResult(null);
+      try {
+        const fileHash = await generateFileHash(selectedFile);
+        setComputedHash(fileHash);
+        const extractedId = await extractMetadata(selectedFile);
+        if (extractedId) {
+          setSearchTarget(extractedId);
+        }
+      } catch (err) {
+        console.error('Error generating hash:', err);
+      }
+    }
+  };
+
+  const clearFile = (e) => {
+    e?.stopPropagation();
+    setFile(null);
+    setComputedHash('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleVerify = async () => {

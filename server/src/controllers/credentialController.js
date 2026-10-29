@@ -15,14 +15,14 @@ const issueCredential = asyncHandler(async (req, res) => {
 
   if (!studentWalletAddress || !ethers.isAddress(studentWalletAddress.trim())) {
     if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch (e) {}
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
     }
     return res.status(400).json({ error: 'Invalid or missing student Ethereum wallet address' });
   }
 
   if (new Date(issueDate) > new Date()) {
     if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch (e) {}
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
     }
     return res.status(400).json({ error: 'Issue date cannot be in the future.' });
   }
@@ -76,7 +76,7 @@ const issueCredential = asyncHandler(async (req, res) => {
     });
   } catch (queueErr) {
     if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch (e) {}
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
     }
     await prisma.credential.update({
       where: { id: credentialId },
@@ -101,7 +101,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Failed to process CSV file', details: parseError.message });
   } finally {
     if (fs.existsSync(file.path)) {
-      try { fs.unlinkSync(file.path); } catch (e) {}
+      try { fs.unlinkSync(file.path); } catch {}
     }
   }
 

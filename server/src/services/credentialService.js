@@ -197,7 +197,7 @@ class CredentialService {
     }
 
     if (data.studentImagePath && fs.existsSync(data.studentImagePath)) {
-      try { fs.unlinkSync(data.studentImagePath); } catch (e) {}
+      try { fs.unlinkSync(data.studentImagePath); } catch {}
     }
 
     return { credential, blockchainResult, ipfsResult };

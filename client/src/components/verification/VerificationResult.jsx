@@ -1,5 +1,4 @@
 import { CheckCircle, XCircle, ShieldAlert, Award, ExternalLink, Calendar, User, Activity, Hash } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const VerificationResult = ({ result }) => {
   if (!result) return null;

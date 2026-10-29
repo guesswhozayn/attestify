@@ -52,7 +52,7 @@ issuanceWorker.on('failed', async (job, err) => {
   const credentialId = job?.data?.data?.credentialId;
   const imagePath = job?.data?.data?.studentImagePath;
   if (imagePath && fs.existsSync(imagePath)) {
-    try { fs.unlinkSync(imagePath); } catch (e) {}
+    try { fs.unlinkSync(imagePath); } catch {}
   }
   if (credentialId) {
     try {

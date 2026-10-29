@@ -1,8 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Info } from 'lucide-react';
 
-const StatCard = ({ label, value, icon: Icon, subtext, delay = 0, variant = 'default', trend = null }) => {
+const StatCard = ({ label, value, icon: Icon, subtext, delay = 0, variant = 'default' }) => {
     if (variant === 'mini') {
         return (
             <motion.div

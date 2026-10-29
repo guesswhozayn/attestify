@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Input from '../components/shared/Input';
 import Button from '../components/shared/Button';

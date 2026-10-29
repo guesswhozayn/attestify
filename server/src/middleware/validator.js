@@ -2,13 +2,13 @@ const fs = require('fs');
 
 const cleanupFiles = (req) => {
   if (req.file?.path && fs.existsSync(req.file.path)) {
-    try { fs.unlinkSync(req.file.path); } catch (e) {}
+    try { fs.unlinkSync(req.file.path); } catch {}
   }
   if (req.files) {
     const fileLists = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
     for (const f of fileLists) {
       if (f?.path && fs.existsSync(f.path)) {
-        try { fs.unlinkSync(f.path); } catch (e) {}
+        try { fs.unlinkSync(f.path); } catch {}
       }
     }
   }

@@ -91,7 +91,7 @@ class IPFSService {
         headers: this._authHeaders()
       });
       return response.data.message === 'Congratulations! You are communicating with the Pinata API!';
-    } catch (error) {
+    } catch {
       return false;
     }
   }

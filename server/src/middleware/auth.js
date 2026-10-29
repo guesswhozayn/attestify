@@ -34,7 +34,7 @@ exports.optionalAuthenticate = async (req, res, next) => {
         req.user = user;
       }
     }
-  } catch (e) {}
+  } catch {}
   next();
 };
 

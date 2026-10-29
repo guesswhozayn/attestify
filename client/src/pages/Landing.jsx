@@ -1,21 +1,17 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building, ArrowRight, ExternalLink, Check } from 'lucide-react';
+import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import Background from '../components/shared/Background';
-import useScrollY from '../utils/useScrollY';
 
 const Landing = () => {
   const navigate = useNavigate();
 
-  const scrollY = useScrollY();
-
   return (
     <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative">
-      <Background scrollY={scrollY} parallax />
+      <Background />
 
       <Navbar />
 

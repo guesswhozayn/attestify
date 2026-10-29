@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useMemo, useCallback } from 'react';
+import { createContext, useState, useContext, useMemo, useCallback } from 'react';
 import Notification from '../components/layout/Notification';
 
 const NotificationContext = createContext(null);

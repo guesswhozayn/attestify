@@ -5,7 +5,8 @@ const blockchainService = require('../services/blockchainService');
 
 const sanitizeUser = (user) => {
   if (!user) return null;
-  const { password, ...safeUser } = user;
+  const safeUser = { ...user };
+  delete safeUser.password;
   return safeUser;
 };
 
@@ -90,7 +91,10 @@ const updateProfile = asyncHandler(async (req, res) => {
       }
     }
 
-    const { isVerified, certificatesIssued, authorizedWalletAddress, ...safeIssuerDetails } = issuerDetails;
+    const safeIssuerDetails = { ...issuerDetails };
+    delete safeIssuerDetails.isVerified;
+    delete safeIssuerDetails.certificatesIssued;
+    delete safeIssuerDetails.authorizedWalletAddress;
 
     const updatedIssuerDetails = {
       ...currentDetails,
