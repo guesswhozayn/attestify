@@ -21,7 +21,7 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
-  const [walletAddress, setWalletAddress] = useState(null);
+  const [walletAddress, setWalletAddress] = useState(user?.walletAddress || null);
 
   const metadata = useMemo(() => {
     if (!credential) return null;
@@ -38,7 +38,7 @@ const StudentDashboard = () => {
   );
 
   const fetchCredential = useCallback(async (address, isRefresh = false) => {
-    const targetAddress = address || walletAddress;
+    const targetAddress = address || walletAddress || user?.walletAddress;
     if (!targetAddress) {
       setLoading(false);
       setRefreshing(false);
@@ -58,14 +58,14 @@ const StudentDashboard = () => {
       const response = await credentialAPI.getByWalletAddress(targetAddress);
       const docs = response.data.credentials || [];
       const total = docs.length;
-      const revokedCount = docs.filter(d => d.isRevoked).length;
+      const activeCount = docs.filter(d => d.status === 'COMPLETED' && !d.isRevoked).length;
       setStats({
         total,
-        active: total - revokedCount,
+        active: activeCount,
         sbtCount: docs.filter(d => !!d.tokenId).length,
         uniqueIssuers: new Set(docs.map(d => d.university || d.issuedBy?.name)).size
       });
-      setCredential(docs[0] || null);
+      setCredential(docs.find(d => d.status === 'COMPLETED' && !d.isRevoked) || docs[0] || null);
     } catch (err) {
       console.error('Error fetching credential:', err);
       if (err.response?.status === 403) {
@@ -82,15 +82,22 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     let mounted = true;
+    const initialAddress = user?.walletAddress || null;
+
+    if (initialAddress) {
+      setWalletAddress(initialAddress);
+      fetchCredential(initialAddress);
+    }
+
     if (typeof window.ethereum === 'undefined') {
-      setLoading(false);
+      if (!initialAddress) setLoading(false);
       return;
     }
 
     window.ethereum.request({ method: 'eth_accounts' })
       .then(accounts => {
         if (!mounted) return;
-        const address = accounts?.[0] || null;
+        const address = accounts?.[0] || initialAddress;
         setWalletAddress(address);
         if (address) {
           fetchCredential(address);
@@ -99,11 +106,11 @@ const StudentDashboard = () => {
         }
       })
       .catch(() => {
-        if (mounted) setLoading(false);
+        if (mounted && !initialAddress) setLoading(false);
       });
 
     const handleAccountsChanged = (accounts) => {
-      const address = accounts?.[0] || null;
+      const address = accounts?.[0] || user?.walletAddress || null;
       setWalletAddress(address);
       if (address) {
         fetchCredential(address);
@@ -118,7 +125,7 @@ const StudentDashboard = () => {
       mounted = false;
       window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
     };
-  }, [fetchCredential]);
+  }, [fetchCredential, user?.walletAddress]);
 
   const handleShare = useCallback(() => {
     if (!credential || !walletAddress) return;
@@ -134,6 +141,11 @@ const StudentDashboard = () => {
   }, [credential]);
 
   const handleConnect = useCallback(async () => {
+    if (!blockchainService.isMetaMaskInstalled()) {
+      window.open('https://metamask.io/download/', '_blank');
+      showNotification('MetaMask not detected. Opening download page or add your wallet in Profile.', 'info');
+      return;
+    }
     try {
       setLoading(true);
       setError('');
@@ -206,7 +218,11 @@ const StudentDashboard = () => {
            <EmptyState
              icon={Wallet}
              title="Wallet not connected"
-             message="Connect your wallet to view your credentials."
+             message={
+               typeof window.ethereum === 'undefined'
+                 ? 'No Web3 wallet extension detected. Connect MetaMask or configure your wallet address in Profile settings to view credentials.'
+                 : 'Connect your wallet to view your credentials.'
+             }
            >
              <Button
                onClick={handleConnect}
@@ -214,7 +230,7 @@ const StudentDashboard = () => {
                variant="primary"
                size="sm"
              >
-               Connect
+               {typeof window.ethereum === 'undefined' ? 'Install MetaMask' : 'Connect'}
              </Button>
            </EmptyState>
         ) : !credential ? (

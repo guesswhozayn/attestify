@@ -121,7 +121,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                 resolve(credential);
               } else if (status === 'FAILED') {
                 clearInterval(interval);
-                reject(new Error(statusRes.data.error || 'Failed to issue credential'));
+                reject(new Error(statusRes.data.credential?.error || statusRes.data.error || 'Failed to issue credential'));
               }
             } catch (err) {
               clearInterval(interval);

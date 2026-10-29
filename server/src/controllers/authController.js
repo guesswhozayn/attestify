@@ -178,7 +178,7 @@ const changePassword = asyncHandler(async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: {
       password: hashedPassword,
@@ -186,7 +186,14 @@ const changePassword = asyncHandler(async (req, res) => {
     }
   });
 
-  res.json({ success: true, message: 'Password updated successfully' });
+  const newToken = generateToken(updatedUser.id, updatedUser.role, updatedUser.tokenVersion);
+
+  res.json({
+    success: true,
+    message: 'Password updated successfully',
+    token: newToken,
+    user: formatUserResponse(updatedUser)
+  });
 });
 
 module.exports = { register, login, getCurrentUser, logout, changePassword };

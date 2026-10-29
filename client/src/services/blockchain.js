@@ -4,8 +4,8 @@ const CONTRACT_ABI = [
   "function getCredential(string memory _studentId) public view returns (bytes32 certificateHash, string memory ipfsCID, uint256 issuedAt, bool isRevoked)",
   "function verifyCredential(string memory _studentId, bytes32 _hash) public view returns (bool)",
   "function isIssued(string memory _studentId) public view returns (bool)",
-  "event CredentialIssued(string indexed studentId, bytes32 certificateHash, string ipfsCID, uint256 timestamp)",
-  "event CredentialRevoked(string indexed studentId, uint256 timestamp)"
+  "event CredentialIssued(string indexed studentId, bytes32 certificateHash, string ipfsCID, uint256 timestamp, address indexed issuer)",
+  "event CredentialRevoked(string indexed studentId, uint256 timestamp, address indexed revokedBy)"
 ];
 
 const SEPOLIA_CHAIN_ID = '0xaa36a7';
@@ -187,12 +187,13 @@ class BlockchainService {
 
   onCredentialIssued(callback) {
     if (!this.contract) throw new Error('Contract not initialized');
-    this.contract.on('CredentialIssued', (studentId, certificateHash, ipfsCID, timestamp, event) => {
+    this.contract.on('CredentialIssued', (studentId, certificateHash, ipfsCID, timestamp, issuer, event) => {
       callback({
         studentId,
         certificateHash,
         ipfsCID,
         timestamp: new Date(Number(timestamp) * 1000),
+        issuer,
         transactionHash: event.log.transactionHash,
         blockNumber: event.log.blockNumber
       });
@@ -201,10 +202,11 @@ class BlockchainService {
 
   onCredentialRevoked(callback) {
     if (!this.contract) throw new Error('Contract not initialized');
-    this.contract.on('CredentialRevoked', (studentId, timestamp, event) => {
+    this.contract.on('CredentialRevoked', (studentId, timestamp, revokedBy, event) => {
       callback({
         studentId,
         timestamp: new Date(Number(timestamp) * 1000),
+        revokedBy,
         transactionHash: event.log.transactionHash,
         blockNumber: event.log.blockNumber
       });

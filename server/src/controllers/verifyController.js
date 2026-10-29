@@ -21,7 +21,7 @@ const recordVerification = (credentialId) =>
   });
 
 async function findCredential(identifier, certificateHash = null) {
-  if (isIdentifier(identifier)) {
+  if (identifier && isIdentifier(identifier)) {
     const cred = await prisma.credential.findUnique({
       where: { id: identifier },
       include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
@@ -30,11 +30,19 @@ async function findCredential(identifier, certificateHash = null) {
   }
 
   if (certificateHash) {
+    if (identifier && typeof identifier === 'string' && /^0x[0-9a-fA-F]{40}$/.test(identifier.trim())) {
+      const matchWithWallet = await prisma.credential.findFirst({
+        where: {
+          studentWalletAddress: { equals: identifier.toLowerCase().trim(), mode: 'insensitive' },
+          certificateHash
+        },
+        include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+      });
+      if (matchWithWallet) return matchWithWallet;
+    }
+
     return prisma.credential.findFirst({
-      where: {
-        studentWalletAddress: { equals: identifier.toLowerCase().trim(), mode: 'insensitive' },
-        certificateHash
-      },
+      where: { certificateHash },
       include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
     });
   }
@@ -225,19 +233,24 @@ const checkExists = asyncHandler(async (req, res) => {
   }
 
   const actualWalletAddress = credentials[0].studentWalletAddress;
-  const student = await prisma.user.findFirst({
-    where: {
-      walletAddress: { equals: actualWalletAddress, mode: 'insensitive' },
-      role: 'STUDENT'
-    }
-  });
+  const isOwner = req.user?.walletAddress?.toLowerCase() === actualWalletAddress.toLowerCase();
+  const isIssuer = req.user?.role === 'ISSUER';
 
-  if (student?.preferences?.visibility === false) {
-    return res.status(403).json({
-      exists: true,
-      isPrivate: true,
-      message: 'This student profile is private. Credentials cannot be viewed publicly.'
+  if (!isOwner && !isIssuer) {
+    const student = await prisma.user.findFirst({
+      where: {
+        walletAddress: { equals: actualWalletAddress, mode: 'insensitive' },
+        role: 'STUDENT'
+      }
     });
+
+    if (student?.preferences?.visibility === false) {
+      return res.status(403).json({
+        exists: true,
+        isPrivate: true,
+        message: 'This student profile is private. Credentials cannot be viewed publicly.'
+      });
+    }
   }
 
   const mappedCredentials = credentials.map(c => {
@@ -274,15 +287,15 @@ const checkExists = asyncHandler(async (req, res) => {
     credentials: mappedCredentials,
     hasActiveCredentials: mappedCredentials.some(c => !c.isRevoked),
     hasRevokedCredentials: mappedCredentials.some(c => c.isRevoked),
-    verificationTier: 'ON_CHAIN_REGISTRY'
+    verificationTier: 'REGISTRY_RECORD'
   });
 });
 
 const verifyByHash = asyncHandler(async (req, res) => {
   const { studentWalletAddress, hash } = req.body;
 
-  if (!studentWalletAddress || !hash) {
-    return res.status(400).json({ error: 'Credential ID/Wallet Address and hash are required' });
+  if (!hash) {
+    return res.status(400).json({ error: 'Certificate hash is required' });
   }
 
   const credential = await findCredential(studentWalletAddress, hash);

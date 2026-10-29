@@ -7,11 +7,11 @@ const hashService = require('./hashService');
 const pdfService = require('./pdfService');
 
 class CredentialService {
-  async prepareSBTMetadata(user, credentialData, ipfsCID) {
+  async prepareSBTMetadata(user, credentialData, ipfsCID, imageUrl = null) {
     const metadata = {
       name: `${credentialData.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credentialData.studentName}`,
       description: `A verifiable digital credential issued by ${credentialData.university} on ${new Date(credentialData.issueDate).toLocaleDateString()}. Secured by Attestify.`,
-      image: null,
+      image: imageUrl || null,
       external_url: `${process.env.FRONTEND_URL}/dashboard`,
       attributes: [
         { trait_type: "Degree Type", value: credentialData.type },
@@ -75,6 +75,17 @@ class CredentialService {
           status: 'COMPLETED'
         }
       });
+
+      const userRecord = await prisma.user.findUnique({ where: { id: reqUser.id } });
+      if (userRecord?.issuerDetails) {
+        const issuerDetails = { ...userRecord.issuerDetails };
+        issuerDetails.certificatesIssued = (issuerDetails.certificatesIssued || 0) + 1;
+        await prisma.user.update({
+          where: { id: reqUser.id },
+          data: { issuerDetails }
+        });
+      }
+
       return { credential: syncedCred };
     }
 
@@ -110,17 +121,13 @@ class CredentialService {
         studentImageUrl = ipfsService.getIPFSUrl(imageIpfsResult.ipfsHash);
       } catch (uploadError) {
         console.error('Failed to upload student image to IPFS:', uploadError);
-      } finally {
-        if (data.studentImagePath && fs.existsSync(data.studentImagePath)) {
-          try { fs.unlinkSync(data.studentImagePath); } catch (e) {}
-        }
       }
     }
 
     const metadataURI = await this.prepareSBTMetadata(reqUser, {
       id: credentialId, studentWalletAddress: normalizedStudentWallet,
       studentName, university: institutionName, issueDate: parsedIssueDate, type
-    }, ipfsResult.ipfsHash);
+    }, ipfsResult.ipfsHash, studentImageUrl);
 
     const blockchainResult = await blockchainService.issueUnifiedCredential(
       normalizedStudentWallet, credentialId, certificateHash, ipfsResult.ipfsHash, metadataURI
@@ -186,6 +193,10 @@ class CredentialService {
         where: { id: userId },
         data: { issuerDetails }
       });
+    }
+
+    if (data.studentImagePath && fs.existsSync(data.studentImagePath)) {
+      try { fs.unlinkSync(data.studentImagePath); } catch (e) {}
     }
 
     return { credential, blockchainResult, ipfsResult };

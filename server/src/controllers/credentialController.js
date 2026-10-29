@@ -344,7 +344,17 @@ const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
       where: { walletAddress: { equals: targetWallet, mode: 'insensitive' } }
     });
     if (student?.preferences?.visibility === false) {
-      return res.status(403).json({ error: 'Unauthorized: This student profile is private.' });
+      const issuerCredentials = await prisma.credential.findMany({
+        where: {
+          studentWalletAddress: { equals: targetWallet, mode: 'insensitive' },
+          issuedById: req.user.id
+        },
+        include: {
+          issuedBy: { select: { id: true, name: true, email: true, university: true, issuerDetails: true } }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+      return res.json({ success: true, credentials: issuerCredentials });
     }
   }
 
@@ -429,7 +439,7 @@ const getStats = asyncHandler(async (req, res) => {
     recent, totalCompleted, totalFailed, verificationsAgg, gasBalance, networkStats
   ] = await Promise.all([
     prisma.credential.count({ where }),
-    prisma.credential.count({ where: { ...where, isRevoked: false } }),
+    prisma.credential.count({ where: { ...where, status: 'COMPLETED', isRevoked: false } }),
     prisma.credential.count({ where: { ...where, isRevoked: true } }),
     prisma.credential.count({ where: { ...where, createdAt: { gte: startOfMonth } } }),
     prisma.credential.count({ where: { ...where, createdAt: { gte: startOfDay } } }),

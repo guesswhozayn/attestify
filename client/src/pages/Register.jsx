@@ -38,6 +38,11 @@ const Register = () => {
   };
 
   const handleConnectWallet = async (field) => {
+    if (!blockchainService.isMetaMaskInstalled()) {
+      window.open('https://metamask.io/download/', '_blank');
+      showNotification('MetaMask not detected. Install the extension or enter your address manually.', 'info');
+      return;
+    }
     try {
       const address = await blockchainService.connectWallet();
       setFormData(prev => ({ ...prev, [field]: address }));

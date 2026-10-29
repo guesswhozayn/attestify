@@ -30,11 +30,12 @@ const VerificationSection = React.memo(({ certificate }) => {
     setResult(null);
 
     try {
-      console.log('Verifying certificate with ID:', certificate._id);
+      const certId = certificate.id || certificate._id;
+      console.log('Verifying certificate with ID:', certId);
 
       const fileHash = await generateFileHash(file);
 
-      const response = await verifyAPI.verifyByHash(certificate._id, fileHash);
+      const response = await verifyAPI.verifyByHash(certId, fileHash);
 
       setResult(response.data);
       setShowResultModal(true);

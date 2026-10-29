@@ -111,7 +111,9 @@ const CredentialArchive = () => {
         fetchCredentials(currentPage);
         loadStats();
         setCredentialToRevoke(null);
-        if (selectedCredential && selectedCredential._id === credentialToRevoke?._id) {
+        const selId = selectedCredential?.id || selectedCredential?._id;
+        const revId = credentialToRevoke?.id || credentialToRevoke?._id;
+        if (selId && selId === revId) {
             setSelectedCredential(null);
         }
     };

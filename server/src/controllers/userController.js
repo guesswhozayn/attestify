@@ -43,6 +43,13 @@ const updateProfile = asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Wallet address is already associated with another account' });
       }
       data.walletAddress = normalizedWallet;
+      if (req.user.role === 'ISSUER' && !issuerDetails) {
+        const currentDetails = (req.user.issuerDetails && typeof req.user.issuerDetails === 'object') ? req.user.issuerDetails : {};
+        data.issuerDetails = {
+          ...currentDetails,
+          authorizedWalletAddress: normalizedWallet
+        };
+      }
     }
   }
 

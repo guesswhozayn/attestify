@@ -29,10 +29,13 @@ const Settings = () => {
 
     setLoading(true);
     try {
-      await userAPI.changePassword({
+      const res = await userAPI.changePassword({
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
+      if (res.data?.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       showNotification('Password changed successfully', 'success');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {

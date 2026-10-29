@@ -95,14 +95,28 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
                                     </td>
 
                                     <td className="py-3.5 px-4">
-                                        <span className={`font-medium ${isRevoked ? 'text-rose-600' : 'text-emerald-700'}`}>
-                                            {isRevoked ? 'Revoked' : 'Valid'}
+                                        <span className={`font-medium ${
+                                            isRevoked
+                                                ? 'text-rose-600'
+                                                : cred.status === 'FAILED'
+                                                ? 'text-rose-600'
+                                                : cred.status === 'PROCESSING' || cred.status === 'PENDING'
+                                                ? 'text-amber-600'
+                                                : 'text-emerald-700'
+                                        }`}>
+                                            {isRevoked
+                                                ? 'Revoked'
+                                                : cred.status === 'FAILED'
+                                                ? 'Failed'
+                                                : cred.status === 'PROCESSING' || cred.status === 'PENDING'
+                                                ? 'Processing'
+                                                : 'Valid'}
                                         </span>
                                     </td>
 
                                     <td className="py-3.5 px-4 text-stone-500">
-                                        {cred.createdAt
-                                            ? new Date(cred.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                        {(cred.issueDate || cred.createdAt)
+                                            ? new Date(cred.issueDate || cred.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                                             : 'Recent'}
                                     </td>
 

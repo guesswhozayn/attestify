@@ -50,10 +50,11 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const [isDownloading, setIsDownloading] = useState(false);
 
   const downloadCredential = useCallback(async () => {
-    if (!credential) return;
+    const credId = credential.id || credential._id;
+    if (!credId) return;
     setIsDownloading(true);
     try {
-      const response = await fileAPI.downloadCertificate(credential._id);
+      const response = await fileAPI.downloadCertificate(credId);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -199,10 +200,10 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     </div>
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl">
                       <Hash className="w-3.5 h-3.5 text-stone-400" />
-                      <span className="text-xs font-mono text-stone-600 truncate max-w-[120px]">{credential._id}</span>
+                      <span className="text-xs font-mono text-stone-600 truncate max-w-[120px]">{credential.id || credential._id}</span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(credential._id, 'id')}
+                        onClick={() => copyToClipboard(credential.id || credential._id, 'id')}
                         className="p-1 text-stone-400 hover:text-stone-800 cursor-pointer"
                       >
                         {copiedField === 'id' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -490,7 +491,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                </p>
             </div>
 
-            {user?.role === 'ISSUER' && user?.id === (credential.issuedBy?._id || credential.issuedBy) && !credential.isRevoked && (
+            {user?.role === 'ISSUER' && (user?.id === credential.issuedById || user?.id === credential.issuedBy?.id || user?.id === credential.issuedBy) && !credential.isRevoked && (
                <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-3xl p-6">
                   <h4 className="text-xs font-bold text-[#9E2D2D] uppercase tracking-wider mb-4 flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4" />

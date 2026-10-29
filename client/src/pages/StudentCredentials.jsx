@@ -30,8 +30,7 @@ const StudentCredentials = () => {
             const docs = response.data.credentials || [];
 
             const total = docs.length;
-            const revokedCount = docs.filter(d => d.isRevoked).length;
-            const active = total - revokedCount;
+            const active = docs.filter(d => d.status === 'COMPLETED' && !d.isRevoked).length;
             const sbtCount = docs.filter(d => !!d.tokenId).length;
             const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
 
@@ -39,7 +38,11 @@ const StudentCredentials = () => {
             setCredentials(docs);
         } catch (error) {
             console.error('Failed to fetch credentials:', error);
-            showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
+            if (error.response?.status === 403) {
+                showNotification('Wallet mismatch: Connected wallet does not match your registered account wallet.', 'error');
+            } else {
+                showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
+            }
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -49,7 +52,7 @@ const StudentCredentials = () => {
     useEffect(() => {
         let mounted = true;
         if (typeof window.ethereum === 'undefined') {
-            setLoading(false);
+            if (!user?.walletAddress) setLoading(false);
             return;
         }
 
@@ -61,11 +64,11 @@ const StudentCredentials = () => {
                 if (!address) setLoading(false);
             })
             .catch(() => {
-                if (mounted) setLoading(false);
+                if (mounted && !user?.walletAddress) setLoading(false);
             });
 
         const handleAccountsChanged = (accounts) => {
-            const address = accounts?.[0] || null;
+            const address = accounts?.[0] || user?.walletAddress || null;
             setWalletAddress(address);
             if (!address) setCredentials([]);
         };
@@ -75,9 +78,14 @@ const StudentCredentials = () => {
             mounted = false;
             window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
         };
-    }, [user]);
+    }, [user?.walletAddress]);
 
     const handleConnect = async () => {
+        if (!blockchainService.isMetaMaskInstalled()) {
+            window.open('https://metamask.io/download/', '_blank');
+            showNotification('MetaMask not detected. Opening download page or add your wallet in Profile.', 'info');
+            return;
+        }
         try {
             setLoading(true);
             const address = await blockchainService.connectWallet();
@@ -98,15 +106,20 @@ const StudentCredentials = () => {
             if (!active) return;
             const docs = response.data.credentials || [];
             const total = docs.length;
-            const revokedCount = docs.filter(d => d.isRevoked).length;
-            const activeCount = total - revokedCount;
+            const activeCount = docs.filter(d => d.status === 'COMPLETED' && !d.isRevoked).length;
             const sbtCount = docs.filter(d => !!d.tokenId).length;
             const uniqueIssuers = new Set(docs.map(d => d.university || d.issuedBy?.name)).size;
             setStats({ total, active: activeCount, sbtCount, uniqueIssuers });
             setCredentials(docs);
         }).catch(error => {
             console.error('Failed to fetch credentials:', error);
-            if (active) showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
+            if (active) {
+                if (error.response?.status === 403) {
+                    showNotification('Wallet mismatch: Connected wallet does not match your registered account wallet.', 'error');
+                } else {
+                    showNotification('Failed to fetch your credentials. Please ensure your wallet is connected.', 'error');
+                }
+            }
         }).finally(() => {
             if (active) setLoading(false);
         });
@@ -210,7 +223,11 @@ const StudentCredentials = () => {
                             <EmptyState
                                 icon={Wallet}
                                 title="Wallet not connected"
-                                message="Connect your wallet to view your certificates."
+                                message={
+                                    typeof window.ethereum === 'undefined'
+                                        ? 'No Web3 wallet extension detected. Connect MetaMask or configure your wallet address in Profile settings to view credentials.'
+                                        : 'Connect your wallet to view your certificates.'
+                                }
                             >
                                 <Button
                                     onClick={handleConnect}
@@ -218,7 +235,7 @@ const StudentCredentials = () => {
                                     variant="primary"
                                     size="sm"
                                 >
-                                    Connect
+                                    {typeof window.ethereum === 'undefined' ? 'Install MetaMask' : 'Connect'}
                                 </Button>
                             </EmptyState>
                         ) : (

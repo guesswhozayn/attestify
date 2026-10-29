@@ -1,4 +1,5 @@
 const asyncHandler = require('../middleware/asyncHandler');
+const { ethers } = require('ethers');
 const { prisma } = require('../config/database');
 const blockchainService = require('../services/blockchainService');
 
@@ -23,8 +24,8 @@ const getNetworkStats = asyncHandler(async (req, res) => {
       })
     ]);
 
-    const totalGasUsed = BigInt(gasAgg?.total_gas_used ? Math.trunc(Number(gasAgg.total_gas_used)) : 0);
-    const totalCostWei = BigInt(gasAgg?.total_cost_wei ? Math.trunc(Number(gasAgg.total_cost_wei)) : 0);
+    const totalGasUsed = BigInt(gasAgg?.total_gas_used ? String(gasAgg.total_gas_used).split('.')[0] : '0');
+    const totalCostWei = BigInt(gasAgg?.total_cost_wei ? String(gasAgg.total_cost_wei).split('.')[0] : '0');
 
     res.json({
       success: true,
@@ -38,7 +39,7 @@ const getNetworkStats = asyncHandler(async (req, res) => {
           totalIssued,
           totalRevoked,
           totalGasUsed: totalGasUsed.toString(),
-          totalCostEth: (Number(totalCostWei) / 1e18).toFixed(6)
+          totalCostEth: parseFloat(ethers.formatEther(totalCostWei)).toFixed(6)
         },
         recentTransactions: recent
       }

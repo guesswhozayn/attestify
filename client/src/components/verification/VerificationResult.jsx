@@ -70,7 +70,7 @@ const VerificationResult = ({ result }) => {
           <div className="flex items-center justify-between border-b border-[#F2F4F7] pb-4">
             <h3 className="text-sm font-bold text-stone-900 tracking-tight">Credential details</h3>
             <span className="text-xs text-stone-400 font-mono">
-              ID: {result.credential._id ? result.credential._id.slice(0, 8) : 'RECORD'}
+              ID: {(result.credential.id || result.credential._id) ? (result.credential.id || result.credential._id).slice(0, 8) : 'RECORD'}
             </span>
           </div>
 
