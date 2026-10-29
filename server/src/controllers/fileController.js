@@ -16,10 +16,14 @@ const streamIPFSFile = async (cid, res, defaultContentType, filename) => {
   }
 };
 
+const CID_REGEX = /^[a-zA-Z0-9]{40,100}$/;
+
 const downloadCertificate = asyncHandler(async (req, res) => {
   const credential = await prisma.credential.findUnique({ where: { id: req.params.id } });
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
-  if (!credential.ipfsCID) return res.status(404).json({ error: 'Certificate file not found' });
+  if (!credential.ipfsCID || !CID_REGEX.test(credential.ipfsCID)) {
+    return res.status(404).json({ error: 'Certificate file not found' });
+  }
 
   const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
   const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
@@ -40,9 +44,12 @@ const downloadCertificate = asyncHandler(async (req, res) => {
 });
 
 const getIPFSFile = asyncHandler(async (req, res) => {
-  if (!req.params.cid) return res.status(400).json({ error: 'CID is required' });
+  const { cid } = req.params;
+  if (!cid || !CID_REGEX.test(cid)) {
+    return res.status(400).json({ error: 'A valid alphanumeric IPFS CID is required' });
+  }
   if (!req.user) return res.status(401).json({ error: 'Authentication required to access IPFS proxy.' });
-  await streamIPFSFile(req.params.cid, res);
+  await streamIPFSFile(cid, res);
 });
 
 module.exports = { downloadCertificate, getIPFSFile };

@@ -46,17 +46,17 @@ const updateProfile = asyncHandler(async (req, res) => {
     }
   }
 
-  if (preferences) {
+  if (preferences && typeof preferences === 'object' && !Array.isArray(preferences)) {
     const currentPrefs = (req.user.preferences && typeof req.user.preferences === 'object') ? req.user.preferences : {};
     data.preferences = { ...currentPrefs, ...preferences };
   }
 
-  if (req.body.studentDetails) {
+  if (req.body.studentDetails && typeof req.body.studentDetails === 'object' && !Array.isArray(req.body.studentDetails)) {
     const currentStudentDetails = (req.user.preferences?.studentDetails && typeof req.user.preferences.studentDetails === 'object')
       ? req.user.preferences.studentDetails
       : {};
     const updatedStudentDetails = { ...currentStudentDetails, ...req.body.studentDetails };
-    const currentPrefs = (req.user.preferences && typeof req.user.preferences === 'object') ? req.user.preferences : {};
+    const currentPrefs = (data.preferences || req.user.preferences || {});
     data.preferences = { ...currentPrefs, studentDetails: updatedStudentDetails };
   }
 

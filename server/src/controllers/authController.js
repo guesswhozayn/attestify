@@ -156,6 +156,18 @@ const logout = asyncHandler(async (req, res) => {
 
 const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || typeof currentPassword !== 'string') {
+    return res.status(400).json({ error: 'Current password is required' });
+  }
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+  }
+  if (newPassword.length > 72) {
+    return res.status(400).json({ error: 'New password cannot exceed 72 characters' });
+  }
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ error: 'New password must be different from current password' });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });
   if (!user) return res.status(404).json({ error: 'User not found' });

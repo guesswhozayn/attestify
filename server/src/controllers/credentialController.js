@@ -7,6 +7,7 @@ const blockchainService = require('../services/blockchainService');
 const ipfsService = require('../services/ipfsService');
 const asyncHandler = require('../middleware/asyncHandler');
 const { enqueueIssuanceJob, enqueueBulkIssuanceJobs } = require('../services/queueService');
+const { isValidCalendarDate } = require('../middleware/validator');
 
 const issueCredential = asyncHandler(async (req, res) => {
   const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
@@ -128,6 +129,9 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
       }
 
       const type = row.type?.trim().toUpperCase() === 'TRANSCRIPT' ? 'TRANSCRIPT' : 'CERTIFICATION';
+      if (row.issueDate && !isValidCalendarDate(row.issueDate)) {
+        throw new Error(`Invalid issueDate: ${row.issueDate}`);
+      }
       const parsedDate = row.issueDate ? new Date(row.issueDate) : new Date();
       if (isNaN(parsedDate.getTime())) {
         throw new Error(`Invalid issueDate: ${row.issueDate}`);
@@ -322,8 +326,8 @@ const getCredentialById = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     credential,
-    ipfsUrl: ipfsService.getIPFSUrl(credential.ipfsCID),
-    etherscanUrl: `https://sepolia.etherscan.io/tx/${credential.transactionHash}`
+    ipfsUrl: credential.ipfsCID ? ipfsService.getIPFSUrl(credential.ipfsCID) : null,
+    etherscanUrl: credential.transactionHash ? `https://sepolia.etherscan.io/tx/${credential.transactionHash}` : null
   });
 });
 
@@ -367,6 +371,9 @@ const revokeCredential = asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'Unauthorized: Only the original issuer can revoke this credential.' });
   }
   if (credential.isRevoked) return res.status(400).json({ error: 'Credential already revoked' });
+  if (credential.status !== 'COMPLETED') {
+    return res.status(400).json({ error: 'Only credentials in COMPLETED status can be revoked on-chain.' });
+  }
 
   const blockchainResult = await blockchainService.revokeCertificate(credential.id);
 
