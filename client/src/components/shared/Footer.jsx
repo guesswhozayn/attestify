@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import Button from './Button';
@@ -115,4 +116,4 @@ const Footer = () => {
   );
 };
 
-export default React.memo(Footer);
+export default memo(Footer);

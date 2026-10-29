@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Info } from 'lucide-react';
 
@@ -57,5 +58,5 @@ const StatCard = ({ label, value, icon: Icon, subtext, delay = 0, variant = 'def
     );
 };
 
-export default React.memo(StatCard);
+export default memo(StatCard);
 

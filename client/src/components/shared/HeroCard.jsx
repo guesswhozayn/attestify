@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 
@@ -81,4 +82,4 @@ const HeroCard = ({
 };
 
 HeroCard.displayName = 'HeroCard';
-export default React.memo(HeroCard);
+export default memo(HeroCard);

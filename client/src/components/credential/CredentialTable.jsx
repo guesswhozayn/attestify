@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
     FileText,
     ExternalLink,
@@ -158,4 +159,4 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
     );
 };
 
-export default React.memo(CredentialTable);
+export default memo(CredentialTable);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -165,4 +166,4 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   );
 };
 
-export default React.memo(Sidebar);
+export default memo(Sidebar);
