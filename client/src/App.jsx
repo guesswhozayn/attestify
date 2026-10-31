@@ -32,7 +32,7 @@ const About             = lazy(() => import('./pages/About'));
 const PrivacyPolicy     = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService    = lazy(() => import('./pages/TermsOfService'));
 const NotFound          = lazy(() => import('./pages/NotFound'));
-const PartnershipGuide  = lazy(() => import('./pages/PartnershipGuide'));
+const Poster            = lazy(() => import('./pages/Poster'));
 
 const PageLoader = () => (
   <div className="min-h-dvh bg-[#08090d] flex items-center justify-center">
@@ -67,9 +67,10 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/partnership-guide" element={<PartnershipGuide />} />
           <Route path="/verify" element={<VerifyPage />} />
           <Route path="/verify/:id" element={<VerifyPage />} />
+          <Route path="/poster" element={<Poster />} />
+          <Route path="/posters" element={<Navigate to="/poster" replace />} />
           <Route element={<Layout />}>
             <Route
               path="/dashboard"

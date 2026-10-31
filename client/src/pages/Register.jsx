@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { User, Mail, Lock, Building, AlertCircle, ArrowRight, Eye, EyeOff, Wallet, Shield } from 'lucide-react';
+import AttestifyLogoMark from '../components/shared/AttestifyLogoMark';
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
@@ -93,8 +94,9 @@ const Register = () => {
         <div className="flex flex-col space-y-8 animate-in slide-in-from-left-8 duration-700 order-last lg:order-first">
 
              <div className="hidden lg:block">
-                <Link to="/" className="inline-block group">
-                   <span className="font-mono text-3xl font-bold tracking-tight lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+                <Link to="/" className="inline-flex items-center gap-2.5 group">
+                   <AttestifyLogoMark className="w-6 h-6 group-hover:scale-105 transition-transform shrink-0" />
+                   <span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-3xl font-bold tracking-tight lowercase text-white">attestify</span>
                 </Link>
              </div>
 
@@ -132,8 +134,9 @@ const Register = () => {
         <div className="bg-[#0e1017]/90 backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_25px_60px_-15px_rgba(0,0,0,0.85)] animate-in slide-in-from-right-8 duration-700">
 
            <div className="lg:hidden pb-8 text-center">
-              <Link to="/" className="inline-block group">
-                 <span className="font-mono text-2xl font-bold tracking-tight lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+              <Link to="/" className="inline-flex items-center gap-2 group">
+                 <AttestifyLogoMark className="w-5 h-5 group-hover:scale-105 transition-transform shrink-0" />
+                 <span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-2xl font-bold tracking-tight lowercase text-white">attestify</span>
               </Link>
            </div>
 

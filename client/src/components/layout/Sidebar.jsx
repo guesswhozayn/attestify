@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import AttestifyLogoMark from '../shared/AttestifyLogoMark';
 
 const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   const navigate = useNavigate();
@@ -57,12 +58,16 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
       }`}>
         <div
           onClick={() => handleNavigate('/dashboard')}
-          className="cursor-pointer"
+          className="cursor-pointer flex items-center gap-2"
         >
-          <span className={`font-mono text-xl font-bold tracking-tight lowercase ${
-            isDark ? 'text-white' : 'text-stone-900'
-          }`}>
-            attestify<span className="text-indigo-500">.</span>
+          <AttestifyLogoMark className="w-5 h-5 shrink-0" />
+          <span
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className={`text-xl font-bold tracking-tight lowercase ${
+              isDark ? 'text-white' : 'text-stone-900'
+            }`}
+          >
+            attestify
           </span>
         </div>
 

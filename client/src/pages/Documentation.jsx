@@ -4,6 +4,7 @@ import Navbar from '../components/shared/Navbar';
 import {
   Shield, ChevronRight, BookOpen, Blocks, Fingerprint,
   HardDrive, Lock, Server, ShieldCheck, HelpCircle, X, ArrowRight } from 'lucide-react';
+import AttestifyLogoMark from '../components/shared/AttestifyLogoMark';
 import Button from '../components/shared/Button';
 import Background from '../components/shared/Background';
 
@@ -552,7 +553,8 @@ const Documentation = () => {
 
           <div className="flex items-center justify-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300 py-8 mt-20">
               <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Powered by</span>
-              <span className="font-mono text-lg font-bold tracking-tight lowercase text-white">attestify<span className="text-indigo-500">.</span></span>
+              <AttestifyLogoMark className="w-4 h-4 shrink-0" />
+              <span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-lg font-bold tracking-tight lowercase text-white">attestify</span>
           </div>
         </main>
       </div>
