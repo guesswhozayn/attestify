@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, ArrowLeft, AlignRight, X, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
-import AttestifyLogoMark from './AttestifyLogoMark';
+import Logo from './Logo';
 
 const Navbar = ({ showSidebarToggle = false, onToggleSidebar, onBack, showBack = false }) => {
   const { user } = useAuth();
@@ -24,7 +24,7 @@ const Navbar = ({ showSidebarToggle = false, onToggleSidebar, onBack, showBack =
           onClick={() => navigate('/')}
           className="cursor-pointer group flex items-center gap-2"
         >
-          <AttestifyLogoMark className="w-5 h-5 group-hover:scale-105 transition-transform shrink-0" />
+          <Logo className="w-5 h-5 group-hover:scale-105 transition-transform shrink-0" />
           <span
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             className="text-xl font-bold tracking-tight lowercase text-white"

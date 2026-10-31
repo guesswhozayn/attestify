@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight, Building } from 'lucide-react';
-import AttestifyLogoMark from '../components/shared/AttestifyLogoMark';
+import Logo from '../components/shared/Logo';
 import BackButton from '../components/shared/BackButton';
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
@@ -54,7 +54,7 @@ const Login = () => {
 
              <div className="hidden lg:block">
                 <Link to="/" className="inline-flex items-center gap-2.5 group">
-                   <AttestifyLogoMark className="w-6 h-6 group-hover:scale-105 transition-transform shrink-0" />
+                   <Logo className="w-6 h-6 group-hover:scale-105 transition-transform shrink-0" />
                    <span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-3xl font-bold tracking-tight lowercase text-white">attestify</span>
                 </Link>
              </div>
@@ -94,7 +94,7 @@ const Login = () => {
 
            <div className="lg:hidden pb-8 text-center">
               <Link to="/" className="inline-flex items-center gap-2 group">
-                 <AttestifyLogoMark className="w-5 h-5 group-hover:scale-105 transition-transform shrink-0" />
+                 <Logo className="w-5 h-5 group-hover:scale-105 transition-transform shrink-0" />
                  <span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-2xl font-bold tracking-tight lowercase text-white">attestify</span>
               </Link>
            </div>

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, FileCheck, Wallet, Users, CheckCircle, Globe, Zap, Building } from 'lucide-react';
-import AttestifyLogoMark from '../components/shared/AttestifyLogoMark';
+import Logo from '../components/shared/Logo';
 import { motion } from 'framer-motion';
 import Button from '../components/shared/Button';
 import Navbar from '../components/shared/Navbar';
@@ -315,7 +315,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
             <h2 className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
-              Why <AttestifyLogoMark className="w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 inline-block shrink-0" /><span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight lowercase text-white">attestify</span>
+              Why <Logo className="w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 inline-block shrink-0" /><span style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight lowercase text-white">attestify</span>
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-xl">The three pillars of the new standard.</p>
           </div>

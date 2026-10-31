@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 
-export default function AttestifyLogoMark({ className = 'w-6 h-6', ...props }) {
+export default function Logo({ className = 'w-6 h-6', ...props }) {
   const rawId = useId();
   const gradId = `attestify-grad-${rawId.replace(/:/g, '')}`;
 

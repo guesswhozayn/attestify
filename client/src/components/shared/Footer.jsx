@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import Button from './Button';
-import AttestifyLogoMark from './AttestifyLogoMark';
+import Logo from './Logo';
 
 const platformLinks = [
   { name: 'Dashboard', path: '/login' },
@@ -56,7 +56,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           <div className="lg:col-span-5">
             <div className="flex items-center space-x-2.5 mb-6">
-              <AttestifyLogoMark className="w-6 h-6 shrink-0" />
+              <Logo className="w-6 h-6 shrink-0" />
               <span
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 className="text-2xl font-bold tracking-tight lowercase text-white"

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import AttestifyLogoMark from '../components/shared/AttestifyLogoMark';
+import Logo from '../components/shared/Logo';
 import { useNotification } from '../context/NotificationContext';
 import Button from '../components/shared/Button';
 import { verifyAPI } from '../services/api';
@@ -206,7 +206,7 @@ const VerifyDashboard = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link to="/" className="inline-flex items-center gap-2 group">
-              <AttestifyLogoMark className="w-5 h-5 shrink-0" />
+              <Logo className="w-5 h-5 shrink-0" />
               <span
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 className="text-xl sm:text-2xl font-bold tracking-tight lowercase"
