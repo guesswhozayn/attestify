@@ -1,29 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="attestify-favicon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="attestify-fav-g1" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#818cf8" />
       <stop offset="50%" stop-color="#6366f1" />
       <stop offset="100%" stop-color="#9333ea" />
     </linearGradient>
+    <linearGradient id="attestify-fav-g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="50%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
   </defs>
-  <path
-    d="M50 12 L84 31 V69 L50 88 L16 69 V31 Z"
-    stroke="url(#attestify-favicon-grad)"
-    stroke-width="9"
-    stroke-linejoin="round"
-  />
-  <path
-    d="M50 12 L50 50 L84 69"
-    stroke="url(#attestify-favicon-grad)"
-    stroke-width="9"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
-  <path
-    d="M50 50 L16 69"
-    stroke="url(#attestify-favicon-grad)"
-    stroke-width="9"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+  <polygon points="26,74 26,58 42,58 42,42 58,42 58,26 74,26 74,42 58,42 58,58 42,58 42,74" fill="url(#attestify-fav-g1)" />
+  <rect x="58" y="58" width="16" height="16" rx="3" fill="url(#attestify-fav-g2)" />
 </svg>
