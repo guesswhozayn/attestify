@@ -105,7 +105,14 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       }
 
       const response = await credentialAPI.issue(formDataToSend);
-      const { credentialId } = response.data;
+      const { credentialId, credential } = response.data;
+
+      if (credential?.status === 'COMPLETED') {
+        showNotification('Credential issued successfully', 'success');
+        onSuccess?.();
+        onClose();
+        return;
+      }
 
       setLoadingMessage('Recording credential on blockchain...');
 

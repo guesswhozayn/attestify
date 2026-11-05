@@ -1,7 +1,15 @@
 const { Queue } = require('bullmq');
 const Redis = require('ioredis');
 
+const isServerlessWithoutQueue = Boolean(
+  process.env.VERCEL && !process.env.USE_REDIS_QUEUE
+);
+
 function createRedisConnection() {
+  if (isServerlessWithoutQueue) {
+    return null;
+  }
+
   const redisUrl = process.env.REDIS_URL || (process.env.REDIS_HOST?.startsWith('redis') ? process.env.REDIS_HOST : null);
   if (redisUrl) {
     return new Redis(redisUrl, {
@@ -26,20 +34,29 @@ function createRedisConnection() {
 
 const connection = createRedisConnection();
 
-connection.on('error', (err) => {
-  console.warn('[Redis] Connection error (BullMQ will retry):', err.message);
-});
+if (connection) {
+  connection.on('error', (err) => {
+    console.warn('[Redis] Connection error (BullMQ will retry):', err.message);
+  });
+}
 
-const issuanceQueue = new Queue('issuanceQueue', { connection });
+const issuanceQueue = connection ? new Queue('issuanceQueue', { connection }) : null;
 
-const enqueueIssuanceJob = (jobData) =>
-  issuanceQueue.add('issueCredential', jobData, {
+const enqueueIssuanceJob = (jobData) => {
+  if (!issuanceQueue) {
+    throw new Error('Redis queue is not active in serverless mode');
+  }
+  return issuanceQueue.add('issueCredential', jobData, {
     attempts: 3,
     backoff: { type: 'exponential', delay: 2000 },
   });
+};
 
-const enqueueBulkIssuanceJobs = (jobsData) =>
-  issuanceQueue.addBulk(
+const enqueueBulkIssuanceJobs = (jobsData) => {
+  if (!issuanceQueue) {
+    throw new Error('Redis queue is not active in serverless mode');
+  }
+  return issuanceQueue.addBulk(
     jobsData.map(job => ({
       name: 'issueCredential',
       data: job,
@@ -49,5 +66,12 @@ const enqueueBulkIssuanceJobs = (jobsData) =>
       }
     }))
   );
+};
 
-module.exports = { issuanceQueue, enqueueIssuanceJob, enqueueBulkIssuanceJobs, connection };
+module.exports = {
+  issuanceQueue,
+  enqueueIssuanceJob,
+  enqueueBulkIssuanceJobs,
+  connection,
+  isServerlessWithoutQueue
+};

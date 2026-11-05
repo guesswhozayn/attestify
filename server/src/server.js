@@ -107,7 +107,9 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
 
 const gracefulShutdown = async (signal) => {
   console.log(`\n[Server] Received ${signal}. Closing connections...`);
@@ -118,17 +120,24 @@ const gracefulShutdown = async (signal) => {
   const { connection } = require('./services/queueService');
   try {
     await prisma.$disconnect();
-    await connection.quit();
+    if (connection) {
+      await connection.quit();
+    }
   } catch (e) {
     console.warn('[Server] Error disconnecting cleanly:', e.message);
   }
   process.exit(0);
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+if (!process.env.VERCEL) {
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  process.exit(1);
-});
+  process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = app;
+

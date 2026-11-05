@@ -8,10 +8,16 @@ if (databaseUrl) {
   process.env.DATABASE_URL = databaseUrl;
 }
 
-const prisma = new PrismaClient({
+const globalForPrisma = globalThis;
+
+const prisma = globalForPrisma.__prisma || new PrismaClient({
   datasources: databaseUrl ? { db: { url: databaseUrl } } : undefined,
   log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error']
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.__prisma = prisma;
+}
 
 const connectDB = async () => {
   try {
@@ -22,10 +28,14 @@ const connectDB = async () => {
     console.log(`PostgreSQL Connected via Prisma (${process.env.NODE_ENV === 'production' ? 'Production/Cloud' : 'Development/Local'})`);
   } catch (error) {
     console.error(`PostgreSQL Connection Error: ${error.message}`);
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
+    throw error;
   }
 };
 
 module.exports = connectDB;
 module.exports.prisma = prisma;
+
 

@@ -5,7 +5,7 @@ import { toPng } from 'html-to-image';
 import Logo from '../components/shared/Logo';
 
 const POSTER_FONT = "'Poppins', sans-serif";
-const TARGET_URL = 'https://useattestify.vercel.app';
+const TARGET_URL = 'https://attestify-alpha.vercel.app';
 
 const PINTECH_PARTNERS = [
   { name: 'PHEC', src: '/phec-logo.png', label: 'Punjab Higher Education Commission' },
@@ -132,17 +132,26 @@ function ExpoCornerRibbons() {
 }
 
 function ExpoSponsorRow({ size = 'large' }) {
+  const isXLarge = size === 'xl';
   const isLarge = size === 'large';
 
   return (
     <div
       className={`flex items-center justify-center ${
-        isLarge ? 'gap-6 sm:gap-10 max-w-2xl' : 'gap-3.5 sm:gap-6 max-w-sm sm:max-w-md'
+        isXLarge
+          ? 'gap-8 sm:gap-14 max-w-3xl'
+          : isLarge
+          ? 'gap-6 sm:gap-10 max-w-2xl'
+          : 'gap-3.5 sm:gap-6 max-w-sm sm:max-w-md'
       } w-full mx-auto px-4 select-none`}
     >
       {PINTECH_PARTNERS.map((partner) => {
         const isHonahar = partner.name === 'Honahar';
-        const heightClass = isLarge
+        const heightClass = isXLarge
+          ? isHonahar
+            ? 'h-20 sm:h-28 max-w-[150px] sm:max-w-[210px]'
+            : 'h-28 sm:h-38 max-w-[190px] sm:max-w-[290px]'
+          : isLarge
           ? isHonahar
             ? 'h-16 sm:h-22 max-w-[120px] sm:max-w-[170px]'
             : 'h-24 sm:h-32 max-w-[160px] sm:max-w-[240px]'
@@ -175,49 +184,26 @@ const ExpoTemplate3x3 = forwardRef(function ExpoTemplate3x3({ targetUrl }, ref) 
     >
       <ExpoCornerRibbons />
 
-      <header className="relative z-10 w-full pt-1">
-        <ExpoSponsorRow size="large" />
+      <header className="relative z-10 w-full pt-1 sm:pt-2">
+        <ExpoSponsorRow size="xl" />
       </header>
 
-      <section className="relative z-10 my-auto flex flex-col items-center justify-center space-y-5">
-        <div className="w-full max-w-3xl px-4 text-center flex flex-col items-center">
-          <Logo className="w-20 h-20 sm:w-28 sm:h-28 shrink-0 drop-shadow-sm mb-3 sm:mb-4" />
-          <h1
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            className="text-5xl sm:text-6xl md:text-7xl font-black lowercase tracking-tight text-black leading-none mb-2"
-          >
-            attestify
-          </h1>
-          <h2 className="text-xs sm:text-sm md:text-base font-semibold uppercase tracking-widest text-zinc-600">
-            Decentralized Academic Credentials
-          </h2>
-        </div>
-
-        <div className="flex flex-col items-center pt-1">
-          <img
-            src="/uoc-logo.png"
-            alt="University of Chakwal"
-            className="h-32 sm:h-44 w-auto object-contain drop-shadow-xs mb-3"
-          />
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1e293b] tracking-tight">
-            University of Chakwal
-          </h3>
-        </div>
-
-        <div className="w-full max-w-xs sm:max-w-md">
-          <div className="h-[3px] w-52 sm:w-72 bg-[#dc2626] mx-auto rounded-full mb-2" />
-          <div className="text-sm sm:text-base font-semibold text-[#1e293b] tracking-wide">
-            Punjab Higher Education Commission
-          </div>
-        </div>
+      <section className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none p-6 sm:p-10">
+        <img
+          src="/uoc-logo.png"
+          alt="University of Chakwal"
+          className="h-44 sm:h-64 w-auto object-contain drop-shadow-sm mb-4 sm:mb-6"
+        />
+        <h2 className="text-3xl sm:text-5xl font-extrabold text-[#1e293b] tracking-tight">
+          University of Chakwal
+        </h2>
       </section>
 
-      <footer className="relative z-10 w-full pb-2 flex items-center justify-center">
-        <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/95 border border-zinc-200 shadow-xs">
-          <QRCodeSVG value={targetUrl} size={54} bgColor="#ffffff" fgColor="#08090d" level="M" />
-          <div className="text-left font-sans">
-            <div className="text-xs font-bold text-zinc-900 leading-tight">Scan to Open App</div>
-            <div className="text-[11px] font-mono font-medium text-emerald-700">useattestify.vercel.app</div>
+      <footer className="relative z-10 w-full pb-3 sm:pb-5 flex flex-col items-center">
+        <div className="w-full max-w-sm sm:max-w-lg">
+          <div className="h-[3px] w-52 sm:w-80 bg-[#dc2626] mx-auto rounded-full mb-2.5 sm:mb-3" />
+          <div className="text-sm sm:text-lg font-semibold text-[#1e293b] tracking-wide">
+            Punjab Higher Education Commission
           </div>
         </div>
       </footer>
@@ -279,7 +265,7 @@ const ExpoTemplate3x8 = forwardRef(function ExpoTemplate3x8({ targetUrl }, ref) 
           <QRCodeSVG value={targetUrl} size={78} bgColor="#ffffff" fgColor="#08090d" level="M" />
         </div>
         <div className="text-xs font-bold text-zinc-900 leading-tight">Scan to Open App</div>
-        <div className="text-[11px] font-mono font-medium text-emerald-700">useattestify.vercel.app</div>
+        <div className="text-[11px] font-mono font-medium text-emerald-700">attestify-alpha.vercel.app</div>
       </footer>
     </article>
   );
@@ -339,7 +325,7 @@ const ExpoTemplate2x5 = forwardRef(function ExpoTemplate2x5({ targetUrl }, ref) 
           <QRCodeSVG value={targetUrl} size={84} bgColor="#ffffff" fgColor="#08090d" level="M" />
         </div>
         <div className="text-xs font-bold text-zinc-900 leading-tight">Scan to Open App</div>
-        <div className="text-[11px] font-mono font-medium text-emerald-700">useattestify.vercel.app</div>
+        <div className="text-[11px] font-mono font-medium text-emerald-700">attestify-alpha.vercel.app</div>
       </footer>
     </article>
   );

@@ -4,9 +4,10 @@ const csv = require('csv-parser');
 const { ethers } = require('ethers');
 const { prisma } = require('../config/database');
 const blockchainService = require('../services/blockchainService');
+const credentialService = require('../services/credentialService');
 const ipfsService = require('../services/ipfsService');
 const asyncHandler = require('../middleware/asyncHandler');
-const { enqueueIssuanceJob, enqueueBulkIssuanceJobs } = require('../services/queueService');
+const { enqueueIssuanceJob, enqueueBulkIssuanceJobs, isServerlessWithoutQueue } = require('../services/queueService');
 const { isValidCalendarDate } = require('../middleware/validator');
 
 const issueCredential = asyncHandler(async (req, res) => {
@@ -57,9 +58,33 @@ const issueCredential = asyncHandler(async (req, res) => {
       type,
       issuedById: req.user.id,
       certificateHash: 'PENDING_' + credentialId,
-      status: 'PENDING'
+      status: isServerlessWithoutQueue ? 'PROCESSING' : 'PENDING'
     }
   });
+
+  if (isServerlessWithoutQueue) {
+    try {
+      const result = await credentialService.processIssuance(data, req.user);
+      return res.status(201).json({
+        success: true,
+        message: 'Credential issued successfully',
+        credentialId,
+        credential: result.credential
+      });
+    } catch (issueErr) {
+      if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+        try { fs.unlinkSync(studentImageFile.path); } catch {}
+      }
+      await prisma.credential.update({
+        where: { id: credentialId },
+        data: {
+          status: 'FAILED',
+          processingError: issueErr.message
+        }
+      });
+      throw issueErr;
+    }
+  }
 
   try {
     const job = await enqueueIssuanceJob({ data, user: req.user });
@@ -203,6 +228,40 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
   if (validDbRecords.length > 0) {
     await prisma.credential.createMany({ data: validDbRecords });
+
+    if (isServerlessWithoutQueue) {
+      let succeeded = 0;
+      for (let i = 0; i < validQueueJobs.length; i++) {
+        const jobItem = validQueueJobs[i];
+        try {
+          await prisma.credential.update({
+            where: { id: jobItem.data.credentialId },
+            data: { status: 'PROCESSING' }
+          });
+          await credentialService.processIssuance(jobItem.data, req.user);
+          succeeded++;
+        } catch (err) {
+          errors.push({ row: i + 2, error: err.message });
+          await prisma.credential.update({
+            where: { id: jobItem.data.credentialId },
+            data: { status: 'FAILED', processingError: err.message }
+          });
+        }
+      }
+
+      return res.json({
+        success: true,
+        summary: {
+          total: rows.length,
+          queued: succeeded,
+          success: succeeded,
+          failed: errors.length,
+          errors: errors.slice(0, 20),
+          message: `Batch processed: ${succeeded} credentials issued, ${errors.length} failed.`
+        }
+      });
+    }
+
     try {
       const enqueued = await enqueueBulkIssuanceJobs(validQueueJobs);
       if (Array.isArray(enqueued) && enqueued.length === validDbRecords.length) {

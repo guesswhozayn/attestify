@@ -1,14 +1,17 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { FILE_LIMITS } = require('../config/constants');
 
-fs.mkdirSync('uploads', { recursive: true });
+const BASE_UPLOAD_DIR = process.env.VERCEL ? path.join(os.tmpdir(), 'uploads') : 'uploads';
+
+fs.mkdirSync(BASE_UPLOAD_DIR, { recursive: true });
 
 const SUB_DIRS = {
-  certificate: 'uploads/certificates/',
-  file: 'uploads/batch/',
-  studentImage: 'uploads/images/'
+  certificate: path.join(BASE_UPLOAD_DIR, 'certificates'),
+  file: path.join(BASE_UPLOAD_DIR, 'batch'),
+  studentImage: path.join(BASE_UPLOAD_DIR, 'images')
 };
 
 const FIELD_EXTS = {
@@ -26,7 +29,7 @@ const FIELD_MIMES = {
 const upload = multer({
   storage: multer.diskStorage({
     destination(req, file, cb) {
-      const targetDir = SUB_DIRS[file.fieldname] || 'uploads/';
+      const targetDir = SUB_DIRS[file.fieldname] || BASE_UPLOAD_DIR;
       fs.mkdirSync(targetDir, { recursive: true });
       cb(null, targetDir);
     },

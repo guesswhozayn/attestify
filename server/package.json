@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "build": "prisma generate"
+    "build": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "keywords": [
     "blockchain",
