@@ -16,10 +16,26 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+const rawOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map(o => o.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, ''))
+  .filter(Boolean);
+
+const allowedOrigins = new Set([
+  ...rawOrigins,
+  'https://attestify-alpha.vercel.app',
+  'http://localhost:5173'
+]);
 
 app.use(cors({
-  origin: [allowedOrigin, `${allowedOrigin}/`],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const cleanOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.has(cleanOrigin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
   credentials: true
 }));
 
