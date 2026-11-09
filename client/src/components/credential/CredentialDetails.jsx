@@ -182,13 +182,13 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
         )}
 
         <div
-          className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-[#FAF8F5] border border-[#E8E4DC] p-7 md:p-8 shadow-xs"
+          className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#EAECF0] p-7 md:p-8 shadow-xs"
         >
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6">
 
             <div className="relative shrink-0">
-              <div className="w-24 h-24 rounded-2xl bg-white border border-[#E8E4DC] flex items-center justify-center shrink-0 shadow-xs overflow-hidden p-1">
-                <div className="w-full h-full rounded-xl bg-[#FAF8F5] flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 rounded-2xl bg-white border border-[#EAECF0] flex items-center justify-center shrink-0 shadow-xs overflow-hidden p-1">
+                <div className="w-full h-full rounded-xl bg-stone-50 flex items-center justify-center overflow-hidden">
                   {credential.issuedBy?.issuerDetails?.branding && (credential.issuedBy.issuerDetails.branding.logo || credential.issuedBy.issuerDetails.branding.logoCID) ? (
                     <img
                       src={credential.issuedBy.issuerDetails.branding.logo || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.logoCID}`}
@@ -215,11 +215,11 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     {credential.studentName}
                   </h2>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl">
+                    <div className="flex items-center gap-2 px-3 py-1 bg-white border border-[#EAECF0] rounded-xl">
                       <Building className="w-3.5 h-3.5 text-stone-500" />
                       <span className="text-xs font-semibold text-stone-700">{credential.university || credential.issuedBy?.name}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl">
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#EAECF0] rounded-xl">
                       <Hash className="w-3.5 h-3.5 text-stone-400" />
                       <span className="text-xs font-mono text-stone-600 truncate max-w-[120px]">{credential.id || credential._id}</span>
                       <button
@@ -242,7 +242,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <button
                       type="button"
                       onClick={() => setShowSBTModal(true)}
-                      className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E8E4DC] rounded-xl text-stone-700 text-xs font-medium hover:bg-stone-50 cursor-pointer transition-colors shadow-2xs"
+                      className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#EAECF0] rounded-xl text-stone-700 text-xs font-medium hover:bg-stone-50 cursor-pointer transition-colors shadow-2xs"
                     >
                       <Shield className="w-3.5 h-3.5 text-stone-500" />
                       <span>Direct record</span>
@@ -258,9 +258,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
           <div className="lg:col-span-8 space-y-6">
 
-            <div className="bg-white border border-[#E8E4DC] rounded-3xl p-7 shadow-xs relative overflow-hidden">
+            <div className="bg-white border border-[#EAECF0] rounded-3xl p-7 shadow-xs relative overflow-hidden">
               <div className="flex items-center gap-3 mb-6 relative z-10">
-                <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] text-stone-700">
+                <div className="p-2.5 rounded-xl bg-stone-50 border border-[#EAECF0] text-stone-700">
                    {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
                 </div>
                 <div>
@@ -275,19 +275,19 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 {isTranscript && displayMetadata ? (
                    <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1 p-3.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                        <div className="space-y-1 p-3.5 rounded-xl bg-stone-50 border border-[#EAECF0]">
                           <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Program</span>
                           <p className="text-stone-900 font-bold text-base">{displayMetadata.program}</p>
                         </div>
-                        <div className="space-y-1 p-3.5 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                        <div className="space-y-1 p-3.5 rounded-xl bg-stone-50 border border-[#EAECF0]">
                           <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Department</span>
                           <p className="text-stone-900 font-bold text-base">{displayMetadata.department}</p>
                         </div>
-                        <div className="space-y-1 p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                        <div className="space-y-1 p-4 rounded-xl bg-stone-50 border border-[#EAECF0]">
                           <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Cumulative GPA</span>
                           <p className="text-3xl font-mono font-bold text-stone-900 mt-1">{displayMetadata.cgpa}</p>
                         </div>
-                        <div className="space-y-1 p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                        <div className="space-y-1 p-4 rounded-xl bg-stone-50 border border-[#EAECF0]">
                           <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Duration</span>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-stone-900 font-bold text-lg">{displayMetadata.admissionYear}</span>
@@ -300,20 +300,20 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       {displayMetadata.courses?.length > 0 && (
                         <div className="space-y-3">
                            <h4 className="text-xs font-bold text-stone-600 uppercase tracking-wider px-1">Course breakdown</h4>
-                           <div className="border border-[#E8E4DC] rounded-xl overflow-hidden bg-white">
+                           <div className="border border-[#EAECF0] rounded-xl overflow-hidden bg-white">
                             <div className="overflow-x-auto max-h-[300px]">
                               <table className="w-full text-xs">
                                 <thead>
-                                  <tr className="bg-[#FAF8F5] text-stone-500 text-[10px] font-bold uppercase tracking-wider border-b border-[#E8E4DC]">
+                                  <tr className="bg-stone-50 text-stone-500 text-[10px] font-bold uppercase tracking-wider border-b border-[#EAECF0]">
                                     <th className="px-5 py-3 text-left">Code</th>
                                     <th className="px-5 py-3 text-left">Title</th>
                                     <th className="px-5 py-3 text-center">Credits</th>
                                     <th className="px-5 py-3 text-right">Grade</th>
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#E8E4DC]">
+                                <tbody className="divide-y divide-[#EAECF0]">
                                   {displayMetadata.courses.map((course, i) => (
-                                    <tr key={i} className="text-stone-700 hover:bg-[#FAF8F5] transition-colors">
+                                    <tr key={i} className="text-stone-700 hover:bg-stone-50 transition-colors">
                                       <td className="px-5 py-3 font-mono text-xs font-semibold text-stone-600">{course.code}</td>
                                       <td className="px-5 py-3 text-stone-900 font-semibold">{course.name}</td>
                                       <td className="px-5 py-3 text-center text-stone-600 font-bold">{course.credits}</td>
@@ -333,29 +333,29 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                    </div>
                 ) : credential.certificationData ? (
                    <div className="space-y-6">
-                      <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                      <div className="p-6 rounded-2xl bg-stone-50 border border-[#EAECF0]">
                          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-2">Credential summary</span>
                          <h4 className="text-2xl font-bold text-stone-900 mb-2 leading-tight">{displayMetadata?.title}</h4>
                          <p className="text-stone-600 text-sm leading-relaxed">{displayMetadata?.description}</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <div className="p-4 rounded-xl bg-stone-50 border border-[#EAECF0]">
                             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Level</span>
                             <p className="text-stone-900 font-bold text-base">{displayMetadata?.level || 'N/A'}</p>
                           </div>
-                          <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <div className="p-4 rounded-xl bg-stone-50 border border-[#EAECF0]">
                             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Duration</span>
                             <p className="text-stone-900 font-bold text-base">{displayMetadata?.duration || 'N/A'}</p>
                           </div>
-                          <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                          <div className="p-4 rounded-xl bg-stone-50 border border-[#EAECF0]">
                             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Score</span>
                             <p className="text-xl font-bold font-mono text-stone-900">{displayMetadata?.score || 'N/A'}</p>
                           </div>
                       </div>
                    </div>
                 ) : (
-                  <div className="p-8 rounded-xl bg-[#FAF8F5] border border-[#E8E4DC] flex flex-col items-center justify-center text-center">
+                  <div className="p-8 rounded-xl bg-stone-50 border border-[#EAECF0] flex flex-col items-center justify-center text-center">
                     <Database className="w-8 h-8 text-stone-400 mb-2" />
                     <p className="text-stone-500 font-semibold text-xs">Blockchain credential record</p>
                   </div>
@@ -363,7 +363,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            <div className="bg-white border border-[#E8E4DC] rounded-3xl p-7 shadow-xs">
+            <div className="bg-white border border-[#EAECF0] rounded-3xl p-7 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C]">
@@ -397,21 +397,21 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                           </button>
                         )}
                       </div>
-                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
+                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-stone-50 rounded-xl border border-[#EAECF0] leading-relaxed">
                         {credential.transactionHash || (credential.status === 'FAILED' ? 'Transaction failed' : 'Pending confirmation')}
                       </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-center">
+                      <div className="p-3 bg-stone-50 border border-[#EAECF0] rounded-xl text-center">
                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">Block</span>
                         <p className="text-stone-900 font-bold text-xs">{credential.blockNumber || '-'}</p>
                       </div>
-                      <div className="p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-center">
+                      <div className="p-3 bg-stone-50 border border-[#EAECF0] rounded-xl text-center">
                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">Gas</span>
                         <p className="text-stone-900 font-bold text-xs">{(credential.gasUsed || 0).toLocaleString()}</p>
                       </div>
-                      <div className="p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl text-center">
+                      <div className="p-3 bg-stone-50 border border-[#EAECF0] rounded-xl text-center">
                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">Gwei</span>
                         <p className="text-stone-900 font-bold text-xs">
                           {credential.gasPrice ? Number(ethers.formatUnits(credential.gasPrice, 'gwei')).toFixed(1) : '0.0'}
@@ -434,7 +434,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                           </button>
                         )}
                       </div>
-                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
+                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-stone-50 rounded-xl border border-[#EAECF0] leading-relaxed">
                         {credential.ipfsCID || (credential.status === 'FAILED' ? 'Not uploaded' : 'Pending upload')}
                       </div>
                     </div>
@@ -452,7 +452,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                           </button>
                         )}
                       </div>
-                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
+                      <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-stone-50 rounded-xl border border-[#EAECF0] leading-relaxed">
                         {credential.certificateHash && !credential.certificateHash.startsWith('PENDING_')
                           ? credential.certificateHash
                           : (credential.status === 'FAILED' ? 'Not generated' : 'Pending generation')}
@@ -462,7 +462,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 </div>
 
                 {isSBT && (
-                  <div className="pt-5 border-t border-[#E8E4DC] space-y-4">
+                  <div className="pt-5 border-t border-[#EAECF0] space-y-4">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-purple-600" />
                       <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Direct record details</span>
@@ -486,7 +486,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-stone-50 border border-[#EAECF0] rounded-2xl">
               <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued by</span>
@@ -510,7 +510,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
             <VerificationSection certificate={credential} />
 
-            <div className="bg-white border border-[#E8E4DC] rounded-3xl p-6 flex flex-col items-center shadow-xs">
+            <div className="bg-white border border-[#EAECF0] rounded-3xl p-6 flex flex-col items-center shadow-xs">
                <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-5">Scan to verify</span>
                <div className="p-3 bg-white border border-stone-200 rounded-2xl mb-4 shadow-xs">
                  <QRCodeDisplay credentialId={credential.id || credential._id} />
@@ -560,8 +560,8 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             </div>
 
             {(credential.issuedBy?.issuerDetails?.branding?.signature || credential.issuedBy?.issuerDetails?.branding?.signatureCID) && (
-               <div className="pt-6 text-center border-t border-[#E8E4DC]">
-                  <div className="bg-[#FAF8F5] p-3 rounded-xl border border-[#E8E4DC] inline-block mx-auto mb-2">
+               <div className="pt-6 text-center border-t border-[#EAECF0]">
+                  <div className="bg-stone-50 p-3 rounded-xl border border-[#EAECF0] inline-block mx-auto mb-2">
                     <img
                       src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`}
                       alt="Authority Signature"

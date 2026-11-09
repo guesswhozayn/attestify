@@ -43,7 +43,7 @@ const QRCodeDisplay = ({ credentialId }) => {
   return (
     <div className="flex flex-col items-center sm:items-start">
       <h3 className="text-stone-900 font-bold mb-4 text-sm tracking-tight">QR code verification</h3>
-      <div className="bg-white p-4 rounded-2xl inline-block border border-[#ECE7DE] shadow-2xs">
+      <div className="bg-white p-4 rounded-2xl inline-block border border-[#EAECF0] shadow-2xs">
         <QRCodeSVG
           id={elementId}
           value={qrValue}

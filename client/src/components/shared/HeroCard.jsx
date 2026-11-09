@@ -16,7 +16,7 @@ const HeroCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.03),0_10px_30px_-6px_rgba(28,25,23,0.04)] p-7 sm:p-9 md:p-11 ${className}`}
+      className={`relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#EAECF0] shadow-[0_1px_3px_rgba(28,25,23,0.03),0_10px_30px_-6px_rgba(28,25,23,0.04)] p-7 sm:p-9 md:p-11 ${className}`}
     >
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-10">

@@ -235,7 +235,7 @@ const CredentialArchive = () => {
                                 Previous
                             </Button>
 
-                            <span className="text-stone-500 text-xs font-medium px-3 py-1.5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl tabular-nums">
+                            <span className="text-stone-500 text-xs font-medium px-3 py-1.5 bg-stone-50 border border-[#EAECF0] rounded-xl tabular-nums">
                                 Page <span className="text-stone-900 font-bold">{pg}</span> of <span className="text-stone-900 font-bold">{totalPages}</span>
                             </span>
 

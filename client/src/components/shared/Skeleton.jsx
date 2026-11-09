@@ -11,7 +11,7 @@ export const Skeleton = ({ className = '', ...props }) => {
 export const SkeletonStatCard = ({ mini = false }) => {
   if (mini) {
     return (
-      <div className="bg-white p-5 rounded-2xl border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.02)] flex flex-col items-center justify-center space-y-2">
+      <div className="bg-white p-5 rounded-2xl border border-[#EAECF0] shadow-[0_1px_3px_rgba(28,25,23,0.02)] flex flex-col items-center justify-center space-y-2">
         <Skeleton className="h-3 w-16" />
         <Skeleton className="h-7 w-12" />
         <Skeleton className="h-6 w-6 rounded-lg" />
@@ -20,7 +20,7 @@ export const SkeletonStatCard = ({ mini = false }) => {
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-[#E8E4DC] shadow-[0_1px_3px_rgba(28,25,23,0.03)] flex flex-col justify-between h-[150px]">
+    <div className="bg-white p-6 rounded-2xl border border-[#EAECF0] shadow-[0_1px_3px_rgba(28,25,23,0.03)] flex flex-col justify-between h-[150px]">
       <div className="flex justify-between items-start">
         <Skeleton className="h-11 w-11 rounded-xl" />
         <Skeleton className="h-5 w-20 rounded-full" />
@@ -35,7 +35,7 @@ export const SkeletonStatCard = ({ mini = false }) => {
 
 export const SkeletonTableRow = () => {
   return (
-    <div className="bg-white border border-[#E8E4DC] rounded-2xl p-5 mb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-[0_1px_3px_rgba(28,25,23,0.02)]">
+    <div className="bg-white border border-[#EAECF0] rounded-2xl p-5 mb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-[0_1px_3px_rgba(28,25,23,0.02)]">
       <div className="flex items-center gap-4 min-w-0">
         <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
         <div className="space-y-2 min-w-0">

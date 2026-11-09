@@ -21,7 +21,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Direct credential record" size="md">
             <div className="space-y-6">
-                <div className="flex justify-between items-center p-4 rounded-2xl bg-[#FAF8F5] border border-[#E8E4DC]">
+                <div className="flex justify-between items-center p-4 rounded-2xl bg-stone-50 border border-[#EAECF0]">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-stone-100 rounded-xl border border-stone-200 text-stone-800">
                             <ShieldCheck className="w-5 h-5 text-stone-800" />
@@ -55,7 +55,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                         onCopy={() => copyToClipboard(contractAddress, 'Contract address')}
                     />
 
-                    <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group transition-colors">
+                    <div className="bg-stone-50 rounded-2xl p-4 border border-[#EAECF0] flex items-center justify-between group transition-colors">
                         <div className="flex items-center gap-3.5">
                             <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80">
                                 <Globe className="w-4 h-4 text-stone-600" />
@@ -79,7 +79,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                             href={etherscanUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
+                            className="flex flex-col items-center justify-center p-4 bg-stone-50 hover:bg-stone-100 border border-[#EAECF0] hover:border-stone-300 rounded-2xl transition-all group"
                         >
                             <ExternalLink className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
                             <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">Etherscan</span>
@@ -89,7 +89,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 href={ipfsUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
+                                className="flex flex-col items-center justify-center p-4 bg-stone-50 hover:bg-stone-100 border border-[#EAECF0] hover:border-stone-300 rounded-2xl transition-all group"
                             >
                                 <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
                                 <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
@@ -109,7 +109,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
 };
 
 const DataField = ({ label, value, icon: Icon, isAddress, onCopy }) => (
-    <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group hover:border-stone-400 transition-colors">
+    <div className="bg-stone-50 rounded-2xl p-4 border border-[#EAECF0] flex items-center justify-between group hover:border-stone-400 transition-colors">
         <div className="flex items-center gap-3.5 min-w-0">
             <div className="p-2 bg-stone-100 rounded-xl border border-stone-200/80 group-hover:bg-stone-200/60 transition-colors shrink-0">
                 <Icon className="w-4 h-4 text-stone-600" />

@@ -31,7 +31,7 @@ const Input = ({
         <input
           id={inputId}
           data-input-field
-          className={`w-full bg-white text-stone-900 py-2.5 rounded-xl border border-[#E8E4DC] text-sm placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-2xs ${
+          className={`w-full bg-white text-stone-900 py-2.5 rounded-xl border border-[#EAECF0] text-sm placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-2xs ${
             Icon ? 'pl-11' : 'pl-4'
           } ${rightAction ? 'pr-11' : 'pr-4'} ${
             error ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : ''

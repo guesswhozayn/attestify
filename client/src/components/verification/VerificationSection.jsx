@@ -68,7 +68,7 @@ const VerificationSection = React.memo(({ certificate }) => {
 
   return (
     <>
-      <div className="bg-[#FAF8F5] border border-[#ECE7DE] rounded-2xl p-5 flex flex-col">
+      <div className="bg-white border border-[#EAECF0] rounded-2xl p-5 flex flex-col">
 
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">

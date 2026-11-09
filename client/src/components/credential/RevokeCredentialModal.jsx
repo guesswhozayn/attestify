@@ -61,7 +61,7 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
                value={reason}
                onChange={(e) => setReason(e.target.value)}
                maxLength={500}
-               className="w-full bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl p-3.5 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-400 focus:bg-white transition h-32 resize-none text-sm"
+               className="w-full bg-stone-50 border border-[#EAECF0] rounded-xl p-3.5 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-400 focus:bg-white transition h-32 resize-none text-sm"
                placeholder="e.g. Issued in error, administrative cancellation..."
                required
                disabled={loading}

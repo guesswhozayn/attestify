@@ -56,7 +56,7 @@ const Notification = ({ id, message, type = 'success', onClose, duration = 5000 
       className={`relative pointer-events-auto flex items-center space-x-3.5 px-4 py-3.5 rounded-2xl border transition-all duration-300 ease-out transform ${
         isDark
           ? 'bg-[#121318] border-white/10 text-stone-100 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.7)]'
-          : 'bg-white border-[#E8E4DC] text-stone-900 shadow-[0_16px_40px_-8px_rgba(28,25,23,0.14)]'
+          : 'bg-white border-[#EAECF0] text-stone-900 shadow-[0_16px_40px_-8px_rgba(28,25,23,0.14)]'
       } w-[calc(100vw-2.5rem)] sm:w-auto sm:max-w-md ${
         isVisible ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-8 opacity-0 scale-95'
       }`}

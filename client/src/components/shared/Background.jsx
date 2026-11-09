@@ -5,16 +5,16 @@ const Background = React.memo(({ variant = 'dark' }) => {
 
   if (isWarm) {
     return (
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#FAF7F2]">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-white">
         {/* Soft daylight ambient diffusion */}
         <div
-          className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-amber-200/25 rounded-full blur-[140px]"
+          className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-stone-200/20 rounded-full blur-[140px]"
         />
         <div
-          className="absolute top-[25%] right-[-10%] w-[650px] h-[650px] bg-stone-300/35 rounded-full blur-[140px]"
+          className="absolute top-[25%] right-[-10%] w-[650px] h-[650px] bg-stone-200/20 rounded-full blur-[140px]"
         />
         <div
-          className="absolute bottom-[-10%] left-[-5%] w-[550px] h-[550px] bg-stone-200/40 rounded-full blur-[130px]"
+          className="absolute bottom-[-10%] left-[-5%] w-[550px] h-[550px] bg-stone-100/30 rounded-full blur-[130px]"
         />
 
         {/* Delicate architectural micro-dot grid */}

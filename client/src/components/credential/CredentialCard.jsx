@@ -19,10 +19,10 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
         return (
             <div
                 onClick={onClick}
-                className="group p-5 bg-white border border-[#E8E4DC] rounded-2xl hover:border-stone-400 transition-all cursor-pointer flex items-center justify-between shadow-xs hover:shadow-sm"
+                className="group p-5 bg-white border border-[#EAECF0] rounded-2xl hover:border-stone-400 transition-all cursor-pointer flex items-center justify-between shadow-xs hover:shadow-sm"
             >
                 <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl border border-stone-200 bg-[#FAF8F5] text-stone-700 group-hover:scale-105 transition-transform">
+                    <div className="p-3 rounded-xl border border-stone-200 bg-stone-50 text-stone-700 group-hover:scale-105 transition-transform">
                         {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
                     </div>
                     <div>
@@ -54,10 +54,10 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
         <div className="py-4">
             <div
                 onClick={onClick}
-                className="hidden md:block group relative w-full aspect-[1.6/1] bg-white border-2 border-[#E8E4DC] rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(28,25,23,0.06)] cursor-pointer transition-all duration-300 hover:shadow-[0_12px_40px_rgba(28,25,23,0.1)] hover:-translate-y-0.5"
+                className="hidden md:block group relative w-full aspect-[1.6/1] bg-white border-2 border-[#EAECF0] rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(28,25,23,0.06)] cursor-pointer transition-all duration-300 hover:shadow-[0_12px_40px_rgba(28,25,23,0.1)] hover:-translate-y-0.5"
             >
                 {/* Classic diploma inner border */}
-                <div className="absolute inset-3.5 rounded-2xl border border-[#ECE7DE] pointer-events-none"></div>
+                <div className="absolute inset-3.5 rounded-2xl border border-[#EAECF0] pointer-events-none"></div>
 
                 {/* Corner architectural marks */}
                 <div className="absolute top-6 left-6 w-5 h-5 border-t-2 border-l-2 border-stone-300 rounded-tl-xs pointer-events-none group-hover:border-stone-500 transition-colors"></div>
@@ -77,7 +77,7 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                     <div className="flex justify-between items-start">
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs text-stone-800">
+                                <div className="p-2.5 bg-stone-50 border border-[#EAECF0] rounded-2xl shadow-xs text-stone-800">
                                     {isTranscript ? <GraduationCap className="w-6 h-6" /> : <Award className="w-6 h-6" />}
                                 </div>
                                 <div>
@@ -119,7 +119,7 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                         </div>
 
                         {/* Attribute grid */}
-                        <div className="grid grid-cols-4 gap-6 pt-6 border-t border-[#E8E4DC] w-full">
+                        <div className="grid grid-cols-4 gap-6 pt-6 border-t border-[#EAECF0] w-full">
                             <div className="space-y-1">
                                 <label className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Student name</label>
                                 <p className="text-base lg:text-lg text-stone-900 font-bold tracking-tight break-words">{recipient}</p>
@@ -139,8 +139,8 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                         </div>
 
                         {isSBT && (
-                            <div className="pt-4 border-t border-[#E8E4DC] flex items-center justify-between gap-6 w-full">
-                                <div className="flex items-center gap-3 bg-[#FAF8F5] border border-[#E8E4DC] px-3.5 py-2 rounded-xl">
+                            <div className="pt-4 border-t border-[#EAECF0] flex items-center justify-between gap-6 w-full">
+                                <div className="flex items-center gap-3 bg-stone-50 border border-[#EAECF0] px-3.5 py-2 rounded-xl">
                                     <Database className="w-4 h-4 text-stone-600" />
                                     <span className="text-xs font-mono font-semibold text-stone-700">Token #{credential.tokenId}</span>
                                 </div>
@@ -175,9 +175,9 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
             {/* Mobile Card */}
             <div
                 onClick={onClick}
-                className="block md:hidden flex flex-col w-full bg-white border border-[#E8E4DC] rounded-2xl overflow-hidden shadow-xs cursor-pointer"
+                className="block md:hidden flex flex-col w-full bg-white border border-[#EAECF0] rounded-2xl overflow-hidden shadow-xs cursor-pointer"
             >
-                <div className="w-full py-3.5 px-4 flex items-center justify-between border-b border-[#E8E4DC] bg-[#FAF8F5]">
+                <div className="w-full py-3.5 px-4 flex items-center justify-between border-b border-[#EAECF0] bg-stone-50">
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-xl bg-white border border-stone-200 text-stone-700">
                             {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
@@ -208,19 +208,19 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 py-3 border-y border-[#E8E4DC] text-xs">
-                        <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#E8E4DC]">
+                    <div className="grid grid-cols-2 gap-3 py-3 border-y border-[#EAECF0] text-xs">
+                        <div className="bg-stone-50 p-2.5 rounded-lg border border-[#EAECF0]">
                             <span className="text-[10px] text-stone-400 font-bold uppercase block">Student</span>
                             <span className="font-bold text-stone-800 truncate block">{recipient}</span>
                         </div>
-                        <div className="bg-[#FAF8F5] p-2.5 rounded-lg border border-[#E8E4DC]">
+                        <div className="bg-stone-50 p-2.5 rounded-lg border border-[#EAECF0]">
                             <span className="text-[10px] text-stone-400 font-bold uppercase block">Grade</span>
                             <span className="font-bold font-mono text-stone-800 block">{displayMetadata?.cgpa || displayMetadata?.gpa || displayMetadata?.score || 'N/A'}</span>
                         </div>
                     </div>
 
                     {isSBT && (
-                        <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl p-3 flex justify-between items-center text-xs">
+                        <div className="bg-stone-50 border border-[#EAECF0] rounded-xl p-3 flex justify-between items-center text-xs">
                             <span className="font-mono font-semibold text-stone-700">Token #{credential.tokenId}</span>
                             <a
                                 href={`https://sepolia.etherscan.io/token/${import.meta.env.VITE_CONTRACT_ADDRESS}?a=${credential.tokenId}`}

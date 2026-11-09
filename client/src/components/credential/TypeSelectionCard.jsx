@@ -24,14 +24,14 @@ const TypeSelectionCard = ({
                         : 'bg-white border-stone-900 shadow-sm'
                     : isDark
                         ? 'bg-stone-900/40 border-white/[0.08] hover:border-white/20'
-                        : 'bg-[#FAF8F5] border-[#E8E4DC] hover:border-stone-400'
+                        : 'bg-stone-50 border-[#EAECF0] hover:border-stone-400'
             }`}
         >
             <div className="flex items-start justify-between mb-3 relative z-10 w-full">
                 <div className={`p-2.5 rounded-xl transition-colors duration-200 ${
                     active
                         ? isDark ? 'bg-white text-stone-950' : 'bg-stone-900 text-white'
-                        : isDark ? 'bg-[#181920] border border-white/[0.08] text-stone-300' : 'bg-white border border-[#E8E4DC] text-stone-700 group-hover:border-stone-400'
+                        : isDark ? 'bg-[#181920] border border-white/[0.08] text-stone-300' : 'bg-white border border-[#EAECF0] text-stone-700 group-hover:border-stone-400'
                 }`}>
                     <Icon className="w-5 h-5" />
                 </div>
