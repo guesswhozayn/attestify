@@ -83,52 +83,41 @@ const Profile = () => {
         return null;
     };
 
-    const studentData = user?.preferences?.studentDetails || user?.studentDetails || {};
-
-    const [formData, setFormData] = useState(() => ({
-        name: user?.name || '',
-        title: user?.title || '',
-        university: user?.university || '',
-        about: user?.about || '',
-        studentId: studentData.studentId || '',
-        graduationYear: studentData.graduationYear || '',
-        degreeLevel: studentData.degreeLevel || '',
-        enrollmentStatus: studentData.enrollmentStatus || 'Active',
-        linkedin: studentData.linkedin || '',
-        github: studentData.github || '',
-        institutionName: user?.issuerDetails?.institutionName || user?.name || '',
-        registrationNumber: user?.issuerDetails?.registrationNumber || '',
-        website: user?.issuerDetails?.website || '',
-        contactEmail: user?.issuerDetails?.contactEmail || '',
-        phone: user?.issuerDetails?.phone || '',
-        address: user?.issuerDetails?.address || '',
-        accreditation: user?.issuerDetails?.accreditation || ''
-    }));
-    const [prevUser, setPrevUser] = useState(user);
-
-    if (user !== prevUser && !isEditing) {
-        setPrevUser(user);
-        const currentStudentData = user?.preferences?.studentDetails || user?.studentDetails || {};
-        setFormData({
-            name: user?.name || '',
-            title: user?.title || '',
-            university: user?.university || '',
-            about: user?.about || '',
+    const buildFormDataFromUser = (u) => {
+        const currentStudentData = u?.preferences?.studentDetails || u?.studentDetails || {};
+        return {
+            name: u?.name || '',
+            title: u?.title || '',
+            university: u?.university || '',
+            about: u?.about || '',
             studentId: currentStudentData.studentId || '',
             graduationYear: currentStudentData.graduationYear || '',
             degreeLevel: currentStudentData.degreeLevel || '',
             enrollmentStatus: currentStudentData.enrollmentStatus || 'Active',
             linkedin: currentStudentData.linkedin || '',
             github: currentStudentData.github || '',
-            institutionName: user?.issuerDetails?.institutionName || user?.name || '',
-            registrationNumber: user?.issuerDetails?.registrationNumber || '',
-            website: user?.issuerDetails?.website || '',
-            contactEmail: user?.issuerDetails?.contactEmail || '',
-            phone: user?.issuerDetails?.phone || '',
-            address: user?.issuerDetails?.address || '',
-            accreditation: user?.issuerDetails?.accreditation || ''
-        });
+            institutionName: u?.issuerDetails?.institutionName || u?.name || '',
+            registrationNumber: u?.issuerDetails?.registrationNumber || '',
+            website: u?.issuerDetails?.website || '',
+            contactEmail: u?.issuerDetails?.contactEmail || '',
+            phone: u?.issuerDetails?.phone || '',
+            address: u?.issuerDetails?.address || '',
+            accreditation: u?.issuerDetails?.accreditation || ''
+        };
+    };
+
+    const [formData, setFormData] = useState(() => buildFormDataFromUser(user));
+    const [prevUser, setPrevUser] = useState(user);
+
+    if (user !== prevUser && !isEditing) {
+        setPrevUser(user);
+        setFormData(buildFormDataFromUser(user));
     }
+
+    const handleCancelEdit = () => {
+        setFormData(buildFormDataFromUser(user));
+        setIsEditing(false);
+    };
 
     const handleSave = async () => {
         setLoading(true);
@@ -244,7 +233,7 @@ const Profile = () => {
                     {isEditing ? (
                         <>
                             <Button
-                                onClick={() => setIsEditing(false)}
+                                onClick={handleCancelEdit}
                                 variant="outline"
                                 icon={X}
                                 size="sm"

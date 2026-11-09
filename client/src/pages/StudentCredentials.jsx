@@ -59,7 +59,7 @@ const StudentCredentials = () => {
         window.ethereum.request({ method: 'eth_accounts' })
             .then(accounts => {
                 if (!mounted) return;
-                const address = accounts?.[0] || user?.walletAddress || null;
+                const address = user?.walletAddress || accounts?.[0] || null;
                 setWalletAddress(address);
                 if (!address) setLoading(false);
             })
@@ -68,7 +68,7 @@ const StudentCredentials = () => {
             });
 
         const handleAccountsChanged = (accounts) => {
-            const address = accounts?.[0] || user?.walletAddress || null;
+            const address = user?.walletAddress || accounts?.[0] || null;
             setWalletAddress(address);
             if (!address) setCredentials([]);
         };

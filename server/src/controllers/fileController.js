@@ -6,17 +6,17 @@ const asyncHandler = require('../middleware/asyncHandler');
 const SAFE_MIMES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
 
 const canAccessCredential = async (credential, reqUser) => {
-  const isIssuer = reqUser?.role === 'ISSUER' && reqUser.id === credential.issuedById;
+  if (!reqUser) return false;
+  const isIssuer = reqUser.role === 'ISSUER' && reqUser.id === credential.issuedById;
   if (isIssuer) return true;
   if (credential.status !== 'COMPLETED') return false;
 
-  const isOwner = reqUser?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
-  if (isOwner) return true;
-
-  const student = await prisma.user.findFirst({
-    where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
-  });
-  return student?.preferences?.visibility !== false;
+  const isOwner = Boolean(
+    reqUser.walletAddress &&
+    credential.studentWalletAddress &&
+    reqUser.walletAddress.toLowerCase() === credential.studentWalletAddress.toLowerCase()
+  );
+  return isOwner;
 };
 
 const streamIPFSFile = async (cid, res, defaultContentType, filename) => {

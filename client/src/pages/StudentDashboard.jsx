@@ -98,7 +98,7 @@ const StudentDashboard = () => {
     window.ethereum.request({ method: 'eth_accounts' })
       .then(accounts => {
         if (!mounted) return;
-        const address = accounts?.[0] || initialAddress;
+        const address = initialAddress || accounts?.[0] || null;
         setWalletAddress(address);
         if (address) {
           fetchCredential(address);
@@ -116,7 +116,7 @@ const StudentDashboard = () => {
       });
 
     const handleAccountsChanged = (accounts) => {
-      const address = accounts?.[0] || user?.walletAddress || null;
+      const address = user?.walletAddress || accounts?.[0] || null;
       setWalletAddress(address);
       if (address) {
         fetchCredential(address);
@@ -216,8 +216,18 @@ const StudentDashboard = () => {
                 <span className="text-rose-800 font-medium">{error}</span>
               </div>
               {(error.includes('Wallet mismatch') || error.includes('Unauthorized') || walletAddress) && (
-                <Button onClick={() => { setWalletAddress(null); setError(''); }} variant="secondary" size="sm" className="shadow-xs text-xs">
-                  Disconnect
+                <Button
+                  onClick={() => {
+                    const fallback = user?.walletAddress || null;
+                    setWalletAddress(fallback);
+                    setError('');
+                    if (fallback) fetchCredential(fallback);
+                  }}
+                  variant="secondary"
+                  size="sm"
+                  className="shadow-xs text-xs"
+                >
+                  {user?.walletAddress ? 'Use Account Wallet' : 'Disconnect'}
                 </Button>
               )}
             </motion.div>
@@ -331,7 +341,7 @@ const StudentDashboard = () => {
                             </span>
                          </div>
                         <div className="font-mono text-stone-700 text-[11px] bg-[#F8F9FA] p-3 rounded-xl border border-stone-200/80 break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">
-                           {credential.certificateHash}
+                           {credential.id || credential._id}
                         </div>
                      </div>
                      <div className="space-y-1.5">
