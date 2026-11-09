@@ -19,6 +19,11 @@ const Settings = () => {
   });
 
   const handlePasswordChange = async () => {
+    if (!passwordData.currentPassword) {
+      showNotification('Please enter your current password', 'error');
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showNotification('Passwords do not match', 'error');
       return;
@@ -26,6 +31,11 @@ const Settings = () => {
 
     if (passwordData.newPassword.length < 8) {
       showNotification('Password must be at least 8 characters', 'error');
+      return;
+    }
+
+    if (passwordData.newPassword === passwordData.currentPassword) {
+      showNotification('New password must be different from current password', 'error');
       return;
     }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle, Copy, Menu, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -13,29 +13,48 @@ const Header = ({
   const { showNotification } = useNotification();
   const [walletAddress, setWalletAddress] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
+  const copyTimerRef = useRef(null);
 
   const isDark = theme === 'dark';
 
   useEffect(() => {
+    return () => clearTimeout(copyTimerRef.current);
+  }, []);
+
+  useEffect(() => {
     if (typeof window.ethereum === 'undefined') return;
+    let active = true;
 
     window.ethereum.request({ method: 'eth_accounts' })
-      .then(accounts => accounts?.[0] && setWalletAddress(accounts[0]))
+      .then(accounts => {
+        if (active && accounts?.[0]) setWalletAddress(accounts[0]);
+      })
       .catch(err => console.error('Error detecting wallet:', err));
 
-    const handleAccountsChanged = (accounts) => setWalletAddress(accounts?.[0] || null);
+    const handleAccountsChanged = (accounts) => {
+      if (active) setWalletAddress(accounts?.[0] || null);
+    };
     window.ethereum.on('accountsChanged', handleAccountsChanged);
-    return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+    return () => {
+      active = false;
+      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+    };
   }, []);
 
   const activeAddress = walletAddress || user?.issuerDetails?.authorizedWalletAddress || user?.walletAddress;
 
   const copyAddress = () => {
     if (!activeAddress) return;
-    navigator.clipboard.writeText(activeAddress);
-    setIsCopied(true);
-    showNotification('Wallet address copied to clipboard', 'success');
-    setTimeout(() => setIsCopied(false), 2000);
+    navigator.clipboard.writeText(activeAddress)
+      .then(() => {
+        setIsCopied(true);
+        showNotification('Wallet address copied to clipboard', 'success');
+        clearTimeout(copyTimerRef.current);
+        copyTimerRef.current = setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch(() => {
+        showNotification('Failed to copy wallet address', 'error');
+      });
   };
 
   const formatAddress = (addr) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';

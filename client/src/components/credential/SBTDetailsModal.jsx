@@ -1,16 +1,21 @@
 import { ExternalLink, ShieldCheck, Hash, Database, Globe, Share2, Copy } from 'lucide-react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
+import { useNotification } from '../../context/NotificationContext';
 
 const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
+    const { showNotification } = useNotification();
     if (!isOpen || !credential) return null;
 
     const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0x...';
     const etherscanUrl = `https://sepolia.etherscan.io/token/${contractAddress}?a=${credential.tokenId}`;
-    const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`;
+    const ipfsUrl = credential.ipfsCID ? `https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}` : null;
 
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
+    const copyToClipboard = (text, label = 'Value') => {
+        if (!text || text === 'N/A' || text === '0x...') return;
+        navigator.clipboard.writeText(String(text))
+            .then(() => showNotification(`${label} copied to clipboard`, 'success'))
+            .catch(() => showNotification(`Failed to copy ${label.toLowerCase()}`, 'error'));
     };
 
     return (
@@ -39,7 +44,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                         label="Token ID"
                         value={credential.tokenId || 'N/A'}
                         icon={Hash}
-                        onCopy={() => copyToClipboard(credential.tokenId)}
+                        onCopy={() => copyToClipboard(credential.tokenId, 'Token ID')}
                     />
 
                     <DataField
@@ -47,7 +52,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                         value={contractAddress}
                         icon={Database}
                         isAddress
-                        onCopy={() => copyToClipboard(contractAddress)}
+                        onCopy={() => copyToClipboard(contractAddress, 'Contract address')}
                     />
 
                     <div className="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE7DE] flex items-center justify-between group transition-colors">
@@ -69,7 +74,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
 
                 <div className="space-y-3">
                     <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Links & references</h4>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className={`grid ${ipfsUrl ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
                         <a
                             href={etherscanUrl}
                             target="_blank"
@@ -79,15 +84,17 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                             <ExternalLink className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
                             <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">Etherscan</span>
                         </a>
-                        <a
-                            href={ipfsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
-                        >
-                            <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
-                            <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
-                        </a>
+                        {ipfsUrl && (
+                            <a
+                                href={ipfsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex flex-col items-center justify-center p-4 bg-[#FAF8F5] hover:bg-stone-100 border border-[#ECE7DE] hover:border-stone-300 rounded-2xl transition-all group"
+                            >
+                                <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
+                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
+                            </a>
+                        )}
                     </div>
                 </div>
 

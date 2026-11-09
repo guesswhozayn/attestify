@@ -8,11 +8,12 @@ const pdfService = require('./pdfService');
 
 class CredentialService {
   async prepareSBTMetadata(user, credentialData, ipfsCID, imageUrl = null) {
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
     const metadata = {
       name: `${credentialData.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credentialData.studentName}`,
       description: `A verifiable digital credential issued by ${credentialData.university} on ${new Date(credentialData.issueDate).toLocaleDateString()}. Secured by Attestify.`,
       image: imageUrl || null,
-      external_url: `${process.env.FRONTEND_URL}/dashboard`,
+      external_url: `${frontendUrl}/verify/${credentialData.id}`,
       attributes: [
         { trait_type: "Degree Type", value: credentialData.type },
         { trait_type: "Issued By", value: credentialData.university },
