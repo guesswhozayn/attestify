@@ -15,9 +15,19 @@ const VerificationSection = React.memo(({ certificate }) => {
   const { showNotification } = useNotification();
 
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+    if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
+      showNotification('Please select a PDF file', 'error');
+      e.target.value = '';
+      return;
     }
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      showNotification('File size exceeds the 10 MB limit', 'error');
+      e.target.value = '';
+      return;
+    }
+    setFile(selectedFile);
   };
 
   const handleVerify = async () => {

@@ -9,6 +9,7 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import { credentialAPI, userAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import CredentialCard from '../components/credential/CredentialCard';
+import CredentialDetails from '../components/credential/CredentialDetails';
 import StudentStats from '../components/credential/StudentStats';
 import HeroCard from '../components/shared/HeroCard';
 import EmptyState from '../components/shared/EmptyState';
@@ -17,6 +18,7 @@ const StudentDashboard = () => {
   const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
   const [credential, setCredential] = useState(null);
+  const [selectedCredential, setSelectedCredential] = useState(null);
   const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -132,9 +134,12 @@ const StudentDashboard = () => {
   }, [fetchCredential, user?.walletAddress]);
 
   const handleShare = useCallback(() => {
-    if (!credential || !walletAddress) return;
-    const shareUrl = `${window.location.origin}/verify?walletAddress=${walletAddress}`;
-    navigator.clipboard.writeText(shareUrl);
+    if (!credential) return;
+    const credId = credential.id || credential._id;
+    const shareUrl = credId
+      ? `${window.location.origin}/verify/${credId}`
+      : `${window.location.origin}/verify?walletAddress=${walletAddress}`;
+    navigator.clipboard.writeText(shareUrl).catch(() => {});
     showNotification('Verification link copied to clipboard', 'success');
   }, [credential, walletAddress, showNotification]);
 
@@ -259,7 +264,11 @@ const StudentDashboard = () => {
                    </h2>
                    <span className="text-xs text-stone-400 font-normal">Most recent</span>
                </div>
-               <CredentialCard credential={credential} metadata={metadata} />
+               <CredentialCard
+                 credential={credential}
+                 metadata={metadata}
+                 onClick={() => setSelectedCredential(credential)}
+               />
             </div>
 
             <div className="lg:col-span-4 space-y-5">
@@ -338,6 +347,15 @@ const StudentDashboard = () => {
           </motion.div>
         )}
       </main>
+
+      {selectedCredential && (
+        <CredentialDetails
+          isOpen={!!selectedCredential}
+          onClose={() => setSelectedCredential(null)}
+          credential={selectedCredential}
+          onUpdate={() => fetchCredential(walletAddress, true)}
+        />
+      )}
     </div>
   );
 };

@@ -67,7 +67,7 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
 
                 {/* Top micro identifier */}
                 <div className="absolute top-5 left-1/2 -translate-x-1/2 flex items-center gap-4 text-[9px] font-semibold tracking-[0.25em] text-stone-400 uppercase pointer-events-none">
-                    <span>Credential ID // 0x{credential.certificateHash?.substring(0, 8)}</span>
+                    <span>Credential ID // {credential.certificateHash?.startsWith('0x') ? credential.certificateHash.substring(0, 10) : `0x${credential.certificateHash?.substring(0, 8) || ''}`}</span>
                     <div className={`w-1.5 h-1.5 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
                     <span>Status // {credential.isRevoked ? 'Revoked' : 'Verified'}</span>
                 </div>
@@ -148,6 +148,7 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                                     href={`https://sepolia.etherscan.io/token/${import.meta.env.VITE_CONTRACT_ADDRESS}?a=${credential.tokenId}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
                                     className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-stone-900 transition-colors"
                                 >
                                     <span>View on Etherscan</span>
@@ -225,6 +226,7 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                                 href={`https://sepolia.etherscan.io/token/${import.meta.env.VITE_CONTRACT_ADDRESS}?a=${credential.tokenId}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 font-semibold text-stone-800 hover:text-stone-900"
                             >
                                 <span>Etherscan</span>

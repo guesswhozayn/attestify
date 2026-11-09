@@ -386,7 +386,11 @@ const verifyByHash = asyncHandler(async (req, res) => {
     await recordVerification(credential.id);
   }
 
-  return res.json(buildVerificationResponse(credential, isValidOnChain, normalizedHash, true));
+  return res.json({
+    ...buildVerificationResponse(credential, isValidOnChain, normalizedHash, true),
+    onChainVerified: isValidOnChain,
+    verificationTier: 'CRYPTOGRAPHIC_HASH'
+  });
 });
 
 module.exports = { verifyWithFile, checkExists, verifyByHash };

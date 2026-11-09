@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ethers } from 'ethers';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
@@ -10,6 +10,7 @@ import RevokeCredentialModal from './RevokeCredentialModal';
 import SBTDetailsModal from './SBTDetailsModal';
 import { getCredentialMeta } from '../../utils/credential';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 
 const formatDate = (dateString, includeTime = false) => {
   if (!dateString) return 'N/A';
@@ -29,14 +30,22 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const [showSBTModal, setShowSBTModal] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
+  const copyTimerRef = useRef(null);
   const { user } = useAuth();
+  const { showNotification } = useNotification();
 
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const copyToClipboard = useCallback((text, field) => {
     if (!text) return;
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch(() => {});
     setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 2000);
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = setTimeout(() => setCopiedField(null), 2000);
   }, []);
 
   const [isDownloading, setIsDownloading] = useState(false);
@@ -65,12 +74,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed, falling back to direct IPFS link', error);
-      window.open(`https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`, '_blank');
+      if (credential.ipfsCID && error.response?.status !== 403) {
+        window.open(`https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`, '_blank');
+      } else {
+        showNotification(error.response?.data?.error || 'Failed to download certificate', 'error');
+      }
     } finally {
       setIsDownloading(false);
     }
-  }, [credential]);
+  }, [credential, showNotification]);
 
   const viewOnEtherscan = useCallback(() => {
     if (!credential) return;
