@@ -129,7 +129,7 @@ const IssuerDashboard = () => {
   const activeCount = stats.active ?? Math.max(0, stats.total - stats.revoked);
 
   return (
-    <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-8">
+    <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">

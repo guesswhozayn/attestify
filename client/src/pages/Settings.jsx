@@ -61,8 +61,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen text-stone-900 selection:bg-stone-900 selection:text-white pb-20">
-      <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto relative z-10 space-y-6">
+    <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -169,7 +168,6 @@ const Settings = () => {
             />
           </div>
         </motion.div>
-      </main>
     </div>
   );
 };
