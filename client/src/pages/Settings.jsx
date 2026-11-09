@@ -4,10 +4,12 @@ import Input from '../components/shared/Input';
 import Button from '../components/shared/Button';
 import { Lock, ShieldCheck, KeyRound, Cpu } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
 import { userAPI } from '../services/api';
 
 const Settings = () => {
   const { showNotification } = useNotification();
+  const { updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const [passwordData, setPasswordData] = useState({
@@ -35,6 +37,9 @@ const Settings = () => {
       });
       if (res.data?.token) {
         localStorage.setItem('token', res.data.token);
+      }
+      if (res.data?.user) {
+        updateUser(res.data.user);
       }
       showNotification('Password changed successfully', 'success');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });

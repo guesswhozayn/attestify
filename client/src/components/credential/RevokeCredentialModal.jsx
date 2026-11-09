@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 import { ShieldAlert, AlertTriangle } from 'lucide-react';
@@ -10,14 +10,23 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
   const [loading, setLoading] = useState(false);
   const { showNotification } = useNotification();
 
+  useEffect(() => {
+    if (!isOpen) setReason('');
+  }, [isOpen]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!reason.trim()) return;
 
     setLoading(true);
     try {
-      await credentialAPI.revoke(credential._id || credential.id, reason);
-      showNotification('Credential revoked successfully', 'success');
+      const res = await credentialAPI.revoke(credential._id || credential.id, reason.trim());
+      if (res.data?.warning) {
+        showNotification(res.data.warning, 'warning');
+      } else {
+        showNotification('Credential revoked successfully', 'success');
+      }
+      setReason('');
       onSuccess();
       onClose();
     } catch (error) {
@@ -51,13 +60,14 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
              <textarea
                value={reason}
                onChange={(e) => setReason(e.target.value)}
+               maxLength={500}
                className="w-full bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl p-3.5 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-400 focus:bg-white transition h-32 resize-none text-sm"
                placeholder="e.g. Issued in error, administrative cancellation..."
                required
                disabled={loading}
              />
              <div className="absolute bottom-2.5 right-3 text-[11px] text-stone-400">
-               {reason.length} chars
+               {reason.length}/500 chars
              </div>
           </div>
         </div>

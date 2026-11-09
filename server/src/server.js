@@ -63,8 +63,8 @@ app.use('/api/verify/', rateLimit({
   legacyHeaders: false,
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50kb' }));
+app.use(express.urlencoded({ extended: true, limit: '50kb' }));
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);

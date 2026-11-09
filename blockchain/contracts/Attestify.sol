@@ -21,6 +21,7 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
     mapping(string => Credential) public credentials;
     mapping(string => bool) public isIssued;
     mapping(address => bool) public authorizedIssuers;
+    mapping(uint256 => address) public tokenIssuers;
 
     event CredentialIssued(string indexed studentId, bytes32 certificateHash, string ipfsCID, uint256 timestamp, address indexed issuer);
     event CredentialRevoked(string indexed studentId, uint256 timestamp, address indexed revokedBy);
@@ -44,6 +45,7 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     function revokeCertificate(string memory _studentId) public onlyAuthorized credentialExists(_studentId) nonReentrant {
+        require(credentials[_studentId].issuedBy == msg.sender || msg.sender == owner(), "Not original issuer");
         require(!credentials[_studentId].isRevoked, "Already revoked");
         credentials[_studentId].isRevoked = true;
         emit CredentialRevoked(_studentId, block.timestamp, msg.sender);
@@ -66,7 +68,6 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         require(_certificateHash != bytes32(0), "Invalid hash");
 
         uint256 tokenId = _nextTokenId++;
-        _mintSingle(to, tokenId, uri);
 
         credentials[_studentId] = Credential({
             studentId: _studentId,
@@ -78,12 +79,16 @@ contract Attestify is ERC721URIStorage, Ownable, ReentrancyGuard {
         });
 
         isIssued[_studentId] = true;
+        tokenIssuers[tokenId] = msg.sender;
+
+        _mintSingle(to, tokenId, uri);
 
         emit CredentialIssued(_studentId, _certificateHash, _ipfsCID, block.timestamp, msg.sender);
         return tokenId;
     }
 
     function revokeToken(uint256 tokenId) public onlyAuthorized {
+        require(tokenIssuers[tokenId] == msg.sender || msg.sender == owner(), "Not original issuer");
         _burn(tokenId);
         emit SoulboundRevoked(tokenId);
     }

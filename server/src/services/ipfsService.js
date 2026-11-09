@@ -36,6 +36,7 @@ class IPFSService {
 
       const response = await axios.post(this.pinataEndpoint, formData, {
         maxBodyLength: 'Infinity',
+        timeout: 30000,
         headers: {
           'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
           ...this._authHeaders()
@@ -59,6 +60,7 @@ class IPFSService {
         },
         pinataOptions: { cidVersion: 1 }
       }, {
+        timeout: 30000,
         headers: { 'Content-Type': 'application/json', ...this._authHeaders() }
       });
 
@@ -72,6 +74,7 @@ class IPFSService {
   async unpinFile(ipfsHash) {
     try {
       await axios.delete(`https://api.pinata.cloud/pinning/unpin/${ipfsHash}`, {
+        timeout: 10000,
         headers: this._authHeaders()
       });
       return true;
@@ -88,6 +91,7 @@ class IPFSService {
   async testConnection() {
     try {
       const response = await axios.get('https://api.pinata.cloud/data/testAuthentication', {
+        timeout: 10000,
         headers: this._authHeaders()
       });
       return response.data.message === 'Congratulations! You are communicating with the Pinata API!';

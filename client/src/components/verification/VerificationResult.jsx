@@ -99,8 +99,18 @@ const VerificationResult = ({ result }) => {
             <InfoItem
               icon={Activity}
               label="Credential status"
-              value={result.credential.isRevoked ? 'Revoked' : 'Active and verified'}
-              highlight={!result.credential.isRevoked}
+              value={
+                isRevoked || result.credential.isRevoked
+                  ? 'Revoked'
+                  : isSuccess
+                  ? 'Active and verified'
+                  : result.credential.status === 'FAILED'
+                  ? 'Issuance failed'
+                  : result.credential.status === 'PENDING' || result.credential.status === 'PROCESSING'
+                  ? 'Pending confirmation'
+                  : 'Unverified'
+              }
+              highlight={isSuccess}
             />
 
             <div className="md:col-span-2 space-y-1.5 pt-2 border-t border-[#F2F4F7]">

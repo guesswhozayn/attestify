@@ -20,31 +20,41 @@ const recordVerification = (credentialId) =>
     }
   });
 
+const normalizeSha256Hash = (val) => {
+  if (typeof val !== 'string') return null;
+  const trimmed = val.trim().toLowerCase();
+  const withPrefix = trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`;
+  return /^0x[0-9a-f]{64}$/.test(withPrefix) ? withPrefix : null;
+};
+
 async function findCredential(identifier, certificateHash = null) {
-  if (identifier && isIdentifier(identifier)) {
-    const cred = await prisma.credential.findUnique({
-      where: { id: identifier },
+  const normalizedHash = certificateHash ? normalizeSha256Hash(certificateHash) : null;
+  const trimmedId = typeof identifier === 'string' ? identifier.trim() : '';
+
+  if (trimmedId && isIdentifier(trimmedId)) {
+    return prisma.credential.findUnique({
+      where: { id: trimmedId },
       include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
     });
-    if (cred) return cred;
   }
 
-  if (certificateHash) {
-    if (identifier && typeof identifier === 'string' && /^0x[0-9a-fA-F]{40}$/.test(identifier.trim())) {
-      const matchWithWallet = await prisma.credential.findFirst({
+  if (normalizedHash) {
+    if (trimmedId && /^0x[0-9a-fA-F]{40}$/.test(trimmedId)) {
+      return prisma.credential.findFirst({
         where: {
-          studentWalletAddress: { equals: identifier.toLowerCase().trim(), mode: 'insensitive' },
-          certificateHash
+          studentWalletAddress: { equals: trimmedId.toLowerCase(), mode: 'insensitive' },
+          certificateHash: { equals: normalizedHash, mode: 'insensitive' }
         },
         include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
       });
-      if (matchWithWallet) return matchWithWallet;
     }
 
-    return prisma.credential.findFirst({
-      where: { certificateHash },
-      include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
-    });
+    if (!trimmedId || trimmedId === 'credential') {
+      return prisma.credential.findFirst({
+        where: { certificateHash: { equals: normalizedHash, mode: 'insensitive' } },
+        include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+      });
+    }
   }
 
   return null;
@@ -86,8 +96,23 @@ function buildVerificationResponse(credential, isValidOnChain, hash) {
     transactionHash: credential.transactionHash,
     blockNumber: credential.blockNumber,
     ipfsCID: credential.ipfsCID,
-    certificateHash: credential.certificateHash
+    certificateHash: credential.certificateHash,
+    isRevoked: credential.isRevoked,
+    status: credential.status
   };
+
+  if (credential.status && credential.status !== 'COMPLETED') {
+    return {
+      valid: false,
+      exists: true,
+      revoked: false,
+      onChainVerified: false,
+      message: credential.status === 'FAILED'
+        ? 'Credential issuance failed and was not recorded on the blockchain.'
+        : 'Credential issuance is still pending blockchain confirmation.',
+      credential: credentialData
+    };
+  }
 
   if (credential.isRevoked) {
     return {
@@ -103,7 +128,7 @@ function buildVerificationResponse(credential, isValidOnChain, hash) {
     };
   }
 
-  if (hash && hash !== credential.certificateHash) {
+  if (hash && normalizeSha256Hash(hash) !== normalizeSha256Hash(credential.certificateHash)) {
     return {
       valid: false,
       exists: true,
@@ -135,16 +160,28 @@ function buildVerificationResponse(credential, isValidOnChain, hash) {
 }
 
 const verifyWithFile = asyncHandler(async (req, res) => {
-  let tempFilePath = null;
+  const tempFilePath = req.file?.path;
   try {
     const { studentWalletAddress } = req.body;
     const file = req.file;
 
     if (!file || !studentWalletAddress) {
+      safeUnlink(tempFilePath);
       return res.status(400).json({ error: 'Credential ID/Wallet Address and certificate file are required' });
     }
 
-    tempFilePath = file.path;
+    const header = Buffer.alloc(5);
+    const fd = fs.openSync(file.path, 'r');
+    try {
+      fs.readSync(fd, header, 0, 5, 0);
+    } finally {
+      fs.closeSync(fd);
+    }
+    if (header.toString('ascii') !== '%PDF-') {
+      safeUnlink(tempFilePath);
+      return res.status(400).json({ error: 'Invalid PDF file content' });
+    }
+
     const uploadedHash = await hashService.generateSHA256(file.path);
     const credential = await findCredential(studentWalletAddress, uploadedHash);
 
@@ -158,8 +195,12 @@ const verifyWithFile = asyncHandler(async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
     }
 
-    const isValidOnChain = await blockchainService.verifyCredential(credential.id, uploadedHash);
-    await recordVerification(credential.id);
+    const isValidOnChain = credential.status === 'COMPLETED'
+      ? await blockchainService.verifyCredential(credential.id, uploadedHash)
+      : false;
+    if (!credential.isRevoked && isValidOnChain) {
+      await recordVerification(credential.id);
+    }
     safeUnlink(tempFilePath);
 
     return res.json({
@@ -188,6 +229,15 @@ const checkExists = asyncHandler(async (req, res) => {
       return res.status(404).json({ valid: false, exists: false, message: 'No credential found with this ID' });
     }
 
+    const isOwner = req.user?.walletAddress?.toLowerCase() === cred.studentWalletAddress.toLowerCase();
+    const isIssuer = req.user?.role === 'ISSUER' && (
+      req.user.id === cred.issuedById ||
+      req.user.walletAddress?.toLowerCase() === cred.issuedBy?.walletAddress?.toLowerCase()
+    );
+    if (!isOwner && !isIssuer && cred.status !== 'COMPLETED') {
+      return res.status(404).json({ valid: false, exists: false, message: 'No credential found with this ID' });
+    }
+
     if (!await checkPrivacy(cred, req.user)) {
       return res.status(403).json({
         exists: true,
@@ -197,7 +247,7 @@ const checkExists = asyncHandler(async (req, res) => {
     }
 
     const providedHash = req.query.h || req.query.hash;
-    if (providedHash && providedHash.toLowerCase() !== cred.certificateHash?.toLowerCase()) {
+    if (providedHash && normalizeSha256Hash(providedHash) !== normalizeSha256Hash(cred.certificateHash)) {
       return res.json({
         valid: false,
         exists: true,
@@ -207,13 +257,17 @@ const checkExists = asyncHandler(async (req, res) => {
     }
 
     let isValidOnChain = false;
-    try {
-      isValidOnChain = await blockchainService.verifyCredential(cred.id, cred.certificateHash);
-    } catch (e) {
-      console.warn('Blockchain verify check failed:', e.message);
+    if (cred.status === 'COMPLETED') {
+      try {
+        isValidOnChain = await blockchainService.verifyCredential(cred.id, cred.certificateHash);
+      } catch (e) {
+        console.warn('Blockchain verify check failed:', e.message);
+      }
     }
 
-    await recordVerification(cred.id);
+    if (!cred.isRevoked && isValidOnChain) {
+      await recordVerification(cred.id);
+    }
     const verificationResp = buildVerificationResponse(cred, isValidOnChain, cred.certificateHash);
 
     return res.json({
@@ -237,9 +291,9 @@ const checkExists = asyncHandler(async (req, res) => {
 
   const actualWalletAddress = credentials[0].studentWalletAddress;
   const isOwner = req.user?.walletAddress?.toLowerCase() === actualWalletAddress.toLowerCase();
-  const isIssuer = req.user?.role === 'ISSUER';
+  let visibleCredentials = credentials;
 
-  if (!isOwner && !isIssuer) {
+  if (!isOwner) {
     const student = await prisma.user.findFirst({
       where: {
         walletAddress: { equals: actualWalletAddress, mode: 'insensitive' },
@@ -248,15 +302,21 @@ const checkExists = asyncHandler(async (req, res) => {
     });
 
     if (student?.preferences?.visibility === false) {
-      return res.status(403).json({
-        exists: true,
-        isPrivate: true,
-        message: 'This student profile is private. Credentials cannot be viewed publicly.'
-      });
+      visibleCredentials = req.user?.role === 'ISSUER'
+        ? credentials.filter(c => c.issuedById === req.user.id)
+        : [];
+
+      if (!visibleCredentials.length) {
+        return res.status(403).json({
+          exists: true,
+          isPrivate: true,
+          message: 'This student profile is private. Credentials cannot be viewed publicly.'
+        });
+      }
     }
   }
 
-  const mappedCredentials = credentials.map(c => {
+  const mappedCredentials = visibleCredentials.map(c => {
     const courseOrTitle = c.certificationData?.title ||
       c.transcriptData?.program ||
       c.course ||
@@ -296,31 +356,36 @@ const checkExists = asyncHandler(async (req, res) => {
 
 const verifyByHash = asyncHandler(async (req, res) => {
   const { studentWalletAddress, hash } = req.body;
+  const normalizedHash = normalizeSha256Hash(hash);
 
-  if (!hash) {
-    return res.status(400).json({ error: 'Certificate hash is required' });
+  if (!normalizedHash) {
+    return res.status(400).json({ error: 'A valid SHA-256 certificate hash is required' });
   }
 
-  const credential = await findCredential(studentWalletAddress, hash);
+  const credential = await findCredential(studentWalletAddress, normalizedHash);
   if (!credential) {
     return res.json({ valid: false, exists: false, message: 'No matching credential found for this ID/Wallet and Hash' });
-  }
-
-  if (credential.certificateHash?.toLowerCase() !== hash.toLowerCase()) {
-    return res.json({
-      valid: false, exists: true,
-      message: 'Certificate hash does not match. The file provided does not correspond to this credential ID.'
-    });
   }
 
   if (!await checkPrivacy(credential, req.user)) {
     return res.status(403).json({ error: 'Unauthorized: This credential belongs to a private profile.' });
   }
 
-  const isValidOnChain = await blockchainService.verifyCredential(credential.id, hash);
-  await recordVerification(credential.id);
+  if (normalizeSha256Hash(credential.certificateHash) !== normalizedHash) {
+    return res.json({
+      valid: false, exists: true,
+      message: 'Certificate hash does not match. The file provided does not correspond to this credential ID.'
+    });
+  }
 
-  return res.json(buildVerificationResponse(credential, isValidOnChain, hash));
+  const isValidOnChain = credential.status === 'COMPLETED'
+    ? await blockchainService.verifyCredential(credential.id, normalizedHash)
+    : false;
+  if (!credential.isRevoked && isValidOnChain) {
+    await recordVerification(credential.id);
+  }
+
+  return res.json(buildVerificationResponse(credential, isValidOnChain, normalizedHash));
 });
 
 module.exports = { verifyWithFile, checkExists, verifyByHash };

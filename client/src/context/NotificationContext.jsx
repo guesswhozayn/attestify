@@ -15,7 +15,7 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   const showNotification = useCallback((message, type = 'success', duration = 5000) => {
-    const id = Date.now();
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const notification = { id, message, type, duration };
     setNotifications(prev => [...prev, notification]);
   }, []);
@@ -29,7 +29,7 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      <div className="fixed top-5 right-5 z-[200] flex flex-col items-end space-y-2.5 pointer-events-none">
         {notifications.map(notification => (
           <Notification
             key={notification.id}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Modal from '../shared/Modal';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
@@ -41,6 +41,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   const [credentialType, setCredentialType] = useState('CERTIFICATION');
   const [transcriptData, setTranscriptData] = useState({ ...INITIAL_TRANSCRIPT });
   const [certificationData, setCertificationData] = useState({ ...INITIAL_CERTIFICATION });
+  const pollIntervalRef = useRef(null);
 
   const resetForm = useCallback(() => {
     setFormData(getInitialFormData(user));
@@ -51,6 +52,10 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
   useEffect(() => {
     if (!isOpen) {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
       const timer = setTimeout(resetForm, 200);
       return () => clearTimeout(timer);
     }
@@ -89,6 +94,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
     setLoading(true);
     setLoadingMessage('Preparing credential...');
+    let issuedCredentialId = null;
 
     try {
       const formDataToSend = new FormData();
@@ -106,6 +112,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
       const response = await credentialAPI.issue(formDataToSend);
       const { credentialId, credential } = response.data;
+      issuedCredentialId = credentialId;
 
       if (credential?.status === 'COMPLETED') {
         showNotification('Credential issued successfully', 'success');
@@ -122,9 +129,10 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
           const MAX_POLL_MS = 180000;
           let consecutiveErrors = 0;
 
-          const interval = setInterval(async () => {
+          pollIntervalRef.current = setInterval(async () => {
             if (Date.now() - startTime > MAX_POLL_MS) {
-              clearInterval(interval);
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
               resolve({ pending: true });
               return;
             }
@@ -135,16 +143,21 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
               const { status, credential } = statusRes.data;
 
               if (status === 'COMPLETED') {
-                clearInterval(interval);
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
                 resolve(credential);
               } else if (status === 'FAILED') {
-                clearInterval(interval);
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
                 reject(new Error(statusRes.data.credential?.error || statusRes.data.error || 'Failed to issue credential'));
+              } else if (credential?.error) {
+                setLoadingMessage(credential.error);
               }
             } catch (err) {
               consecutiveErrors++;
               if (consecutiveErrors >= 5) {
-                clearInterval(interval);
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
                 reject(err);
               }
             }
@@ -161,6 +174,9 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       onSuccess?.();
       onClose();
     } catch (error) {
+      if (issuedCredentialId) {
+        onSuccess?.();
+      }
       showNotification(error.response?.data?.error || error.message || 'Issuance failed', 'error');
     } finally {
       setLoading(false);
@@ -168,8 +184,13 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
+  const handleModalClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Issue credential" size="2xl">
+    <Modal isOpen={isOpen} onClose={handleModalClose} title="Issue credential" size="2xl">
       {loading && (
         <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-xs flex flex-col items-center justify-center z-50 rounded-2xl">
           <div data-modal-panel className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
@@ -379,7 +400,8 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
           <Button
             type="button"
             variant="outline"
-            onClick={onClose}
+            onClick={handleModalClose}
+            disabled={loading}
             size="sm"
           >
             Cancel

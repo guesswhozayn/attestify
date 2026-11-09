@@ -4,7 +4,6 @@ import { Shield, Users, Globe, Target, Rocket, Github, Mail } from 'lucide-react
 import BackButton from '../components/shared/BackButton';
 import Footer from '../components/shared/Footer';
 import Button from '../components/shared/Button';
-import { useNavigate } from 'react-router-dom';
 import Background from '../components/shared/Background';
 
 const VALUES = [
@@ -35,8 +34,6 @@ const VALUES = [
 ];
 
 const About = () => {
-  const navigate = useNavigate();
-
   useEffect(() => {
     const handleMouseMove = (e) => {
       document.documentElement.style.setProperty('--about-mouse-x', `${e.clientX}px`);
@@ -182,7 +179,7 @@ const About = () => {
               <Button onClick={() => window.open('https://github.com', '_blank')} variant="white" size="lg" icon={Github}>
                 GitHub
               </Button>
-              <Button onClick={() => navigate('/contact')} variant="secondary" size="lg" icon={Mail}>
+              <Button onClick={() => { window.location.href = 'mailto:contact@attestify.io'; }} variant="secondary" size="lg" icon={Mail}>
                 Contact
               </Button>
             </div>

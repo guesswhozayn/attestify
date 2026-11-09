@@ -128,12 +128,29 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Credential details" size="2xl">
       <div className="space-y-8 pb-4">
+        {credential.isRevoked && (
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-rose-900">Credential revoked</p>
+              <p className="text-xs text-rose-700">
+                <span className="font-semibold">Reason:</span> {credential.revocationReason || 'Revoked by the issuing institution.'}
+              </p>
+              {credential.revokedAt && (
+                <p className="text-xs text-rose-600 font-mono">
+                  Revoked on {formatDate(credential.revokedAt, true)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {credential.status === 'FAILED' && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-400 text-sm flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">Credential issuance failed</p>
-              <p className="text-xs text-red-400/80 mt-1">
+              <p className="font-bold text-rose-900">Credential issuance failed</p>
+              <p className="text-xs text-rose-700 mt-1">
                 {credential.processingError || 'An error occurred while creating this credential on the blockchain. Please try issuing it again or contact support.'}
               </p>
             </div>
@@ -141,12 +158,12 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
         )}
 
         {(credential.status === 'PROCESSING' || credential.status === 'PENDING') && (
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-amber-400 text-sm flex items-start gap-3">
-            <Loader2 className="w-5 h-5 shrink-0 mt-0.5 animate-spin" />
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-sm flex items-start gap-3">
+            <Loader2 className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 animate-spin" />
             <div>
-              <p className="font-bold">Issuance in progress</p>
-              <p className="text-xs text-amber-400/80 mt-1">
-                This credential is being processed on the blockchain. Records and downloads will be available once completed.
+              <p className="font-bold text-amber-900">Issuance in progress</p>
+              <p className="text-xs text-amber-700 mt-1">
+                {credential.processingError || 'This credential is being processed on the blockchain. Records and downloads will be available once completed.'}
               </p>
             </div>
           </div>
@@ -345,9 +362,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <p className="text-xs text-stone-400 font-medium">Network confirmation</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
-                  <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full"></div>
-                  <span>Verified</span>
+                <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
+                  <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
+                  <span>{statusStyles.label}</span>
                 </div>
               </div>
 
@@ -358,16 +375,18 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="space-y-1.5">
                       <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
                         <span>Transaction hash</span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(credential.transactionHash, 'tx')}
-                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
-                        >
-                          {copiedField === 'tx' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
+                        {credential.transactionHash && (
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(credential.transactionHash, 'tx')}
+                            className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                          >
+                            {copiedField === 'tx' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        )}
                       </div>
                       <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
-                        {credential.transactionHash}
+                        {credential.transactionHash || (credential.status === 'FAILED' ? 'Transaction failed' : 'Pending confirmation')}
                       </div>
                     </div>
 
@@ -393,32 +412,38 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <div className="space-y-1.5">
                       <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
                         <span>File storage ID (IPFS)</span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')}
-                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
+                        {credential.ipfsCID && (
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(credential.ipfsCID, 'ipfs')}
+                            className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                          >
+                            {copiedField === 'ipfs' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        )}
                       </div>
                       <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
-                        {credential.ipfsCID}
+                        {credential.ipfsCID || (credential.status === 'FAILED' ? 'Not uploaded' : 'Pending upload')}
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
                       <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
                         <span>Certificate hash</span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(credential.certificateHash, 'cert')}
-                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
+                        {credential.certificateHash && !credential.certificateHash.startsWith('PENDING_') && (
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(credential.certificateHash, 'cert')}
+                            className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                          >
+                            {copiedField === 'cert' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        )}
                       </div>
                       <div className="text-xs font-mono text-stone-700 break-all p-3.5 bg-[#FAF8F5] rounded-xl border border-[#E8E4DC] leading-relaxed">
-                        {credential.certificateHash}
+                        {credential.certificateHash && !credential.certificateHash.startsWith('PENDING_')
+                          ? credential.certificateHash
+                          : (credential.status === 'FAILED' ? 'Not generated' : 'Pending generation')}
                       </div>
                     </div>
                   </div>

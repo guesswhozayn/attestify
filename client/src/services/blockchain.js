@@ -21,7 +21,9 @@ class BlockchainService {
 
     if (this.rpcUrl) {
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
-      this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.provider);
+      if (this.contractAddress) {
+        this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.provider);
+      }
     }
   }
 
@@ -127,7 +129,8 @@ class BlockchainService {
   async getCredential(studentId) {
     if (!this.contract) throw new Error('Contract not initialized');
     try {
-      const result = await this.contract.getCredential(studentId);
+      const normalizedId = String(studentId || '').toLowerCase().trim();
+      const result = await this.contract.getCredential(normalizedId);
       return {
         certificateHash: result[0],
         ipfsCID: result[1],
@@ -144,7 +147,10 @@ class BlockchainService {
   async verifyCredential(studentId, hash) {
     if (!this.contract) throw new Error('Contract not initialized');
     try {
-      return await this.contract.verifyCredential(studentId, hash);
+      if (!studentId || !hash) return false;
+      const normalizedId = String(studentId).toLowerCase().trim();
+      const bytes32Hash = typeof hash === 'string' && !hash.startsWith('0x') ? `0x${hash}` : hash;
+      return await this.contract.verifyCredential(normalizedId, bytes32Hash);
     } catch (error) {
       console.error('Verify credential error:', error);
       return false;
@@ -154,7 +160,8 @@ class BlockchainService {
   async isCredentialIssued(studentId) {
     if (!this.contract) throw new Error('Contract not initialized');
     try {
-      return await this.contract.isIssued(studentId);
+      const normalizedId = String(studentId || '').toLowerCase().trim();
+      return await this.contract.isIssued(normalizedId);
     } catch (error) {
       console.error('Check issued error:', error);
       return false;
@@ -189,7 +196,7 @@ class BlockchainService {
     if (!this.contract) throw new Error('Contract not initialized');
     this.contract.on('CredentialIssued', (studentId, certificateHash, ipfsCID, timestamp, issuer, event) => {
       callback({
-        studentId,
+        studentId: studentId?.hash || studentId,
         certificateHash,
         ipfsCID,
         timestamp: new Date(Number(timestamp) * 1000),
@@ -204,7 +211,7 @@ class BlockchainService {
     if (!this.contract) throw new Error('Contract not initialized');
     this.contract.on('CredentialRevoked', (studentId, timestamp, revokedBy, event) => {
       callback({
-        studentId,
+        studentId: studentId?.hash || studentId,
         timestamp: new Date(Number(timestamp) * 1000),
         revokedBy,
         transactionHash: event.log.transactionHash,
@@ -221,7 +228,9 @@ class BlockchainService {
     this.signer = null;
     if (this.rpcUrl) {
       this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
-      this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.provider);
+      if (this.contractAddress) {
+        this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.provider);
+      }
     }
   }
 }

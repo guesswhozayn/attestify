@@ -68,13 +68,13 @@ const Layout = () => {
       <IssueCredentialModal
         isOpen={showSingleModal}
         onClose={() => setShowSingleModal(false)}
-        onSuccess={() => setShowSingleModal(false)}
+        onSuccess={() => window.dispatchEvent(new Event('credentials-updated'))}
       />
 
       <BulkIssueModal
         isOpen={showBulkModal}
         onClose={() => setShowBulkModal(false)}
-        onSuccess={() => setShowBulkModal(false)}
+        onSuccess={() => window.dispatchEvent(new Event('credentials-updated'))}
       />
     </div>
   );

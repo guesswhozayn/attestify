@@ -68,8 +68,8 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                 {/* Top micro identifier */}
                 <div className="absolute top-5 left-1/2 -translate-x-1/2 flex items-center gap-4 text-[9px] font-semibold tracking-[0.25em] text-stone-400 uppercase pointer-events-none">
                     <span>Credential ID // 0x{credential.certificateHash?.substring(0, 8)}</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>
-                    <span>Status // Verified</span>
+                    <div className={`w-1.5 h-1.5 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
+                    <span>Status // {credential.isRevoked ? 'Revoked' : 'Verified'}</span>
                 </div>
 
                 <div className="relative h-full p-10 lg:p-14 flex flex-col justify-between z-10 w-full">
@@ -81,9 +81,11 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                                     {isTranscript ? <GraduationCap className="w-6 h-6" /> : <Award className="w-6 h-6" />}
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 mb-0.5">Verified credential</span>
+                                    <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 mb-0.5">
+                                        {credential.isRevoked ? 'Revoked credential' : 'Verified credential'}
+                                    </span>
                                     <div className="flex items-center gap-2">
-                                        <div className="h-2 w-2 rounded-full bg-emerald-600"></div>
+                                        <div className={`h-2 w-2 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
                                         <span className="text-xs font-bold text-stone-800 uppercase tracking-wider">{credential.type} {isSBT ? 'SBT' : 'NFT'}</span>
                                     </div>
                                 </div>
@@ -160,12 +162,12 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
             {/* Desktop micro footer */}
             <div className="hidden md:flex mt-4 justify-between items-center px-4 text-[11px] font-medium text-stone-500">
                 <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1.5"><Box className="w-3.5 h-3.5 text-stone-400" /> Security: Verified</span>
-                    <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-emerald-600" /> Status: Active</span>
+                    <span className="flex items-center gap-1.5"><Box className="w-3.5 h-3.5 text-stone-400" /> Security: {credential.isRevoked ? 'Revoked' : 'Verified'}</span>
+                    <span className="flex items-center gap-1.5"><Activity className={`w-3.5 h-3.5 ${credential.isRevoked ? 'text-rose-600' : 'text-emerald-600'}`} /> Status: {credential.isRevoked ? 'Revoked' : 'Active'}</span>
                 </div>
                 <div className="flex items-center gap-4 text-stone-400">
                     <span>Archival record</span>
-                    <span>Verified certificate</span>
+                    <span>{credential.isRevoked ? 'Revoked certificate' : 'Verified certificate'}</span>
                 </div>
             </div>
 
@@ -180,7 +182,9 @@ const CredentialCard = ({ credential, metadata, minimalist = false, onClick }) =
                             {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
                         </div>
                         <div>
-                            <span className="block text-[10px] font-bold uppercase tracking-wider text-stone-500">Verified credential</span>
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                                {credential.isRevoked ? 'Revoked credential' : 'Verified credential'}
+                            </span>
                             <span className="text-xs font-bold text-stone-800 uppercase">{credential.type}</span>
                         </div>
                     </div>

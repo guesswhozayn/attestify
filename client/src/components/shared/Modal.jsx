@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useId } from 'react';
 import { X } from 'lucide-react';
 import Button from './Button';
 
@@ -10,7 +10,14 @@ const sizes = {
   '2xl': 'max-w-7xl',
 };
 
+const openModalStack = [];
+
+const syncBodyOverflow = () => {
+  document.body.style.overflow = openModalStack.length > 0 ? 'hidden' : 'unset';
+};
+
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
+  const modalId = useId();
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(isOpen);
 
@@ -23,25 +30,34 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   }
 
   useEffect(() => {
+    if (!isOpen) return;
+    if (!openModalStack.includes(modalId)) {
+      openModalStack.push(modalId);
+    }
+    syncBodyOverflow();
+    return () => {
+      const idx = openModalStack.indexOf(modalId);
+      if (idx !== -1) openModalStack.splice(idx, 1);
+      syncBodyOverflow();
+    };
+  }, [isOpen, modalId]);
+
+  useEffect(() => {
     let timer;
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
       timer = setTimeout(() => setIsVisible(true), 20);
     } else if (mounted) {
       timer = setTimeout(() => {
         setMounted(false);
-        document.body.style.overflow = 'unset';
       }, 300);
     }
-    return () => {
-      clearTimeout(timer);
-      document.body.style.overflow = 'unset';
-    };
+    return () => clearTimeout(timer);
   }, [isOpen, mounted]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && openModalStack[openModalStack.length - 1] === modalId) {
+        e.stopPropagation();
         onClose();
       }
     };
@@ -49,7 +65,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, modalId]);
 
   if (!mounted && !isOpen) return null;
 

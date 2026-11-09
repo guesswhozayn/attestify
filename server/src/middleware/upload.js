@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -34,19 +35,28 @@ const upload = multer({
       cb(null, targetDir);
     },
     filename(req, file, cb) {
-      cb(null, `${file.fieldname}-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`);
+      const safeExt = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g, '');
+      cb(null, `${file.fieldname}-${Date.now()}-${crypto.randomBytes(8).toString('hex')}${safeExt}`);
     }
   }),
   fileFilter(req, file, cb) {
+    const createUploadError = (msg) => {
+      const err = new Error(msg);
+      err.statusCode = 400;
+      return err;
+    };
     const ext = path.extname(file.originalname).toLowerCase();
     const allowedExts = FIELD_EXTS[file.fieldname];
     const allowedMimes = FIELD_MIMES[file.fieldname];
 
-    if (allowedExts && !allowedExts.has(ext)) {
-      return cb(new Error(`Invalid file extension for ${file.fieldname}. Allowed: ${Array.from(allowedExts).join(', ')}`), false);
+    if (!allowedExts || !allowedMimes) {
+      return cb(createUploadError(`Unexpected upload field: ${file.fieldname}`), false);
     }
-    if (allowedMimes && !allowedMimes.has(file.mimetype)) {
-      return cb(new Error(`Invalid MIME type for ${file.fieldname}. Allowed: ${Array.from(allowedMimes).join(', ')}`), false);
+    if (!allowedExts.has(ext)) {
+      return cb(createUploadError(`Invalid file extension for ${file.fieldname}. Allowed: ${Array.from(allowedExts).join(', ')}`), false);
+    }
+    if (!allowedMimes.has(file.mimetype)) {
+      return cb(createUploadError(`Invalid MIME type for ${file.fieldname}. Allowed: ${Array.from(allowedMimes).join(', ')}`), false);
     }
     cb(null, true);
   },

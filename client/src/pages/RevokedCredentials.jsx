@@ -6,14 +6,18 @@ import { AlertTriangle } from 'lucide-react';
 
 const RevokedCredentials = () => {
   const [credentials, setCredentials] = useState([]);
+  const [totalRevoked, setTotalRevoked] = useState(0);
   const [selectedCredential, setSelectedCredential] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    credentialAPI.getAll({ revoked: 'true' })
+    credentialAPI.getAll({ revoked: 'true', limit: 100 })
       .then((response) => {
-        if (active) setCredentials(response.data.credentials || []);
+        if (!active) return;
+        const list = response.data.credentials || [];
+        setCredentials(list);
+        setTotalRevoked(response.data.pagination?.total ?? list.length);
       })
       .catch((error) => {
         console.error('Failed to fetch revoked credentials', error);
@@ -38,7 +42,7 @@ const RevokedCredentials = () => {
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
           <AlertTriangle className="w-3.5 h-3.5" />
-          <span>{credentials.length} Revoked</span>
+          <span>{totalRevoked} Revoked</span>
         </div>
       </div>
 

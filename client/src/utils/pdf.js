@@ -7,14 +7,19 @@ export const extractMetadata = async (file) => {
     const subject = pdfDoc.getSubject()?.trim();
     const keywords = pdfDoc.getKeywords()?.trim();
     const isUUID = (val) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+    const isHexAddress = (val) => /^0x[0-9a-fA-F]{40}$/.test(val);
+    const isValidTarget = (val) => isUUID(val) || isHexAddress(val);
 
-    if (subject && isUUID(subject)) return subject;
+    if (subject && isValidTarget(subject)) return subject;
     if (keywords) {
-      const match = keywords.split(',').map(s => s.trim()).find(isUUID);
-      if (match) return match;
+      const parts = keywords.split(',').map(s => s.trim());
+      const uuidMatch = parts.find(isUUID);
+      if (uuidMatch) return uuidMatch;
+      const walletMatch = parts.find(isHexAddress);
+      if (walletMatch) return walletMatch;
     }
 
-    return subject || (keywords ? keywords.split(',')[0].trim() : null);
+    return null;
   } catch (error) {
     console.error('Error parsing PDF metadata:', error);
     return null;

@@ -46,26 +46,37 @@ const Profile = () => {
         '';
 
     useEffect(() => {
-        const detectWallet = async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    if (accounts && accounts.length > 0) {
-                        setConnectedAddress(accounts[0]);
-                    }
-                } catch (err) {
-                    console.error('Error detecting wallet:', err);
-                }
+        if (typeof window.ethereum === 'undefined') return;
+        let active = true;
 
-                const handleAccountsChanged = (accounts) => {
-                    setConnectedAddress(accounts?.[0] || '');
-                };
-                window.ethereum.on('accountsChanged', handleAccountsChanged);
-                return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-            }
+        window.ethereum.request({ method: 'eth_accounts' })
+            .then((accounts) => {
+                if (active && accounts?.length > 0) {
+                    setConnectedAddress(accounts[0]);
+                }
+            })
+            .catch((err) => {
+                console.error('Error detecting wallet:', err);
+            });
+
+        const handleAccountsChanged = (accounts) => {
+            if (active) setConnectedAddress(accounts?.[0] || '');
         };
-        detectWallet();
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+        return () => {
+            active = false;
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        };
     }, []);
+
+    const toSafeExternalUrl = (raw) => {
+        if (!raw || typeof raw !== 'string') return null;
+        const trimmed = raw.trim();
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        if (/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(trimmed)) return `https://${trimmed}`;
+        return null;
+    };
 
     const studentData = user?.preferences?.studentDetails || user?.studentDetails || {};
 
@@ -123,9 +134,13 @@ const Profile = () => {
             };
 
             if (isIssuer) {
+                const updatedInstitutionName = user?.issuerDetails?.isVerified
+                    ? (user.issuerDetails.institutionName || user.name)
+                    : (formData.name || formData.institutionName);
+                payload.name = updatedInstitutionName;
                 payload.issuerDetails = {
                     ...user?.issuerDetails,
-                    institutionName: formData.institutionName || formData.name,
+                    institutionName: updatedInstitutionName,
                     registrationNumber: formData.registrationNumber,
                     website: formData.website,
                     contactEmail: formData.contactEmail,
@@ -270,7 +285,8 @@ const Profile = () => {
                             <Input
                                 label={isIssuer ? "Institution Name" : "Full Name"}
                                 value={formData.name}
-                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                onChange={(e) => setFormData({...formData, name: e.target.value, ...(isIssuer ? { institutionName: e.target.value } : {})})}
+                                disabled={isIssuer && Boolean(user?.issuerDetails?.isVerified)}
                                 icon={isIssuer ? Building : User}
                             />
                             {!isIssuer && (
@@ -404,9 +420,9 @@ const Profile = () => {
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                                         <dt className="text-stone-500 font-medium">Official Website</dt>
                                         <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
-                                            {user?.issuerDetails?.website ? (
+                                            {toSafeExternalUrl(user?.issuerDetails?.website) ? (
                                                 <a
-                                                    href={user.issuerDetails.website}
+                                                    href={toSafeExternalUrl(user.issuerDetails.website)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
@@ -414,7 +430,7 @@ const Profile = () => {
                                                     {user.issuerDetails.website}
                                                 </a>
                                             ) : (
-                                                'Not recorded'
+                                                user?.issuerDetails?.website || 'Not recorded'
                                             )}
                                         </dd>
                                     </div>
@@ -482,14 +498,18 @@ const Profile = () => {
                                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                                             <dt className="text-stone-500 font-medium">LinkedIn</dt>
                                             <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
-                                                <a
-                                                    href={studentData.linkedin.startsWith('http') ? studentData.linkedin : `https://${studentData.linkedin}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
-                                                >
-                                                    {studentData.linkedin}
-                                                </a>
+                                                {toSafeExternalUrl(studentData.linkedin) ? (
+                                                    <a
+                                                        href={toSafeExternalUrl(studentData.linkedin)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
+                                                    >
+                                                        {studentData.linkedin}
+                                                    </a>
+                                                ) : (
+                                                    studentData.linkedin
+                                                )}
                                             </dd>
                                         </div>
                                     )}
@@ -497,14 +517,18 @@ const Profile = () => {
                                         <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                                             <dt className="text-stone-500 font-medium">GitHub / Portfolio</dt>
                                             <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
-                                                <a
-                                                    href={studentData.github.startsWith('http') ? studentData.github : `https://${studentData.github}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
-                                                >
-                                                    {studentData.github}
-                                                </a>
+                                                {toSafeExternalUrl(studentData.github) ? (
+                                                    <a
+                                                        href={toSafeExternalUrl(studentData.github)}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-indigo-600 hover:text-indigo-500 underline transition-colors"
+                                                    >
+                                                        {studentData.github}
+                                                    </a>
+                                                ) : (
+                                                    studentData.github
+                                                )}
                                             </dd>
                                         </div>
                                     )}

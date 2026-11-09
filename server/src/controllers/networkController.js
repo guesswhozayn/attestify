@@ -3,12 +3,21 @@ const { ethers } = require('ethers');
 const { prisma } = require('../config/database');
 const blockchainService = require('../services/blockchainService');
 
+const statsCache = new Map();
+const STATS_CACHE_TTL_MS = 30000;
+
 const getNetworkStats = asyncHandler(async (req, res) => {
   try {
+    const issuerId = req.user.id;
+    const cached = statsCache.get(issuerId);
+    if (cached && Date.now() < cached.expiresAt) {
+      return res.json({ success: true, stats: cached.stats });
+    }
+
     const [networkStats, totalIssued, totalRevoked, [gasAgg], recent] = await Promise.all([
       blockchainService.getNetworkStats(),
-      prisma.credential.count({ where: { status: 'COMPLETED' } }),
-      prisma.credential.count({ where: { isRevoked: true } }),
+      prisma.credential.count({ where: { issuedById: issuerId, status: 'COMPLETED' } }),
+      prisma.credential.count({ where: { issuedById: issuerId, isRevoked: true } }),
       prisma.$queryRaw`
         SELECT 
           COALESCE(SUM(NULLIF(regexp_replace("gasUsed", '[^0-9]', '', 'g'), '')::numeric), 0) +
@@ -16,33 +25,41 @@ const getNetworkStats = asyncHandler(async (req, res) => {
           COALESCE(SUM(NULLIF(regexp_replace("totalCost", '[^0-9]', '', 'g'), '')::numeric), 0) +
           COALESCE(SUM(NULLIF(regexp_replace("revocationTotalCost", '[^0-9]', '', 'g'), '')::numeric), 0) AS total_cost_wei
         FROM credentials
+        WHERE "issuedById" = ${issuerId}
       `,
       prisma.credential.findMany({
+        where: { issuedById: issuerId, status: 'COMPLETED' },
         take: 10,
         orderBy: { createdAt: 'desc' },
-        select: { transactionHash: true, type: true, createdAt: true, isRevoked: true, revokedAt: true }
+        select: { transactionHash: true, type: true, status: true, createdAt: true, isRevoked: true, revokedAt: true }
       })
     ]);
 
     const totalGasUsed = BigInt(gasAgg?.total_gas_used ? String(gasAgg.total_gas_used).split('.')[0] : '0');
     const totalCostWei = BigInt(gasAgg?.total_cost_wei ? String(gasAgg.total_cost_wei).split('.')[0] : '0');
 
+    const stats = {
+      network: {
+        blockHeight: networkStats.blockNumber,
+        gasPrice: networkStats.gasPrice,
+        connected: networkStats.connected
+      },
+      contract: {
+        totalIssued,
+        totalRevoked,
+        totalGasUsed: totalGasUsed.toString(),
+        totalCostEth: parseFloat(ethers.formatEther(totalCostWei)).toFixed(6)
+      },
+      recentTransactions: recent
+    };
+
+    if (networkStats.connected) {
+      statsCache.set(issuerId, { stats, expiresAt: Date.now() + STATS_CACHE_TTL_MS });
+    }
+
     res.json({
       success: true,
-      stats: {
-        network: {
-          blockHeight: networkStats.blockNumber,
-          gasPrice: networkStats.gasPrice,
-          connected: networkStats.connected
-        },
-        contract: {
-          totalIssued,
-          totalRevoked,
-          totalGasUsed: totalGasUsed.toString(),
-          totalCostEth: parseFloat(ethers.formatEther(totalCostWei)).toFixed(6)
-        },
-        recentTransactions: recent
-      }
+      stats
     });
   } catch (error) {
     console.error('Get network stats error:', error);

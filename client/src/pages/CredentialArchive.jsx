@@ -48,6 +48,8 @@ const CredentialArchive = () => {
             if (type !== 'all')           params.type    = type;
             if (status === 'active')      params.revoked = 'false';
             if (status === 'revoked')     params.revoked = 'true';
+            if (status === 'failed')      params.status  = 'FAILED';
+            if (status === 'processing')  params.status  = 'PROCESSING_ALL';
 
             const response = await credentialAPI.getAll(params);
 
@@ -55,6 +57,11 @@ const CredentialArchive = () => {
 
             const docs = response.data.credentials || [];
             setCredentials(docs);
+            setSelectedCredential(prev => {
+                if (!prev) return null;
+                const prevId = prev.id || prev._id;
+                return docs.find(c => (c.id || c._id) === prevId) || prev;
+            });
             setPagination(response.data.pagination || { currentPage: page, totalPages: 1, total: docs.length });
 
         } catch (error) {
@@ -96,15 +103,25 @@ const CredentialArchive = () => {
         return () => clearTimeout(debounceTimer.current);
     }, [fetchCredentials, searchQuery, typeFilter, statusFilter, currentPage]);
 
+    const hasPending = credentials.some(c => c.status === 'PENDING' || c.status === 'PROCESSING');
+
     useEffect(() => {
-        const hasPending = credentials.some(c => c.status === 'PENDING' || c.status === 'PROCESSING');
         if (!hasPending) return;
         const interval = setInterval(() => {
             fetchCredentials(currentPage, searchQuery, typeFilter, statusFilter);
             loadStats();
         }, 8000);
         return () => clearInterval(interval);
-    }, [credentials, fetchCredentials, loadStats, currentPage, searchQuery, typeFilter, statusFilter]);
+    }, [hasPending, fetchCredentials, loadStats, currentPage, searchQuery, typeFilter, statusFilter]);
+
+    useEffect(() => {
+        const handleRefreshEvent = () => {
+            fetchCredentials(currentPage, searchQuery, typeFilter, statusFilter);
+            loadStats();
+        };
+        window.addEventListener('credentials-updated', handleRefreshEvent);
+        return () => window.removeEventListener('credentials-updated', handleRefreshEvent);
+    }, [fetchCredentials, loadStats, currentPage, searchQuery, typeFilter, statusFilter]);
 
     const handleFilterChange = (setter) => (value) => {
         setter(value);

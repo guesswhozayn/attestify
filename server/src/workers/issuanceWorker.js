@@ -30,9 +30,10 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
     console.log(`[Worker] Job ${job.id} completed successfully.`);
     return result;
   } catch (error) {
-    console.error(`[Worker] Job ${job.id} (attempt ${job.attemptsMade}) failed:`, error.message);
+    const currentAttempt = job.attemptsMade + 1;
+    console.error(`[Worker] Job ${job.id} (attempt ${currentAttempt}) failed:`, error.message);
     const maxAttempts = job.opts?.attempts || 3;
-    const isFinalAttempt = job.attemptsMade >= maxAttempts;
+    const isFinalAttempt = currentAttempt >= maxAttempts;
 
     await prisma.credential.update({
       where: { id: data.credentialId },
@@ -40,7 +41,7 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
         status: isFinalAttempt ? 'FAILED' : 'PROCESSING',
         processingError: isFinalAttempt
           ? error.message
-          : `Attempt ${job.attemptsMade}/${maxAttempts} failed: ${error.message}. Retrying...`
+          : `Attempt ${currentAttempt}/${maxAttempts} failed: ${error.message}. Retrying...`
       }
     });
     throw error;
@@ -48,6 +49,12 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
 }, { connection, concurrency: 1 });
 
 issuanceWorker.on('failed', async (job, err) => {
+  const maxAttempts = job?.opts?.attempts || 3;
+  const attemptsMade = job?.attemptsMade || 0;
+  if (attemptsMade < maxAttempts) {
+    return;
+  }
+
   console.error(`Job ${job?.id} permanently failed with error: ${err.message}`);
   const credentialId = job?.data?.data?.credentialId;
   const imagePath = job?.data?.data?.studentImagePath;

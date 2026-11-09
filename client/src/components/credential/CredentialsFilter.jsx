@@ -53,7 +53,7 @@ const CredentialsFilter = ({
                     </div>
 
                     <div className="flex p-0.5 bg-stone-100 rounded-xl border border-stone-200/60">
-                        {['all', 'active', 'revoked'].map((status) => (
+                        {['all', 'active', 'processing', 'failed', 'revoked'].map((status) => (
                             <button
                                 key={status}
                                 onClick={() => setStatusFilter(status)}

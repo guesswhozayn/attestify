@@ -5,8 +5,14 @@ const { prisma } = require('../config/database');
 const { JWT_EXPIRY } = require('../config/constants');
 const asyncHandler = require('../middleware/asyncHandler');
 
-const generateToken = (userId, role, tokenVersion = 0) =>
-  jwt.sign({ userId, role, tokenVersion }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
+const DUMMY_PASSWORD_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
+
+const generateToken = (userId, role, tokenVersion = 0) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is not configured');
+  }
+  return jwt.sign({ userId, role, tokenVersion }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
+};
 
 const formatUserResponse = (user) => ({
   id: user.id,
@@ -61,9 +67,14 @@ const register = asyncHandler(async (req, res) => {
     }
   }
 
-  if (role === 'ISSUER' && registrationNumber) {
+  const trimmedInstitution = typeof institutionName === 'string' ? institutionName.trim() : '';
+  const trimmedRegNumber = typeof registrationNumber === 'string' ? registrationNumber.trim() : '';
+  const trimmedName = typeof name === 'string' ? name.trim() : '';
+  const trimmedUniversity = typeof university === 'string' && university.trim() ? university.trim() : 'Not Specified';
+
+  if (role === 'ISSUER' && trimmedRegNumber) {
     const existingReg = await prisma.user.findFirst({
-      where: { issuerDetails: { path: ['registrationNumber'], equals: registrationNumber } }
+      where: { issuerDetails: { path: ['registrationNumber'], equals: trimmedRegNumber } }
     });
     if (existingReg) {
       return res.status(400).json({ error: 'Registration number already in use by another institution.' });
@@ -72,18 +83,18 @@ const register = asyncHandler(async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const userData = {
-    name: role === 'ISSUER' && institutionName ? institutionName : (name || 'Anonymous'),
+    name: role === 'ISSUER' && trimmedInstitution ? trimmedInstitution : (trimmedName || 'Anonymous'),
     email: normalizedEmail,
     password: hashedPassword,
     role: role || 'STUDENT',
-    university: university || 'Not Specified',
+    university: role === 'ISSUER' && trimmedInstitution ? trimmedInstitution : trimmedUniversity,
     walletAddress: normalizedWallet
   };
 
   if (role === 'ISSUER') {
     userData.issuerDetails = {
-      institutionName,
-      registrationNumber,
+      institutionName: trimmedInstitution,
+      registrationNumber: trimmedRegNumber,
       isVerified: Boolean(process.env.AUTO_VERIFY_ISSUERS === 'true'),
       authorizedWalletAddress: normalizedWallet,
       certificatesIssued: 0
@@ -115,16 +126,14 @@ const login = asyncHandler(async (req, res) => {
   }
 
   const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-  if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+  const passwordMatch = await bcrypt.compare(password, user ? user.password : DUMMY_PASSWORD_HASH);
+  if (!user || !passwordMatch) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
   if (selectedRole && user.role !== selectedRole) {
     return res.status(403).json({ error: `Access denied. You are not registered as a ${selectedRole.toLowerCase()}.` });
   }
   if (!user.isActive) return res.status(403).json({ error: 'Account is deactivated' });
-
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
-    return res.status(401).json({ error: 'Invalid email or password' });
-  }
 
   const updatedUser = await prisma.user.update({
     where: { id: user.id },

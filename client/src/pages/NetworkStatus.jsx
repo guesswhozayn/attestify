@@ -222,8 +222,14 @@ const NetworkStatus = () => {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className={`font-medium ${tx.transactionHash ? 'text-emerald-700' : 'text-amber-700'}`}>
-                          {tx.transactionHash ? 'Confirmed' : 'Pending'}
+                        <span className={`font-medium ${
+                          tx.status === 'FAILED'
+                            ? 'text-rose-700'
+                            : tx.transactionHash
+                            ? 'text-emerald-700'
+                            : 'text-amber-700'
+                        }`}>
+                          {tx.status === 'FAILED' ? 'Failed' : tx.transactionHash ? 'Confirmed' : 'Pending'}
                         </span>
                       </td>
 

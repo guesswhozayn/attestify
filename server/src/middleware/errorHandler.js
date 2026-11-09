@@ -30,9 +30,9 @@ const errorHandler = (err, req, res, _next) => {
 
   const statusCode = err.statusCode || 500;
   res.status(statusCode).json({
-    error: (statusCode === 500 && process.env.NODE_ENV === 'production')
+    error: statusCode >= 500
       ? 'Internal Server Error'
-      : (err.message || 'Internal Server Error')
+      : (err.message || 'Bad Request')
   });
 };
 

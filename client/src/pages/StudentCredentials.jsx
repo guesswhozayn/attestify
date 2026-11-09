@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import CredentialDetails from '../components/credential/CredentialDetails';
 import CredentialTable from '../components/credential/CredentialTable';
 import { Search, Wallet, RefreshCw } from 'lucide-react';
-import { credentialAPI } from '../services/api';
+import { credentialAPI, userAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/shared/Button';
@@ -12,7 +12,7 @@ import StudentStats from '../components/credential/StudentStats';
 import EmptyState from '../components/shared/EmptyState';
 
 const StudentCredentials = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [credentials, setCredentials] = useState([]);
     const [stats, setStats] = useState({ total: 0, active: 0, sbtCount: 0, uniqueIssuers: 0 });
     const [activeTab, setActiveTab] = useState('all');
@@ -89,6 +89,14 @@ const StudentCredentials = () => {
         try {
             setLoading(true);
             const address = await blockchainService.connectWallet();
+            if (!user?.walletAddress) {
+                try {
+                    const res = await userAPI.updateProfile({ walletAddress: address });
+                    if (res.data?.success && res.data?.user) updateUser(res.data.user);
+                } catch {
+                    // ignore profile link error
+                }
+            }
             setWalletAddress(address);
         } catch (err) {
             showNotification(err.message || 'Failed to connect wallet', 'error');

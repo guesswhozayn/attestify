@@ -84,12 +84,12 @@ const StudentDashboard = () => {
     let mounted = true;
     const initialAddress = user?.walletAddress || null;
 
-    if (initialAddress) {
-      fetchCredential(initialAddress);
-    }
-
     if (typeof window.ethereum === 'undefined') {
-      if (!initialAddress) setLoading(false);
+      if (initialAddress) {
+        fetchCredential(initialAddress);
+      } else {
+        setLoading(false);
+      }
       return;
     }
 
@@ -105,7 +105,12 @@ const StudentDashboard = () => {
         }
       })
       .catch(() => {
-        if (mounted && !initialAddress) setLoading(false);
+        if (!mounted) return;
+        if (initialAddress) {
+          fetchCredential(initialAddress);
+        } else {
+          setLoading(false);
+        }
       });
 
     const handleAccountsChanged = (accounts) => {
@@ -311,8 +316,9 @@ const StudentDashboard = () => {
                      <div className="space-y-1.5">
                          <div className="flex justify-between items-center text-xs text-stone-600 px-0.5 font-medium">
                             <span>Certificate ID</span>
-                            <span className="text-emerald-700 flex items-center gap-1 text-xs font-medium">
-                               <CheckCircle className="w-3 h-3" /> Verified
+                            <span className={`flex items-center gap-1 text-xs font-medium ${credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'}`}>
+                               {credential.isRevoked ? <ShieldAlert className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                               {credential.isRevoked ? 'Revoked' : 'Verified'}
                             </span>
                          </div>
                         <div className="font-mono text-stone-700 text-[11px] bg-[#F8F9FA] p-3 rounded-xl border border-stone-200/80 break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">

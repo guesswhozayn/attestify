@@ -56,7 +56,13 @@ const IssuerDashboard = () => {
       if (statsResponse?.data?.stats) {
         setStats(prev => ({ ...prev, ...statsResponse.data.stats }));
       }
-      setCredentials(recentResponse?.data?.credentials || []);
+      const fetched = recentResponse?.data?.credentials || [];
+      setCredentials(fetched);
+      setSelectedCredential(prev => {
+        if (!prev) return null;
+        const prevId = prev.id || prev._id;
+        return fetched.find(c => (c.id || c._id) === prevId) || prev;
+      });
     } catch {
       showNotification('Could not load dashboard data. Check your connection.', 'error');
     } finally {
@@ -66,10 +72,21 @@ const IssuerDashboard = () => {
     }
   }, [showNotification]);
 
+  const hasPending = credentials.some(c => c.status === 'PENDING' || c.status === 'PROCESSING');
+
   useEffect(() => {
     fetchDashboardData();
-    const interval = setInterval(() => fetchDashboardData(), 30000);
+  }, [fetchDashboardData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => fetchDashboardData(), hasPending ? 8000 : 30000);
     return () => clearInterval(interval);
+  }, [fetchDashboardData, hasPending]);
+
+  useEffect(() => {
+    const handleRefreshEvent = () => fetchDashboardData();
+    window.addEventListener('credentials-updated', handleRefreshEvent);
+    return () => window.removeEventListener('credentials-updated', handleRefreshEvent);
   }, [fetchDashboardData]);
 
   const handleExportData = () => {
@@ -263,7 +280,12 @@ const IssuerDashboard = () => {
                 {credentials.map((cred) => {
                   const id = cred._id || cred.id;
                   const isRevoked = cred.isRevoked;
-                  const title = cred.courseName || cred.credentialTitle || cred.title || 'Certificate of Completion';
+                  const title = cred.transcriptData?.program ||
+                    cred.certificationData?.title ||
+                    cred.courseName ||
+                    cred.credentialTitle ||
+                    cred.title ||
+                    'Certificate of Completion';
 
                   return (
                     <tr
@@ -295,8 +317,20 @@ const IssuerDashboard = () => {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className={`font-medium ${isRevoked ? 'text-rose-600' : 'text-emerald-700'}`}>
-                          {isRevoked ? 'Revoked' : 'Valid'}
+                        <span className={`font-medium ${
+                          isRevoked || cred.status === 'FAILED'
+                            ? 'text-rose-600'
+                            : cred.status === 'PROCESSING' || cred.status === 'PENDING'
+                            ? 'text-amber-600'
+                            : 'text-emerald-700'
+                        }`}>
+                          {isRevoked
+                            ? 'Revoked'
+                            : cred.status === 'FAILED'
+                            ? 'Failed'
+                            : cred.status === 'PROCESSING' || cred.status === 'PENDING'
+                            ? 'Processing'
+                            : 'Valid'}
                         </span>
                       </td>
 

@@ -42,17 +42,18 @@ class BlockchainService {
 
     while (Date.now() - start < timeoutMs) {
       attempt++;
+      let receipt = null;
       try {
-        const receipt = await this.provider.getTransactionReceipt(txHash);
-        if (receipt?.blockNumber) {
-          if (receipt.status === 0) {
-            throw new Error(`Transaction ${txHash} reverted on-chain.`);
-          }
-          console.log(`[Blockchain] Receipt confirmed for ${txHash} (attempt ${attempt}, ${Date.now() - start}ms)`);
-          return receipt;
-        }
+        receipt = await this.provider.getTransactionReceipt(txHash);
       } catch (err) {
         console.warn(`[Blockchain] getTransactionReceipt error (attempt ${attempt}): ${err.message}`);
+      }
+      if (receipt?.blockNumber) {
+        if (receipt.status === 0) {
+          throw new Error(`Transaction ${txHash} reverted on-chain.`);
+        }
+        console.log(`[Blockchain] Receipt confirmed for ${txHash} (attempt ${attempt}, ${Date.now() - start}ms)`);
+        return receipt;
       }
       await new Promise(r => setTimeout(r, intervalMs));
     }
@@ -155,13 +156,15 @@ class BlockchainService {
 
     await this.nonceMutex.lock();
     try {
-      const gasEstimate = await method.estimateGas(...args);
-      const pendingCount = await this.provider.getTransactionCount(this.wallet.address, 'pending');
+      const [gasEstimate, pendingCount, gasOverrides] = await Promise.all([
+        method.estimateGas(...args),
+        this.provider.getTransactionCount(this.wallet.address, 'pending'),
+        this._getGasOverrides()
+      ]);
       if (this.currentNonce == null || this.currentNonce < pendingCount) {
         this.currentNonce = pendingCount;
       }
       const nonce = this.currentNonce++;
-      const gasOverrides = await this._getGasOverrides();
 
       return await this._sendWithRetry(
         method.bind(this.contract),

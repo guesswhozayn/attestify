@@ -53,7 +53,7 @@ const Notification = ({ id, message, type = 'success', onClose, duration = 5000 
 
   return (
     <div
-      className={`fixed top-5 right-5 z-[200] flex items-center space-x-3.5 px-4 py-3.5 rounded-2xl border transition-all duration-300 ease-out transform ${
+      className={`relative pointer-events-auto flex items-center space-x-3.5 px-4 py-3.5 rounded-2xl border transition-all duration-300 ease-out transform ${
         isDark
           ? 'bg-[#121318] border-white/10 text-stone-100 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.7)]'
           : 'bg-white border-[#E8E4DC] text-stone-900 shadow-[0_16px_40px_-8px_rgba(28,25,23,0.14)]'

@@ -44,11 +44,34 @@ const isValidCalendarDate = (dateVal) => {
 };
 
 const validateRegister = (req) => {
-  const { email, password, role } = req.body;
-  if (!email || !isEmail(email)) return 'A valid email address is required';
+  const { email, password, role, name, university, institutionName, registrationNumber, authorizedWalletAddress, walletAddress } = req.body;
+  if (!email || !isEmail(email) || email.trim().length > 254) return 'A valid email address is required';
   if (!password || typeof password !== 'string' || password.length < 8) return 'Password must be at least 8 characters long';
   if (password.length > 72) return 'Password cannot exceed 72 characters';
-  if (role && !['STUDENT', 'ISSUER'].includes(role)) return 'Role must be STUDENT or ISSUER';
+  const effectiveRole = role || 'STUDENT';
+  if (!['STUDENT', 'ISSUER'].includes(effectiveRole)) return 'Role must be STUDENT or ISSUER';
+  if (effectiveRole === 'ISSUER') {
+    if (!institutionName || typeof institutionName !== 'string' || !institutionName.trim() || institutionName.trim().length > 150) {
+      return 'Institution name is required for issuer registration (max 150 characters)';
+    }
+    if (!registrationNumber || typeof registrationNumber !== 'string' || !registrationNumber.trim() || registrationNumber.trim().length > 100) {
+      return 'Registration or license number is required for issuer registration (max 100 characters)';
+    }
+    const issuerWallet = authorizedWalletAddress || walletAddress;
+    if (!issuerWallet || !isHexAddress(issuerWallet)) {
+      return 'A valid 0x Ethereum authorized wallet address is required for issuer registration';
+    }
+  } else {
+    if (!name || typeof name !== 'string' || !name.trim() || name.trim().length > 150) {
+      return 'Full name is required for student registration (max 150 characters)';
+    }
+    if (university !== undefined && (typeof university !== 'string' || university.trim().length > 150)) {
+      return 'Institution name cannot exceed 150 characters';
+    }
+    if (!walletAddress || !isHexAddress(walletAddress)) {
+      return 'A valid 0x Ethereum wallet address is required for student registration';
+    }
+  }
   return null;
 };
 

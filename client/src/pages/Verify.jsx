@@ -61,6 +61,13 @@ const VerifyDashboard = () => {
   const [copiedKey, setCopiedKey] = useState('');
 
   const fileInputRef = useRef(null);
+  const copyTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const handleVerifyTarget = useCallback(async (targetOverride) => {
     const target = targetOverride || searchTarget;
@@ -108,19 +115,28 @@ const VerifyDashboard = () => {
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.name.endsWith('.pdf'))) {
-      setFile(selectedFile);
-      setResult(null);
-      try {
-        const fileHash = await generateFileHash(selectedFile);
-        setComputedHash(fileHash);
-        const extractedId = await extractMetadata(selectedFile);
-        if (extractedId) {
-          setSearchTarget(extractedId);
-        }
-      } catch (err) {
-        console.error('Error generating hash:', err);
+    if (!selectedFile) return;
+    if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
+      showNotification('Please select a PDF file', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      showNotification('File size exceeds the 10 MB limit', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    setFile(selectedFile);
+    setResult(null);
+    try {
+      const fileHash = await generateFileHash(selectedFile);
+      setComputedHash(fileHash);
+      const extractedId = await extractMetadata(selectedFile);
+      if (extractedId) {
+        setSearchTarget(extractedId);
       }
+    } catch (err) {
+      console.error('Error generating hash:', err);
     }
   };
 
@@ -166,14 +182,19 @@ const VerifyDashboard = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const copyText = (text, key = 'general') => {
+  const copyText = async (text, key = 'general') => {
     if (!text) return;
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    showNotification('Copied to clipboard', 'success');
-    setTimeout(() => {
-      setCopiedKey('');
-    }, 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      showNotification('Copied to clipboard', 'success');
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => {
+        setCopiedKey('');
+      }, 2000);
+    } catch {
+      showNotification('Failed to copy to clipboard', 'error');
+    }
   };
 
   const handlePrint = () => {
@@ -319,6 +340,8 @@ const VerifyDashboard = () => {
                         : 'Certificate Verified Authentic'
                       : isRevoked
                       ? 'Certificate Revoked'
+                      : result.exists || result.credential
+                      ? 'Verification Failed'
                       : 'Certificate Not Found'}
                   </h2>
                   <p
@@ -359,6 +382,8 @@ const VerifyDashboard = () => {
                       : 'OFFICIAL REGISTRY'
                     : isRevoked
                     ? 'REVOKED'
+                    : result.exists || result.credential
+                    ? 'UNVERIFIED'
                     : 'NOT FOUND'}
                 </div>
               </div>
@@ -626,7 +651,7 @@ const VerifyDashboard = () => {
                             Drop your certificate PDF here
                           </h3>
                           <p className="text-xs text-stone-700 dark:text-stone-300 font-medium">
-                            or click to browse from your computer (PDF up to 25 MB)
+                            or click to browse from your computer (PDF up to 10 MB)
                           </p>
                         </div>
                       )}

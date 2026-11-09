@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from '../shared/Modal';
 import Button from '../shared/Button';
 import { Upload, Loader2, FileText, Download, CheckCircle } from 'lucide-react';
@@ -10,6 +10,21 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [batchFile, setBatchFile] = useState(null);
   const [batchSummary, setBatchSummary] = useState(null);
+  const [failedRows, setFailedRows] = useState([]);
+  const closeTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen && closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    };
+  }, [isOpen]);
 
   const handleBatchUpload = async () => {
     if (!batchFile) {
@@ -28,16 +43,17 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
         const failed = response.data.summary.failed;
         showNotification(`Batch processed: ${queued} queued for issuance, ${failed} rejected`, failed > 0 ? 'warning' : 'success');
         setBatchSummary(response.data.summary);
+        setFailedRows(response.data.summary?.errors || response.data.results?.failed || []);
+        onSuccess?.();
 
         if (response.data.summary.failed === 0) {
-          setTimeout(() => {
-            onSuccess();
+          closeTimeoutRef.current = setTimeout(() => {
+            closeTimeoutRef.current = null;
             onClose();
             setBatchFile(null);
             setBatchSummary(null);
+            setFailedRows([]);
           }, 2000);
-        } else {
-          onSuccess();
         }
       }
     } catch (error) {
@@ -67,8 +83,14 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const handleClose = () => {
+    if (loading) return;
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
     setBatchFile(null);
     setBatchSummary(null);
+    setFailedRows([]);
     onClose();
   };
 
@@ -173,6 +195,16 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 <div className="text-[10px] text-stone-500">Total</div>
               </div>
             </div>
+            {failedRows.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-stone-200 space-y-1.5 max-h-40 overflow-y-auto text-left">
+                <div className="text-[11px] font-semibold text-rose-800">Rejected rows</div>
+                {failedRows.map((item, idx) => (
+                  <div key={idx} className="text-[11px] text-rose-700 bg-rose-50/80 border border-rose-200/80 rounded-lg px-2.5 py-1.5 font-mono">
+                    Row {item.row}{item.studentName && item.studentName !== 'N/A' ? ` (${item.studentName})` : ''}: {item.error}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

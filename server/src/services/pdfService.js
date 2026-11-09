@@ -135,7 +135,7 @@ async function drawTranscript(doc, data) {
 
   if (Array.isArray(transcriptData?.courses)) {
     transcriptData.courses.forEach((course, index) => {
-      if (y > doc.page.height - 120) {
+      if (y > doc.page.height - 180) {
         doc.addPage();
         y = 50;
         drawTableHeader(y);
@@ -185,7 +185,7 @@ async function drawTranscript(doc, data) {
 
 async function drawCertificate(doc, data) {
   const {
-    studentName, studentWalletAddress, certificationData, issueDate,
+    studentName, studentWalletAddress, credentialId, certificationData, issueDate,
     verificationUrl, institutionName, issuerWalletAddress, issuerRegistration, ipfsUrl
   } = data;
 
@@ -244,7 +244,8 @@ async function drawCertificate(doc, data) {
   doc.font('Helvetica').fontSize(9).text(new Date(issueDate).toLocaleDateString(), 100, footerY + 42);
 
   doc.fontSize(7).fillColor(COLORS.secondary);
-  let detailY = footerY + 60;
+  let detailY = footerY + 56;
+  if (credentialId) { doc.text(`Certificate ID: ${credentialId}`, 100, detailY); detailY += 10; }
   if (issuerRegistration) { doc.text(`Reg. No: ${issuerRegistration}`, 100, detailY); detailY += 10; }
   if (issuerWalletAddress) doc.text(`Issuer Wallet: ${issuerWalletAddress}`, 100, detailY, { width: 220 });
 

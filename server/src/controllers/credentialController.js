@@ -37,13 +37,37 @@ const issueCredential = asyncHandler(async (req, res) => {
     console.warn('Failed to parse JSON data', e);
   }
 
+  if (Array.isArray(parsedTranscriptData?.courses) && parsedTranscriptData.courses.length > 150) {
+    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
+    }
+    return res.status(400).json({ error: 'Transcript cannot exceed 150 courses.' });
+  }
+
+  let studentImageBuffer = null;
+  if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+    try {
+      studentImageBuffer = fs.readFileSync(studentImageFile.path);
+    } finally {
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
+    }
+    const isPng = studentImageBuffer.length >= 8 && studentImageBuffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]));
+    const isJpeg = studentImageBuffer.length >= 3 && studentImageBuffer[0] === 0xFF && studentImageBuffer[1] === 0xD8 && studentImageBuffer[2] === 0xFF;
+    const isWebp = studentImageBuffer.length >= 12 && studentImageBuffer.subarray(0, 4).toString('ascii') === 'RIFF' && studentImageBuffer.subarray(8, 12).toString('ascii') === 'WEBP';
+    if (!isPng && !isJpeg && !isWebp) {
+      return res.status(400).json({ error: 'Invalid image file content. Allowed formats: PNG, JPEG, WEBP.' });
+    }
+  }
+
   const credentialId = crypto.randomUUID();
+  const issuerUniversity = req.user.issuerDetails?.institutionName || req.user.university || university || 'Attestify';
 
   const data = {
-    studentWalletAddress, studentName, university, issueDate, type,
+    studentWalletAddress, studentName, university: issuerUniversity, issueDate, type,
     transcriptData: parsedTranscriptData,
     certificationData: parsedCertificationData,
-    studentImagePath: studentImageFile ? studentImageFile.path : null,
+    studentImageBuffer,
+    studentImagePath: null,
     studentImageName: studentImageFile ? studentImageFile.originalname : null,
     credentialId
   };
@@ -53,9 +77,11 @@ const issueCredential = asyncHandler(async (req, res) => {
       id: credentialId,
       studentWalletAddress: studentWalletAddress.toLowerCase().trim(),
       studentName,
-      university: req.user.issuerDetails?.institutionName || university || 'Attestify',
+      university: issuerUniversity,
       issueDate: new Date(issueDate),
       type,
+      transcriptData: parsedTranscriptData,
+      certificationData: parsedCertificationData,
       issuedById: req.user.id,
       certificateHash: 'PENDING_' + credentialId,
       status: isServerlessWithoutQueue ? 'PROCESSING' : 'PENDING'
@@ -87,7 +113,7 @@ const issueCredential = asyncHandler(async (req, res) => {
   }
 
   try {
-    const job = await enqueueIssuanceJob({ data, user: req.user });
+    const job = await enqueueIssuanceJob({ data, user: { id: req.user.id } });
     await prisma.credential.update({
       where: { id: credentialId },
       data: { jobId: job.id }
@@ -118,20 +144,31 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
   const file = req.files?.['file']?.[0];
   if (!file) return res.status(400).json({ error: 'No CSV file provided' });
 
+  const MAX_BATCH_SIZE = isServerlessWithoutQueue ? 10 : 500;
   let rows = [];
+  let exceededLimit = false;
   try {
-    const stream = fs.createReadStream(file.path).pipe(csv());
-    for await (const row of stream) rows.push(row);
+    const fileStream = fs.createReadStream(file.path);
+    const stream = fileStream.pipe(csv());
+    for await (const row of stream) {
+      rows.push(row);
+      if (rows.length > MAX_BATCH_SIZE) {
+        exceededLimit = true;
+        fileStream.destroy();
+        break;
+      }
+    }
   } catch (parseError) {
-    return res.status(400).json({ error: 'Failed to process CSV file', details: parseError.message });
+    if (!exceededLimit) {
+      return res.status(400).json({ error: 'Failed to process CSV file' });
+    }
   } finally {
     if (fs.existsSync(file.path)) {
       try { fs.unlinkSync(file.path); } catch {}
     }
   }
 
-  const MAX_BATCH_SIZE = 500;
-  if (rows.length > MAX_BATCH_SIZE) {
+  if (exceededLimit || rows.length > MAX_BATCH_SIZE) {
     return res.status(400).json({ error: `Batch size exceeds maximum limit of ${MAX_BATCH_SIZE} records per upload.` });
   }
 
@@ -169,16 +206,17 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
       let certificationData = {};
 
       if (type === 'TRANSCRIPT') {
+        const parsedCourses = row.courses ? row.courses.split('|').slice(0, 150).map(c => {
+          const [code, name, grade, credits] = c.split(';');
+          return { code: code || '', name: name || '', grade: grade || '', credits: credits || '' };
+        }) : [];
         transcriptData = {
           program: row.program || '',
           department: row.department || '',
           admissionYear: row.admissionYear || '',
           graduationYear: row.graduationYear || '',
           cgpa: row.cgpa || '',
-          courses: row.courses ? row.courses.split('|').map(c => {
-            const [code, name, grade, credits] = c.split(';');
-            return { code: code || '', name: name || '', grade: grade || '', credits: credits || '' };
-          }) : []
+          courses: parsedCourses
         };
       } else {
         certificationData = {
@@ -191,7 +229,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
       }
 
       const credentialId = crypto.randomUUID();
-      const university = row.university || req.user.issuerDetails?.institutionName || 'Attestify University';
+      const university = req.user.issuerDetails?.institutionName || req.user.university || row.university || 'Attestify University';
       const studentWallet = row.studentWalletAddress.toLowerCase().trim();
 
       validDbRecords.push({
@@ -201,12 +239,15 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
         university,
         issueDate: parsedDate,
         type,
+        transcriptData,
+        certificationData,
         issuedById: req.user.id,
         certificateHash: 'PENDING_' + credentialId,
         status: 'PENDING'
       });
 
       validQueueJobs.push({
+        rowNum,
         data: {
           studentWalletAddress: studentWallet,
           studentName: row.studentName.trim(),
@@ -219,10 +260,10 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
           studentImageName: null,
           credentialId
         },
-        user: req.user
+        user: { id: req.user.id }
       });
     } catch (err) {
-      errors.push({ row: rowNum, error: err.message });
+      errors.push({ row: rowNum, studentName: row.studentName?.trim() || 'N/A', error: err.message });
     }
   });
 
@@ -241,7 +282,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
           await credentialService.processIssuance(jobItem.data, req.user);
           succeeded++;
         } catch (err) {
-          errors.push({ row: i + 2, error: err.message });
+          errors.push({ row: jobItem.rowNum, studentName: jobItem.data.studentName, error: err.message });
           await prisma.credential.update({
             where: { id: jobItem.data.credentialId },
             data: { status: 'FAILED', processingError: err.message }
@@ -282,8 +323,7 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
         data: { status: 'FAILED', processingError: 'Failed to enqueue: ' + queueErr.message }
       });
       return res.status(500).json({
-        error: 'Failed to enqueue batch credentials',
-        details: queueErr.message
+        error: 'Failed to enqueue batch credentials'
       });
     }
   }
@@ -302,12 +342,17 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
 
 const getCredentials = asyncHandler(async (req, res) => {
   const {
-    page = 1, limit = 20, search = '', revoked = null,
+    page = 1, limit = 20, search = '', revoked = null, status = null,
     type = null, sortBy = 'createdAt', sortOrder = 'desc'
   } = req.query;
 
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const skip = (pageNum - 1) * take;
+
   const where = {};
-  if (req.user.role === 'ISSUER') {
+  const isIssuer = req.user.role === 'ISSUER';
+  if (isIssuer) {
     where.issuedById = req.user.id;
   } else {
     if (!req.user.walletAddress) {
@@ -318,10 +363,23 @@ const getCredentials = asyncHandler(async (req, res) => {
       });
     }
     where.studentWalletAddress = { equals: req.user.walletAddress.toLowerCase().trim(), mode: 'insensitive' };
+    where.status = 'COMPLETED';
   }
 
-  if (type) where.type = type;
-  if (revoked !== null) where.isRevoked = revoked === 'true';
+  if (type && ['TRANSCRIPT', 'CERTIFICATION'].includes(String(type).toUpperCase())) {
+    where.type = String(type).toUpperCase();
+  }
+  if (isIssuer && status && ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'].includes(String(status).toUpperCase())) {
+    where.status = String(status).toUpperCase();
+  } else if (isIssuer && status && String(status).toUpperCase() === 'PROCESSING_ALL') {
+    where.status = { in: ['PENDING', 'PROCESSING'] };
+  }
+  if (revoked !== null) {
+    where.isRevoked = revoked === 'true';
+    if (revoked === 'false' && !where.status) {
+      where.status = 'COMPLETED';
+    }
+  }
 
   if (search) {
     where.OR = [
@@ -331,9 +389,6 @@ const getCredentials = asyncHandler(async (req, res) => {
     ];
   }
 
-  const pageNum = Math.max(1, parseInt(page, 10) || 1);
-  const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
-  const skip = (pageNum - 1) * take;
   const allowedSortFields = new Set(['createdAt', 'issueDate', 'studentName', 'university', 'type']);
   const safeSortBy = allowedSortFields.has(sortBy) ? sortBy : 'createdAt';
   const safeSortOrder = sortOrder === 'asc' ? 'asc' : 'desc';
@@ -346,7 +401,7 @@ const getCredentials = asyncHandler(async (req, res) => {
       take,
       include: {
         issuedBy: {
-          select: { id: true, name: true, email: true, university: true, issuerDetails: true }
+          select: { id: true, name: true, university: true, issuerDetails: true }
         }
       }
     }),
@@ -369,8 +424,8 @@ const getCredentialById = asyncHandler(async (req, res) => {
   const credential = await prisma.credential.findUnique({
     where: { id: req.params.id },
     include: {
-      issuedBy: { select: { id: true, name: true, email: true, university: true, issuerDetails: true } },
-      revokedByUser: { select: { id: true, name: true, email: true } }
+      issuedBy: { select: { id: true, name: true, university: true, issuerDetails: true } },
+      revokedByUser: { select: { id: true, name: true } }
     }
   });
 
@@ -380,6 +435,9 @@ const getCredentialById = asyncHandler(async (req, res) => {
   const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
 
   if (!isOwner && !isIssuer) {
+    if (credential.status !== 'COMPLETED') {
+      return res.status(404).json({ error: 'Credential not found' });
+    }
     const student = await prisma.user.findFirst({
       where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
     });
@@ -388,9 +446,13 @@ const getCredentialById = asyncHandler(async (req, res) => {
     }
   }
 
+  const responseCredential = isIssuer
+    ? credential
+    : { ...credential, processingError: undefined, jobId: undefined };
+
   res.json({
     success: true,
-    credential,
+    credential: responseCredential,
     ipfsUrl: credential.ipfsCID ? ipfsService.getIPFSUrl(credential.ipfsCID) : null,
     etherscanUrl: credential.transactionHash ? `https://sepolia.etherscan.io/tx/${credential.transactionHash}` : null
   });
@@ -415,7 +477,7 @@ const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
           issuedById: req.user.id
         },
         include: {
-          issuedBy: { select: { id: true, name: true, email: true, university: true, issuerDetails: true } }
+          issuedBy: { select: { id: true, name: true, university: true, issuerDetails: true } }
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -423,19 +485,43 @@ const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
     }
   }
 
+  const baseWhere = { studentWalletAddress: { equals: targetWallet, mode: 'insensitive' } };
+  if (req.user.role !== 'ISSUER') {
+    baseWhere.status = 'COMPLETED';
+  } else {
+    baseWhere.OR = [
+      { status: 'COMPLETED' },
+      { issuedById: req.user.id }
+    ];
+  }
+
   const credentials = await prisma.credential.findMany({
-    where: { studentWalletAddress: { equals: targetWallet, mode: 'insensitive' } },
+    where: baseWhere,
     include: {
-      issuedBy: { select: { id: true, name: true, email: true, university: true, issuerDetails: true } }
+      issuedBy: { select: { id: true, name: true, university: true, issuerDetails: true } }
     },
     orderBy: { createdAt: 'desc' }
   });
 
-  res.json({ success: true, credentials });
+  const sanitized = credentials.map(c =>
+    req.user.role === 'ISSUER' && c.issuedById === req.user.id
+      ? c
+      : { ...c, processingError: undefined, jobId: undefined }
+  );
+
+  res.json({ success: true, credentials: sanitized });
 });
 
 const revokeCredential = asyncHandler(async (req, res) => {
   const { reason } = req.body;
+  if (!reason || typeof reason !== 'string' || !reason.trim()) {
+    return res.status(400).json({ error: 'A revocation reason is required' });
+  }
+  const trimmedReason = reason.trim();
+  if (trimmedReason.length > 500) {
+    return res.status(400).json({ error: 'Revocation reason cannot exceed 500 characters' });
+  }
+
   const credential = await prisma.credential.findUnique({
     where: { id: req.params.id },
     include: { issuedBy: true }
@@ -453,11 +539,13 @@ const revokeCredential = asyncHandler(async (req, res) => {
   const blockchainResult = await blockchainService.revokeCertificate(credential.id);
 
   let sbtResult = null;
+  let sbtWarning = null;
   if (credential.tokenId) {
     try {
       sbtResult = await blockchainService.revokeSoulboundCredential(credential.tokenId);
     } catch (sbtError) {
       console.error('Failed to revoke SBT:', sbtError);
+      sbtWarning = 'Certificate was revoked on-chain, but burning the Soulbound Token failed.';
     }
   }
 
@@ -470,7 +558,7 @@ const revokeCredential = asyncHandler(async (req, res) => {
       isRevoked: true,
       revokedAt: new Date(),
       revokedById: req.user.id,
-      revocationReason: reason,
+      revocationReason: trimmedReason,
       revocationGasUsed: totalGasUsed,
       revocationGasPrice: blockchainResult.gasPrice,
       revocationTotalCost: totalCost
@@ -479,7 +567,8 @@ const revokeCredential = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: 'Credential revoked successfully',
+    message: sbtWarning || 'Credential revoked successfully',
+    warning: sbtWarning,
     transactionHash: blockchainResult.transactionHash,
     blockNumber: blockchainResult.blockNumber
   });
@@ -506,6 +595,7 @@ const getStats = asyncHandler(async (req, res) => {
       });
     }
     where.studentWalletAddress = { equals: req.user.walletAddress.toLowerCase().trim(), mode: 'insensitive' };
+    where.status = 'COMPLETED';
   }
 
   const now = new Date();
@@ -569,7 +659,7 @@ const verifyCredential = asyncHandler(async (req, res) => {
   const credential = await prisma.credential.findUnique({
     where: { id: req.params.id },
     include: {
-      issuedBy: { select: { id: true, name: true, university: true, email: true, issuerDetails: true, walletAddress: true } }
+      issuedBy: { select: { id: true, name: true, university: true, issuerDetails: true, walletAddress: true } }
     }
   });
 
@@ -582,6 +672,9 @@ const verifyCredential = asyncHandler(async (req, res) => {
   );
 
   if (!isOwner && !isIssuer) {
+    if (credential.status !== 'COMPLETED') {
+      return res.status(404).json({ error: 'Credential not found' });
+    }
     const student = await prisma.user.findFirst({
       where: { walletAddress: { equals: credential.studentWalletAddress, mode: 'insensitive' } }
     });
@@ -591,20 +684,40 @@ const verifyCredential = asyncHandler(async (req, res) => {
   }
 
   let blockchainData = null;
-  try {
-    blockchainData = await blockchainService.getCredential(req.params.id);
-  } catch (blockchainError) {
-    console.warn('Failed to fetch from blockchain during verification:', blockchainError.message);
+  if (credential.status === 'COMPLETED') {
+    try {
+      blockchainData = await blockchainService.getCredential(req.params.id);
+    } catch (blockchainError) {
+      console.warn('Failed to fetch from blockchain during verification:', blockchainError.message);
+    }
+  }
+
+  const hashMatch = Boolean(
+    blockchainData &&
+    blockchainData.certificateHash?.toLowerCase() === credential.certificateHash?.toLowerCase()
+  );
+  const effectiveRevoked = credential.isRevoked || (blockchainData?.isRevoked ?? false);
+
+  if (!effectiveRevoked && hashMatch) {
+    await prisma.credential.update({
+      where: { id: credential.id },
+      data: {
+        verificationCount: { increment: 1 },
+        lastVerifiedAt: new Date()
+      }
+    });
   }
 
   res.json({
     success: true,
     credential: {
       ...credential,
-      isRevoked: credential.isRevoked || (blockchainData?.isRevoked ?? false),
+      processingError: isIssuer ? credential.processingError : undefined,
+      jobId: isIssuer ? credential.jobId : undefined,
+      isRevoked: effectiveRevoked,
       institutionName: credential.issuedBy?.issuerDetails?.institutionName || credential.university || 'Attestify Institution',
       blockchainProof: blockchainData ? {
-        hashMatch: blockchainData.certificateHash?.toLowerCase() === credential.certificateHash?.toLowerCase(),
+        hashMatch,
         onChain: true,
         isRevokedOnChain: blockchainData.isRevoked
       } : { onChain: false }
@@ -615,10 +728,19 @@ const verifyCredential = asyncHandler(async (req, res) => {
 const getCredentialStatus = asyncHandler(async (req, res) => {
   const credential = await prisma.credential.findUnique({
     where: { id: req.params.id },
-    select: { id: true, status: true, processingError: true, certificateHash: true, transactionHash: true, ipfsCID: true }
+    select: {
+      id: true, status: true, processingError: true, certificateHash: true,
+      transactionHash: true, ipfsCID: true, issuedById: true, studentWalletAddress: true
+    }
   });
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
+
+  const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
+  if (!isOwner && !isIssuer) {
+    return res.status(403).json({ error: 'Unauthorized access to credential status' });
+  }
 
   const isCompleted = credential.status === 'COMPLETED';
   res.json({
