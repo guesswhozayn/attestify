@@ -6,7 +6,6 @@ import {
   Trash2,
   User,
   Activity,
-  Settings,
   LogOut,
   X,
   FileSpreadsheet,
@@ -46,7 +45,6 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
       { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
       { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] }
     ] : []),
-    { icon: Settings, path: '/settings', label: 'Settings', roles: ['ISSUER', 'STUDENT'] },
     { icon: User, path: '/profile', label: 'Profile', roles: ['ADMIN', 'ISSUER', 'STUDENT'] }
   ];
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CheckCircle, Copy, Menu, Sun, Moon } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { CheckCircle, Copy, Menu, Sun, Moon, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -11,11 +12,13 @@ const Header = ({
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { showNotification } = useNotification();
+  const location = useLocation();
   const [walletAddress, setWalletAddress] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
   const copyTimerRef = useRef(null);
 
   const isDark = theme === 'dark';
+  const showSettings = user && (user.role === 'STUDENT' || user.role === 'ISSUER');
 
   useEffect(() => {
     return () => clearTimeout(copyTimerRef.current);
@@ -87,7 +90,26 @@ const Header = ({
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {showSettings && (
+            <Link
+              to="/settings"
+              className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                location.pathname === '/settings'
+                  ? isDark
+                    ? 'text-white bg-white/[0.08]'
+                    : 'text-stone-900 bg-stone-100'
+                  : isDark
+                    ? 'text-stone-400 hover:text-white hover:bg-white/[0.06]'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+              }`}
+              title="Settings"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </Link>
+          )}
+
           <button
             onClick={toggleTheme}
             className={`p-2 rounded-xl transition-colors cursor-pointer ${

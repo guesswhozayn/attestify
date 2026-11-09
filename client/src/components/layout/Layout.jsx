@@ -9,7 +9,7 @@ import BulkIssueModal from '../credential/BulkIssueModal';
 const pageTitles = {
   '/dashboard': 'Dashboard',
   '/credentials': 'Credentials',
-  '/settings': 'Account settings',
+  '/settings': 'Settings',
   '/profile': 'Profile',
   '/revoked': 'Revoked credentials',
   '/network-status': 'Network status',
