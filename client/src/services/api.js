@@ -90,6 +90,17 @@ export const networkAPI = {
   getStats: () => api.get('/network/stats')
 };
 
+export const adminAPI = {
+  getStats: () => api.get('/admin/stats'),
+  getIssuers: (params = {}) => api.get('/admin/issuers', { params }),
+  getIssuerById: (id) => api.get(`/admin/issuers/${id}`),
+  approveIssuer: (id) => api.post(`/admin/issuers/${id}/approve`),
+  rejectIssuer: (id, reason) => api.post(`/admin/issuers/${id}/reject`, { reason }),
+  suspendIssuer: (id, reason) => api.post(`/admin/issuers/${id}/suspend`, { reason }),
+  reactivateIssuer: (id) => api.post(`/admin/issuers/${id}/reactivate`),
+  syncBlockchainAuth: (id) => api.post(`/admin/issuers/${id}/sync-blockchain`)
+};
+
 export const userAPI = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (data) => api.put('/users/profile', data),

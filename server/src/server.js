@@ -76,6 +76,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/credentials', require('./routes/credentials'));
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api/users', require('./routes/user'));
+app.use('/api/admin', require('./routes/admin'));
 app.use('/api/network', require('./routes/network'));
 app.use('/api/files', require('./routes/files'));
 
@@ -93,6 +94,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',
+      admin: '/api/admin',
       credentials: '/api/credentials',
       verify: '/api/verify',
       users: '/api/users',
@@ -110,9 +112,36 @@ app.use(errorHandler);
 
 let serverInstance;
 
+const ensureAdminAccount = async () => {
+  try {
+    const { prisma } = require('./config/database');
+    const bcrypt = require('bcryptjs');
+    const existing = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+    if (!existing) {
+      const email = (process.env.ADMIN_EMAIL || 'admin@attestify.io').toLowerCase().trim();
+      const password = process.env.ADMIN_PASSWORD || 'AdminPass123!';
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await prisma.user.create({
+        data: {
+          name: process.env.ADMIN_NAME || 'Platform Administrator',
+          email,
+          password: hashedPassword,
+          role: 'ADMIN',
+          university: 'Attestify Platform',
+          isActive: true
+        }
+      });
+      console.log(`[Admin] Initialized platform administrator: ${email}`);
+    }
+  } catch (err) {
+    console.warn('[Admin] Admin auto-provision skipped:', err.message);
+  }
+};
+
 const startServer = async () => {
   try {
     await connectDB();
+    await ensureAdminAccount();
     const PORT = process.env.PORT || 5000;
     serverInstance = app.listen(PORT, () => {
       console.log(`\n  Attestify Backend Server\n  Port: ${PORT}\n  Environment: ${process.env.NODE_ENV || 'development'}\n  Database: Connected\n`);

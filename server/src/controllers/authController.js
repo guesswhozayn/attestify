@@ -92,10 +92,12 @@ const register = asyncHandler(async (req, res) => {
   };
 
   if (role === 'ISSUER') {
+    const isAutoVerified = Boolean(process.env.AUTO_VERIFY_ISSUERS === 'true');
     userData.issuerDetails = {
       institutionName: trimmedInstitution,
       registrationNumber: trimmedRegNumber,
-      isVerified: Boolean(process.env.AUTO_VERIFY_ISSUERS === 'true'),
+      isVerified: isAutoVerified,
+      status: isAutoVerified ? 'VERIFIED' : 'PENDING',
       authorizedWalletAddress: normalizedWallet,
       certificatesIssued: 0
     };
@@ -130,7 +132,7 @@ const login = asyncHandler(async (req, res) => {
   if (!user || !passwordMatch) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
-  if (selectedRole && user.role !== selectedRole) {
+  if (selectedRole && user.role !== selectedRole && user.role !== 'ADMIN') {
     return res.status(403).json({ error: `Access denied. You are not registered as a ${selectedRole.toLowerCase()}.` });
   }
   if (!user.isActive) return res.status(403).json({ error: 'Account is deactivated' });

@@ -10,7 +10,8 @@ import {
   LogOut,
   X,
   FileSpreadsheet,
-  Plus
+  Plus,
+  Building
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -23,6 +24,7 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const isIssuer = user?.role === 'ISSUER';
+  const isAdmin = user?.role === 'ADMIN';
 
   const handleLogout = () => {
     logout();
@@ -35,14 +37,18 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   };
 
   const menuItems = [
-    { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard', roles: ['ISSUER', 'STUDENT'] },
+    { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard', roles: ['ADMIN', 'ISSUER', 'STUDENT'] },
+    ...(isAdmin ? [
+      { icon: Building, path: '/admin/issuers', label: 'Manage Issuers', roles: ['ADMIN'] },
+      { icon: Activity, path: '/network-status', label: 'Network', roles: ['ADMIN'] }
+    ] : []),
     { icon: FileCheck2, path: '/credentials', label: 'Credentials', roles: ['ISSUER', 'STUDENT'] },
     ...(isIssuer ? [
       { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
       { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] }
     ] : []),
-    { icon: Settings, path: '/settings', label: 'Settings', roles: ['ISSUER', 'STUDENT'] },
-    { icon: User, path: '/profile', label: 'Profile', roles: ['ISSUER', 'STUDENT'] }
+    { icon: Settings, path: '/settings', label: 'Settings', roles: ['ADMIN', 'ISSUER', 'STUDENT'] },
+    { icon: User, path: '/profile', label: 'Profile', roles: ['ADMIN', 'ISSUER', 'STUDENT'] }
   ];
 
   return (
@@ -149,7 +155,7 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
                 {user?.issuerDetails?.institutionName || user?.name || 'Account'}
               </div>
               <div className={`text-[10px] truncate ${isDark ? 'text-stone-400' : 'text-stone-400'}`}>
-                {isIssuer ? 'Issuer' : 'Student'}
+                {isAdmin ? 'Platform Admin' : isIssuer ? 'Issuer' : 'Student'}
               </div>
             </div>
 

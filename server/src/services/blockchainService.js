@@ -224,6 +224,31 @@ class BlockchainService {
     };
   }
 
+  async isAuthorizedIssuer(issuerAddress) {
+    if (!issuerAddress || !ethers.isAddress(issuerAddress)) return false;
+    try {
+      return await this.contract.isAuthorizedIssuer(issuerAddress);
+    } catch (err) {
+      console.warn(`[Blockchain] isAuthorizedIssuer check failed: ${err.message}`);
+      return false;
+    }
+  }
+
+  async revokeIssuer(issuerAddress) {
+    if (!issuerAddress || !ethers.isAddress(issuerAddress)) return null;
+    const isAuthorized = await this.isAuthorizedIssuer(issuerAddress);
+    if (!isAuthorized) {
+      return { alreadyRevoked: true };
+    }
+    const tx = await this._sendContractTx(this.contract.revokeIssuer, [issuerAddress]);
+    const receipt = await this._pollForReceipt(tx.hash);
+    return {
+      transactionHash: receipt.hash,
+      blockNumber: receipt.blockNumber,
+      ...this._extractGasStats(receipt)
+    };
+  }
+
   async revokeCertificate(studentId) {
     try {
       const tx = await this._sendContractTx(this.contract.revokeCertificate, [studentId]);

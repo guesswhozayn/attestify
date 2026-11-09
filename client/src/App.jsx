@@ -18,6 +18,7 @@ function ScrollToTop() {
 const Landing           = lazy(() => import('./pages/Landing'));
 const Login             = lazy(() => import('./pages/Login'));
 const Register          = lazy(() => import('./pages/Register'));
+const AdminDashboard    = lazy(() => import('./pages/AdminDashboard'));
 const IssuerDashboard   = lazy(() => import('./pages/IssuerDashboard'));
 const StudentDashboard  = lazy(() => import('./pages/StudentDashboard'));
 const CredentialArchive = lazy(() => import('./pages/CredentialArchive'));
@@ -76,7 +77,31 @@ function App() {
               path="/dashboard"
               element={
                 <PrivateRoute>
-                  {user?.role === 'STUDENT' ? <StudentDashboard /> : <IssuerDashboard />}
+                  {user?.role === 'STUDENT' ? (
+                    <StudentDashboard />
+                  ) : user?.role === 'ADMIN' ? (
+                    <AdminDashboard />
+                  ) : (
+                    <IssuerDashboard />
+                  )}
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute allowedRoles={['ADMIN']}>
+                  <AdminDashboard />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/issuers"
+              element={
+                <PrivateRoute allowedRoles={['ADMIN']}>
+                  <AdminDashboard />
                 </PrivateRoute>
               }
             />
@@ -93,7 +118,7 @@ function App() {
             <Route
               path="/network-status"
               element={
-                <PrivateRoute allowedRoles={['ISSUER']}>
+                <PrivateRoute allowedRoles={['ISSUER', 'ADMIN']}>
                   <NetworkStatus />
                 </PrivateRoute>
               }

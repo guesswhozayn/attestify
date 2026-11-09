@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const credentialController = require('../controllers/credentialController');
 const { authenticate, optionalAuthenticate } = require('../middleware/auth');
-const { requireAdmin } = require('../middleware/roleCheck');
+const { requireVerifiedIssuer } = require('../middleware/roleCheck');
 const { validate, validateIssue } = require('../middleware/validator');
 const upload = require('../middleware/upload');
 
-router.post('/issue', authenticate, requireAdmin, upload.fields([
+router.post('/issue', authenticate, requireVerifiedIssuer, upload.fields([
   { name: 'studentImage', maxCount: 1 }
 ]), validate(validateIssue), credentialController.issueCredential);
 
-router.post('/batch-issue', authenticate, requireAdmin, upload.fields([
+router.post('/batch-issue', authenticate, requireVerifiedIssuer, upload.fields([
   { name: 'file', maxCount: 1 }
 ]), credentialController.batchIssueCredentials);
 
@@ -27,7 +27,7 @@ router.get('/:id', authenticate, credentialController.getCredentialById);
 router.get('/student/:walletAddress', authenticate,
   credentialController.getCredentialsByStudentWallet);
 
-router.post('/:id/revoke', authenticate, requireAdmin,
+router.post('/:id/revoke', authenticate, requireVerifiedIssuer,
   credentialController.revokeCredential);
 
 module.exports = router;

@@ -106,21 +106,34 @@ const Login = () => {
 
             <div className="bg-black/40 p-1 rounded-full mb-8 flex relative border border-white/5">
               <div
-                 className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner rounded-full transition-all duration-300 ease-out ${selectedRole === 'ISSUER' ? 'left-1' : 'left-[calc(50%+4px)]'}`}
+                 className={`absolute top-1 bottom-1 w-[calc(33.333%-4px)] bg-white border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] shadow-inner rounded-full transition-all duration-300 ease-out ${
+                   selectedRole === 'ISSUER'
+                     ? 'left-1'
+                     : selectedRole === 'STUDENT'
+                     ? 'left-[calc(33.333%+2px)]'
+                     : 'left-[calc(66.666%+3px)]'
+                 }`}
               ></div>
               <button
-                 className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'ISSUER' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
+                 className={`flex-1 relative z-10 py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'ISSUER' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
                  onClick={() => setSelectedRole('ISSUER')}
                  type="button"
               >
                  Issuer
               </button>
               <button
-                 className={`flex-1 relative z-10 py-2.5 text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'STUDENT' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
+                 className={`flex-1 relative z-10 py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'STUDENT' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
                  onClick={() => setSelectedRole('STUDENT')}
                  type="button"
               >
                  Student
+              </button>
+              <button
+                 className={`flex-1 relative z-10 py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-colors duration-200 focus:outline-none ${selectedRole === 'ADMIN' ? 'text-black' : 'text-gray-400 hover:text-white'}`}
+                 onClick={() => setSelectedRole('ADMIN')}
+                 type="button"
+              >
+                 Admin
               </button>
             </div>
 
@@ -137,7 +150,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={selectedRole === 'ISSUER' ? "admin@organization.com" : "student@example.com"}
+                placeholder={selectedRole === 'ADMIN' ? "admin@attestify.io" : selectedRole === 'ISSUER' ? "admin@organization.com" : "student@example.com"}
                 icon={Mail}
                 required
               />
