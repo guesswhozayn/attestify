@@ -38,7 +38,7 @@ const NotFound = () => {
             return {
                 label: "Resource missing",
                 title: "Institution not found",
-                message: "This institution could not be verified or is not yet registered on the Attestify protocol.",
+                message: "This institution could not be verified or is not yet registered on Attestify.",
                 icon: Cpu,
                 color: "purple",
                 action: { label: "Verify credential", path: "/verify", icon: Search }

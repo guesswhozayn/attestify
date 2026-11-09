@@ -1,5 +1,16 @@
+const path = require('path');
+const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
+
+const FONT_PATHS = {
+  bold: path.join(__dirname, '../assets/fonts/SpaceGrotesk-Bold.ttf'),
+  regular: path.join(__dirname, '../assets/fonts/SpaceGrotesk-Regular.ttf')
+};
+
+const hasSpaceGrotesk = fs.existsSync(FONT_PATHS.bold) && fs.existsSync(FONT_PATHS.regular);
+const FONT_BRAND_BOLD = hasSpaceGrotesk ? 'SpaceGrotesk-Bold' : 'Helvetica-Bold';
+const FONT_BRAND_REGULAR = hasSpaceGrotesk ? 'SpaceGrotesk' : 'Helvetica';
 
 const COLORS = {
   primary: '#6366f1',
@@ -12,9 +23,27 @@ const COLORS = {
   textMain: '#1e293b',
 };
 
+function drawAttestifyLogo(doc, x, y, size = 14) {
+  doc.save();
+  const s = size / 100;
+  doc.translate(x, y);
+  doc.scale(s);
+  const grad1 = doc.linearGradient(0, 0, 100, 100);
+  grad1.stop(0, '#818cf8').stop(0.5, '#6366f1').stop(1, '#9333ea');
+  doc.polygon(
+    [26, 74], [26, 58], [42, 58], [42, 42], [58, 42], [58, 26],
+    [74, 26], [74, 42], [58, 42], [58, 58], [42, 58], [42, 74]
+  ).fill(grad1);
+
+  const grad2 = doc.linearGradient(0, 100, 100, 0);
+  grad2.stop(0, '#4f46e5').stop(0.5, '#7c3aed').stop(1, '#c084fc');
+  doc.roundedRect(58, 58, 16, 16, 3).fill(grad2);
+  doc.restore();
+}
+
 async function drawQRCodeAndBrand(doc, targetUrl, pageWidth, footerY) {
   const qrSize = 50;
-  const qrY = footerY + 10;
+  const qrY = footerY + 8;
 
   if (targetUrl) {
     try {
@@ -25,16 +54,21 @@ async function drawQRCodeAndBrand(doc, targetUrl, pageWidth, footerY) {
     }
   }
 
-  doc.fontSize(7).fillColor(COLORS.secondary)
-     .text('SCAN TO VERIFY', 0, qrY + qrSize + 5, { align: 'center', width: pageWidth });
+  doc.fontSize(7).font(FONT_BRAND_REGULAR).fillColor(COLORS.secondary)
+     .text('SCAN TO VERIFY', 0, qrY + qrSize + 4, { align: 'center', width: pageWidth });
 
-  const brandText = 'attestify.';
-  doc.fontSize(10).font('Helvetica-Bold');
-  const brandX = (pageWidth - doc.widthOfString(brandText)) / 2;
-  const brandY = qrY + qrSize + 20;
+  const logoSize = 12;
+  const brandFontSize = 11;
+  doc.font(FONT_BRAND_BOLD).fontSize(brandFontSize);
+  const brandText = 'attestify';
+  const textWidth = doc.widthOfString(brandText);
+  const gap = 5;
+  const totalWidth = logoSize + gap + textWidth;
+  const brandX = (pageWidth - totalWidth) / 2;
+  const brandY = qrY + qrSize + 18;
 
-  doc.fillColor(COLORS.dark).text('attestify', brandX, brandY, { continued: true });
-  doc.fillColor(COLORS.primary).text('.');
+  drawAttestifyLogo(doc, brandX, brandY - 1, logoSize);
+  doc.fillColor(COLORS.dark).text(brandText, brandX + logoSize + gap, brandY, { characterSpacing: -0.3 });
 }
 
 function drawLabelValue(doc, label, value, x, y) {
@@ -58,10 +92,15 @@ exports.generateCredentialPDF = (data) => {
           Author: institutionName,
           Subject: credentialId,
           Keywords: `${credentialId}, ${studentWalletAddress}`,
-          Creator: 'Attestify Protocol',
-          Producer: 'Attestify PDF Engine'
+          Creator: 'attestify',
+          Producer: 'attestify pdf engine'
         }
       });
+
+      if (hasSpaceGrotesk) {
+        doc.registerFont('SpaceGrotesk-Bold', FONT_PATHS.bold);
+        doc.registerFont('SpaceGrotesk', FONT_PATHS.regular);
+      }
 
       const buffers = [];
       doc.on('data', buffers.push.bind(buffers));
@@ -96,7 +135,7 @@ async function drawTranscript(doc, data) {
 
   const badgeWidth = 120;
   doc.roundedRect(pageWidth - margin - badgeWidth, 40, badgeWidth, 24, 12).fill(COLORS.white);
-  doc.fontSize(8).font('Helvetica-Bold').fillColor(COLORS.primary)
+  doc.fontSize(8).font(FONT_BRAND_BOLD).fillColor(COLORS.primary)
      .text('VERIFIED CREDENTIAL', pageWidth - margin - badgeWidth, 48, { width: badgeWidth, align: 'center' });
 
   doc.lineWidth(2).strokeColor(COLORS.primary).moveTo(0, 118).lineTo(pageWidth, 118).stroke();
@@ -172,7 +211,7 @@ async function drawTranscript(doc, data) {
 
   doc.fontSize(9).font('Helvetica').fillColor(COLORS.secondary)
      .text(`Issued On: ${new Date(issueDate).toLocaleDateString()}`, margin, footerY + 40);
-  doc.fontSize(8).text('Generated via Attestify Protocol', margin, footerY + 55);
+  doc.fontSize(8).font(FONT_BRAND_REGULAR).text('Generated via Attestify', margin, footerY + 55);
   if (issuerRegistration) doc.text(`Reg. No: ${issuerRegistration}`, margin, footerY + 70);
   if (issuerWalletAddress) doc.text(`Issuer Wallet: ${issuerWalletAddress}`, margin, footerY + 85, { width: 250 });
 
@@ -209,7 +248,7 @@ async function drawCertificate(doc, data) {
      .text(institutionName.toUpperCase(), 0, cursorY, { align: 'center' });
 
   cursorY += 45;
-  doc.fillColor(COLORS.primary).font('Helvetica').fontSize(10)
+  doc.fillColor(COLORS.primary).font(FONT_BRAND_BOLD).fontSize(10)
      .text('VERIFIED BLOCKCHAIN CREDENTIAL', 0, cursorY, { align: 'center', charSpacing: 2 });
 
   cursorY += 60;
