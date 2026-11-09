@@ -77,6 +77,7 @@ const CredentialArchive = () => {
     const loadStats = useCallback(() => {
         credentialAPI.getStats()
             .then(response => {
+                if (!isMounted.current) return;
                 const s = response.data?.stats;
                 if (s) {
                     setStats({
@@ -92,7 +93,11 @@ const CredentialArchive = () => {
     }, []);
 
     useEffect(() => {
+        isMounted.current = true;
         loadStats();
+        return () => {
+            isMounted.current = false;
+        };
     }, [loadStats]);
 
     useEffect(() => {
@@ -269,6 +274,7 @@ const CredentialArchive = () => {
                         credential={selectedCredential}
                         onUpdate={() => {
                             fetchCredentials(currentPage);
+                            loadStats();
                             setSelectedCredential(null);
                         }}
                     />

@@ -32,6 +32,10 @@ const QRCodeDisplay = ({ credentialId }) => {
       downloadLink.click();
     };
 
+    img.onerror = () => {
+      URL.revokeObjectURL(svgUrl);
+    };
+
     img.src = svgUrl;
   };
 

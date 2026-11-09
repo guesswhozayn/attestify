@@ -12,6 +12,25 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
   const [batchSummary, setBatchSummary] = useState(null);
   const [failedRows, setFailedRows] = useState([]);
   const closeTimeoutRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+    if (selected.type !== 'text/csv' && !selected.name?.toLowerCase().endsWith('.csv')) {
+      showNotification('Please select a valid CSV file', 'error');
+      e.target.value = '';
+      setBatchFile(null);
+      return;
+    }
+    if (selected.size > 10 * 1024 * 1024) {
+      showNotification('File size must be under 10 MB', 'error');
+      e.target.value = '';
+      setBatchFile(null);
+      return;
+    }
+    setBatchFile(selected);
+  };
 
   useEffect(() => {
     if (!isOpen && closeTimeoutRef.current) {
@@ -53,6 +72,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
             setBatchFile(null);
             setBatchSummary(null);
             setFailedRows([]);
+            if (fileInputRef.current) fileInputRef.current.value = '';
           }, 2000);
         }
       }
@@ -91,6 +111,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
     setBatchFile(null);
     setBatchSummary(null);
     setFailedRows([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     onClose();
   };
 
@@ -130,9 +151,10 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
           </p>
 
           <input
+            ref={fileInputRef}
             type="file"
-            accept=".csv"
-            onChange={(e) => setBatchFile(e.target.files[0])}
+            accept=".csv,text/csv"
+            onChange={handleFileChange}
             className="hidden"
             id="batch-file-upload"
           />
@@ -141,7 +163,12 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
             variant="outline"
             size="sm"
             icon={Upload}
-            onClick={() => document.getElementById('batch-file-upload').click()}
+            onClick={() => {
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+                fileInputRef.current.click();
+              }
+            }}
           >
             {batchFile ? 'Change file' : 'Select CSV'}
           </Button>

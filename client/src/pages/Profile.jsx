@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { userAPI } from '../services/api';
@@ -35,6 +35,11 @@ const Profile = () => {
     const [linkingWallet, setLinkingWallet] = useState(false);
     const [connectedAddress, setConnectedAddress] = useState('');
     const [isCopied, setIsCopied] = useState(false);
+    const copyTimerRef = useRef(null);
+
+    useEffect(() => {
+        return () => clearTimeout(copyTimerRef.current);
+    }, []);
 
     const isIssuer = user?.role === 'ISSUER';
 
@@ -209,10 +214,16 @@ const Profile = () => {
 
     const copyAddress = (address) => {
         if (!address) return;
-        navigator.clipboard.writeText(address);
-        setIsCopied(true);
-        showNotification('Address copied to clipboard', 'success');
-        setTimeout(() => setIsCopied(false), 2000);
+        navigator.clipboard.writeText(address)
+            .then(() => {
+                setIsCopied(true);
+                showNotification('Address copied to clipboard', 'success');
+                clearTimeout(copyTimerRef.current);
+                copyTimerRef.current = setTimeout(() => setIsCopied(false), 2000);
+            })
+            .catch(() => {
+                showNotification('Failed to copy address', 'error');
+            });
     };
 
     return (
