@@ -130,7 +130,7 @@ const StudentCredentials = () => {
     };
 
     return (
-        <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6 relative z-10">
+        <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6">
                 {/* Header Bar */}
                 <motion.div
                     initial={{ opacity: 0, y: 15 }}
