@@ -1,18 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 
-const databaseUrl = process.env.NODE_ENV === 'production'
-  ? (process.env.DATABASE_URL_PROD || process.env.DATABASE_URL)
-  : (process.env.DATABASE_URL_DEV || process.env.DATABASE_URL);
-
-if (databaseUrl) {
-  process.env.DATABASE_URL = databaseUrl;
-}
-
 const globalForPrisma = globalThis;
 
 const prisma = globalForPrisma.__prisma || new PrismaClient({
-  datasources: databaseUrl ? { db: { url: databaseUrl } } : undefined,
-  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error']
+  datasources: process.env.DATABASE_URL ? { db: { url: process.env.DATABASE_URL.trim() } } : undefined,
+  log: ['error']
 });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -25,7 +17,7 @@ const connectDB = async () => {
       throw new Error('DATABASE_URL environment variable is missing.');
     }
     await prisma.$connect();
-    console.log(`PostgreSQL Connected via Prisma (${process.env.NODE_ENV === 'production' ? 'Production/Cloud' : 'Development/Local'})`);
+    console.log('PostgreSQL Connected via Prisma (Cloud Database)');
   } catch (error) {
     console.error(`PostgreSQL Connection Error: ${error.message}`);
     if (!process.env.VERCEL) {

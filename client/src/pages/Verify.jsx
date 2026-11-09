@@ -30,6 +30,8 @@ import Logo from '../components/shared/Logo';
 import { useNotification } from '../context/NotificationContext';
 import Button from '../components/shared/Button';
 import { verifyAPI } from '../services/api';
+import blockchainService from '../services/blockchain';
+import { getIpfsUrl } from '../services/ipfs';
 import { generateFileHash } from '../utils/hash';
 import { extractMetadata } from '../utils/pdf';
 
@@ -78,32 +80,102 @@ const VerifyDashboard = () => {
     setVerifying(true);
     setResult(null);
 
+    const trimmedTarget = target.trim();
+
     try {
-      const response = await verifyAPI.checkExists(target.trim());
+      const response = await verifyAPI.checkExists(trimmedTarget);
       const data = response.data;
-      if (data.credential) {
-        setResult(data);
-      } else if (data.credentials && data.credentials.length > 0) {
-        const first = data.credentials[0];
-        setResult({
-          valid: !first.isRevoked,
-          revoked: first.isRevoked,
-          exists: true,
-          credential: first,
-          credentials: data.credentials,
-          verificationTier: data.verificationTier || 'REGISTRY_RECORD'
-        });
-      } else {
-        setResult(data);
+      if (data?.credential || (data?.credentials && data.credentials.length > 0)) {
+        if (data.credential) {
+          setResult(data);
+        } else {
+          const first = data.credentials[0];
+          setResult({
+            valid: !first.isRevoked,
+            revoked: first.isRevoked,
+            exists: true,
+            credential: first,
+            credentials: data.credentials,
+            verificationTier: data.verificationTier || 'REGISTRY_RECORD'
+          });
+        }
+        return;
       }
-    } catch (err) {
-      setResult({
-        valid: false,
-        message: err.response?.data?.message || 'No record found with this certificate ID or wallet address.'
-      });
-    } finally {
-      setVerifying(false);
+    } catch {
+      void 0;
     }
+
+    try {
+      const onChainRecord = await blockchainService.getCredential(trimmedTarget);
+      if (onChainRecord && onChainRecord.certificateHash) {
+        const isRevoked = Boolean(onChainRecord.isRevoked);
+        const credObj = {
+          id: trimmedTarget,
+          studentName: 'Verified Recipient',
+          university: 'Attestify Accredited Institution',
+          type: 'CREDENTIAL',
+          status: isRevoked ? 'REVOKED' : 'COMPLETED',
+          isRevoked,
+          certificateHash: onChainRecord.certificateHash,
+          ipfsCID: onChainRecord.ipfsCID,
+          issueDate: onChainRecord.issuedAt,
+          issuedBy: {
+            walletAddress: onChainRecord.issuerAddress || ''
+          }
+        };
+
+        if (onChainRecord.ipfsCID) {
+          try {
+            const ipfsUrl = getIpfsUrl(onChainRecord.ipfsCID);
+            const res = await fetch(ipfsUrl);
+            const contentType = res.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+              const meta = await res.json();
+              if (meta.name) {
+                const parts = meta.name.split(':');
+                if (parts.length > 1) {
+                  credObj.type = parts[0].trim();
+                  credObj.studentName = parts.slice(1).join(':').trim();
+                } else {
+                  credObj.studentName = meta.name;
+                }
+              }
+              if (meta.attributes) {
+                const getAttr = (type) => meta.attributes.find(a => a.trait_type === type)?.value;
+                if (getAttr('Issued By')) credObj.university = getAttr('Issued By');
+                if (getAttr('Degree Type')) credObj.type = getAttr('Degree Type');
+                if (getAttr('Issue Date')) credObj.issueDate = new Date(getAttr('Issue Date'));
+                const pdfProof = getAttr('PDF Proof');
+                if (pdfProof && pdfProof.startsWith('ipfs://')) {
+                  credObj.pdfProofCID = pdfProof.replace('ipfs://', '');
+                }
+              }
+            } else if (contentType.includes('application/pdf')) {
+              credObj.fileType = 'application/pdf';
+            }
+          } catch {
+            void 0;
+          }
+        }
+
+        setResult({
+          valid: !isRevoked,
+          revoked: isRevoked,
+          exists: true,
+          onChainVerified: true,
+          verificationTier: 'ON_CHAIN',
+          credential: credObj
+        });
+        return;
+      }
+    } catch {
+      void 0;
+    }
+
+    setResult({
+      valid: false,
+      message: 'No record found with this certificate ID or wallet address.'
+    });
   }, [searchTarget]);
 
   useEffect(() => {
@@ -160,15 +232,65 @@ const VerifyDashboard = () => {
         const fileHash = computedHash || await generateFileHash(file);
         setComputedHash(fileHash);
         const queryTarget = fileTarget || 'credential';
-        const response = await verifyAPI.verifyByHash(queryTarget, fileHash);
-        setResult({
-          ...response.data,
-          verificationTier: 'CRYPTOGRAPHIC_HASH'
-        });
+
+        let apiSuccess = false;
+        try {
+          const response = await verifyAPI.verifyByHash(queryTarget, fileHash);
+          if (response.data && response.data.valid) {
+            setResult({
+              ...response.data,
+              verificationTier: 'CRYPTOGRAPHIC_HASH'
+            });
+            apiSuccess = true;
+          }
+        } catch {
+          void 0;
+        }
+
+        if (!apiSuccess && fileTarget) {
+          try {
+            const onChainRecord = await blockchainService.getCredential(fileTarget);
+            if (onChainRecord && onChainRecord.certificateHash) {
+              const normalizedFileHash = fileHash.toLowerCase();
+              const normalizedChainHash = onChainRecord.certificateHash.toLowerCase();
+              const isMatch = normalizedFileHash === normalizedChainHash;
+              if (isMatch) {
+                setResult({
+                  valid: !onChainRecord.isRevoked,
+                  revoked: Boolean(onChainRecord.isRevoked),
+                  exists: true,
+                  onChainVerified: true,
+                  credential: {
+                    id: fileTarget,
+                    studentName: 'Verified Recipient',
+                    university: 'Attestify Accredited Institution',
+                    type: 'CREDENTIAL',
+                    certificateHash: onChainRecord.certificateHash,
+                    ipfsCID: onChainRecord.ipfsCID,
+                    issueDate: onChainRecord.issuedAt,
+                    isRevoked: Boolean(onChainRecord.isRevoked),
+                    status: onChainRecord.isRevoked ? 'REVOKED' : 'COMPLETED'
+                  },
+                  verificationTier: 'CRYPTOGRAPHIC_HASH'
+                });
+                return;
+              }
+            }
+          } catch {
+            void 0;
+          }
+        }
+
+        if (!apiSuccess) {
+          setResult({
+            valid: false,
+            message: 'This document does not match any registered certificate. It may have been edited or was not issued through Attestify.'
+          });
+        }
       } catch (err) {
         setResult({
           valid: false,
-          message: err.response?.data?.message || 'This document does not match any registered certificate. It may have been edited or was not issued through Attestify.'
+          message: err.response?.data?.message || 'Error processing certificate file.'
         });
       } finally {
         setVerifying(false);
@@ -482,18 +604,41 @@ const VerifyDashboard = () => {
                     )}
                   </div>
 
-                  {/* Blockchain Receipt Link */}
-                  {result.credential.transactionHash && (
-                    <div className="pt-3 border-t border-stone-200 dark:border-white/[0.08] flex items-center justify-center text-xs">
-                      <a
-                        href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
-                      >
-                        <span>View on Etherscan</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
+                  {/* Blockchain & Storage Links */}
+                  {(result.credential.transactionHash || result.onChainVerified || result.credential.ipfsCID) && (
+                    <div className="pt-3 border-t border-stone-200 dark:border-white/[0.08] flex flex-wrap items-center justify-center gap-4 text-xs">
+                      {result.credential.transactionHash ? (
+                        <a
+                          href={`https://sepolia.etherscan.io/tx/${result.credential.transactionHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
+                        >
+                          <span>View on Etherscan</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <a
+                          href="https://sepolia.etherscan.io/address/0x5a8C43477102703157524f711fba7733F8218Aa8"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
+                        >
+                          <span>Smart Contract Registry</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                      {result.credential.ipfsCID && (
+                        <a
+                          href={getIpfsUrl(result.credential.ipfsCID)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
+                        >
+                          <span>Certificate on IPFS</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
                     </div>
                   )}
 

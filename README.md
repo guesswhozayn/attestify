@@ -149,7 +149,7 @@ Create a `.env` file in the `server` directory with the following variables:
 | Variable | Description | Example / Default |
 | --- | --- | --- |
 | PORT | Port on which the Express server listens | 5000 |
-| MONGODB_URI | MongoDB connection URI | mongodb://localhost:27017/attestify |
+| DATABASE_URL | PostgreSQL connection URI (Cloud Supabase) | postgresql://... |
 | JWT_SECRET | Secret key for signing JSON Web Tokens | your-jwt-secret-string |
 | SEPOLIA_RPC_URL | Ethereum Sepolia JSON-RPC endpoint | https://eth-sepolia.g.alchemy.com/v2/... |
 | ADMIN_PRIVATE_KEY | Private key for the contract admin account | 0x... |
@@ -179,7 +179,7 @@ Create a `.env` file in the `client` directory with the following variables:
 ### Prerequisites
 - Node.js version 18.x or higher
 - npm version 9.x or higher
-- Running MongoDB instance (local or MongoDB Atlas)
+- Running PostgreSQL database (Cloud Supabase)
 - Running Redis instance (local or hosted)
 
 ### Installation

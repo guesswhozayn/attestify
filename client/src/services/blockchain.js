@@ -2,8 +2,8 @@ import { ethers } from 'ethers';
 
 const CONTRACT_ABI = [
   "function getCredential(string memory _studentId) public view returns (bytes32 certificateHash, string memory ipfsCID, uint256 issuedAt, bool isRevoked)",
+  "function getIssuer(string memory _studentId) public view returns (address)",
   "function verifyCredential(string memory _studentId, bytes32 _hash) public view returns (bool)",
-  "function isIssued(string memory _studentId) public view returns (bool)",
   "event CredentialIssued(string indexed studentId, bytes32 certificateHash, string ipfsCID, uint256 timestamp, address indexed issuer)",
   "event CredentialRevoked(string indexed studentId, uint256 timestamp, address indexed revokedBy)"
 ];
@@ -18,8 +18,8 @@ class BlockchainService {
     this.signer = null;
     this.contract = null;
     this.readContract = null;
-    this.contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
-    this.rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL;
+    this.contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0x5a8C43477102703157524f711fba7733F8218Aa8';
+    this.rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com';
 
     if (this.rpcUrl) {
       this.readProvider = new ethers.JsonRpcProvider(this.rpcUrl);
@@ -137,15 +137,29 @@ class BlockchainService {
     try {
       const normalizedId = String(studentId || '').trim();
       const result = await contract.getCredential(normalizedId);
+      let issuerAddress = null;
+      try {
+        issuerAddress = await contract.getIssuer(normalizedId);
+      } catch {
+        void 0;
+      }
       return {
         certificateHash: result[0],
         ipfsCID: result[1],
         issuedAt: new Date(Number(result[2]) * 1000),
-        isRevoked: result[3]
+        isRevoked: Boolean(result[3]),
+        issuerAddress
       };
     } catch (error) {
-      console.error('Get credential error:', error);
-      if (error.message.includes('Credential not found')) return null;
+      if (
+        error.reason === 'Credential not found' ||
+        error.reason === 'Credential does not exist' ||
+        error.message?.includes('Credential not found') ||
+        error.message?.includes('Credential does not exist') ||
+        error.code === 'CALL_EXCEPTION'
+      ) {
+        return null;
+      }
       throw new Error(`Failed to get credential: ${error.message}`);
     }
   }
@@ -165,15 +179,8 @@ class BlockchainService {
   }
 
   async isCredentialIssued(studentId) {
-    const contract = this.readContract || this.contract;
-    if (!contract) throw new Error('Contract not initialized');
-    try {
-      const normalizedId = String(studentId || '').trim();
-      return await contract.isIssued(normalizedId);
-    } catch (error) {
-      console.error('Check issued error:', error);
-      return false;
-    }
+    const cred = await this.getCredential(studentId);
+    return Boolean(cred && cred.certificateHash);
   }
 
   async getTransaction(txHash) {
