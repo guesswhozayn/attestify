@@ -53,8 +53,8 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >
-      <div className={`p-5 flex items-center justify-between border-b ${
-        isDark ? 'border-white/[0.08]' : 'border-[#F2F4F7]'
+      <div className={`h-16 px-5 flex items-center justify-between border-b ${
+        isDark ? 'border-white/[0.08]' : 'border-[#EAECF0]'
       }`}>
         <div
           onClick={() => handleNavigate('/dashboard')}

@@ -60,12 +60,12 @@ const Header = ({
   const formatAddress = (addr) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
 
   return (
-    <header className={`sticky top-0 z-30 px-4 md:px-8 py-3 transition-colors backdrop-blur-md ${
+    <header className={`sticky top-0 z-30 h-16 px-4 md:px-8 flex items-center transition-colors backdrop-blur-md ${
       isDark
         ? 'bg-[#0e1017]/90 border-b border-white/[0.08] text-stone-100'
         : 'bg-white/95 border-b border-[#EAECF0] text-stone-900'
     }`}>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 w-full">
         <div className="flex items-center gap-3">
           <button
             onClick={onMenuClick}
