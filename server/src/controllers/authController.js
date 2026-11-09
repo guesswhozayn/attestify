@@ -86,7 +86,7 @@ const register = asyncHandler(async (req, res) => {
     name: role === 'ISSUER' && trimmedInstitution ? trimmedInstitution : (trimmedName || 'Anonymous'),
     email: normalizedEmail,
     password: hashedPassword,
-    role: role || 'STUDENT',
+    role: role === 'ISSUER' ? 'ISSUER' : 'STUDENT',
     university: role === 'ISSUER' && trimmedInstitution ? trimmedInstitution : trimmedUniversity,
     walletAddress: normalizedWallet
   };

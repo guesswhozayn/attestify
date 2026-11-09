@@ -139,7 +139,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Credential details" size="2xl">
-      <div className="space-y-8 pb-4">
+      <div className="space-y-6 pb-2">
         {credential.isRevoked && (
           <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
@@ -182,7 +182,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
         )}
 
         <div
-          className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#EAECF0] p-7 md:p-8 shadow-xs"
+          className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-white border border-[#EAECF0] p-5 md:p-6 shadow-xs"
         >
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6">
 
@@ -254,11 +254,11 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-1">
 
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-5">
 
-            <div className="bg-white border border-[#EAECF0] rounded-3xl p-7 shadow-xs relative overflow-hidden">
+            <div className="bg-white border border-[#EAECF0] rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-xs relative overflow-hidden">
               <div className="flex items-center gap-3 mb-6 relative z-10">
                 <div className="p-2.5 rounded-xl bg-stone-50 border border-[#EAECF0] text-stone-700">
                    {isTranscript ? <GraduationCap className="w-5 h-5" /> : <Award className="w-5 h-5" />}
@@ -363,7 +363,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            <div className="bg-white border border-[#EAECF0] rounded-3xl p-7 shadow-xs">
+            <div className="bg-white border border-[#EAECF0] rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C]">
@@ -486,7 +486,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-stone-50 border border-[#EAECF0] rounded-2xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-5 bg-stone-50 border border-[#EAECF0] rounded-2xl">
               <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued by</span>
@@ -506,38 +506,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
           </div>
 
-          <div className="lg:col-span-4 space-y-5">
+          <div className="lg:col-span-4 space-y-4">
 
-            <VerificationSection certificate={credential} />
-
-            <div className="bg-white border border-[#EAECF0] rounded-3xl p-6 flex flex-col items-center shadow-xs">
-               <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-5">Scan to verify</span>
-               <div className="p-3 bg-white border border-stone-200 rounded-2xl mb-4 shadow-xs">
-                 <QRCodeDisplay credentialId={credential.id || credential._id} />
-               </div>
-               <p className="text-xs text-stone-500 text-center leading-relaxed">
-                 Scan with a phone camera to view and verify this certificate.
-               </p>
-            </div>
-
-            {user?.role === 'ISSUER' && (user?.id === credential.issuedById || user?.id === credential.issuedBy?.id || user?.id === credential.issuedBy) && !credential.isRevoked && credential.status === 'COMPLETED' && (
-               <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-3xl p-6">
-                  <h4 className="text-xs font-bold text-[#9E2D2D] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4" />
-                    Issuer actions
-                  </h4>
-                  <Button
-                    onClick={() => setShowRevokeModal(true)}
-                    variant="danger"
-                    className="w-full justify-center"
-                    icon={ShieldAlert}
-                  >
-                    Revoke
-                  </Button>
-               </div>
-            )}
-
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <Button
                 onClick={downloadCredential}
                 variant="primary"
@@ -559,13 +530,46 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </Button>
             </div>
 
+            {user?.role === 'ISSUER' && (user?.id === credential.issuedById || user?.id === credential.issuedBy?.id || user?.id === credential.issuedBy) && !credential.isRevoked && credential.status === 'COMPLETED' && (
+               <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-2xl p-4">
+                  <h4 className="text-xs font-bold text-[#9E2D2D] uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4" />
+                    Issuer actions
+                  </h4>
+                  <p className="text-[11px] text-[#9E2D2D]/80 mb-3 leading-relaxed">
+                    Permanently invalidate this credential on-chain.
+                  </p>
+                  <Button
+                    onClick={() => setShowRevokeModal(true)}
+                    variant="danger"
+                    size="sm"
+                    className="w-full justify-center"
+                    icon={ShieldAlert}
+                  >
+                    Revoke
+                  </Button>
+               </div>
+            )}
+
+            <div className="bg-white border border-[#EAECF0] rounded-2xl md:rounded-3xl p-5 flex flex-col items-center shadow-xs">
+               <span className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">Scan to verify</span>
+               <div className="p-2.5 bg-white border border-stone-200 rounded-xl mb-3 shadow-xs">
+                 <QRCodeDisplay credentialId={credential.id || credential._id} />
+               </div>
+               <p className="text-xs text-stone-500 text-center leading-relaxed">
+                 Scan with a phone camera to view and verify this certificate.
+               </p>
+            </div>
+
+            <VerificationSection certificate={credential} />
+
             {(credential.issuedBy?.issuerDetails?.branding?.signature || credential.issuedBy?.issuerDetails?.branding?.signatureCID) && (
-               <div className="pt-6 text-center border-t border-[#EAECF0]">
-                  <div className="bg-stone-50 p-3 rounded-xl border border-[#EAECF0] inline-block mx-auto mb-2">
+               <div className="pt-4 text-center border-t border-[#EAECF0]">
+                  <div className="bg-stone-50 p-2.5 rounded-xl border border-[#EAECF0] inline-block mx-auto mb-1.5">
                     <img
                       src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`}
                       alt="Authority Signature"
-                      className="h-9 object-contain"
+                      className="h-8 object-contain"
                     />
                   </div>
                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Authorized signature</p>

@@ -72,6 +72,32 @@
     display: none;
   }
 
+  .modal-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #d6d3d1 transparent;
+  }
+  .modal-scroll::-webkit-scrollbar {
+    display: block !important;
+    width: 6px;
+  }
+  .modal-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .modal-scroll::-webkit-scrollbar-thumb {
+    background-color: #d6d3d1;
+    border-radius: 9999px;
+  }
+  .modal-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a29e;
+  }
+
+  .dashboard-dark .modal-scroll {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+  .dashboard-dark .modal-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }

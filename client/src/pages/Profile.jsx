@@ -42,6 +42,7 @@ const Profile = () => {
     }, []);
 
     const isIssuer = user?.role === 'ISSUER';
+    const isAdmin = user?.role === 'ADMIN';
     const studentData = user?.preferences?.studentDetails || user?.studentDetails || {};
 
     const registeredWallet =
@@ -128,7 +129,10 @@ const Profile = () => {
                 about: formData.about
             };
 
-            if (isIssuer) {
+            if (isAdmin) {
+                payload.name = formData.name;
+                payload.about = formData.about;
+            } else if (isIssuer) {
                 const updatedInstitutionName = user?.issuerDetails?.isVerified
                     ? (user.issuerDetails.institutionName || user.name)
                     : (formData.name || formData.institutionName);
@@ -221,10 +225,12 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EAECF0]">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-                        {isIssuer ? 'Institution Profile' : 'Student Profile'}
+                        {isAdmin ? 'Platform Administrator Profile' : isIssuer ? 'Institution Profile' : 'Student Profile'}
                     </h1>
                     <p className="text-xs sm:text-sm text-stone-500 mt-1">
-                        {isIssuer
+                        {isAdmin
+                            ? 'Superuser account with platform-wide administrative privileges and smart contract authority.'
+                            : isIssuer
                             ? 'Official academic registry details and cryptographic signing credentials.'
                             : 'Personal academic identity and registered student wallet.'}
                     </p>
@@ -269,28 +275,36 @@ const Profile = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-stone-100">
                         <div>
                             <span className="text-[11px] font-mono text-stone-400 uppercase tracking-wider block">
-                                {isIssuer ? 'Accredited Institution' : 'Enrolled Student'}
+                                {isAdmin ? 'Platform Superuser' : isIssuer ? 'Accredited Institution' : 'Enrolled Student'}
                             </span>
                             <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight mt-0.5">
-                                {user?.issuerDetails?.institutionName || user?.name || (isIssuer ? 'Institution' : 'Student')}
+                                {isAdmin ? (user?.name || 'Platform Administrator') : user?.issuerDetails?.institutionName || user?.name || (isIssuer ? 'Institution' : 'Student')}
                             </h2>
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 border border-stone-200/60 text-stone-700 text-xs font-medium self-start sm:self-auto">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            {isIssuer ? 'Verified Registry Identity' : 'Verified Student'}
+                            {isAdmin ? 'Platform Superuser' : isIssuer ? 'Verified Registry Identity' : 'Verified Student'}
                         </span>
                     </div>
 
                     {isEditing ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Input
-                                label={isIssuer ? "Institution Name" : "Full Name"}
+                                label={isAdmin ? "Administrator Name" : isIssuer ? "Institution Name" : "Full Name"}
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value, ...(isIssuer ? { institutionName: e.target.value } : {})})}
                                 disabled={isIssuer && Boolean(user?.issuerDetails?.isVerified)}
-                                icon={isIssuer ? Building : User}
+                                icon={isAdmin ? Shield : isIssuer ? Building : User}
                             />
-                            {!isIssuer && (
+                            {isAdmin && (
+                                <Input
+                                    label="Administrative Email"
+                                    value={user?.email || ''}
+                                    disabled
+                                    icon={Mail}
+                                />
+                            )}
+                            {!isIssuer && !isAdmin && (
                                 <>
                                     <Input
                                         label="University / Institution"
@@ -404,7 +418,34 @@ const Profile = () => {
                                 <dt className="text-stone-500 font-medium">Account Email</dt>
                                 <dd className="sm:col-span-2 text-stone-900 font-mono mt-1 sm:mt-0">{user?.email}</dd>
                             </div>
-                            {isIssuer ? (
+                            {isAdmin ? (
+                                <>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Administrative Role</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-semibold mt-1 sm:mt-0">
+                                            Platform Administrator
+                                        </dd>
+                                    </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Smart Contract Authority</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                            Relayer Operator (executed via server environment)
+                                        </dd>
+                                    </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">Platform Affiliation</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                            {user?.university || 'Attestify Platform'}
+                                        </dd>
+                                    </div>
+                                    <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
+                                        <dt className="text-stone-500 font-medium">System Responsibilities</dt>
+                                        <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
+                                            Institutional accreditation, issuer verification, on-chain authorization, and credential oversight
+                                        </dd>
+                                    </div>
+                                </>
+                            ) : isIssuer ? (
                                 <>
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                                         <dt className="text-stone-500 font-medium">License / Registration</dt>
@@ -540,26 +581,69 @@ const Profile = () => {
 
                     <div className="space-y-2 pt-2">
                         <label className="text-xs font-semibold text-stone-700 block">
-                            {isIssuer ? 'Institutional Overview' : 'Student Overview'}
+                            {isAdmin ? 'Administrative Overview' : isIssuer ? 'Institutional Overview' : 'Student Overview'}
                         </label>
                         {isEditing ? (
                             <textarea
                                 value={formData.about}
                                 onChange={(e) => setFormData({...formData, about: e.target.value})}
-                                placeholder={isIssuer ? "Describe the institution, departments, or issuing authority..." : "Brief academic bio or field of study..."}
+                                placeholder={isAdmin ? "Administrative notes or role overview..." : isIssuer ? "Describe the institution, departments, or issuing authority..." : "Brief academic bio or field of study..."}
                                 rows={3}
                                 className="w-full p-3 bg-stone-50 focus:bg-white border border-stone-200 focus:border-stone-400 rounded-xl text-xs font-medium text-stone-900 focus:outline-none transition-all"
                             />
                         ) : (
                             <p className="text-xs text-stone-600 leading-relaxed bg-stone-50 p-3.5 rounded-xl border border-stone-200/60">
-                                {user?.about || (isIssuer ? 'No institutional description provided.' : 'No student bio provided.')}
+                                {user?.about || (isAdmin ? 'Platform administrator account.' : isIssuer ? 'No institutional description provided.' : 'No student bio provided.')}
                             </p>
                         )}
                     </div>
                 </div>
 
                 <div className="lg:col-span-4 space-y-5">
-                    <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-xs space-y-4">
+                    {isAdmin ? (
+                        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-xs space-y-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider flex items-center gap-2">
+                                    <Shield className="w-4 h-4 text-purple-600" />
+                                    Administrative Authority
+                                </span>
+                                <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-700">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Active
+                                </span>
+                            </div>
+
+                            <p className="text-xs text-stone-600 leading-relaxed">
+                                Platform administrator credentials and signing keys are managed securely via server environment configuration (<code className="font-mono text-stone-800">.env</code>).
+                            </p>
+
+                            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2 text-xs">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-stone-500">Smart Contract Relayer:</span>
+                                    <span className="font-semibold text-stone-800">Connected</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-stone-500">On-Chain Signer:</span>
+                                    <span className="font-semibold text-stone-800">Active</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-stone-500">Authority Level:</span>
+                                    <span className="font-semibold text-purple-700">Full Superuser</span>
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <a
+                                    href="/admin"
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs"
+                                >
+                                    <Building className="w-4 h-4" />
+                                    Open Admin Console
+                                </a>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-xs space-y-4">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider flex items-center gap-2">
                                 <Wallet className="w-4 h-4 text-stone-500" />
@@ -618,6 +702,7 @@ const Profile = () => {
                             <span className="font-medium text-stone-900">Ethereum Sepolia</span>
                         </div>
                     </div>
+                    )}
 
                     <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-xs space-y-4">
                         <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider flex items-center gap-2">
@@ -629,7 +714,7 @@ const Profile = () => {
                             <div className="flex items-center justify-between pt-1">
                                 <span className="text-stone-500">Authority Type</span>
                                 <span className="font-semibold text-stone-900">
-                                    {isIssuer ? 'Academic Institution' : 'Student / Learner'}
+                                    {isAdmin ? 'Platform Administrator' : isIssuer ? 'Academic Institution' : 'Student / Learner'}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between pt-3">

@@ -150,7 +150,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={selectedRole === 'ADMIN' ? "admin@attestify.io" : selectedRole === 'ISSUER' ? "admin@organization.com" : "student@example.com"}
+                placeholder={selectedRole === 'STUDENT' ? "student@example.com" : "admin@organization.com"}
                 icon={Mail}
                 required
               />

@@ -118,7 +118,7 @@ function App() {
             <Route
               path="/network-status"
               element={
-                <PrivateRoute allowedRoles={['ISSUER', 'ADMIN']}>
+                <PrivateRoute allowedRoles={['ISSUER']}>
                   <NetworkStatus />
                 </PrivateRoute>
               }

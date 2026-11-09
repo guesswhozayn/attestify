@@ -39,15 +39,14 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   const menuItems = [
     { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard', roles: ['ADMIN', 'ISSUER', 'STUDENT'] },
     ...(isAdmin ? [
-      { icon: Building, path: '/admin/issuers', label: 'Manage Issuers', roles: ['ADMIN'] },
-      { icon: Activity, path: '/network-status', label: 'Network', roles: ['ADMIN'] }
+      { icon: Building, path: '/admin/issuers', label: 'Manage Issuers', roles: ['ADMIN'] }
     ] : []),
     { icon: FileCheck2, path: '/credentials', label: 'Credentials', roles: ['ISSUER', 'STUDENT'] },
     ...(isIssuer ? [
       { icon: Trash2, path: '/revoked', label: 'Revoked', roles: ['ISSUER'] },
       { icon: Activity, path: '/network-status', label: 'Network', roles: ['ISSUER'] }
     ] : []),
-    { icon: Settings, path: '/settings', label: 'Settings', roles: ['ADMIN', 'ISSUER', 'STUDENT'] },
+    { icon: Settings, path: '/settings', label: 'Settings', roles: ['ISSUER', 'STUDENT'] },
     { icon: User, path: '/profile', label: 'Profile', roles: ['ADMIN', 'ISSUER', 'STUDENT'] }
   ];
 

@@ -115,24 +115,9 @@ let serverInstance;
 const ensureAdminAccount = async () => {
   try {
     const { prisma } = require('./config/database');
-    const bcrypt = require('bcryptjs');
-    const existing = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
-    if (!existing) {
-      const email = (process.env.ADMIN_EMAIL || 'admin@attestify.io').toLowerCase().trim();
-      const password = process.env.ADMIN_PASSWORD || 'AdminPass123!';
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await prisma.user.create({
-        data: {
-          name: process.env.ADMIN_NAME || 'Platform Administrator',
-          email,
-          password: hashedPassword,
-          role: 'ADMIN',
-          university: 'Attestify Platform',
-          isActive: true
-        }
-      });
-      console.log(`[Admin] Initialized platform administrator: ${email}`);
-    }
+    const { syncSingleAdmin } = require('./utils/adminManager');
+    const adminId = await syncSingleAdmin(prisma);
+    console.log(`[Admin] Synchronized single platform administrator (ID: ${adminId})`);
   } catch (err) {
     console.warn('[Admin] Admin auto-provision skipped:', err.message);
   }

@@ -1,41 +1,19 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
-const bcrypt = require('bcryptjs');
 const { prisma } = require('../src/config/database');
+const { syncSingleAdmin } = require('../src/utils/adminManager');
 
 async function seedAdmin() {
-  const email = (process.env.ADMIN_EMAIL || 'admin@attestify.io').toLowerCase().trim();
-  const password = process.env.ADMIN_PASSWORD || 'AdminPass123!';
-  const name = process.env.ADMIN_NAME || 'Platform Administrator';
+  const email = process.env.ADMIN_EMAIL?.toLowerCase().trim();
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required in .env');
+  }
 
   try {
-    const existing = await prisma.user.findUnique({ where: { email } });
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    if (existing) {
-      const updated = await prisma.user.update({
-        where: { email },
-        data: {
-          role: 'ADMIN',
-          password: hashedPassword,
-          isActive: true
-        }
-      });
-      console.log(`[SeedAdmin] Updated existing user ${email} to Role.ADMIN.`);
-      return updated;
-    }
-
-    const created = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: 'ADMIN',
-        university: 'Attestify Platform',
-        isActive: true
-      }
-    });
-    console.log(`[SeedAdmin] Created new platform administrator: ${email}`);
-    return created;
+    const adminId = await syncSingleAdmin(prisma);
+    console.log(`[SeedAdmin] Guaranteed single Platform administrator (Email: ${email}, ID: ${adminId})`);
+    return adminId;
   } catch (error) {
     console.error('[SeedAdmin] Failed to seed admin:', error.message);
     throw error;

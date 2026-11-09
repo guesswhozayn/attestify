@@ -90,7 +90,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
             <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </Button>
         </div>
-        <div className="p-6 overflow-y-auto overflow-x-hidden scrollbar-hide">
+        <div className="p-6 overflow-y-auto overflow-x-hidden flex-1 min-h-0 modal-scroll">
           {children}
         </div>
       </div>
