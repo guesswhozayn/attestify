@@ -245,7 +245,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#EAECF0] rounded-xl text-stone-700 text-xs font-medium hover:bg-stone-50 cursor-pointer transition-colors shadow-2xs"
                     >
                       <Shield className="w-3.5 h-3.5 text-stone-500" />
-                      <span>Direct record</span>
+                      <span>Soulbound</span>
                     </button>
                   )}
                 </div>
@@ -465,7 +465,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <div className="pt-5 border-t border-[#EAECF0] space-y-4">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Direct record details</span>
+                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Soulbound details</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">

@@ -19,7 +19,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Direct credential record" size="md">
+        <Modal isOpen={isOpen} onClose={onClose} title="Soulbound details" size="md">
             <div className="space-y-6">
                 <div className="flex justify-between items-center p-4 rounded-2xl bg-stone-50 border border-[#EAECF0]">
                     <div className="flex items-center gap-3">
