@@ -7,8 +7,9 @@ import IssueCredentialModal from '../credential/IssueCredentialModal';
 import BulkIssueModal from '../credential/BulkIssueModal';
 
 const pageTitles = {
-  '/dashboard': 'Dashboard',
   '/credentials': 'Credentials',
+  '/admin/issuers': 'Issuers',
+  '/admin': 'Issuers',
   '/settings': 'Settings',
   '/profile': 'Profile',
   '/revoked': 'Revoked credentials',

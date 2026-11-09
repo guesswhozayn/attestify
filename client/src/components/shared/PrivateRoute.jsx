@@ -18,7 +18,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to={user.role === 'ADMIN' ? '/admin/issuers' : '/credentials'} replace />;
   }
 
   return children;

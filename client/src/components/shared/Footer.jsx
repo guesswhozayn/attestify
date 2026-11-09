@@ -5,7 +5,7 @@ import Button from './Button';
 import Logo from './Logo';
 
 const platformLinks = [
-  { name: 'Dashboard', path: '/dashboard' },
+  { name: 'Credentials', path: '/credentials' },
   { name: 'Verification', path: '/verify' },
   { name: 'Documentation', path: '/docs' },
   { name: 'Network Status', path: '/network-status' },

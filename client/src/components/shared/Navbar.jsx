@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogIn, ArrowLeft, AlignRight, X, LayoutDashboard } from 'lucide-react';
+import { LogIn, ArrowLeft, AlignRight, X, FileCheck2, Building } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import Logo from './Logo';
@@ -65,11 +65,11 @@ const Navbar = ({ showSidebarToggle = false, onToggleSidebar, onBack, showBack =
 
           {user ? (
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(user.role === 'ADMIN' ? '/admin/issuers' : '/credentials')}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-stone-900 hover:bg-stone-100 text-xs font-medium transition-colors cursor-pointer"
             >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
+              {user.role === 'ADMIN' ? <Building className="w-3.5 h-3.5" /> : <FileCheck2 className="w-3.5 h-3.5" />}
+              <span>{user.role === 'ADMIN' ? 'Issuers' : 'Credentials'}</span>
             </button>
           ) : (
             <button

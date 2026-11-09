@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
   FileCheck2,
   Trash2,
   User,
@@ -35,8 +34,9 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
     if (onClose) onClose();
   };
 
+  const defaultPath = isAdmin ? '/admin/issuers' : '/credentials';
+
   const menuItems = [
-    { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard', roles: ['ADMIN', 'ISSUER', 'STUDENT'] },
     ...(isAdmin ? [
       { icon: Building, path: '/admin/issuers', label: 'Issuers', roles: ['ADMIN'] }
     ] : []),
@@ -60,7 +60,7 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
         isDark ? 'border-white/[0.08]' : 'border-[#EAECF0]'
       }`}>
         <div
-          onClick={() => handleNavigate('/dashboard')}
+          onClick={() => handleNavigate(defaultPath)}
           className="cursor-pointer flex items-center gap-2"
         >
           <Logo className="w-5 h-5 shrink-0" />

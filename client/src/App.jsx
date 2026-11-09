@@ -19,8 +19,6 @@ const Landing           = lazy(() => import('./pages/Landing'));
 const Login             = lazy(() => import('./pages/Login'));
 const Register          = lazy(() => import('./pages/Register'));
 const AdminDashboard    = lazy(() => import('./pages/AdminDashboard'));
-const IssuerDashboard   = lazy(() => import('./pages/IssuerDashboard'));
-const StudentDashboard  = lazy(() => import('./pages/StudentDashboard'));
 const CredentialArchive = lazy(() => import('./pages/CredentialArchive'));
 const StudentCredentials= lazy(() => import('./pages/StudentCredentials'));
 const NetworkStatus     = lazy(() => import('./pages/NetworkStatus'));
@@ -62,8 +60,8 @@ function App() {
         <Routes>
 
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
+          <Route path="/login" element={user ? <Navigate to={user.role === 'ADMIN' ? '/admin/issuers' : '/credentials'} replace /> : <Login />} />
+          <Route path="/register" element={user ? <Navigate to={user.role === 'ADMIN' ? '/admin/issuers' : '/credentials'} replace /> : <Register />} />
           <Route path="/docs" element={<Documentation />} />
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -77,13 +75,7 @@ function App() {
               path="/dashboard"
               element={
                 <PrivateRoute>
-                  {user?.role === 'STUDENT' ? (
-                    <StudentDashboard />
-                  ) : user?.role === 'ADMIN' ? (
-                    <AdminDashboard />
-                  ) : (
-                    <IssuerDashboard />
-                  )}
+                  <Navigate to={user?.role === 'ADMIN' ? '/admin/issuers' : '/credentials'} replace />
                 </PrivateRoute>
               }
             />
@@ -92,7 +84,7 @@ function App() {
               path="/admin"
               element={
                 <PrivateRoute allowedRoles={['ADMIN']}>
-                  <AdminDashboard />
+                  <Navigate to="/admin/issuers" replace />
                 </PrivateRoute>
               }
             />
@@ -109,7 +101,7 @@ function App() {
             <Route
               path="/credentials"
               element={
-                <PrivateRoute>
+                <PrivateRoute allowedRoles={['ISSUER', 'STUDENT']}>
                   {user?.role === 'STUDENT' ? <StudentCredentials /> : <CredentialArchive />}
                 </PrivateRoute>
               }

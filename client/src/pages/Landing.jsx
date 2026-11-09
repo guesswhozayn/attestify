@@ -88,7 +88,7 @@ const Landing = () => {
                       <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
                       <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
                    </div>
-                   <div className="mx-auto w-1/3 h-5 bg-white/5 rounded-md text-[10px] flex items-center justify-center text-gray-500 font-mono">attestify.co/dashboard</div>
+                   <div className="mx-auto w-1/3 h-5 bg-white/5 rounded-md text-[10px] flex items-center justify-center text-gray-500 font-mono">attestify.co/credentials</div>
                 </div>
 
                 <div className="p-10 grid grid-cols-1 md:grid-cols-3 gap-8">

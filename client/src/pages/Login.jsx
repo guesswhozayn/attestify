@@ -33,7 +33,7 @@ const Login = () => {
     const result = await login(email, password, selectedRole);
 
     if (result.success) {
-      navigate('/dashboard');
+      navigate(selectedRole === 'ADMIN' ? '/admin/issuers' : '/credentials');
     } else {
       setError(result.error);
     }

@@ -381,13 +381,13 @@ const VerifyDashboard = () => {
 
             {user ? (
               <Button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate(user.role === 'ADMIN' ? '/admin/issuers' : '/credentials')}
                 variant="primary"
                 size="sm"
                 icon={ArrowRight}
                 className="rounded-xl text-xs font-semibold"
               >
-                Dashboard
+                {user.role === 'ADMIN' ? 'Issuers' : 'Credentials'}
               </Button>
             ) : (
               <Button

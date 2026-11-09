@@ -8,9 +8,10 @@ import RevokeCredentialModal from '../components/credential/RevokeCredentialModa
 import CredentialsStats from '../components/credential/CredentialsStats';
 import CredentialsFilter from '../components/credential/CredentialsFilter';
 import CredentialTable from '../components/credential/CredentialTable';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { credentialAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
 
 const PAGE_SIZE = 20;
 
@@ -28,8 +29,32 @@ const CredentialArchive = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const { showNotification } = useNotification();
+    const { user } = useAuth();
     const isMounted = useRef(true);
     const debounceTimer = useRef(null);
+
+    const handleExportData = () => {
+        try {
+            const exportContent = {
+                exportedAt: new Date().toISOString(),
+                institution: user?.issuerDetails?.institutionName || user?.name,
+                stats,
+                credentials
+            };
+            const blob = new Blob([JSON.stringify(exportContent, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `attestify-report-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showNotification('Report exported successfully', 'success');
+        } catch {
+            showNotification('Could not export report', 'error');
+        }
+    };
 
     const isInitial = useRef(true);
 
@@ -184,6 +209,14 @@ const CredentialArchive = () => {
                             size="sm"
                         >
                             Bulk issue
+                        </Button>
+                        <Button
+                            onClick={handleExportData}
+                            variant="ghost"
+                            size="sm"
+                            icon={Download}
+                        >
+                            Export
                         </Button>
                     </div>
                 </motion.div>

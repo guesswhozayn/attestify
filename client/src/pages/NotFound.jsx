@@ -8,7 +8,8 @@ import {
     Search,
     AlertTriangle,
     ArrowLeft,
-    LayoutDashboard,
+    FileCheck2,
+    Building,
     FileText,
     ShieldAlert,
     Cpu,
@@ -130,12 +131,12 @@ const NotFound = () => {
                         {user && (
                             <div className="mt-8 pt-6 border-t border-white/5">
                                 <Button
-                                    onClick={() => navigate('/dashboard')}
+                                    onClick={() => navigate(user?.role === 'ADMIN' ? '/admin/issuers' : '/credentials')}
                                     variant="ghost"
-                                    icon={LayoutDashboard}
+                                    icon={user?.role === 'ADMIN' ? Building : FileCheck2}
                                     className="text-zinc-400 hover:text-white text-xs font-medium"
                                 >
-                                    Dashboard <Compass className="w-3.5 h-3.5 ml-1.5" />
+                                    {user?.role === 'ADMIN' ? 'Issuers' : 'Credentials'} <Compass className="w-3.5 h-3.5 ml-1.5" />
                                 </Button>
                             </div>
                         )}
