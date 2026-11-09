@@ -61,10 +61,18 @@ async function findCredential(identifier, certificateHash = null) {
 }
 
 async function checkPrivacy(credential, reqUser) {
-  const isOwner = reqUser?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isOwner = Boolean(
+    reqUser?.walletAddress &&
+    credential.studentWalletAddress &&
+    reqUser.walletAddress.toLowerCase() === credential.studentWalletAddress.toLowerCase()
+  );
   const isIssuer = reqUser?.role === 'ISSUER' && (
     reqUser.id === credential.issuedById ||
-    reqUser.walletAddress?.toLowerCase() === credential.issuedBy?.walletAddress?.toLowerCase()
+    Boolean(
+      reqUser.walletAddress &&
+      credential.issuedBy?.walletAddress &&
+      reqUser.walletAddress.toLowerCase() === credential.issuedBy.walletAddress.toLowerCase()
+    )
   );
 
   if (isOwner || isIssuer) return true;
@@ -229,10 +237,18 @@ const checkExists = asyncHandler(async (req, res) => {
       return res.status(404).json({ valid: false, exists: false, message: 'No credential found with this ID' });
     }
 
-    const isOwner = req.user?.walletAddress?.toLowerCase() === cred.studentWalletAddress.toLowerCase();
+    const isOwner = Boolean(
+      req.user?.walletAddress &&
+      cred.studentWalletAddress &&
+      req.user.walletAddress.toLowerCase() === cred.studentWalletAddress.toLowerCase()
+    );
     const isIssuer = req.user?.role === 'ISSUER' && (
       req.user.id === cred.issuedById ||
-      req.user.walletAddress?.toLowerCase() === cred.issuedBy?.walletAddress?.toLowerCase()
+      Boolean(
+        req.user.walletAddress &&
+        cred.issuedBy?.walletAddress &&
+        req.user.walletAddress.toLowerCase() === cred.issuedBy.walletAddress.toLowerCase()
+      )
     );
     if (!isOwner && !isIssuer && cred.status !== 'COMPLETED') {
       return res.status(404).json({ valid: false, exists: false, message: 'No credential found with this ID' });

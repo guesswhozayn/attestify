@@ -97,8 +97,13 @@ class BlockchainService {
     try {
       return await contractCall(...args, overrides);
     } catch (err) {
-      if (err.code === 'REPLACEMENT_UNDERPRICED' || err.info?.error?.code === -32000) {
-        console.warn('[Blockchain] Replacement underpriced — bumping gas 30% and retrying with fresh nonce...');
+      const isNonceOrUnderpriced =
+        err.code === 'REPLACEMENT_UNDERPRICED' ||
+        err.code === 'NONCE_EXPIRED' ||
+        err.info?.error?.code === -32000 ||
+        /nonce too low|replacement transaction underpriced|already known/i.test(err.message || '');
+      if (isNonceOrUnderpriced) {
+        console.warn('[Blockchain] Nonce/fee conflict — bumping gas 30% and retrying with fresh nonce...');
         await new Promise(r => setTimeout(r, 2000));
         const freshNonce = await this.provider.getTransactionCount(this.wallet.address, 'pending');
         const gasOverrides = await this._getGasOverrides(1.3);
@@ -107,16 +112,27 @@ class BlockchainService {
         console.log(`[Blockchain] Retrying with nonce=${freshNonce}, maxFeePerGas=${gasOverrides.maxFeePerGas}`);
 
         this.currentNonce = freshNonce + 1;
+        if (connection && connection.status === 'ready') {
+          try {
+            await connection.set(`nonce:blockchain:${this.wallet.address.toLowerCase()}`, String(this.currentNonce), 'EX', 120);
+          } catch {}
+        }
 
         try {
           return await contractCall(...args, bumpedOverrides);
         } catch (retryErr) {
           this.currentNonce = null;
+          if (connection && connection.status === 'ready') {
+            try { await connection.del(`nonce:blockchain:${this.wallet.address.toLowerCase()}`); } catch {}
+          }
           throw retryErr;
         }
       }
 
       this.currentNonce = null;
+      if (connection && connection.status === 'ready') {
+        try { await connection.del(`nonce:blockchain:${this.wallet.address.toLowerCase()}`); } catch {}
+      }
       throw err;
     }
   }
@@ -153,20 +169,32 @@ class BlockchainService {
   async _sendContractTx(method, args) {
     let releaseDistributedLock = null;
     try {
-      releaseDistributedLock = await this._acquireRedisLock('lock:blockchain:tx', 30000);
+      releaseDistributedLock = await this._acquireRedisLock('lock:blockchain:tx', 45000);
     } catch {}
 
     await this.nonceMutex.lock();
     try {
-      const [gasEstimate, pendingCount, gasOverrides] = await Promise.all([
+      const nonceKey = `nonce:blockchain:${this.wallet.address.toLowerCase()}`;
+      const [gasEstimate, pendingCount, gasOverrides, cachedRedisNonce] = await Promise.all([
         method.estimateGas(...args),
         this.provider.getTransactionCount(this.wallet.address, 'pending'),
-        this._getGasOverrides()
+        this._getGasOverrides(),
+        connection && connection.status === 'ready'
+          ? connection.get(nonceKey).then(v => (v !== null ? parseInt(v, 10) : null)).catch(() => null)
+          : Promise.resolve(null)
       ]);
-      if (this.currentNonce == null || this.currentNonce < pendingCount) {
-        this.currentNonce = pendingCount;
+      const baseNonce = Math.max(
+        pendingCount,
+        this.currentNonce ?? 0,
+        Number.isInteger(cachedRedisNonce) ? cachedRedisNonce : 0
+      );
+      const nonce = baseNonce;
+      this.currentNonce = nonce + 1;
+      if (connection && connection.status === 'ready') {
+        try {
+          await connection.set(nonceKey, String(this.currentNonce), 'EX', 120);
+        } catch {}
       }
-      const nonce = this.currentNonce++;
 
       return await this._sendWithRetry(
         method.bind(this.contract),
@@ -179,6 +207,21 @@ class BlockchainService {
         await releaseDistributedLock();
       }
     }
+  }
+
+  async authorizeIssuer(issuerAddress) {
+    if (!issuerAddress || !ethers.isAddress(issuerAddress)) return null;
+    const isAlreadyAuthorized = await this.contract.isAuthorizedIssuer(issuerAddress);
+    if (isAlreadyAuthorized) {
+      return { alreadyAuthorized: true };
+    }
+    const tx = await this._sendContractTx(this.contract.authorizeIssuer, [issuerAddress]);
+    const receipt = await this._pollForReceipt(tx.hash);
+    return {
+      transactionHash: receipt.hash,
+      blockNumber: receipt.blockNumber,
+      ...this._extractGasStats(receipt)
+    };
   }
 
   async revokeCertificate(studentId) {

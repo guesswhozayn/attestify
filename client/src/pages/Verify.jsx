@@ -54,6 +54,7 @@ const VerifyDashboard = () => {
   const initialTarget = getInitialTarget();
   const [activeTab, setActiveTab] = useState(initialTarget ? 'id' : 'file');
   const [file, setFile] = useState(null);
+  const [fileTarget, setFileTarget] = useState('');
   const [computedHash, setComputedHash] = useState('');
   const [searchTarget, setSearchTarget] = useState(initialTarget);
   const [verifying, setVerifying] = useState(false);
@@ -127,13 +128,14 @@ const VerifyDashboard = () => {
       return;
     }
     setFile(selectedFile);
+    setFileTarget('');
     setResult(null);
     try {
       const fileHash = await generateFileHash(selectedFile);
       setComputedHash(fileHash);
       const extractedId = await extractMetadata(selectedFile);
       if (extractedId) {
-        setSearchTarget(extractedId);
+        setFileTarget(extractedId);
       }
     } catch (err) {
       console.error('Error generating hash:', err);
@@ -143,6 +145,7 @@ const VerifyDashboard = () => {
   const clearFile = (e) => {
     e?.stopPropagation();
     setFile(null);
+    setFileTarget('');
     setComputedHash('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -155,7 +158,7 @@ const VerifyDashboard = () => {
       try {
         const fileHash = computedHash || await generateFileHash(file);
         setComputedHash(fileHash);
-        const queryTarget = searchTarget || 'credential';
+        const queryTarget = fileTarget || 'credential';
         const response = await verifyAPI.verifyByHash(queryTarget, fileHash);
         setResult({
           ...response.data,
@@ -176,6 +179,7 @@ const VerifyDashboard = () => {
 
   const handleReset = () => {
     setFile(null);
+    setFileTarget('');
     setComputedHash('');
     setSearchTarget('');
     setResult(null);

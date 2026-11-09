@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { ethers } = require('ethers');
 const { prisma } = require('../config/database');
+const blockchainService = require('../services/blockchainService');
 const asyncHandler = require('../middleware/asyncHandler');
 
 const isValidAdminKey = (provided, expected) => {
@@ -211,10 +212,24 @@ const verifyIssuer = asyncHandler(async (req, res) => {
   }
 
   const currentDetails = (targetUser.issuerDetails && typeof targetUser.issuerDetails === 'object') ? targetUser.issuerDetails : {};
+  const issuerWallet = currentDetails.authorizedWalletAddress || targetUser.walletAddress;
+  let onChainTxHash = currentDetails.onChainAuthorizationTx || null;
+  if (issuerWallet && ethers.isAddress(issuerWallet)) {
+    try {
+      const authResult = await blockchainService.authorizeIssuer(issuerWallet);
+      if (authResult?.transactionHash) {
+        onChainTxHash = authResult.transactionHash;
+      }
+    } catch (chainErr) {
+      console.warn('On-chain issuer authorization skipped or failed:', chainErr.message);
+    }
+  }
+
   const updatedIssuerDetails = {
     ...currentDetails,
     isVerified: true,
-    verifiedAt: new Date().toISOString()
+    verifiedAt: new Date().toISOString(),
+    ...(onChainTxHash ? { onChainAuthorizationTx: onChainTxHash } : {})
   };
 
   const updated = await prisma.user.update({

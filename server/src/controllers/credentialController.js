@@ -660,9 +660,15 @@ const getStats = asyncHandler(async (req, res) => {
       _sum: { verificationCount: true }
     }),
     (async () => {
-      if (!walletAddress) return '0.00';
       try {
-        return parseFloat(await blockchainService.getBalance(walletAddress)).toFixed(4);
+        if (walletAddress) {
+          const bal = parseFloat(await blockchainService.getBalance(walletAddress));
+          if (bal > 0 || !isIssuer) return bal.toFixed(4);
+        }
+        if (isIssuer) {
+          return parseFloat(await blockchainService.getBalance()).toFixed(4);
+        }
+        return '0.00';
       } catch (e) {
         console.warn('Failed to fetch balance:', e);
         return '0.00';
@@ -698,10 +704,18 @@ const verifyCredential = asyncHandler(async (req, res) => {
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
 
-  const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isOwner = Boolean(
+    req.user?.walletAddress &&
+    credential.studentWalletAddress &&
+    req.user.walletAddress.toLowerCase() === credential.studentWalletAddress.toLowerCase()
+  );
   const isIssuer = req.user?.role === 'ISSUER' && (
     req.user.id === credential.issuedById ||
-    req.user.walletAddress?.toLowerCase() === credential.issuedBy?.walletAddress?.toLowerCase()
+    Boolean(
+      req.user.walletAddress &&
+      credential.issuedBy?.walletAddress &&
+      req.user.walletAddress.toLowerCase() === credential.issuedBy.walletAddress.toLowerCase()
+    )
   );
 
   if (!isOwner && !isIssuer) {
