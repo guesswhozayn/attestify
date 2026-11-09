@@ -3,10 +3,16 @@ const FormData = require('form-data');
 
 class IPFSService {
   constructor() {
-    this.pinataApiKey = process.env.PINATA_API_KEY;
-    this.pinataSecretKey = process.env.PINATA_SECRET_KEY;
     this.pinataEndpoint = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
     this.gatewayUrl = 'https://gateway.pinata.cloud/ipfs/';
+  }
+
+  get pinataApiKey() {
+    return process.env.PINATA_API_KEY;
+  }
+
+  get pinataSecretKey() {
+    return process.env.PINATA_SECRET_KEY;
   }
 
   _authHeaders() {

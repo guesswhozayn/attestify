@@ -42,6 +42,7 @@ app.use(cors({
 app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
+  skip: (req) => req.path.startsWith('/auth/') || req.path.startsWith('/verify/'),
   message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,

@@ -110,9 +110,6 @@ const issueCredential = asyncHandler(async (req, res) => {
         credential: result.credential
       });
     } catch (issueErr) {
-      if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-        try { fs.unlinkSync(studentImageFile.path); } catch {}
-      }
       await prisma.credential.update({
         where: { id: credentialId },
         data: {
@@ -138,9 +135,6 @@ const issueCredential = asyncHandler(async (req, res) => {
       credentialId
     });
   } catch (queueErr) {
-    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
     await prisma.credential.update({
       where: { id: credentialId },
       data: {

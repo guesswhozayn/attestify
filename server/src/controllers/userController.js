@@ -27,9 +27,19 @@ const pickAllowed = (source, allowedKeys) => {
 
 const sanitizeUser = (user) => {
   if (!user) return null;
-  const safeUser = { ...user };
-  delete safeUser.password;
-  return safeUser;
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    title: user.title,
+    university: user.university,
+    about: user.about,
+    walletAddress: user.walletAddress,
+    issuerDetails: user.issuerDetails,
+    preferences: user.preferences,
+    createdAt: user.createdAt
+  };
 };
 
 const updateProfile = asyncHandler(async (req, res) => {

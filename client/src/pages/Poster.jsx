@@ -172,7 +172,7 @@ function ExpoSponsorRow({ size = 'large' }) {
   );
 }
 
-const ExpoTemplate3x3 = forwardRef(function ExpoTemplate3x3({ targetUrl }, ref) {
+const ExpoTemplate3x3 = forwardRef(function ExpoTemplate3x3(_, ref) {
   return (
     <article
       ref={ref}

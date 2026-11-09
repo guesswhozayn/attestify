@@ -95,14 +95,16 @@ Attestify is organized as an npm workspace monorepo consisting of two primary pa
 
 ### Server Workspace
 - Runtime: Node.js, Express 4
-- Database: MongoDB with Mongoose 8
+- Database: PostgreSQL with Prisma 6
 - Caching and Job Queues: Redis, BullMQ 5
 - Blockchain: Ethers.js v6, Ethereum Sepolia RPC
 - Decentralized Storage: Pinata IPFS API
 - Document Generation: PDFKit, node-qrcode
 - Security: JSON Web Tokens (JWT), Bcryptjs, Helmet, Express-Rate-Limit, CORS
 - File Handling: Multer, CSV-Parser
-- Email: Nodemailer
+
+### Blockchain Workspace
+- Smart Contracts: Solidity 0.8.20, OpenZeppelin Contracts 5, Hardhat 2
 
 ## Project Structure
 

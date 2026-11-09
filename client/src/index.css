@@ -604,3 +604,19 @@
     transform: translateX(-50%);
   }
 }
+
+@keyframes shrink {
+  from {
+    scale: 1 1;
+  }
+  to {
+    scale: 0 1;
+  }
+}
+
+.animate-shrink {
+  transform-origin: left;
+  animation-name: shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}

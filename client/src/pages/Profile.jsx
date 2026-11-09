@@ -42,6 +42,7 @@ const Profile = () => {
     }, []);
 
     const isIssuer = user?.role === 'ISSUER';
+    const studentData = user?.preferences?.studentDetails || user?.studentDetails || {};
 
     const registeredWallet =
         user?.issuerDetails?.authorizedWalletAddress ||
