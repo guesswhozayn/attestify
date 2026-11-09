@@ -38,16 +38,16 @@ const RevokedCredentials = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-            Revoked Credentials
+            Revoked credentials
           </h1>
           <p className="text-sm text-stone-500 mt-1">
-            Canceled credentials that will fail verification checks.
+            Invalidated certificates that fail verification.
           </p>
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
           <AlertTriangle className="w-3.5 h-3.5" />
-          <span>{totalRevoked} Revoked</span>
+          <span>{totalRevoked} revoked</span>
         </div>
       </div>
 

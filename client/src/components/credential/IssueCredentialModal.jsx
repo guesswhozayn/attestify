@@ -88,7 +88,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!formData.studentName || !formData.studentWalletAddress || !formData.university || !formData.issueDate) {
-      showNotification('Please fill in all required recipient details', 'error');
+      showNotification('Fill in all required recipient details', 'error');
       return;
     }
 
@@ -115,7 +115,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       issuedCredentialId = credentialId;
 
       if (credential?.status === 'COMPLETED') {
-        showNotification('Credential issued successfully', 'success');
+        showNotification('Credential issued', 'success');
         onSuccess?.();
         onClose();
         return;
@@ -167,9 +167,9 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
       const result = await pollStatus();
       if (result?.pending) {
-        showNotification('Credential queued and confirming on-chain in the background', 'info');
+        showNotification('Credential queued for blockchain confirmation', 'info');
       } else {
-        showNotification('Credential issued successfully', 'success');
+        showNotification('Credential issued', 'success');
       }
       onSuccess?.();
       onClose();

@@ -18,12 +18,12 @@ const VerificationSection = React.memo(({ certificate }) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
     if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
-      showNotification('Please select a PDF file', 'error');
+      showNotification('Select a PDF file', 'error');
       e.target.value = '';
       return;
     }
     if (selectedFile.size > 10 * 1024 * 1024) {
-      showNotification('File size exceeds the 10 MB limit', 'error');
+      showNotification('File size must be under 10 MB', 'error');
       e.target.value = '';
       return;
     }
@@ -32,7 +32,7 @@ const VerificationSection = React.memo(({ certificate }) => {
 
   const handleVerify = async () => {
     if (!file) {
-      showNotification('Please select a file to verify', 'error');
+      showNotification('Select a file to verify', 'error');
       return;
     }
 
@@ -41,7 +41,6 @@ const VerificationSection = React.memo(({ certificate }) => {
 
     try {
       const certId = certificate.id || certificate._id;
-      console.log('Verifying certificate with ID:', certId);
 
       const fileHash = await generateFileHash(file);
 
@@ -57,7 +56,7 @@ const VerificationSection = React.memo(({ certificate }) => {
        } else {
            setResult({
                valid: false,
-               message: 'Verification failed. Please try again.'
+               message: 'Verification failed. Try again.'
            });
        }
        setShowResultModal(true);
@@ -77,7 +76,7 @@ const VerificationSection = React.memo(({ certificate }) => {
             </div>
             <div>
               <h3 className="text-stone-900 text-sm font-bold tracking-tight leading-none mb-1">Verify document</h3>
-              <p className="text-[11px] text-stone-500 font-medium">Check cryptographic validity</p>
+              <p className="text-[11px] text-stone-500 font-medium">Check document authenticity</p>
             </div>
           </div>
           <div className="px-2.5 py-0.5 rounded-full bg-[#EDF5EE] border border-[#CFE6D3] text-[11px] font-semibold text-[#25562C]">
@@ -100,13 +99,13 @@ const VerificationSection = React.memo(({ certificate }) => {
                 <div className="flex flex-col items-center text-stone-800 py-1">
                   <FileCheck className="w-6 h-6 mb-2 text-stone-700" />
                   <span className="text-xs font-bold truncate max-w-full px-4 text-stone-900">{file.name}</span>
-                  <span className="text-[10px] text-stone-500 mt-1 font-medium">Click to change file</span>
+                  <span className="text-[10px] text-stone-500 mt-1 font-medium">Change file</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center text-stone-500 group-hover:text-stone-700 py-1">
                   <Upload className="w-6 h-6 mb-2 text-stone-400" />
                   <span className="text-xs font-bold text-stone-800">Upload PDF document</span>
-                  <span className="text-[11px] text-stone-400 mt-1 font-medium">Drag and drop or click to browse</span>
+                  <span className="text-[11px] text-stone-400 mt-1 font-medium">Choose a PDF file to verify</span>
                 </div>
               )}
             </div>

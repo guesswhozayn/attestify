@@ -163,7 +163,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             <div>
               <p className="font-bold text-rose-900">Credential issuance failed</p>
               <p className="text-xs text-rose-700 mt-1">
-                {credential.processingError || 'An error occurred while creating this credential on the blockchain. Please try issuing it again or contact support.'}
+                {credential.processingError || 'Credential failed to record on the blockchain. Try issuing again.'}
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             <div>
               <p className="font-bold text-amber-900">Issuance in progress</p>
               <p className="text-xs text-amber-700 mt-1">
-                {credential.processingError || 'This credential is being processed on the blockchain. Records and downloads will be available once completed.'}
+                {credential.processingError || 'Processing on the blockchain. Records and files will become available once confirmed.'}
               </p>
             </div>
           </div>
@@ -537,7 +537,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     Issuer actions
                   </h4>
                   <p className="text-[11px] text-[#9E2D2D]/80 mb-3 leading-relaxed">
-                    Permanently invalidate this credential on-chain.
+                    Permanently invalidate this credential on the blockchain.
                   </p>
                   <Button
                     onClick={() => setShowRevokeModal(true)}

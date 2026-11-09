@@ -94,17 +94,17 @@ const NetworkStatus = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-            Network Status
+            Network status
           </h1>
           <p className="text-sm text-stone-500 mt-1">
-            Blockchain verification ledger status and confirmations.
+            Blockchain ledger connectivity and confirmation activity.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#EAECF0] text-xs font-medium text-stone-700 shadow-xs">
             <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-600' : 'bg-rose-600'}`} />
-            <span>{isConnected ? 'Network operational' : 'Node offline'}</span>
+            <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
           </div>
 
           <Button

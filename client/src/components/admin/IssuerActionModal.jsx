@@ -12,7 +12,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
   if (!issuer) return null;
 
   const isReject = actionType === 'reject';
-  const title = isReject ? 'Reject Issuer' : 'Suspend Issuer';
+  const title = isReject ? 'Reject issuer' : 'Suspend issuer';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,7 +34,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
           )}
           <div className="space-y-1 text-xs">
             <p className="font-bold text-sm">
-              {isReject ? 'Reject Issuer' : 'Suspend Issuer'}
+              {isReject ? 'Reject issuer' : 'Suspend issuer'}
             </p>
             <p className="opacity-90 leading-relaxed">
               {isReject

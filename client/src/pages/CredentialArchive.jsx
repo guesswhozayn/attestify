@@ -92,7 +92,7 @@ const CredentialArchive = () => {
         } catch (error) {
             console.error(error);
             if (isMounted.current && error.response?.status !== 401) {
-                showNotification('Failed to fetch credentials', 'error');
+                showNotification('Could not load credentials', 'error');
             }
         } finally {
             if (isMounted.current) setLoading(false);
@@ -190,7 +190,7 @@ const CredentialArchive = () => {
                             Credentials
                         </h1>
                         <p className="text-xs text-stone-500 font-normal mt-0.5">
-                            Search, filter, and view certificates issued by your school.
+                            Certificates and transcripts issued by your institution.
                         </p>
                     </div>
 

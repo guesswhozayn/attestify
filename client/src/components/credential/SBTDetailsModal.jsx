@@ -14,7 +14,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     const copyToClipboard = (text, label = 'Value') => {
         if (!text || text === 'N/A' || text === '0x...') return;
         navigator.clipboard.writeText(String(text))
-            .then(() => showNotification(`${label} copied to clipboard`, 'success'))
+            .then(() => showNotification(`${label} copied`, 'success'))
             .catch(() => showNotification(`Failed to copy ${label.toLowerCase()}`, 'error'));
     };
 
@@ -28,14 +28,14 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                         </div>
                         <div>
                             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Record type</span>
-                            <span className="text-xs font-bold text-stone-900">Permanent academic record</span>
+                            <span className="text-xs font-bold text-stone-900">Soulbound token record</span>
                         </div>
                     </div>
                     <div className={`flex items-center gap-1.5 text-xs font-semibold ${
                         credential.isRevoked ? 'text-rose-600' : 'text-emerald-700'
                     }`}>
                         <div className={`w-2 h-2 rounded-full ${credential.isRevoked ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
-                        <span>{credential.isRevoked ? 'Revoked' : 'Active and valid'}</span>
+                        <span>{credential.isRevoked ? 'Revoked' : 'Active'}</span>
                     </div>
                 </div>
 
@@ -48,7 +48,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     />
 
                     <DataField
-                        label="Smart contract address"
+                        label="Contract address"
                         value={contractAddress}
                         icon={Database}
                         isAddress
@@ -73,7 +73,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                 </div>
 
                 <div className="space-y-3">
-                    <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Links & references</h4>
+                    <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">External links</h4>
                     <div className={`grid ${ipfsUrl ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
                         <a
                             href={etherscanUrl}
@@ -92,7 +92,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 className="flex flex-col items-center justify-center p-4 bg-stone-50 hover:bg-stone-100 border border-[#EAECF0] hover:border-stone-300 rounded-2xl transition-all group"
                             >
                                 <Share2 className="w-5 h-5 text-stone-500 group-hover:text-stone-900 mb-2 transition-colors" />
-                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS Gateway</span>
+                                <span className="text-xs font-semibold text-stone-700 group-hover:text-stone-900 text-center">IPFS</span>
                             </a>
                         )}
                     </div>

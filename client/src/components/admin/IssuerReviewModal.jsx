@@ -75,7 +75,7 @@ const IssuerReviewModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Issuer Details" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Issuer details" size="lg">
       <div className="space-y-6">
         <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
           isDark ? 'bg-stone-900/50 border-white/10' : 'bg-stone-50 border-[#EAECF0]'

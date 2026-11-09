@@ -18,7 +18,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
     if (selected.type !== 'text/csv' && !selected.name?.toLowerCase().endsWith('.csv')) {
-      showNotification('Please select a valid CSV file', 'error');
+      showNotification('Select a valid CSV file', 'error');
       e.target.value = '';
       setBatchFile(null);
       return;
@@ -47,7 +47,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleBatchUpload = async () => {
     if (!batchFile) {
-      showNotification('Please select a CSV file', 'error');
+      showNotification('Select a CSV file', 'error');
       return;
     }
 
@@ -60,7 +60,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
       if (response.data.success) {
         const queued = response.data.summary.queued ?? response.data.summary.success;
         const failed = response.data.summary.failed;
-        showNotification(`Batch processed: ${queued} queued for issuance, ${failed} rejected`, failed > 0 ? 'warning' : 'success');
+        showNotification(`Batch processed: ${queued} queued, ${failed} failed`, failed > 0 ? 'warning' : 'success');
         setBatchSummary(response.data.summary);
         setFailedRows(response.data.summary?.errors || response.data.results?.failed || []);
         onSuccess?.();

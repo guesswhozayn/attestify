@@ -225,14 +225,14 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EAECF0]">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-                        {isAdmin ? 'Admin Profile' : isIssuer ? 'Institution Profile' : 'Student Profile'}
+                        {isAdmin ? 'Admin profile' : isIssuer ? 'Institution profile' : 'Student profile'}
                     </h1>
                     <p className="text-xs sm:text-sm text-stone-500 mt-1">
                         {isAdmin
                             ? 'Platform administrator account.'
                             : isIssuer
                             ? 'Institution details and signing credentials.'
-                            : 'Student identity and wallet.'}
+                            : 'Student account and connected wallet.'}
                     </p>
                 </div>
 
@@ -275,7 +275,7 @@ const Profile = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-stone-100">
                         <div>
                             <span className="text-[11px] font-mono text-stone-400 uppercase tracking-wider block">
-                                {isAdmin ? 'Platform Superuser' : isIssuer ? 'Accredited Institution' : 'Enrolled Student'}
+                                {isAdmin ? 'Administrator' : isIssuer ? 'Institution' : 'Student'}
                             </span>
                             <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight mt-0.5">
                                 {isAdmin ? (user?.name || 'Platform Administrator') : user?.issuerDetails?.institutionName || user?.name || (isIssuer ? 'Institution' : 'Student')}

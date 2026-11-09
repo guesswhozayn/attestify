@@ -15,14 +15,14 @@ const CredentialsStats = ({ stats }) => {
                 label="Active"
                 value={stats.active ?? 0}
                 icon={CheckCircle2}
-                subtext="Valid and verifiable"
+                subtext="Valid credentials"
                 delay={0.05}
             />
             <StatCard
                 label="Revoked"
                 value={stats.revoked ?? 0}
                 icon={AlertTriangle}
-                subtext="Inactive credentials"
+                subtext="Revoked credentials"
                 delay={0.1}
             />
         </div>

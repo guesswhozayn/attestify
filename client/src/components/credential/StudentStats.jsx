@@ -20,10 +20,10 @@ const StudentStats = ({ stats }) => {
                 delay={0.1}
             />
             <StatCard
-                label="Direct records"
+                label="Soulbound"
                 value={stats.sbtCount ?? 0}
                 icon={Users}
-                subtext="Issued directly to you"
+                subtext="Non-transferable"
                 delay={0.2}
             />
             <StatCard

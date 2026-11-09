@@ -24,13 +24,13 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
       if (res.data?.warning) {
         showNotification(res.data.warning, 'warning');
       } else {
-        showNotification('Credential revoked successfully', 'success');
+        showNotification('Credential revoked', 'success');
       }
       setReason('');
       onSuccess();
       onClose();
     } catch (error) {
-      showNotification(error.response?.data?.error || 'Failed to revoke credential', 'error');
+      showNotification(error.response?.data?.error || 'Revocation failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -45,16 +45,16 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
              <AlertTriangle className="w-5 h-5" />
           </div>
           <div className="text-sm">
-            <h4 className="font-bold text-[#9E2D2D] mb-1">Permanent cryptographic revocation</h4>
+            <h4 className="font-bold text-[#9E2D2D] mb-1">Permanent revocation</h4>
             <p className="text-[#9E2D2D]/80 leading-relaxed text-xs">
-              This action cannot be undone. Once revoked, this credential will be permanently marked invalid across all verification endpoints.
+              This action cannot be undone. This credential will be permanently marked invalid on the blockchain.
             </p>
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
-            Reason for revocation
+            Revocation reason
           </label>
           <div className="relative">
              <textarea
@@ -62,12 +62,12 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
                onChange={(e) => setReason(e.target.value)}
                maxLength={500}
                className="w-full bg-stone-50 border border-[#EAECF0] rounded-xl p-3.5 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-400 focus:bg-white transition h-32 resize-none text-sm"
-               placeholder="e.g. Issued in error, administrative cancellation..."
+               placeholder="Reason for revoking this certificate"
                required
                disabled={loading}
              />
              <div className="absolute bottom-2.5 right-3 text-[11px] text-stone-400">
-               {reason.length}/500 chars
+               {reason.length}/500
              </div>
           </div>
         </div>

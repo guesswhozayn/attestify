@@ -227,7 +227,7 @@ const AdminDashboard = () => {
               Admin
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-purple-50 text-purple-700 border border-purple-200">
-              Superuser
+              Administrator
             </span>
           </div>
           <p className={`text-sm mt-1 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
@@ -259,7 +259,7 @@ const AdminDashboard = () => {
         ) : (
           <>
             <StatCard
-              title="Total Issuers"
+              title="Total issuers"
               value={stats?.totalIssuers ?? 0}
               icon={Building}
               variant="default"
@@ -273,11 +273,11 @@ const AdminDashboard = () => {
               subtext="Needs review"
             />
             <StatCard
-              title="Approved"
+              title="Active"
               value={stats?.verifiedCount ?? 0}
               icon={ShieldCheck}
               variant="success"
-              subtext="Authorized"
+              subtext="Active issuers"
             />
             <StatCard
               title="Credentials"

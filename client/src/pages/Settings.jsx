@@ -130,7 +130,7 @@ const Settings = () => {
                 size="md"
                 variant="primary"
               >
-                Save changes
+                Save
               </Button>
             </div>
           </div>

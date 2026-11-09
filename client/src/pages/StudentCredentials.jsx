@@ -140,10 +140,10 @@ const StudentCredentials = () => {
                 >
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-                            My Credentials
+                            Credentials
                         </h1>
                         <p className="text-xs text-stone-500 font-normal mt-0.5">
-                            All certificates and transcripts associated with your account.
+                            Certificates and transcripts associated with your wallet.
                         </p>
                     </div>
 

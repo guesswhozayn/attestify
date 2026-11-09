@@ -408,10 +408,10 @@ const VerifyDashboard = () => {
         {/* Banner Title */}
         <div className="text-center space-y-2 w-full">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 dark:text-white">
-            Verify a Certificate
+            Verify a certificate
           </h1>
           <p className="text-sm sm:text-base text-stone-700 dark:text-stone-300 max-w-md mx-auto leading-relaxed font-normal">
-            Verify academic credentials directly against accredited university records.
+            Verify certificates against blockchain records.
           </p>
         </div>
 
@@ -464,10 +464,10 @@ const VerifyDashboard = () => {
                   >
                     {isSuccess
                       ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
-                        ? 'Document Cryptographically Verified'
-                        : 'Certificate Verified Authentic'
+                        ? 'Document verified authentic'
+                        : 'Certificate verified authentic'
                       : isRevoked
-                      ? 'Certificate Revoked'
+                      ? 'Certificate revoked'
                       : result.exists || result.credential
                       ? 'Verification Failed'
                       : 'Certificate Not Found'}
