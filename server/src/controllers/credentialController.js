@@ -12,27 +12,17 @@ const { isValidCalendarDate } = require('../middleware/validator');
 
 const issueCredential = asyncHandler(async (req, res) => {
   const { studentWalletAddress, studentName, university, issueDate, type = 'CERTIFICATION', transcriptData, certificationData } = req.body;
-  const studentImageFile = req.files?.['studentImage']?.[0];
 
   if (!studentWalletAddress || !ethers.isAddress(studentWalletAddress.trim())) {
-    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
     return res.status(400).json({ error: 'Invalid or missing student Ethereum wallet address' });
   }
 
   if (new Date(issueDate) > new Date()) {
-    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
     return res.status(400).json({ error: 'Issue date cannot be in the future.' });
   }
 
   const normalizedType = String(type || 'CERTIFICATION').toUpperCase();
   if (!['TRANSCRIPT', 'CERTIFICATION'].includes(normalizedType)) {
-    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
     return res.status(400).json({ error: 'Credential type must be TRANSCRIPT or CERTIFICATION.' });
   }
 
@@ -42,32 +32,11 @@ const issueCredential = asyncHandler(async (req, res) => {
     if (typeof transcriptData === 'string') parsedTranscriptData = JSON.parse(transcriptData);
     if (typeof certificationData === 'string') parsedCertificationData = JSON.parse(certificationData);
   } catch {
-    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
     return res.status(400).json({ error: 'Invalid JSON in transcriptData or certificationData.' });
   }
 
   if (Array.isArray(parsedTranscriptData?.courses) && parsedTranscriptData.courses.length > 150) {
-    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
     return res.status(400).json({ error: 'Transcript cannot exceed 150 courses.' });
-  }
-
-  let studentImageBuffer = null;
-  if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
-    try {
-      studentImageBuffer = fs.readFileSync(studentImageFile.path);
-    } finally {
-      try { fs.unlinkSync(studentImageFile.path); } catch {}
-    }
-    const isPng = studentImageBuffer.length >= 8 && studentImageBuffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]));
-    const isJpeg = studentImageBuffer.length >= 3 && studentImageBuffer[0] === 0xFF && studentImageBuffer[1] === 0xD8 && studentImageBuffer[2] === 0xFF;
-    const isWebp = studentImageBuffer.length >= 12 && studentImageBuffer.subarray(0, 4).toString('ascii') === 'RIFF' && studentImageBuffer.subarray(8, 12).toString('ascii') === 'WEBP';
-    if (!isPng && !isJpeg && !isWebp) {
-      return res.status(400).json({ error: 'Invalid image file content. Allowed formats: PNG, JPEG, WEBP.' });
-    }
   }
 
   const credentialId = crypto.randomUUID();
@@ -75,12 +44,13 @@ const issueCredential = asyncHandler(async (req, res) => {
 
   const trimmedStudentName = studentName.trim();
   const data = {
-    studentWalletAddress, studentName: trimmedStudentName, university: issuerUniversity, issueDate, type: normalizedType,
+    studentWalletAddress,
+    studentName: trimmedStudentName,
+    university: issuerUniversity,
+    issueDate,
+    type: normalizedType,
     transcriptData: parsedTranscriptData,
     certificationData: parsedCertificationData,
-    studentImageBuffer,
-    studentImagePath: null,
-    studentImageName: studentImageFile ? studentImageFile.originalname : null,
     credentialId
   };
 
@@ -265,8 +235,6 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
           type,
           transcriptData,
           certificationData,
-          studentImagePath: null,
-          studentImageName: null,
           credentialId
         },
         user: { id: req.user.id }

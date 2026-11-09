@@ -6,9 +6,7 @@ const { requireVerifiedIssuer } = require('../middleware/roleCheck');
 const { validate, validateIssue } = require('../middleware/validator');
 const upload = require('../middleware/upload');
 
-router.post('/issue', authenticate, requireVerifiedIssuer, upload.fields([
-  { name: 'studentImage', maxCount: 1 }
-]), validate(validateIssue), credentialController.issueCredential);
+router.post('/issue', authenticate, requireVerifiedIssuer, upload.none(), validate(validateIssue), credentialController.issueCredential);
 
 router.post('/batch-issue', authenticate, requireVerifiedIssuer, upload.fields([
   { name: 'file', maxCount: 1 }

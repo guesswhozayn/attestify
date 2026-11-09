@@ -22,10 +22,6 @@ const issuanceWorker = new Worker('issuanceQueue', async (job) => {
       throw new Error('Issuer account lacks verified institutional credentials.');
     }
 
-    if (data.studentImageBuffer?.type === 'Buffer') {
-      data.studentImageBuffer = Buffer.from(data.studentImageBuffer.data);
-    }
-
     const result = await credentialService.processIssuance(data, freshUser);
     console.log(`[Worker] Job ${job.id} completed successfully.`);
     return result;
@@ -57,10 +53,6 @@ issuanceWorker.on('failed', async (job, err) => {
 
   console.error(`Job ${job?.id} permanently failed with error: ${err.message}`);
   const credentialId = job?.data?.data?.credentialId;
-  const imagePath = job?.data?.data?.studentImagePath;
-  if (imagePath && fs.existsSync(imagePath)) {
-    try { fs.unlinkSync(imagePath); } catch {}
-  }
   if (credentialId) {
     try {
       await prisma.credential.update({

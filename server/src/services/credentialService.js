@@ -22,12 +22,12 @@ const getFrontendUrl = () => {
 };
 
 class CredentialService {
-  async prepareSBTMetadata(user, credentialData, ipfsCID, imageUrl = null) {
+  async prepareSBTMetadata(user, credentialData, ipfsCID) {
     const frontendUrl = getFrontendUrl();
     const metadata = {
       name: `${credentialData.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credentialData.studentName}`,
       description: `A verifiable digital credential issued by ${credentialData.university} on ${new Date(credentialData.issueDate).toLocaleDateString()}. Secured by Attestify.`,
-      image: imageUrl || null,
+      image: null,
       external_url: `${frontendUrl}/verify/${credentialData.id}`,
       attributes: [
         { trait_type: "Degree Type", value: credentialData.type },
@@ -46,7 +46,7 @@ class CredentialService {
   async processIssuance(data, reqUser) {
     const {
       studentWalletAddress, studentName, university, issueDate, type,
-      transcriptData, certificationData, studentImageBuffer, studentImageName
+      transcriptData, certificationData
     } = data;
 
     const credentialId = data.credentialId || crypto.randomUUID();
@@ -118,7 +118,6 @@ class CredentialService {
       ? existingCred.certificateHash
       : null;
     let ipfsCID = existingCred?.ipfsCID || null;
-    let studentImageUrl = existingCred?.studentImage || null;
     let metadataURI = existingCred?.metadata?.tokenURI || null;
     let pdfByteLength = existingCred?.metadata?.fileSize || 0;
 
@@ -142,28 +141,10 @@ class CredentialService {
       certificateHash = computedHash;
       ipfsCID = ipfsResult.ipfsHash;
 
-      let imageBuffer = studentImageBuffer;
-      if (!imageBuffer && data.studentImagePath && fs.existsSync(data.studentImagePath)) {
-        try {
-          imageBuffer = fs.readFileSync(data.studentImagePath);
-        } catch (readErr) {
-          console.warn('Failed to read student image from path:', readErr.message);
-        }
-      }
-
-      if (imageBuffer && !studentImageUrl) {
-        try {
-          const imageIpfsResult = await ipfsService.uploadFile(imageBuffer, `${credentialId}_image_${studentImageName || 'student_image.png'}`);
-          studentImageUrl = ipfsService.getIPFSUrl(imageIpfsResult.ipfsHash);
-        } catch (uploadError) {
-          console.error('Failed to upload student image to IPFS:', uploadError);
-        }
-      }
-
       metadataURI = await this.prepareSBTMetadata(reqUser, {
         id: credentialId, studentWalletAddress: normalizedStudentWallet,
         studentName, university: institutionName, issueDate: parsedIssueDate, type
-      }, ipfsCID, studentImageUrl);
+      }, ipfsCID);
 
       if (existingCred) {
         await prisma.credential.update({
@@ -171,7 +152,6 @@ class CredentialService {
           data: {
             certificateHash,
             ipfsCID,
-            studentImage: studentImageUrl,
             metadata: {
               fileSize: pdfByteLength,
               fileType: 'application/pdf',
@@ -209,7 +189,6 @@ class CredentialService {
         transcriptData,
         certificationData,
         issuedById: userId,
-        studentImage: studentImageUrl,
         certificateHash,
         ipfsCID,
         transactionHash: blockchainResult.transactionHash,
@@ -232,7 +211,6 @@ class CredentialService {
         transcriptData,
         certificationData,
         issuedById: userId,
-        studentImage: studentImageUrl,
         certificateHash,
         ipfsCID,
         transactionHash: blockchainResult.transactionHash,
@@ -254,10 +232,6 @@ class CredentialService {
         where: { id: userId },
         data: { issuerDetails }
       });
-    }
-
-    if (data.studentImagePath && fs.existsSync(data.studentImagePath)) {
-      try { fs.unlinkSync(data.studentImagePath); } catch {}
     }
 
     return { credential, blockchainResult, ipfsResult: { ipfsHash: ipfsCID } };

@@ -11,20 +11,17 @@ fs.mkdirSync(BASE_UPLOAD_DIR, { recursive: true });
 
 const SUB_DIRS = {
   certificate: path.join(BASE_UPLOAD_DIR, 'certificates'),
-  file: path.join(BASE_UPLOAD_DIR, 'batch'),
-  studentImage: path.join(BASE_UPLOAD_DIR, 'images')
+  file: path.join(BASE_UPLOAD_DIR, 'batch')
 };
 
 const FIELD_EXTS = {
   file: new Set(['.csv']),
-  certificate: new Set(['.pdf']),
-  studentImage: new Set(['.jpg', '.jpeg', '.png', '.webp'])
+  certificate: new Set(['.pdf'])
 };
 
 const FIELD_MIMES = {
   file: new Set(['text/csv', 'application/vnd.ms-excel', 'text/plain']),
-  certificate: new Set(['application/pdf']),
-  studentImage: new Set(['image/jpeg', 'image/png', 'image/webp'])
+  certificate: new Set(['application/pdf'])
 };
 
 const upload = multer({

@@ -86,12 +86,7 @@ const getIPFSFile = asyncHandler(async (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required to access IPFS proxy.' });
 
   const credential = await prisma.credential.findFirst({
-    where: {
-      OR: [
-        { ipfsCID: cid },
-        { studentImage: { endsWith: `/${cid}` } }
-      ]
-    }
+    where: { ipfsCID: cid }
   });
   if (!credential) {
     return res.status(404).json({ error: 'File not found in credential records' });
