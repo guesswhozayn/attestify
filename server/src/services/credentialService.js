@@ -47,6 +47,7 @@ class CredentialService {
 
     const onChainDetails = await blockchainService.getOnChainIssuanceDetails(credentialId);
     if (onChainDetails?.isIssued) {
+      const wasAlreadyCompleted = existingCred?.status === 'COMPLETED';
       const syncedCred = await prisma.credential.upsert({
         where: { id: credentialId },
         update: {
@@ -55,6 +56,9 @@ class CredentialService {
           ipfsCID: onChainDetails.ipfsCID || existingCred?.ipfsCID,
           transactionHash: onChainDetails.transactionHash || existingCred?.transactionHash,
           blockNumber: onChainDetails.blockNumber || existingCred?.blockNumber,
+          gasUsed: onChainDetails.gasUsed || existingCred?.gasUsed,
+          gasPrice: onChainDetails.gasPrice || existingCred?.gasPrice,
+          totalCost: onChainDetails.totalCost || existingCred?.totalCost,
           tokenId: onChainDetails.tokenId || existingCred?.tokenId,
           processingError: null
         },
@@ -72,19 +76,24 @@ class CredentialService {
           ipfsCID: onChainDetails.ipfsCID || '',
           transactionHash: onChainDetails.transactionHash || '',
           blockNumber: onChainDetails.blockNumber || 0,
+          gasUsed: onChainDetails.gasUsed || null,
+          gasPrice: onChainDetails.gasPrice || null,
+          totalCost: onChainDetails.totalCost || null,
           tokenId: onChainDetails.tokenId || null,
           status: 'COMPLETED'
         }
       });
 
-      const userRecord = await prisma.user.findUnique({ where: { id: reqUser.id } });
-      if (userRecord?.issuerDetails) {
-        const issuerDetails = { ...userRecord.issuerDetails };
-        issuerDetails.certificatesIssued = (issuerDetails.certificatesIssued || 0) + 1;
-        await prisma.user.update({
-          where: { id: reqUser.id },
-          data: { issuerDetails }
-        });
+      if (!wasAlreadyCompleted) {
+        const userRecord = await prisma.user.findUnique({ where: { id: reqUser.id } });
+        if (userRecord?.issuerDetails) {
+          const issuerDetails = { ...userRecord.issuerDetails };
+          issuerDetails.certificatesIssued = (issuerDetails.certificatesIssued || 0) + 1;
+          await prisma.user.update({
+            where: { id: reqUser.id },
+            data: { issuerDetails }
+          });
+        }
       }
 
       return { credential: syncedCred };

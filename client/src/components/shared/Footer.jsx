@@ -5,24 +5,22 @@ import Button from './Button';
 import Logo from './Logo';
 
 const platformLinks = [
-  { name: 'Dashboard', path: '/login' },
+  { name: 'Dashboard', path: '/dashboard' },
   { name: 'Verification', path: '/verify' },
   { name: 'Documentation', path: '/docs' },
-  { name: 'API Status' },
+  { name: 'Network Status', path: '/network-status' },
 ];
 
 const companyLinks = [
   { name: 'About Us', path: '/about' },
-  { name: 'Security' },
-  { name: 'Blog' },
-  { name: 'Contact' },
+  { name: 'Security', path: '/docs' },
+  { name: 'Contact', href: 'mailto:contact@attestify.io' },
 ];
 
 const legalLinks = [
   { name: 'Privacy Policy', path: '/privacy' },
   { name: 'Terms of Service', path: '/terms' },
-  { name: 'Cookie Policy' },
-  { name: 'Security' },
+  { name: 'Security Model', path: '/docs' },
 ];
 
 const Footer = () => {
@@ -35,7 +33,13 @@ const Footer = () => {
         {links.map((link, idx) => (
           <li key={idx}>
             <Button
-              onClick={link.path ? () => navigate(link.path) : undefined}
+              onClick={
+                link.href
+                  ? () => { window.location.href = link.href; }
+                  : link.path
+                  ? () => navigate(link.path)
+                  : undefined
+              }
               variant="ghost"
               size="sm"
               className="!px-0 !py-2 hover:text-indigo-400 w-fit justify-start bg-transparent border-none shadow-none"
@@ -101,13 +105,13 @@ const Footer = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <a href="#" aria-label="GitHub" className="text-gray-500 hover:text-white transition-colors hover:scale-110 duration-300">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="text-gray-500 hover:text-white transition-colors hover:scale-110 duration-300">
               <Github className="w-5 h-5" />
             </a>
-            <a href="#" aria-label="Twitter" className="text-gray-500 hover:text-[#1DA1F2] transition-colors hover:scale-110 duration-300">
+            <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="text-gray-500 hover:text-[#1DA1F2] transition-colors hover:scale-110 duration-300">
               <Twitter className="w-5 h-5" />
             </a>
-            <a href="#" aria-label="LinkedIn" className="text-gray-500 hover:text-[#0077b5] transition-colors hover:scale-110 duration-300">
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-gray-500 hover:text-[#0077b5] transition-colors hover:scale-110 duration-300">
               <Linkedin className="w-5 h-5" />
             </a>
           </div>

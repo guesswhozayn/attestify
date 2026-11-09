@@ -461,14 +461,22 @@ const getCredentialById = asyncHandler(async (req, res) => {
     }
   }
 
+  const canAccessSensitive = isOwner || isIssuer;
   const responseCredential = isIssuer
     ? credential
-    : { ...credential, processingError: undefined, jobId: undefined };
+    : {
+        ...credential,
+        processingError: undefined,
+        jobId: undefined,
+        certificateHash: canAccessSensitive ? credential.certificateHash : undefined,
+        ipfsCID: canAccessSensitive ? credential.ipfsCID : undefined,
+        metadata: canAccessSensitive ? credential.metadata : undefined
+      };
 
   res.json({
     success: true,
     credential: responseCredential,
-    ipfsUrl: credential.ipfsCID ? ipfsService.getIPFSUrl(credential.ipfsCID) : null,
+    ipfsUrl: canAccessSensitive && credential.ipfsCID ? ipfsService.getIPFSUrl(credential.ipfsCID) : null,
     etherscanUrl: credential.transactionHash ? `https://sepolia.etherscan.io/tx/${credential.transactionHash}` : null
   });
 });
@@ -476,12 +484,13 @@ const getCredentialById = asyncHandler(async (req, res) => {
 const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   const currentWallet = req.user.walletAddress?.toLowerCase().trim();
   const targetWallet = req.params.walletAddress.toLowerCase().trim();
+  const isOwner = currentWallet === targetWallet;
 
-  if (req.user.role !== 'ISSUER' && currentWallet !== targetWallet) {
+  if (req.user.role !== 'ISSUER' && !isOwner) {
     return res.status(403).json({ error: 'Unauthorized access to credentials' });
   }
 
-  if (req.user.role === 'ISSUER' && currentWallet !== targetWallet) {
+  if (req.user.role === 'ISSUER' && !isOwner) {
     const student = await prisma.user.findFirst({
       where: { walletAddress: { equals: targetWallet, mode: 'insensitive' } }
     });
@@ -518,11 +527,20 @@ const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
     orderBy: { createdAt: 'desc' }
   });
 
-  const sanitized = credentials.map(c =>
-    req.user.role === 'ISSUER' && c.issuedById === req.user.id
+  const sanitized = credentials.map(c => {
+    const isCredIssuer = req.user.role === 'ISSUER' && c.issuedById === req.user.id;
+    const canAccessSensitive = isOwner || isCredIssuer;
+    return isCredIssuer
       ? c
-      : { ...c, processingError: undefined, jobId: undefined }
-  );
+      : {
+          ...c,
+          processingError: undefined,
+          jobId: undefined,
+          certificateHash: canAccessSensitive ? c.certificateHash : undefined,
+          ipfsCID: canAccessSensitive ? c.ipfsCID : undefined,
+          metadata: canAccessSensitive ? c.metadata : undefined
+        };
+  });
 
   res.json({ success: true, credentials: sanitized });
 });
@@ -723,12 +741,16 @@ const verifyCredential = asyncHandler(async (req, res) => {
     });
   }
 
+  const canAccessSensitive = isOwner || isIssuer;
   res.json({
     success: true,
     credential: {
       ...credential,
       processingError: isIssuer ? credential.processingError : undefined,
       jobId: isIssuer ? credential.jobId : undefined,
+      certificateHash: canAccessSensitive ? credential.certificateHash : undefined,
+      ipfsCID: canAccessSensitive ? credential.ipfsCID : undefined,
+      metadata: canAccessSensitive ? credential.metadata : undefined,
       isRevoked: effectiveRevoked,
       institutionName: credential.issuedBy?.issuerDetails?.institutionName || credential.university || 'Attestify Institution',
       blockchainProof: blockchainData ? {

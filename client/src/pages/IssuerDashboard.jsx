@@ -39,12 +39,20 @@ const IssuerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isFetching = React.useRef(false);
+  const isMounted = React.useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const fetchDashboardData = useCallback(async (isRefresh = false) => {
     if (isFetching.current) return;
     try {
       isFetching.current = true;
-      if (isRefresh) setRefreshing(true);
+      if (isRefresh && isMounted.current) setRefreshing(true);
 
       const [statsResponse, recentResponse] = await Promise.all([
         credentialAPI.getStats
@@ -52,6 +60,8 @@ const IssuerDashboard = () => {
           : Promise.resolve({ data: { stats: null } }),
         credentialAPI.getAll({ limit: 8 })
       ]);
+
+      if (!isMounted.current) return;
 
       if (statsResponse?.data?.stats) {
         setStats(prev => ({ ...prev, ...statsResponse.data.stats }));
@@ -64,10 +74,14 @@ const IssuerDashboard = () => {
         return fetched.find(c => (c.id || c._id) === prevId) || prev;
       });
     } catch {
-      showNotification('Could not load dashboard data. Check your connection.', 'error');
+      if (isMounted.current) {
+        showNotification('Could not load dashboard data. Check your connection.', 'error');
+      }
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (isMounted.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
       isFetching.current = false;
     }
   }, [showNotification]);

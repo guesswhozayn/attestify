@@ -95,7 +95,7 @@ function buildVerificationResponse(credential, isValidOnChain, hash, includeHash
     issuedBy: credential.issuedBy?.name || 'Unknown Issuer',
     transactionHash: credential.transactionHash,
     blockNumber: credential.blockNumber,
-    ipfsCID: credential.ipfsCID,
+    ipfsCID: includeHash ? credential.ipfsCID : undefined,
     certificateHash: includeHash ? credential.certificateHash : undefined,
     isRevoked: credential.isRevoked,
     status: credential.status
@@ -337,7 +337,7 @@ const checkExists = asyncHandler(async (req, res) => {
       issuedBy: c.issuedBy?.name || 'Unknown Issuer',
       isRevoked: c.isRevoked,
       transactionHash: c.transactionHash,
-      ipfsCID: c.ipfsCID
+      ipfsCID: (isOwner || (req.user?.role === 'ISSUER' && c.issuedById === req.user.id)) ? c.ipfsCID : undefined
     };
   });
 

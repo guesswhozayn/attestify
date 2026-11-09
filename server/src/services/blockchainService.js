@@ -286,13 +286,21 @@ class BlockchainService {
       let transactionHash = null;
       let blockNumber = null;
       let tokenId = null;
+      let gasUsed = null;
+      let gasPrice = null;
+      let totalCost = null;
 
       try {
         const latestBlock = await this.provider.getBlockNumber();
         const fromBlock = Math.max(0, latestBlock - 5000);
-        const filter = this.contract.filters.CredentialIssued(null, null, null, null, this.wallet.address);
+        const expectedTopic = ethers.id(studentId);
+        const filter = this.contract.filters.CredentialIssued(studentId, null, null, null, this.wallet.address);
         const events = await this.contract.queryFilter(filter, fromBlock, latestBlock);
-        const matching = events.filter(e => e.args?.studentId === studentId);
+        const matching = events.filter(e =>
+          e.args?.studentId === studentId ||
+          e.args?.studentId?.hash === expectedTopic ||
+          e.topics?.[1] === expectedTopic
+        );
         if (matching.length > 0) {
           const event = matching[matching.length - 1];
           transactionHash = event.transactionHash;
@@ -300,6 +308,11 @@ class BlockchainService {
 
           const receipt = await this.provider.getTransactionReceipt(transactionHash);
           if (receipt) {
+            const used = receipt.gasUsed ?? 0n;
+            const price = receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0n;
+            gasUsed = used.toString();
+            gasPrice = price.toString();
+            totalCost = (used * price).toString();
             for (const log of receipt.logs) {
               try {
                 const parsedLog = this.contract.interface.parseLog(log);
@@ -321,7 +334,10 @@ class BlockchainService {
         ipfsCID: cred?.ipfsCID,
         transactionHash,
         blockNumber,
-        tokenId
+        tokenId,
+        gasUsed,
+        gasPrice,
+        totalCost
       };
     } catch (error) {
       console.error('getOnChainIssuanceDetails error:', error.message);

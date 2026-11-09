@@ -68,6 +68,12 @@ const Register = () => {
       return;
     }
 
+    const walletToCheck = formData.role === 'ISSUER' ? formData.authorizedWalletAddress : formData.walletAddress;
+    if (!/^0x[a-fA-F0-9]{40}$/.test(walletToCheck?.trim() || '')) {
+      setError('Please enter a valid Ethereum wallet address (0x...)');
+      return;
+    }
+
     setLoading(true);
 
     const result = await register(formData);
@@ -320,7 +326,7 @@ const Register = () => {
 
                  <Input
                     label="Confirm password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
