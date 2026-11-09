@@ -131,8 +131,10 @@ class BlockchainService {
 
     const maxPriorityFeePerGas = rawPriority * mul / 100n > PRIORITY_FLOOR
       ? rawPriority * mul / 100n : PRIORITY_FLOOR;
-    const maxFeePerGas = rawMax * mul / 100n > MAX_FEE_FLOOR
+    const baseMax = rawMax * mul / 100n > MAX_FEE_FLOOR
       ? rawMax * mul / 100n : MAX_FEE_FLOOR;
+    const maxFeePerGas = baseMax >= maxPriorityFeePerGas + PRIORITY_FLOOR
+      ? baseMax : maxPriorityFeePerGas + PRIORITY_FLOOR;
 
     console.log(`[Gas] maxFeePerGas=${ethers.formatUnits(maxFeePerGas, 'gwei')} gwei, maxPriorityFeePerGas=${ethers.formatUnits(maxPriorityFeePerGas, 'gwei')} gwei`);
     return { maxFeePerGas, maxPriorityFeePerGas };
@@ -286,10 +288,13 @@ class BlockchainService {
       let tokenId = null;
 
       try {
-        const filter = this.contract.filters.CredentialIssued(studentId);
-        const events = await this.contract.queryFilter(filter);
-        if (events.length > 0) {
-          const event = events[events.length - 1];
+        const latestBlock = await this.provider.getBlockNumber();
+        const fromBlock = Math.max(0, latestBlock - 5000);
+        const filter = this.contract.filters.CredentialIssued(null, null, null, null, this.wallet.address);
+        const events = await this.contract.queryFilter(filter, fromBlock, latestBlock);
+        const matching = events.filter(e => e.args?.studentId === studentId);
+        if (matching.length > 0) {
+          const event = matching[matching.length - 1];
           transactionHash = event.transactionHash;
           blockNumber = event.blockNumber;
 

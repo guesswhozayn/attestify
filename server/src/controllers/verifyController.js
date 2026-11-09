@@ -34,7 +34,7 @@ async function findCredential(identifier, certificateHash = null) {
   if (trimmedId && isIdentifier(trimmedId)) {
     return prisma.credential.findUnique({
       where: { id: trimmedId },
-      include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+      include: { issuedBy: { select: { id: true, name: true, university: true, walletAddress: true } } }
     });
   }
 
@@ -45,14 +45,14 @@ async function findCredential(identifier, certificateHash = null) {
           studentWalletAddress: { equals: trimmedId.toLowerCase(), mode: 'insensitive' },
           certificateHash: { equals: normalizedHash, mode: 'insensitive' }
         },
-        include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+        include: { issuedBy: { select: { id: true, name: true, university: true, walletAddress: true } } }
       });
     }
 
     if (!trimmedId || trimmedId === 'credential') {
       return prisma.credential.findFirst({
         where: { certificateHash: { equals: normalizedHash, mode: 'insensitive' } },
-        include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+        include: { issuedBy: { select: { id: true, name: true, university: true, walletAddress: true } } }
       });
     }
   }
@@ -75,7 +75,7 @@ async function checkPrivacy(credential, reqUser) {
   return student?.preferences?.visibility !== false;
 }
 
-function buildVerificationResponse(credential, isValidOnChain, hash) {
+function buildVerificationResponse(credential, isValidOnChain, hash, includeHash = false) {
   const courseOrTitle = credential.certificationData?.title ||
     credential.transcriptData?.program ||
     credential.course ||
@@ -96,7 +96,7 @@ function buildVerificationResponse(credential, isValidOnChain, hash) {
     transactionHash: credential.transactionHash,
     blockNumber: credential.blockNumber,
     ipfsCID: credential.ipfsCID,
-    certificateHash: credential.certificateHash,
+    certificateHash: includeHash ? credential.certificateHash : undefined,
     isRevoked: credential.isRevoked,
     status: credential.status
   };
@@ -204,7 +204,7 @@ const verifyWithFile = asyncHandler(async (req, res) => {
     safeUnlink(tempFilePath);
 
     return res.json({
-      ...buildVerificationResponse(credential, isValidOnChain, uploadedHash),
+      ...buildVerificationResponse(credential, isValidOnChain, uploadedHash, true),
       onChainVerified: isValidOnChain,
       verificationTier: 'CRYPTOGRAPHIC_HASH'
     });
@@ -222,7 +222,7 @@ const checkExists = asyncHandler(async (req, res) => {
   if (isIdentifier(walletAddress)) {
     const cred = await prisma.credential.findUnique({
       where: { id: walletAddress },
-      include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+      include: { issuedBy: { select: { id: true, name: true, university: true, walletAddress: true } } }
     });
 
     if (!cred) {
@@ -247,7 +247,8 @@ const checkExists = asyncHandler(async (req, res) => {
     }
 
     const providedHash = req.query.h || req.query.hash;
-    if (providedHash && normalizeSha256Hash(providedHash) !== normalizeSha256Hash(cred.certificateHash)) {
+    const normalizedProvidedHash = providedHash ? normalizeSha256Hash(providedHash) : null;
+    if (providedHash && (!normalizedProvidedHash || normalizedProvidedHash !== normalizeSha256Hash(cred.certificateHash))) {
       return res.json({
         valid: false,
         exists: true,
@@ -268,12 +269,12 @@ const checkExists = asyncHandler(async (req, res) => {
     if (!cred.isRevoked && isValidOnChain) {
       await recordVerification(cred.id);
     }
-    const verificationResp = buildVerificationResponse(cred, isValidOnChain, cred.certificateHash);
+    const verificationResp = buildVerificationResponse(cred, isValidOnChain, cred.certificateHash, Boolean(normalizedProvidedHash));
 
     return res.json({
       ...verificationResp,
       onChainVerified: isValidOnChain,
-      verificationTier: providedHash ? 'CRYPTOGRAPHIC_HASH' : (isValidOnChain ? 'ON_CHAIN_REGISTRY' : 'REGISTRY_RECORD')
+      verificationTier: normalizedProvidedHash ? 'CRYPTOGRAPHIC_HASH' : (isValidOnChain ? 'ON_CHAIN_REGISTRY' : 'REGISTRY_RECORD')
     });
   }
 
@@ -282,7 +283,7 @@ const checkExists = asyncHandler(async (req, res) => {
       studentWalletAddress: { equals: normalizedWallet, mode: 'insensitive' },
       status: 'COMPLETED'
     },
-    include: { issuedBy: { select: { id: true, name: true, university: true, email: true, walletAddress: true } } }
+    include: { issuedBy: { select: { id: true, name: true, university: true, walletAddress: true } } }
   });
 
   if (!credentials.length) {
@@ -385,7 +386,7 @@ const verifyByHash = asyncHandler(async (req, res) => {
     await recordVerification(credential.id);
   }
 
-  return res.json(buildVerificationResponse(credential, isValidOnChain, normalizedHash));
+  return res.json(buildVerificationResponse(credential, isValidOnChain, normalizedHash, true));
 });
 
 module.exports = { verifyWithFile, checkExists, verifyByHash };

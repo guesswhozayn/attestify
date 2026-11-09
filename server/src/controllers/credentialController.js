@@ -28,13 +28,24 @@ const issueCredential = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Issue date cannot be in the future.' });
   }
 
+  const normalizedType = String(type || 'CERTIFICATION').toUpperCase();
+  if (!['TRANSCRIPT', 'CERTIFICATION'].includes(normalizedType)) {
+    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
+    }
+    return res.status(400).json({ error: 'Credential type must be TRANSCRIPT or CERTIFICATION.' });
+  }
+
   let parsedTranscriptData = transcriptData;
   let parsedCertificationData = certificationData;
   try {
     if (typeof transcriptData === 'string') parsedTranscriptData = JSON.parse(transcriptData);
     if (typeof certificationData === 'string') parsedCertificationData = JSON.parse(certificationData);
-  } catch (e) {
-    console.warn('Failed to parse JSON data', e);
+  } catch {
+    if (studentImageFile?.path && fs.existsSync(studentImageFile.path)) {
+      try { fs.unlinkSync(studentImageFile.path); } catch {}
+    }
+    return res.status(400).json({ error: 'Invalid JSON in transcriptData or certificationData.' });
   }
 
   if (Array.isArray(parsedTranscriptData?.courses) && parsedTranscriptData.courses.length > 150) {
@@ -62,8 +73,9 @@ const issueCredential = asyncHandler(async (req, res) => {
   const credentialId = crypto.randomUUID();
   const issuerUniversity = req.user.issuerDetails?.institutionName || req.user.university || university || 'Attestify';
 
+  const trimmedStudentName = studentName.trim();
   const data = {
-    studentWalletAddress, studentName, university: issuerUniversity, issueDate, type,
+    studentWalletAddress, studentName: trimmedStudentName, university: issuerUniversity, issueDate, type: normalizedType,
     transcriptData: parsedTranscriptData,
     certificationData: parsedCertificationData,
     studentImageBuffer,
@@ -76,10 +88,10 @@ const issueCredential = asyncHandler(async (req, res) => {
     data: {
       id: credentialId,
       studentWalletAddress: studentWalletAddress.toLowerCase().trim(),
-      studentName,
+      studentName: trimmedStudentName,
       university: issuerUniversity,
       issueDate: new Date(issueDate),
-      type,
+      type: normalizedType,
       transcriptData: parsedTranscriptData,
       certificationData: parsedCertificationData,
       issuedById: req.user.id,
@@ -185,6 +197,9 @@ const batchIssueCredentials = asyncHandler(async (req, res) => {
     try {
       if (!row.studentName?.trim() || !row.studentWalletAddress?.trim()) {
         throw new Error('Missing studentName or studentWalletAddress');
+      }
+      if (row.studentName.trim().length > 150) {
+        throw new Error('studentName cannot exceed 150 characters');
       }
       if (!ethers.isAddress(row.studentWalletAddress.trim())) {
         throw new Error(`Invalid student wallet address: ${row.studentWalletAddress}`);

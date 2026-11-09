@@ -84,9 +84,14 @@ const validateLogin = (req) => {
 };
 
 const validateIssue = (req) => {
-  const { studentWalletAddress, studentName, issueDate } = req.body;
+  const { studentWalletAddress, studentName, issueDate, type } = req.body;
   if (!studentWalletAddress || !isHexAddress(studentWalletAddress)) return 'A valid 0x Ethereum student wallet address is required';
-  if (!studentName || typeof studentName !== 'string' || !studentName.trim()) return 'Student name is required';
+  if (!studentName || typeof studentName !== 'string' || !studentName.trim() || studentName.trim().length > 150) {
+    return 'Student name is required (max 150 characters)';
+  }
+  if (type !== undefined && !['TRANSCRIPT', 'CERTIFICATION'].includes(String(type).toUpperCase())) {
+    return 'Credential type must be TRANSCRIPT or CERTIFICATION';
+  }
   if (!issueDate || !isValidCalendarDate(issueDate)) return 'A valid issue date is required';
   if (new Date(issueDate) > new Date()) return 'Issue date cannot be in the future';
   return null;
