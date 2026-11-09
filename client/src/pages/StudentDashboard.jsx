@@ -203,7 +203,7 @@ const StudentDashboard = () => {
   }
 
   return (
-        <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
+        <div className="min-h-screen text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
             <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 relative z-10">
 
         <HeroCard
@@ -354,13 +354,13 @@ const StudentDashboard = () => {
                                {credential.isRevoked ? 'Revoked' : 'Verified'}
                             </span>
                          </div>
-                        <div className="font-mono text-stone-700 text-[11px] bg-[#F8F9FA] p-3 rounded-xl border border-stone-200/80 break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">
+                        <div className="font-mono text-stone-700 text-[11px] bg-stone-50 p-3 rounded-xl border border-stone-200/80 break-all hover:border-stone-400 transition-colors cursor-text selection:bg-stone-200 text-left leading-relaxed">
                            {credential.id || credential._id}
                         </div>
                      </div>
                      <div className="space-y-1.5">
                          <span className="text-stone-600 text-xs font-medium block text-left px-0.5">File storage reference</span>
-                         <div className="font-mono text-stone-700 text-[11px] bg-[#F8F9FA] p-3 rounded-xl border border-stone-200/80 break-all cursor-text selection:bg-stone-200 hover:border-stone-400 transition-colors text-left leading-relaxed">
+                         <div className="font-mono text-stone-700 text-[11px] bg-stone-50 p-3 rounded-xl border border-stone-200/80 break-all cursor-text selection:bg-stone-200 hover:border-stone-400 transition-colors text-left leading-relaxed">
                            {credential.ipfsCID}
                         </div>
                      </div>

@@ -130,7 +130,7 @@ const StudentCredentials = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
+        <div className="min-h-screen text-stone-900 selection:bg-stone-900 selection:text-white overflow-x-hidden font-sans relative pb-20">
             <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto space-y-6 relative z-10">
 
                 {/* Header Bar */}
@@ -196,7 +196,7 @@ const StudentCredentials = () => {
                                 type="text"
                                 placeholder="Search credentials..."
                                 onChange={(e) => handleSearch(e.target.value)}
-                                className="block w-full pl-10 pr-4 py-2 bg-[#F8F9FA] hover:bg-white focus:bg-white border border-stone-200/80 rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400/20 focus:border-stone-400 transition-all shadow-2xs"
+                                className="block w-full pl-10 pr-4 py-2 bg-stone-50 hover:bg-white focus:bg-white border border-stone-200/80 rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400/20 focus:border-stone-400 transition-all shadow-2xs"
                             />
                         </div>
                     </div>

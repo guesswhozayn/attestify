@@ -341,7 +341,7 @@ const VerifyDashboard = () => {
       className={`min-h-screen font-sans transition-colors ${
         isDark
           ? 'dashboard-dark bg-[#0a0a0c] text-stone-100 selection:bg-stone-100 selection:text-stone-900'
-          : 'dashboard-light bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white'
+          : 'dashboard-light bg-white text-stone-900 selection:bg-stone-900 selection:text-white'
       }`}
     >
       {/* Top Header */}

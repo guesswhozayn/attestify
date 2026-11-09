@@ -217,7 +217,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="w-full bg-[#F8F9FA] text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6">
+        <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EAECF0]">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">

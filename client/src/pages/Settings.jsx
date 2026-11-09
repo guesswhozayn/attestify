@@ -61,7 +61,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-stone-900 selection:bg-stone-900 selection:text-white pb-20">
+    <div className="min-h-screen text-stone-900 selection:bg-stone-900 selection:text-white pb-20">
       <main className="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto relative z-10 space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 15 }}

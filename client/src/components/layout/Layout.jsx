@@ -38,7 +38,7 @@ const Layout = () => {
     <div className={`min-h-dvh flex font-sans relative transition-colors ${
       isDark
         ? 'dashboard-dark bg-[#0a0a0c] selection:bg-stone-100 selection:text-stone-900 text-stone-100'
-        : 'dashboard-light bg-[#F8F9FA] selection:bg-stone-900 selection:text-white text-stone-900'
+        : 'dashboard-light bg-white selection:bg-stone-900 selection:text-white text-stone-900'
     }`}>
       <Sidebar
         isOpen={isMobileMenuOpen}

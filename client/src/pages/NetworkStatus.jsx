@@ -58,7 +58,7 @@ const NetworkStatus = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" text="Checking network status..." />
       </div>
     );
@@ -66,7 +66,7 @@ const NetworkStatus = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center text-stone-700">
+      <div className="min-h-screen flex flex-col items-center justify-center text-stone-700">
         <Activity className="w-10 h-10 mb-3 text-rose-500" />
         <p className="text-sm font-semibold">{error}</p>
         <Button
@@ -90,7 +90,7 @@ const NetworkStatus = () => {
   const isConnected = network.connected;
 
   return (
-    <div className="w-full bg-[#F8F9FA] text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6">
+    <div className="w-full text-stone-900 pb-20 px-4 sm:px-6 lg:px-8 pt-8 max-w-[1400px] mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
