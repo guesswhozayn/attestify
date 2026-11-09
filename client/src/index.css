@@ -11,6 +11,9 @@
   html {
     scroll-behavior: smooth;
     color-scheme: dark;
+    @media (prefers-reduced-motion: reduce) {
+      scroll-behavior: auto;
+    }
   }
 
   html, body {
@@ -37,14 +40,23 @@
 @layer utilities {
   .animate-scroll {
     animation: scroll 40s linear infinite;
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 
   .animate-shimmer {
     animation: shimmer 8s linear infinite;
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 
   .animate-shimmer-slow {
     animation: shimmer 16s linear infinite;
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 
   .pause {

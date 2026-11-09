@@ -1,10 +1,11 @@
 import { QRCodeSVG } from 'qrcode.react';
 import Button from '../shared/Button';
 import { Download } from 'lucide-react';
+import { getVerificationBaseUrl } from '../../utils/credential';
 
 const QRCodeDisplay = ({ credentialId }) => {
   if (!credentialId) return null;
-  const qrValue = `${window.location.origin}/verify/${credentialId}`;
+  const qrValue = `${getVerificationBaseUrl()}/verify/${credentialId}`;
 
   const elementId = `qr-code-${credentialId}`;
 

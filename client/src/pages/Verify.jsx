@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import { getVerificationBaseUrl } from '../utils/credential';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -208,9 +209,10 @@ const VerifyDashboard = () => {
   const isSuccess = result?.valid && !result?.revoked;
   const isRevoked = result?.revoked;
   const credentialKey = result?.credential?.id || result?.credential?._id;
+  const baseUrl = getVerificationBaseUrl();
   const qrVerificationUrl = credentialKey
-    ? `${window.location.origin}/verify/${credentialKey}`
-    : `${window.location.origin}/verify?walletAddress=${result?.credential?.studentWalletAddress || ''}`;
+    ? `${baseUrl}/verify/${credentialKey}`
+    : `${baseUrl}/verify?walletAddress=${result?.credential?.studentWalletAddress || ''}`;
 
   return (
     <div

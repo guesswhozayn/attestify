@@ -6,9 +6,24 @@ const ipfsService = require('./ipfsService');
 const hashService = require('./hashService');
 const pdfService = require('./pdfService');
 
+const getFrontendUrl = () => {
+  const envUrl = process.env.FRONTEND_URL?.trim();
+  if (envUrl) {
+    try {
+      const parsed = new URL(envUrl);
+      if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+        return parsed.origin;
+      }
+    } catch {
+      void 0;
+    }
+  }
+  return 'https://attestify-alpha.vercel.app';
+};
+
 class CredentialService {
   async prepareSBTMetadata(user, credentialData, ipfsCID, imageUrl = null) {
-    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+    const frontendUrl = getFrontendUrl();
     const metadata = {
       name: `${credentialData.type === 'TRANSCRIPT' ? 'Academic Transcript' : 'Certification'}: ${credentialData.studentName}`,
       description: `A verifiable digital credential issued by ${credentialData.university} on ${new Date(credentialData.issueDate).toLocaleDateString()}. Secured by Attestify.`,
@@ -38,7 +53,7 @@ class CredentialService {
     const normalizedStudentWallet = studentWalletAddress?.toLowerCase().trim();
     const parsedIssueDate = new Date(issueDate);
     const institutionName = reqUser.issuerDetails?.institutionName || university || 'Attestify';
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = getFrontendUrl();
 
     const existingCred = await prisma.credential.findUnique({ where: { id: credentialId } });
     if (existingCred?.status === 'COMPLETED' && existingCred.transactionHash) {

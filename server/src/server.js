@@ -16,7 +16,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-const rawOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const rawOrigins = (process.env.FRONTEND_URL || 'https://attestify-alpha.vercel.app')
   .split(',')
   .map(o => o.trim().replace(/^['"]|['"]$/g, '').replace(/\/$/, ''))
   .filter(Boolean);

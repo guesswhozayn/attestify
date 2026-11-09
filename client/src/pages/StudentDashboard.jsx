@@ -13,6 +13,7 @@ import CredentialDetails from '../components/credential/CredentialDetails';
 import StudentStats from '../components/credential/StudentStats';
 import HeroCard from '../components/shared/HeroCard';
 import EmptyState from '../components/shared/EmptyState';
+import { getVerificationBaseUrl } from '../utils/credential';
 
 const StudentDashboard = () => {
   const { user, updateUser } = useAuth();
@@ -136,9 +137,10 @@ const StudentDashboard = () => {
   const handleShare = useCallback(() => {
     if (!credential) return;
     const credId = credential.id || credential._id;
+    const baseUrl = getVerificationBaseUrl();
     const shareUrl = credId
-      ? `${window.location.origin}/verify/${credId}`
-      : `${window.location.origin}/verify?walletAddress=${walletAddress}`;
+      ? `${baseUrl}/verify/${credId}`
+      : `${baseUrl}/verify?walletAddress=${walletAddress}`;
     navigator.clipboard.writeText(shareUrl).catch(() => {});
     showNotification('Verification link copied to clipboard', 'success');
   }, [credential, walletAddress, showNotification]);

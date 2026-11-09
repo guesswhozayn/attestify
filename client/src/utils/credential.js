@@ -9,3 +9,30 @@ export const getCredentialMeta = (credential) => {
     ledgerLabel: isTranscript ? 'Academic Ledger' : 'Certification Registry',
   };
 };
+
+export const getVerificationBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_APP_URL || import.meta.env.VITE_FRONTEND_URL;
+  if (envUrl && typeof envUrl === 'string') {
+    try {
+      const parsed = new URL(envUrl);
+      if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+        return parsed.origin;
+      }
+    } catch {
+      void 0;
+    }
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    try {
+      const parsed = new URL(window.location.origin);
+      if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+        return parsed.origin;
+      }
+    } catch {
+      void 0;
+    }
+  }
+
+  return 'https://attestify-alpha.vercel.app';
+};

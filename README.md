@@ -158,7 +158,7 @@ Create a `.env` file in the `server` directory with the following variables:
 | PINATA_SECRET_KEY | Pinata Secret API Key for IPFS uploads | your-pinata-secret-key |
 | EMAIL_USER | SMTP email address for notifications | your-email@example.com |
 | EMAIL_PASS | SMTP email application password | your-app-password |
-| FRONTEND_URL | URL of the frontend application | http://localhost:5173 |
+| FRONTEND_URL | URL of the frontend application | https://attestify-alpha.vercel.app |
 | NODE_ENV | Node environment mode | development |
 | REDIS_HOST | Redis server hostname | 127.0.0.1 |
 | REDIS_PORT | Redis server port | 6379 |
@@ -172,6 +172,7 @@ Create a `.env` file in the `client` directory with the following variables:
 | VITE_API_URL | Full base URL for the backend API | http://localhost:5000/api |
 | VITE_CONTRACT_ADDRESS | Attestify contract address | 0xce209eD4923DA8FDbf6C5a942245210a9Bc0809a |
 | VITE_SEPOLIA_RPC_URL | Ethereum Sepolia JSON-RPC endpoint | https://eth-sepolia.g.alchemy.com/v2/... |
+| VITE_APP_URL | Public web URL for QR codes and verification | https://attestify-alpha.vercel.app |
 
 ## Getting Started
 
