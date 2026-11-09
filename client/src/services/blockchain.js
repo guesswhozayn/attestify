@@ -14,15 +14,19 @@ const SEPOLIA_CHAIN_ID_DECIMAL = 11155111;
 class BlockchainService {
   constructor() {
     this.provider = null;
+    this.readProvider = null;
     this.signer = null;
     this.contract = null;
+    this.readContract = null;
     this.contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
     this.rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL;
 
     if (this.rpcUrl) {
-      this.provider = new ethers.JsonRpcProvider(this.rpcUrl);
+      this.readProvider = new ethers.JsonRpcProvider(this.rpcUrl);
+      this.provider = this.readProvider;
       if (this.contractAddress) {
-        this.contract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.provider);
+        this.readContract = new ethers.Contract(this.contractAddress, CONTRACT_ABI, this.readProvider);
+        this.contract = this.readContract;
       }
     }
   }
@@ -116,9 +120,10 @@ class BlockchainService {
   }
 
   async getBalance(address) {
-    if (!this.provider) throw new Error('Provider not initialized');
+    const provider = this.readProvider || this.provider;
+    if (!provider) throw new Error('Provider not initialized');
     try {
-      const balance = await this.provider.getBalance(address);
+      const balance = await provider.getBalance(address);
       return ethers.formatEther(balance);
     } catch (error) {
       console.error('Error getting balance:', error);
@@ -127,10 +132,11 @@ class BlockchainService {
   }
 
   async getCredential(studentId) {
-    if (!this.contract) throw new Error('Contract not initialized');
+    const contract = this.readContract || this.contract;
+    if (!contract) throw new Error('Contract not initialized');
     try {
-      const normalizedId = String(studentId || '').toLowerCase().trim();
-      const result = await this.contract.getCredential(normalizedId);
+      const normalizedId = String(studentId || '').trim();
+      const result = await contract.getCredential(normalizedId);
       return {
         certificateHash: result[0],
         ipfsCID: result[1],
@@ -145,12 +151,13 @@ class BlockchainService {
   }
 
   async verifyCredential(studentId, hash) {
-    if (!this.contract) throw new Error('Contract not initialized');
+    const contract = this.readContract || this.contract;
+    if (!contract) throw new Error('Contract not initialized');
     try {
       if (!studentId || !hash) return false;
-      const normalizedId = String(studentId).toLowerCase().trim();
+      const normalizedId = String(studentId).trim();
       const bytes32Hash = typeof hash === 'string' && !hash.startsWith('0x') ? `0x${hash}` : hash;
-      return await this.contract.verifyCredential(normalizedId, bytes32Hash);
+      return await contract.verifyCredential(normalizedId, bytes32Hash);
     } catch (error) {
       console.error('Verify credential error:', error);
       return false;
@@ -158,10 +165,11 @@ class BlockchainService {
   }
 
   async isCredentialIssued(studentId) {
-    if (!this.contract) throw new Error('Contract not initialized');
+    const contract = this.readContract || this.contract;
+    if (!contract) throw new Error('Contract not initialized');
     try {
-      const normalizedId = String(studentId || '').toLowerCase().trim();
-      return await this.contract.isIssued(normalizedId);
+      const normalizedId = String(studentId || '').trim();
+      return await contract.isIssued(normalizedId);
     } catch (error) {
       console.error('Check issued error:', error);
       return false;
@@ -169,10 +177,11 @@ class BlockchainService {
   }
 
   async getTransaction(txHash) {
-    if (!this.provider) throw new Error('Provider not initialized');
+    const provider = this.readProvider || this.provider;
+    if (!provider) throw new Error('Provider not initialized');
     try {
-      const tx = await this.provider.getTransaction(txHash);
-      const receipt = await this.provider.getTransactionReceipt(txHash);
+      const tx = await provider.getTransaction(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
       return {
         transaction: tx,
         receipt,

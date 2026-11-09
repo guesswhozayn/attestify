@@ -446,7 +446,11 @@ const getCredentialById = asyncHandler(async (req, res) => {
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
 
-  const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isOwner = Boolean(
+    req.user?.walletAddress &&
+    credential.studentWalletAddress &&
+    req.user.walletAddress.toLowerCase() === credential.studentWalletAddress.toLowerCase()
+  );
   const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
 
   if (!isOwner && !isIssuer) {
@@ -483,8 +487,8 @@ const getCredentialById = asyncHandler(async (req, res) => {
 
 const getCredentialsByStudentWallet = asyncHandler(async (req, res) => {
   const currentWallet = req.user.walletAddress?.toLowerCase().trim();
-  const targetWallet = req.params.walletAddress.toLowerCase().trim();
-  const isOwner = currentWallet === targetWallet;
+  const targetWallet = req.params.walletAddress?.toLowerCase().trim();
+  const isOwner = Boolean(currentWallet && targetWallet && currentWallet === targetWallet);
 
   if (req.user.role !== 'ISSUER' && !isOwner) {
     return res.status(403).json({ error: 'Unauthorized access to credentials' });
@@ -569,7 +573,11 @@ const revokeCredential = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Only credentials in COMPLETED status can be revoked on-chain.' });
   }
 
-  const blockchainResult = await blockchainService.revokeCertificate(credential.id);
+  let blockchainResult = { transactionHash: credential.transactionHash || null, blockNumber: credential.blockNumber || null, gasUsed: '0', gasPrice: '0', totalCost: '0' };
+  const onChainCred = await blockchainService.getCredential(credential.id).catch(() => null);
+  if (!onChainCred?.isRevoked) {
+    blockchainResult = await blockchainService.revokeCertificate(credential.id);
+  }
 
   let sbtResult = null;
   let sbtWarning = null;
@@ -787,7 +795,11 @@ const getCredentialStatus = asyncHandler(async (req, res) => {
 
   if (!credential) return res.status(404).json({ error: 'Credential not found' });
 
-  const isOwner = req.user?.walletAddress?.toLowerCase() === credential.studentWalletAddress.toLowerCase();
+  const isOwner = Boolean(
+    req.user?.walletAddress &&
+    credential.studentWalletAddress &&
+    req.user.walletAddress.toLowerCase() === credential.studentWalletAddress.toLowerCase()
+  );
   const isIssuer = req.user?.role === 'ISSUER' && req.user.id === credential.issuedById;
   if (!isOwner && !isIssuer) {
     return res.status(403).json({ error: 'Unauthorized access to credential status' });

@@ -6,7 +6,7 @@ import { getIpfsUrl } from '../services/ipfs';
 import { Share2, Award, ExternalLink, ShieldAlert, Wallet, CheckCircle, FileText, Hash } from 'lucide-react';
 import Button from '../components/shared/Button';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
-import { credentialAPI, userAPI } from '../services/api';
+import { credentialAPI, userAPI, fileAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import CredentialCard from '../components/credential/CredentialCard';
 import CredentialDetails from '../components/credential/CredentialDetails';
@@ -143,11 +143,22 @@ const StudentDashboard = () => {
     showNotification('Verification link copied to clipboard', 'success');
   }, [credential, walletAddress, showNotification]);
 
-  const openIPFSLink = useCallback(() => {
-    if (credential?.ipfsCID) {
-      window.open(getIpfsUrl(credential.ipfsCID), '_blank');
+  const openIPFSLink = useCallback(async () => {
+    const credId = credential?.id || credential?._id;
+    if (!credId) return;
+    try {
+      const response = await fileAPI.downloadCertificate(credId);
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      window.open(url, '_blank');
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      if (credential?.ipfsCID && error.response?.status !== 403) {
+        window.open(getIpfsUrl(credential.ipfsCID), '_blank');
+      } else {
+        showNotification(error.response?.data?.error || 'Failed to open certificate file', 'error');
+      }
     }
-  }, [credential]);
+  }, [credential, showNotification]);
 
   const handleConnect = useCallback(async () => {
     if (!blockchainService.isMetaMaskInstalled()) {
@@ -306,6 +317,7 @@ const StudentDashboard = () => {
                      </Button>
                       <Button
                         onClick={openIPFSLink}
+                        disabled={!credential?.ipfsCID}
                         icon={ExternalLink}
                         variant="outline"
                         className="w-full justify-center"
