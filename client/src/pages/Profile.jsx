@@ -225,14 +225,14 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EAECF0]">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-                        {isAdmin ? 'Platform Administrator Profile' : isIssuer ? 'Institution Profile' : 'Student Profile'}
+                        {isAdmin ? 'Admin Profile' : isIssuer ? 'Institution Profile' : 'Student Profile'}
                     </h1>
                     <p className="text-xs sm:text-sm text-stone-500 mt-1">
                         {isAdmin
-                            ? 'Superuser account with platform-wide administrative privileges and smart contract authority.'
+                            ? 'Platform administrator account.'
                             : isIssuer
-                            ? 'Official academic registry details and cryptographic signing credentials.'
-                            : 'Personal academic identity and registered student wallet.'}
+                            ? 'Institution details and signing credentials.'
+                            : 'Student identity and wallet.'}
                     </p>
                 </div>
 
@@ -283,14 +283,14 @@ const Profile = () => {
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 border border-stone-200/60 text-stone-700 text-xs font-medium self-start sm:self-auto">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            {isAdmin ? 'Platform Superuser' : isIssuer ? 'Verified Registry Identity' : 'Verified Student'}
+                            {isAdmin ? 'Administrator' : isIssuer ? 'Verified Registry Identity' : 'Verified Student'}
                         </span>
                     </div>
 
                     {isEditing ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Input
-                                label={isAdmin ? "Administrator Name" : isIssuer ? "Institution Name" : "Full Name"}
+                                label={isAdmin ? "Name" : isIssuer ? "Institution Name" : "Full Name"}
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value, ...(isIssuer ? { institutionName: e.target.value } : {})})}
                                 disabled={isIssuer && Boolean(user?.issuerDetails?.isVerified)}
@@ -298,7 +298,7 @@ const Profile = () => {
                             />
                             {isAdmin && (
                                 <Input
-                                    label="Administrative Email"
+                                    label="Email"
                                     value={user?.email || ''}
                                     disabled
                                     icon={Mail}
@@ -415,33 +415,33 @@ const Profile = () => {
                     ) : (
                         <dl className="text-xs">
                             <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
-                                <dt className="text-stone-500 font-medium">Account Email</dt>
+                                <dt className="text-stone-500 font-medium">Email</dt>
                                 <dd className="sm:col-span-2 text-stone-900 font-mono mt-1 sm:mt-0">{user?.email}</dd>
                             </div>
                             {isAdmin ? (
                                 <>
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
-                                        <dt className="text-stone-500 font-medium">Administrative Role</dt>
+                                        <dt className="text-stone-500 font-medium">Role</dt>
                                         <dd className="sm:col-span-2 text-stone-900 font-semibold mt-1 sm:mt-0">
-                                            Platform Administrator
+                                            Admin
                                         </dd>
                                     </div>
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
-                                        <dt className="text-stone-500 font-medium">Smart Contract Authority</dt>
+                                        <dt className="text-stone-500 font-medium">Contract Relayer</dt>
                                         <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
-                                            Relayer Operator (executed via server environment)
+                                            Server relayer active
                                         </dd>
                                     </div>
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
-                                        <dt className="text-stone-500 font-medium">Platform Affiliation</dt>
+                                        <dt className="text-stone-500 font-medium">Affiliation</dt>
                                         <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
-                                            {user?.university || 'Attestify Platform'}
+                                            {user?.university || 'Attestify'}
                                         </dd>
                                     </div>
                                     <div className="py-3 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
-                                        <dt className="text-stone-500 font-medium">System Responsibilities</dt>
+                                        <dt className="text-stone-500 font-medium">Scope</dt>
                                         <dd className="sm:col-span-2 text-stone-900 font-medium mt-1 sm:mt-0">
-                                            Institutional accreditation, issuer verification, on-chain authorization, and credential oversight
+                                            Issuer review, on-chain authorization, and credential oversight
                                         </dd>
                                     </div>
                                 </>
@@ -581,13 +581,13 @@ const Profile = () => {
 
                     <div className="space-y-2 pt-2">
                         <label className="text-xs font-semibold text-stone-700 block">
-                            {isAdmin ? 'Administrative Overview' : isIssuer ? 'Institutional Overview' : 'Student Overview'}
+                            {isAdmin ? 'Overview' : isIssuer ? 'Institutional Overview' : 'Student Overview'}
                         </label>
                         {isEditing ? (
                             <textarea
                                 value={formData.about}
                                 onChange={(e) => setFormData({...formData, about: e.target.value})}
-                                placeholder={isAdmin ? "Administrative notes or role overview..." : isIssuer ? "Describe the institution, departments, or issuing authority..." : "Brief academic bio or field of study..."}
+                                placeholder={isAdmin ? "Role notes..." : isIssuer ? "Describe the institution, departments, or issuing authority..." : "Brief academic bio or field of study..."}
                                 rows={3}
                                 className="w-full p-3 bg-stone-50 focus:bg-white border border-stone-200 focus:border-stone-400 rounded-xl text-xs font-medium text-stone-900 focus:outline-none transition-all"
                             />
@@ -605,7 +605,7 @@ const Profile = () => {
                             <div className="flex items-center justify-between">
                                 <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider flex items-center gap-2">
                                     <Shield className="w-4 h-4 text-purple-600" />
-                                    Administrative Authority
+                                    Admin Authority
                                 </span>
                                 <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-700">
                                     <CheckCircle2 className="w-3.5 h-3.5" />
@@ -614,21 +614,21 @@ const Profile = () => {
                             </div>
 
                             <p className="text-xs text-stone-600 leading-relaxed">
-                                Platform administrator credentials and signing keys are managed securely via server environment configuration (<code className="font-mono text-stone-800">.env</code>).
+                                Admin credentials and signing keys are configured in <code className="font-mono text-stone-800">.env</code>.
                             </p>
 
                             <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2 text-xs">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-stone-500">Smart Contract Relayer:</span>
+                                    <span className="text-stone-500">Relayer:</span>
                                     <span className="font-semibold text-stone-800">Connected</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-stone-500">On-Chain Signer:</span>
+                                    <span className="text-stone-500">Signer:</span>
                                     <span className="font-semibold text-stone-800">Active</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-stone-500">Authority Level:</span>
-                                    <span className="font-semibold text-purple-700">Full Superuser</span>
+                                    <span className="text-stone-500">Level:</span>
+                                    <span className="font-semibold text-purple-700">Superuser</span>
                                 </div>
                             </div>
 
@@ -638,7 +638,7 @@ const Profile = () => {
                                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-2xs"
                                 >
                                     <Building className="w-4 h-4" />
-                                    Open Admin Console
+                                    Open Admin Dashboard
                                 </a>
                             </div>
                         </div>
@@ -712,16 +712,16 @@ const Profile = () => {
 
                         <div className="space-y-3 text-xs">
                             <div className="flex items-center justify-between pt-1">
-                                <span className="text-stone-500">Authority Type</span>
+                                <span className="text-stone-500">Role</span>
                                 <span className="font-semibold text-stone-900">
-                                    {isAdmin ? 'Platform Administrator' : isIssuer ? 'Academic Institution' : 'Student / Learner'}
+                                    {isAdmin ? 'Admin' : isIssuer ? 'Institution' : 'Student'}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between pt-3">
-                                <span className="text-stone-500">Verification Status</span>
+                                <span className="text-stone-500">Status</span>
                                 <span className="font-medium text-emerald-700 flex items-center gap-1">
                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                    Active on Protocol
+                                    Active
                                 </span>
                             </div>
                             <div className="flex items-center justify-between pt-3">

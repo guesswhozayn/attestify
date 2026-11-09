@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, onClose, onQuickIssue }) => {
   const menuItems = [
     { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard', roles: ['ADMIN', 'ISSUER', 'STUDENT'] },
     ...(isAdmin ? [
-      { icon: Building, path: '/admin/issuers', label: 'Manage Issuers', roles: ['ADMIN'] }
+      { icon: Building, path: '/admin/issuers', label: 'Issuers', roles: ['ADMIN'] }
     ] : []),
     { icon: FileCheck2, path: '/credentials', label: 'Credentials', roles: ['ISSUER', 'STUDENT'] },
     ...(isIssuer ? [

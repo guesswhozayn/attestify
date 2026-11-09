@@ -47,7 +47,7 @@ const IssuerReviewModal = ({
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Verified & Active
+            Approved
           </span>
         );
       case 'SUSPENDED':
@@ -68,14 +68,14 @@ const IssuerReviewModal = ({
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
             <Clock className="w-3.5 h-3.5 text-amber-600" />
-            Pending Verification
+            Pending
           </span>
         );
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Institutional Issuer Dossier" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Issuer Details" size="lg">
       <div className="space-y-6">
         <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
           isDark ? 'bg-stone-900/50 border-white/10' : 'bg-stone-50 border-[#EAECF0]'
@@ -91,7 +91,7 @@ const IssuerReviewModal = ({
                 {issuer.institutionName}
               </h3>
               <p className={`text-xs mt-0.5 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                {issuer.university || 'Higher Education Institution'}
+                {issuer.university || 'Institution'}
               </p>
             </div>
           </div>
@@ -105,7 +105,7 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Official Registration Number
+              Registration Number
             </span>
             <div className="flex items-center gap-2">
               <Hash className="w-4 h-4 text-stone-400" />
@@ -121,7 +121,7 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Contact Email
+              Email
             </span>
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-stone-400" />
@@ -137,13 +137,13 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Authorized Ethereum Wallet
+              Wallet
             </span>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
                 <Wallet className="w-4 h-4 text-stone-400 shrink-0" />
                 <span className={`text-xs font-mono truncate select-all ${isDark ? 'text-stone-200' : 'text-stone-800'}`}>
-                  {wallet || 'No wallet address linked'}
+                  {wallet || 'None'}
                 </span>
               </div>
               {wallet && (
@@ -180,16 +180,16 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Smart Contract Status
+              Contract Status
             </span>
             <div className="flex items-center gap-2">
               <ShieldCheck className={`w-4 h-4 ${issuer.onChainAuthorized || issuer.onChainAuthorizationTx ? 'text-emerald-500' : 'text-amber-500'}`} />
               <span className={`text-xs font-semibold ${isDark ? 'text-stone-200' : 'text-stone-800'}`}>
                 {issuer.onChainAuthorized
-                  ? 'Authorized on-chain'
+                  ? 'Authorized'
                   : issuer.onChainAuthorizationTx
-                  ? 'Authorization tx confirmed'
-                  : 'Pending on-chain sync'}
+                  ? 'Confirmed'
+                  : 'Pending sync'}
               </span>
             </div>
           </div>
@@ -200,12 +200,12 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Total Credentials Issued
+              Credentials Issued
             </span>
             <div className="flex items-center gap-2">
               <Award className="w-4 h-4 text-stone-400" />
               <span className={`text-sm font-bold tabular-nums ${isDark ? 'text-white' : 'text-stone-900'}`}>
-                {issuer.totalCredentialsIssued} credentials
+                {issuer.totalCredentialsIssued}
               </span>
             </div>
           </div>
@@ -239,7 +239,7 @@ const IssuerReviewModal = ({
                 onClick={() => onSyncBlockchain(issuer.id)}
                 disabled={loading}
               >
-                Sync On-Chain Status
+                Sync Contract
               </Button>
             )}
           </div>
@@ -254,7 +254,7 @@ const IssuerReviewModal = ({
                   onClick={() => onReject(issuer)}
                   disabled={loading}
                 >
-                  Reject Application
+                  Reject
                 </Button>
                 <Button
                   type="button"
@@ -264,7 +264,7 @@ const IssuerReviewModal = ({
                   onClick={() => onApprove(issuer.id)}
                   disabled={loading}
                 >
-                  Approve Institution
+                  Approve
                 </Button>
               </>
             )}
@@ -277,7 +277,7 @@ const IssuerReviewModal = ({
                 onClick={() => onSuspend(issuer)}
                 disabled={loading}
               >
-                Suspend Account
+                Suspend
               </Button>
             )}
 
@@ -290,7 +290,7 @@ const IssuerReviewModal = ({
                 onClick={() => onReactivate(issuer.id)}
                 disabled={loading}
               >
-                Reactivate Account
+                Reactivate
               </Button>
             )}
 
@@ -303,7 +303,7 @@ const IssuerReviewModal = ({
                 onClick={() => onApprove(issuer.id)}
                 disabled={loading}
               >
-                Re-evaluate & Approve
+                Approve
               </Button>
             )}
           </div>

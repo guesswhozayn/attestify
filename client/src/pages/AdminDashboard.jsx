@@ -77,7 +77,7 @@ const AdminDashboard = () => {
         }
       }
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to load administrative data', 'error');
+      showNotification(err.response?.data?.error || 'Failed to load data', 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -95,8 +95,8 @@ const AdminDashboard = () => {
       if (res.data?.success) {
         showNotification(
           res.data.onChainTxHash
-            ? `Issuer approved and authorized on-chain (Tx: ${res.data.onChainTxHash.substring(0, 10)}...)`
-            : 'Issuer approved successfully in registry.',
+            ? `Issuer approved on-chain (${res.data.onChainTxHash.substring(0, 10)}...)`
+            : 'Issuer approved.',
           'success'
         );
         setShowReviewModal(false);
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
 
       if (res?.data?.success) {
         showNotification(
-          type === 'reject' ? 'Issuer application rejected.' : 'Issuer suspended successfully.',
+          type === 'reject' ? 'Issuer rejected.' : 'Issuer suspended.',
           'success'
         );
         setActionModalState({ isOpen: false, issuer: null, type: null });
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
       setActionLoading(true);
       const res = await adminAPI.reactivateIssuer(id);
       if (res.data?.success) {
-        showNotification('Issuer reactivated successfully.', 'success');
+        showNotification('Issuer reactivated.', 'success');
         setShowReviewModal(false);
         fetchData(true);
       }
@@ -159,11 +159,11 @@ const AdminDashboard = () => {
       setActionLoading(true);
       const res = await adminAPI.syncBlockchainAuth(id);
       if (res.data?.success) {
-        showNotification(res.data.message || 'Blockchain authorization synchronized.', 'success');
+        showNotification(res.data.message || 'Contract status synced.', 'success');
         fetchData(true);
       }
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to sync on-chain authorization', 'error');
+      showNotification(err.response?.data?.error || 'Failed to sync contract status', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -224,14 +224,14 @@ const AdminDashboard = () => {
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-stone-900'}`}>
-              Platform Administration
+              Admin
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-purple-50 text-purple-700 border border-purple-200">
-              Admin Console
+              Superuser
             </span>
           </div>
           <p className={`text-sm mt-1 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-            Review institutional registration applications, authorize issuers on-chain, and manage platform participants.
+            Review and manage issuer accounts.
           </p>
         </div>
 
@@ -263,24 +263,24 @@ const AdminDashboard = () => {
               value={stats?.totalIssuers ?? 0}
               icon={Building}
               variant="default"
-              subtext="Registered institutions"
+              subtext="Registered"
             />
             <StatCard
-              title="Pending Approvals"
+              title="Pending"
               value={stats?.pendingCount ?? 0}
               icon={Clock}
               variant={stats?.pendingCount > 0 ? 'warning' : 'default'}
-              subtext="Awaiting verification"
+              subtext="Needs review"
             />
             <StatCard
-              title="Verified Institutions"
+              title="Approved"
               value={stats?.verifiedCount ?? 0}
               icon={ShieldCheck}
               variant="success"
-              subtext="On-chain authorized"
+              subtext="Authorized"
             />
             <StatCard
-              title="Platform Credentials"
+              title="Credentials"
               value={stats?.totalCredentials ?? 0}
               icon={Award}
               variant="default"
@@ -303,7 +303,7 @@ const AdminDashboard = () => {
           }`}
         >
           <Clock className="w-3.5 h-3.5" />
-          <span>Pending Approvals</span>
+          <span>Pending</span>
           {stats?.pendingCount > 0 && (
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
               {stats.pendingCount}
@@ -321,7 +321,7 @@ const AdminDashboard = () => {
           }`}
         >
           <Building className="w-3.5 h-3.5" />
-          <span>Manage All Issuers</span>
+          <span>All Issuers</span>
           <span className={`text-[10px] font-medium px-1.5 py-0.2 rounded-full ${
             isDark ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-700'
           }`}>
@@ -341,8 +341,8 @@ const AdminDashboard = () => {
           ) : issuers.length === 0 ? (
             <EmptyState
               icon={CheckCircle2}
-              title="All Caught Up"
-              description="There are currently no institutional registration applications pending approval."
+              title="No pending issuers"
+              description="All issuer requests have been reviewed."
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -367,7 +367,7 @@ const AdminDashboard = () => {
                             {issuer.institutionName}
                           </h3>
                           <p className={`text-xs mt-0.5 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                            Reg: <span className="font-mono font-medium">{issuer.registrationNumber}</span>
+                            Reg #: <span className="font-mono font-medium">{issuer.registrationNumber}</span>
                           </p>
                         </div>
                       </div>
@@ -378,17 +378,17 @@ const AdminDashboard = () => {
                       isDark ? 'bg-stone-900/40 border-white/10' : 'bg-stone-50 border-[#EAECF0]'
                     }`}>
                       <div className="flex items-center justify-between">
-                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Contact Email:</span>
+                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Email:</span>
                         <span className={`font-medium ${isDark ? 'text-stone-200' : 'text-stone-800'}`}>{issuer.email}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Authorized Wallet:</span>
+                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Wallet:</span>
                         <span className={`font-mono truncate max-w-[180px] ${isDark ? 'text-stone-200' : 'text-stone-800'}`}>
-                          {wallet || 'Not specified'}
+                          {wallet || 'None'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Applied Date:</span>
+                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Applied:</span>
                         <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>
                           {new Date(issuer.createdAt).toLocaleDateString()}
                         </span>
@@ -403,7 +403,7 @@ const AdminDashboard = () => {
                         onClick={() => openDossier(issuer)}
                       >
                         <Eye className="w-3.5 h-3.5 mr-1.5" />
-                        Dossier
+                        Review
                       </Button>
                       <Button
                         type="button"
@@ -441,7 +441,7 @@ const AdminDashboard = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                placeholder="Search by institution, registration #, email, or wallet..."
+                placeholder="Search by name, email, or wallet..."
                 className={`w-full pl-10 pr-4 py-2 text-xs rounded-xl border focus:outline-none transition-colors ${
                   isDark
                     ? 'bg-[#0e1017] border-white/10 text-white placeholder-stone-500 focus:border-white/30'
@@ -455,7 +455,7 @@ const AdminDashboard = () => {
                 isDark ? 'text-stone-400' : 'text-stone-500'
               }`}>
                 <Filter className="w-3 h-3 inline mr-1" />
-                Filter:
+                Status:
               </span>
               {['ALL', 'VERIFIED', 'PENDING', 'SUSPENDED', 'REJECTED'].map((status) => (
                 <button
@@ -468,7 +468,7 @@ const AdminDashboard = () => {
                       : isDark ? 'bg-stone-900/60 text-stone-400 hover:text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >
-                  {status}
+                  {status === 'ALL' ? 'All' : status === 'VERIFIED' ? 'Approved' : status === 'PENDING' ? 'Pending' : status === 'SUSPENDED' ? 'Suspended' : 'Rejected'}
                 </button>
               ))}
             </div>
@@ -477,7 +477,7 @@ const AdminDashboard = () => {
           <div
             tabIndex={0}
             role="region"
-            aria-label="Institutional issuers management directory"
+            aria-label="Issuers directory"
             className={`w-full overflow-x-auto rounded-2xl border ${
               isDark ? 'bg-[#0e1017] border-white/10' : 'bg-white border-[#EAECF0] shadow-xs'
             }`}
@@ -486,22 +486,22 @@ const AdminDashboard = () => {
               <thead>
                 <tr className={`border-b ${isDark ? 'border-white/10 text-stone-400' : 'border-[#EAECF0] text-stone-500'}`}>
                   <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Institution</th>
-                  <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Contact</th>
-                  <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Authorized Wallet</th>
+                  <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Email</th>
+                  <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Wallet</th>
                   <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Status</th>
-                  <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Credentials</th>
+                  <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Issued</th>
                   <th scope="col" className="py-3.5 px-4 font-bold uppercase tracking-wider text-[10px]">Actions</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${isDark ? 'divide-white/[0.06]' : 'divide-[#EAECF0]'}`}>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-stone-400">Loading institutions...</td>
+                    <td colSpan={6} className="p-6 text-center text-stone-400">Loading issuers...</td>
                   </tr>
                 ) : issuers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-8 text-center text-stone-400">
-                      No institutions match the current search and filter criteria.
+                      No issuers found.
                     </td>
                   </tr>
                 ) : (
@@ -521,7 +521,7 @@ const AdminDashboard = () => {
                             </div>
                             <div>
                               <p className={`font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>{issuer.institutionName}</p>
-                              <p className={`text-[11px] ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Reg: {issuer.registrationNumber}</p>
+                              <p className={`text-[11px] ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Reg #: {issuer.registrationNumber}</p>
                             </div>
                           </div>
                         </td>
@@ -529,7 +529,7 @@ const AdminDashboard = () => {
                         <td className="py-4 px-4">
                           <p className={`font-medium ${isDark ? 'text-stone-200' : 'text-stone-800'}`}>{issuer.email}</p>
                           <p className={`text-[11px] ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                            Joined {new Date(issuer.createdAt).toLocaleDateString()}
+                            {new Date(issuer.createdAt).toLocaleDateString()}
                           </p>
                         </td>
 
@@ -568,7 +568,7 @@ const AdminDashboard = () => {
                               size="xs"
                               onClick={() => openDossier(issuer)}
                             >
-                              Dossier
+                              Review
                             </Button>
 
                             {issuer.status === 'PENDING' && (
@@ -619,7 +619,7 @@ const AdminDashboard = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-2">
               <span className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                Showing {issuers.length} of {totalCount} institutions
+                {totalCount} issuers
               </span>
               <div className="flex items-center gap-2">
                 <Button

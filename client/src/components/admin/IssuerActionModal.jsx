@@ -12,7 +12,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
   if (!issuer) return null;
 
   const isReject = actionType === 'reject';
-  const title = isReject ? 'Reject Issuer Application' : 'Suspend Issuer Account';
+  const title = isReject ? 'Reject Issuer' : 'Suspend Issuer';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,12 +34,12 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
           )}
           <div className="space-y-1 text-xs">
             <p className="font-bold text-sm">
-              {isReject ? 'Application Rejection' : 'Account Suspension'}
+              {isReject ? 'Reject Issuer' : 'Suspend Issuer'}
             </p>
             <p className="opacity-90 leading-relaxed">
               {isReject
-                ? `You are rejecting the registration application for "${issuer.institutionName}". The institution will be notified and cannot issue credentials.`
-                : `You are suspending "${issuer.institutionName}". This will disable account access and revoke their on-chain issuance authorization.`}
+                ? `Rejecting "${issuer.institutionName}". The institution cannot issue credentials.`
+                : `Suspending "${issuer.institutionName}". This disables access and revokes issuance privileges.`}
             </p>
           </div>
         </div>
@@ -49,7 +49,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
             htmlFor="action-reason"
             className={`block text-xs font-semibold ${isDark ? 'text-stone-300' : 'text-stone-700'}`}
           >
-            Reason for {isReject ? 'rejection' : 'suspension'} <span className="text-rose-500">*</span>
+            Reason <span className="text-rose-500">*</span>
           </label>
           <textarea
             id="action-reason"
@@ -59,8 +59,8 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
             onChange={(e) => setReason(e.target.value)}
             placeholder={
               isReject
-                ? 'State the reason (e.g. invalid accreditation documentation, unverified identity)...'
-                : 'State the administrative reason for suspending this account...'
+                ? 'Reason for rejection...'
+                : 'Reason for suspension...'
             }
             className={`w-full p-3.5 rounded-xl text-sm border focus:outline-none transition-colors resize-none ${
               isDark
@@ -87,7 +87,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
             loading={loading}
             disabled={loading || !reason.trim()}
           >
-            {isReject ? 'Confirm Rejection' : 'Confirm Suspension'}
+            {isReject ? 'Reject' : 'Suspend'}
           </Button>
         </div>
       </form>
