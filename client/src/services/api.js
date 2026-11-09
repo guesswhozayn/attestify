@@ -1,9 +1,17 @@
 import axios from 'axios';
 
-let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-if (!API_BASE_URL.endsWith('/api')) {
-  API_BASE_URL = `${API_BASE_URL.replace(/\/$/, '')}/api`;
-}
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:' && !window.location.hostname.includes('localhost')) {
+    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+      return 'https://attestify-server.vercel.app/api';
+    }
+  }
+  const base = envUrl || 'http://localhost:5000/api';
+  return base.endsWith('/api') ? base : `${base.replace(/\/$/, '')}/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
