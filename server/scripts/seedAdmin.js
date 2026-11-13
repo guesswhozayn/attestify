@@ -12,7 +12,7 @@ async function seedAdmin() {
 
   try {
     const adminId = await syncSingleAdmin(prisma);
-    console.log(`[SeedAdmin] Guaranteed single Platform administrator (Email: ${email}, ID: ${adminId})`);
+    console.log(`Platform administrator (Email: ${email}, ID: ${adminId})`);
     return adminId;
   } catch (error) {
     console.error('[SeedAdmin] Failed to seed admin:', error.message);

@@ -16,7 +16,6 @@ const QRCodeDisplay = ({ credentialId }) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
-
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
     const svgUrl = URL.createObjectURL(svgBlob);
 
@@ -26,7 +25,6 @@ const QRCodeDisplay = ({ credentialId }) => {
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(svgUrl);
       const pngFile = canvas.toDataURL('image/png');
-
       const downloadLink = document.createElement('a');
       downloadLink.download = `certificate-qr-${credentialId}.png`;
       downloadLink.href = pngFile;

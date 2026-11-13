@@ -38,7 +38,7 @@ const IssuerReviewModal = ({
   const handleCopy = (text, label) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
-    showNotification(`${label} copied to clipboard`, 'success');
+    showNotification(`${label} copied`, 'success');
   };
 
   const getStatusBadge = () => {
@@ -75,7 +75,7 @@ const IssuerReviewModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Issuer details" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Details" size="lg">
       <div className="space-y-6">
         <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
           isDark ? 'bg-stone-900/50 border-white/10' : 'bg-stone-50 border-[#EAECF0]'
@@ -105,7 +105,7 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Registration Number
+              Registration
             </span>
             <div className="flex items-center gap-2">
               <Hash className="w-4 h-4 text-stone-400" />
@@ -150,11 +150,11 @@ const IssuerReviewModal = ({
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() => handleCopy(wallet, 'Wallet address')}
+                    onClick={() => handleCopy(wallet, 'Wallet')}
                     className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                       isDark ? 'border-white/10 hover:bg-stone-800 text-stone-300' : 'border-stone-200 hover:bg-stone-200 text-stone-600'
                     }`}
-                    title="Copy wallet address"
+                    title="Copy wallet"
                   >
                     <Copy className="w-3.5 h-3.5" />
                   </button>
@@ -165,7 +165,7 @@ const IssuerReviewModal = ({
                     className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                       isDark ? 'border-white/10 hover:bg-stone-800 text-stone-300' : 'border-stone-200 hover:bg-stone-200 text-stone-600'
                     }`}
-                    title="View on Etherscan"
+                    title="Etherscan"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
@@ -180,7 +180,7 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Contract Status
+              Contract
             </span>
             <div className="flex items-center gap-2">
               <ShieldCheck className={`w-4 h-4 ${issuer.onChainAuthorized || issuer.onChainAuthorizationTx ? 'text-emerald-500' : 'text-amber-500'}`} />
@@ -200,7 +200,7 @@ const IssuerReviewModal = ({
             <span className={`text-[10px] font-bold uppercase tracking-wider block ${
               isDark ? 'text-stone-400' : 'text-stone-500'
             }`}>
-              Credentials Issued
+              Issued
             </span>
             <div className="flex items-center gap-2">
               <Award className="w-4 h-4 text-stone-400" />
@@ -215,7 +215,7 @@ const IssuerReviewModal = ({
           <div className={`p-4 rounded-xl border text-xs space-y-1 ${
             isDark ? 'bg-rose-950/20 border-rose-500/20 text-rose-300' : 'bg-rose-50 border-rose-200 text-rose-900'
           }`}>
-            <span className="font-bold block uppercase tracking-wider text-[10px]">Rejection Reason</span>
+            <span className="font-bold block uppercase tracking-wider text-[10px]">Reason</span>
             <p>{issuer.rejectionReason}</p>
           </div>
         )}
@@ -224,7 +224,7 @@ const IssuerReviewModal = ({
           <div className={`p-4 rounded-xl border text-xs space-y-1 ${
             isDark ? 'bg-amber-950/20 border-amber-500/20 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-900'
           }`}>
-            <span className="font-bold block uppercase tracking-wider text-[10px]">Suspension Reason</span>
+            <span className="font-bold block uppercase tracking-wider text-[10px]">Reason</span>
             <p>{issuer.suspensionReason}</p>
           </div>
         )}
@@ -239,7 +239,7 @@ const IssuerReviewModal = ({
                 onClick={() => onSyncBlockchain(issuer.id)}
                 disabled={loading}
               >
-                Sync Contract
+                Sync
               </Button>
             )}
           </div>

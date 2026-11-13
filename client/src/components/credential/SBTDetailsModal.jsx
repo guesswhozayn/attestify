@@ -19,7 +19,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Soulbound details" size="md">
+        <Modal isOpen={isOpen} onClose={onClose} title="Soulbound" size="md">
             <div className="space-y-6">
                 <div className="flex justify-between items-center p-4 rounded-2xl bg-stone-50 border border-[#EAECF0]">
                     <div className="flex items-center gap-3">
@@ -28,7 +28,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                         </div>
                         <div>
                             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Record type</span>
-                            <span className="text-xs font-bold text-stone-900">Soulbound token record</span>
+                            <span className="text-xs font-bold text-stone-900">Soulbound token</span>
                         </div>
                     </div>
                     <div className={`flex items-center gap-1.5 text-xs font-semibold ${
@@ -48,11 +48,11 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                     />
 
                     <DataField
-                        label="Contract address"
+                        label="Contract"
                         value={contractAddress}
                         icon={Database}
                         isAddress
-                        onCopy={() => copyToClipboard(contractAddress, 'Contract address')}
+                        onCopy={() => copyToClipboard(contractAddress, 'Contract')}
                     />
 
                     <div className="bg-stone-50 rounded-2xl p-4 border border-[#EAECF0] flex items-center justify-between group transition-colors">
@@ -73,7 +73,7 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                 </div>
 
                 <div className="space-y-3">
-                    <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">External links</h4>
+                    <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider px-1">Links</h4>
                     <div className={`grid ${ipfsUrl ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
                         <a
                             href={etherscanUrl}

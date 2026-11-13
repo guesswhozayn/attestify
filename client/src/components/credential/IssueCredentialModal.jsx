@@ -88,12 +88,12 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!formData.studentName || !formData.studentWalletAddress || !formData.university || !formData.issueDate) {
-      showNotification('Fill in all required recipient details', 'error');
+      showNotification('Fill required fields', 'error');
       return;
     }
 
     setLoading(true);
-    setLoadingMessage('Preparing credential...');
+    setLoadingMessage('Preparing...');
     let issuedCredentialId = null;
 
     try {
@@ -121,7 +121,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
 
-      setLoadingMessage('Recording credential on blockchain...');
+      setLoadingMessage('Recording on-chain...');
 
       const pollStatus = () => {
         return new Promise((resolve, reject) => {
@@ -167,7 +167,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
       const result = await pollStatus();
       if (result?.pending) {
-        showNotification('Credential queued for blockchain confirmation', 'info');
+        showNotification('Queued for confirmation', 'info');
       } else {
         showNotification('Credential issued', 'success');
       }
@@ -190,12 +190,12 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleModalClose} title="Issue credential" size="2xl">
+    <Modal isOpen={isOpen} onClose={handleModalClose} title="Issue" size="2xl">
       {loading && (
         <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-xs flex flex-col items-center justify-center z-50 rounded-2xl">
           <div data-modal-panel className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
             <Loader2 className="w-8 h-8 text-stone-900 animate-spin mb-3" />
-            <h3 className="text-stone-900 text-sm font-semibold mb-1">Issuing credential</h3>
+            <h3 className="text-stone-900 text-sm font-semibold mb-1">Issuing</h3>
             <p className="text-stone-500 text-center text-xs">{loadingMessage}</p>
           </div>
         </div>
@@ -204,7 +204,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
       <div className="space-y-6">
         <div>
           <label className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
-            Credential type
+            Type
           </label>
           <div className="grid grid-cols-2 gap-3">
             <TypeSelectionCard
@@ -226,11 +226,11 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
         <div className="bg-stone-50 p-5 rounded-2xl border border-stone-200/80 space-y-4">
           <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
-            Recipient details
+            Recipient
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              label="Student name"
+              label="Name"
               name="studentName"
               value={formData.studentName}
               onChange={handleChange}
@@ -238,7 +238,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
               required
             />
             <Input
-              label="Student wallet address"
+              label="Wallet address"
               name="studentWalletAddress"
               value={formData.studentWalletAddress}
               onChange={handleChange}
@@ -266,7 +266,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
 
         <div className="bg-stone-50 p-5 rounded-2xl border border-stone-200/80 space-y-4">
           <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
-            {credentialType === 'TRANSCRIPT' ? 'Academic details' : 'Certification details'}
+            {credentialType === 'TRANSCRIPT' ? 'Transcript' : 'Certification'}
           </h3>
 
           {credentialType === 'TRANSCRIPT' ? (
@@ -297,7 +297,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
                   placeholder="e.g. 2025"
                 />
                 <Input
-                  label="CGPA / Grade"
+                  label="GPA / Grade"
                   value={transcriptData.cgpa}
                   onChange={(e) => setTranscriptData({ ...transcriptData, cgpa: e.target.value })}
                   placeholder="e.g. 3.85"
@@ -359,7 +359,7 @@ const IssueCredentialModal = ({ isOpen, onClose, onSuccess }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <Input
-                  label="Certificate title"
+                  label="Title"
                   value={certificationData.title}
                   onChange={(e) => setCertificationData({ ...certificationData, title: e.target.value })}
                   placeholder="e.g. Full Stack Web Development"

@@ -100,7 +100,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
             size="sm"
             rounded="full"
             className="!p-2 text-zinc-400 hover:text-white group"
-            aria-label="Close modal"
+            aria-label="Close"
           >
             <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </Button>

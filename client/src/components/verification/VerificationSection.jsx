@@ -75,8 +75,8 @@ const VerificationSection = React.memo(({ certificate }) => {
               <ShieldCheck className="w-4 h-4 text-stone-700" />
             </div>
             <div>
-              <h3 className="text-stone-900 text-sm font-bold tracking-tight leading-none mb-1">Verify document</h3>
-              <p className="text-[11px] text-stone-500 font-medium">Check document authenticity</p>
+              <h3 className="text-stone-900 text-sm font-bold tracking-tight leading-none mb-1">Verify</h3>
+              <p className="text-[11px] text-stone-500 font-medium">Check document match</p>
             </div>
           </div>
           <div className="px-2.5 py-0.5 rounded-full bg-[#EDF5EE] border border-[#CFE6D3] text-[11px] font-semibold text-[#25562C]">
@@ -104,8 +104,8 @@ const VerificationSection = React.memo(({ certificate }) => {
               ) : (
                 <div className="flex flex-col items-center text-stone-500 group-hover:text-stone-700 py-1">
                   <Upload className="w-6 h-6 mb-2 text-stone-400" />
-                  <span className="text-xs font-bold text-stone-800">Upload PDF document</span>
-                  <span className="text-[11px] text-stone-400 mt-1 font-medium">Choose a PDF file to verify</span>
+                  <span className="text-xs font-bold text-stone-800">Upload PDF</span>
+                  <span className="text-[11px] text-stone-400 mt-1 font-medium">Choose a PDF to verify</span>
                 </div>
               )}
             </div>
@@ -129,7 +129,7 @@ const VerificationSection = React.memo(({ certificate }) => {
       <Modal
           isOpen={showResultModal}
           onClose={() => setShowResultModal(false)}
-          title="Verification result"
+          title="Verification"
           size="lg"
       >
           {result && (

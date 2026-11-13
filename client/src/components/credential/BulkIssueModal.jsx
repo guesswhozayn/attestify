@@ -18,13 +18,13 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
     if (selected.type !== 'text/csv' && !selected.name?.toLowerCase().endsWith('.csv')) {
-      showNotification('Select a valid CSV file', 'error');
+      showNotification('Select a CSV file', 'error');
       e.target.value = '';
       setBatchFile(null);
       return;
     }
     if (selected.size > 10 * 1024 * 1024) {
-      showNotification('File size must be under 10 MB', 'error');
+      showNotification('File exceeds 10 MB limit', 'error');
       e.target.value = '';
       setBatchFile(null);
       return;
@@ -116,13 +116,13 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Bulk issue credentials" size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Bulk issue" size="lg">
       {loading && (
         <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-xs flex flex-col items-center justify-center z-50 rounded-2xl">
           <div data-modal-panel className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xl flex flex-col items-center max-w-sm w-full mx-4">
             <Loader2 className="w-8 h-8 text-stone-900 animate-spin mb-3" />
-            <h3 className="text-stone-900 text-sm font-semibold mb-1">Processing batch</h3>
-            <p className="text-stone-500 text-center text-xs">Queuing credentials for background issuance...</p>
+            <h3 className="text-stone-900 text-sm font-semibold mb-1">Processing</h3>
+            <p className="text-stone-500 text-center text-xs">Queuing credentials...</p>
           </div>
         </div>
       )}
@@ -138,7 +138,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
 
           <h3 className="text-sm font-semibold text-stone-900 mb-1">
-            {batchFile ? 'CSV file selected' : 'Upload student records'}
+            {batchFile ? 'File selected' : 'Upload CSV'}
           </h3>
           <p className="text-xs text-stone-500 mb-4 max-w-sm mx-auto">
             {batchFile ? (
@@ -146,7 +146,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
                 {batchFile.name}
               </span>
             ) : (
-              'Upload a CSV file containing student names, addresses, and credential details.'
+              'Upload a CSV file with recipient and credential details.'
             )}
           </p>
 
@@ -181,7 +181,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
             className="flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-stone-400" />
-            <span>CSV template</span>
+            <span>Template</span>
           </button>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -207,7 +207,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
 
         {batchSummary && (
           <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
-            <div className="text-xs font-semibold text-stone-900">Batch summary</div>
+            <div className="text-xs font-semibold text-stone-900">Summary</div>
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
               <div className="p-2.5 bg-indigo-50 rounded-lg border border-indigo-200">
                 <div className="text-lg font-bold text-indigo-800">{batchSummary.queued ?? batchSummary.success}</div>
@@ -224,7 +224,7 @@ const BulkIssueModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
             {failedRows.length > 0 && (
               <div className="mt-3 pt-3 border-t border-stone-200 space-y-1.5 max-h-40 overflow-y-auto text-left">
-                <div className="text-[11px] font-semibold text-rose-800">Rejected rows</div>
+                <div className="text-[11px] font-semibold text-rose-800">Errors</div>
                 {failedRows.map((item, idx) => (
                   <div key={idx} className="text-[11px] text-rose-700 bg-rose-50/80 border border-rose-200/80 rounded-lg px-2.5 py-1.5 font-mono">
                     Row {item.row}{item.studentName && item.studentName !== 'N/A' ? ` (${item.studentName})` : ''}: {item.error}

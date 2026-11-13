@@ -77,7 +77,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
       if (credential.ipfsCID && error.response?.status !== 403) {
         window.open(`https://gateway.pinata.cloud/ipfs/${credential.ipfsCID}`, '_blank');
       } else {
-        showNotification(error.response?.data?.error || 'Failed to download certificate', 'error');
+        showNotification(error.response?.data?.error || 'Failed to download', 'error');
       }
     } finally {
       setIsDownloading(false);
@@ -138,15 +138,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
   const StatusIcon = statusStyles.icon;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Credential details" size="2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Details" size="2xl">
       <div className="space-y-6 pb-2">
         {credential.isRevoked && (
           <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <p className="font-bold text-rose-900">Credential revoked</p>
+              <p className="font-bold text-rose-900">Revoked</p>
               <p className="text-xs text-rose-700">
-                <span className="font-semibold">Reason:</span> {credential.revocationReason || 'Revoked by the issuing institution.'}
+                <span className="font-semibold">Reason:</span> {credential.revocationReason || 'Revoked by issuer.'}
               </p>
               {credential.revokedAt && (
                 <p className="text-xs text-rose-600 font-mono">
@@ -161,9 +161,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-rose-900">Credential issuance failed</p>
+              <p className="font-bold text-rose-900">Issuance failed</p>
               <p className="text-xs text-rose-700 mt-1">
-                {credential.processingError || 'Credential failed to record on the blockchain. Try issuing again.'}
+                {credential.processingError || 'Failed to record on-chain. Try again.'}
               </p>
             </div>
           </div>
@@ -173,9 +173,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-sm flex items-start gap-3">
             <Loader2 className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 animate-spin" />
             <div>
-              <p className="font-bold text-amber-900">Issuance in progress</p>
+              <p className="font-bold text-amber-900">Processing</p>
               <p className="text-xs text-amber-700 mt-1">
-                {credential.processingError || 'Processing on the blockchain. Records and files will become available once confirmed.'}
+                {credential.processingError || 'Processing on-chain. Available once confirmed.'}
               </p>
             </div>
           </div>
@@ -265,9 +265,9 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-stone-900 tracking-tight">
-                    {isTranscript ? 'Academic transcript' : 'Certificate details'}
+                    {isTranscript ? 'Transcript' : 'Details'}
                   </h3>
-                  <p className="text-xs text-stone-400 font-medium">Verified credential record</p>
+                  <p className="text-xs text-stone-400 font-medium">Verified record</p>
                 </div>
               </div>
 
@@ -299,7 +299,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
                       {displayMetadata.courses?.length > 0 && (
                         <div className="space-y-3">
-                           <h4 className="text-xs font-bold text-stone-600 uppercase tracking-wider px-1">Course breakdown</h4>
+                           <h4 className="text-xs font-bold text-stone-600 uppercase tracking-wider px-1">Courses</h4>
                            <div className="border border-[#EAECF0] rounded-xl overflow-hidden bg-white">
                             <div className="overflow-x-auto max-h-[300px]">
                               <table className="w-full text-xs">
@@ -334,7 +334,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 ) : credential.certificationData ? (
                    <div className="space-y-6">
                       <div className="p-6 rounded-2xl bg-stone-50 border border-[#EAECF0]">
-                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-2">Credential summary</span>
+                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-2">Summary</span>
                          <h4 className="text-2xl font-bold text-stone-900 mb-2 leading-tight">{displayMetadata?.title}</h4>
                          <p className="text-stone-600 text-sm leading-relaxed">{displayMetadata?.description}</p>
                       </div>
@@ -357,7 +357,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 ) : (
                   <div className="p-8 rounded-xl bg-stone-50 border border-[#EAECF0] flex flex-col items-center justify-center text-center">
                     <Database className="w-8 h-8 text-stone-400 mb-2" />
-                    <p className="text-stone-500 font-semibold text-xs">Blockchain credential record</p>
+                    <p className="text-stone-500 font-semibold text-xs">On-chain record</p>
                   </div>
                 )}
               </div>
@@ -370,8 +370,8 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">Record verification</h3>
-                    <p className="text-xs text-stone-400 font-medium">Network confirmation</p>
+                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">Verification</h3>
+                    <p className="text-xs text-stone-400 font-medium">Network status</p>
                   </div>
                 </div>
                 <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
@@ -423,7 +423,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <div className="space-y-4">
                     <div className="space-y-1.5">
                       <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
-                        <span>File storage ID (IPFS)</span>
+                        <span>IPFS CID</span>
                         {credential.ipfsCID && (
                           <button
                             type="button"
@@ -441,7 +441,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
 
                     <div className="space-y-1.5">
                       <div className="text-xs font-semibold text-stone-600 flex items-center justify-between px-0.5">
-                        <span>Certificate hash</span>
+                        <span>File hash</span>
                         {credential.certificateHash && !credential.certificateHash.startsWith('PENDING_') && (
                           <button
                             type="button"
@@ -465,7 +465,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <div className="pt-5 border-t border-[#EAECF0] space-y-4">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Soulbound details</span>
+                      <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Soulbound</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
@@ -475,7 +475,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <span className="text-xs font-semibold text-stone-600 block">Contract address</span>
+                        <span className="text-xs font-semibold text-stone-600 block">Contract</span>
                         <div className="text-xs font-mono text-purple-900 break-all p-3.5 bg-purple-50 rounded-xl border border-purple-200">
                           {contractAddress}
                         </div>
@@ -489,18 +489,18 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-5 bg-stone-50 border border-[#EAECF0] rounded-2xl">
               <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
                 <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued by</span>
-                  <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name || credential.university || 'Attestify Authority'}</span>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issuer</span>
+                  <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name || credential.university || 'Issuer'}</span>
                 </div>
                 <div className="w-px h-6 bg-stone-300 hidden sm:block"></div>
                 <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Date issued</span>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued</span>
                   <span className="text-stone-700 font-medium block text-sm">{formatDate(credential.issueDate)}</span>
                 </div>
               </div>
               <div className={`flex items-center gap-2 text-xs font-semibold ${statusStyles.text}`}>
                 <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
-                <span>{credential.isRevoked ? 'Revoked' : (statusStyles.label === 'Verified' ? 'Verified authentic' : statusStyles.label)}</span>
+                <span>{credential.isRevoked ? 'Revoked' : statusStyles.label}</span>
               </div>
             </div>
 
@@ -534,10 +534,10 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-2xl p-4">
                   <h4 className="text-xs font-bold text-[#9E2D2D] uppercase tracking-wider mb-2 flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4" />
-                    Issuer actions
+                    Actions
                   </h4>
                   <p className="text-[11px] text-[#9E2D2D]/80 mb-3 leading-relaxed">
-                    Permanently invalidate this credential on the blockchain.
+                    Invalidate this credential on-chain.
                   </p>
                   <Button
                     onClick={() => setShowRevokeModal(true)}
@@ -557,7 +557,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                  <QRCodeDisplay credentialId={credential.id || credential._id} />
                </div>
                <p className="text-xs text-stone-500 text-center leading-relaxed">
-                 Scan with a phone camera to view and verify this certificate.
+                 Scan to verify.
                </p>
             </div>
 
@@ -568,11 +568,11 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   <div className="bg-stone-50 p-2.5 rounded-xl border border-[#EAECF0] inline-block mx-auto mb-1.5">
                     <img
                       src={credential.issuedBy.issuerDetails.branding.signature || `https://gateway.pinata.cloud/ipfs/${credential.issuedBy.issuerDetails.branding.signatureCID}`}
-                      alt="Authority Signature"
+                      alt="Signature"
                       className="h-8 object-contain"
                     />
                   </div>
-                  <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Authorized signature</p>
+                  <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Signature</p>
                </div>
             )}
 

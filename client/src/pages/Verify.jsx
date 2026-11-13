@@ -111,8 +111,8 @@ const VerifyDashboard = () => {
         const isRevoked = Boolean(onChainRecord.isRevoked);
         const credObj = {
           id: trimmedTarget,
-          studentName: 'Verified Recipient',
-          university: 'Attestify Accredited Institution',
+          studentName: 'Recipient',
+          university: 'Issuer',
           type: 'CREDENTIAL',
           status: isRevoked ? 'REVOKED' : 'COMPLETED',
           isRevoked,
@@ -174,7 +174,7 @@ const VerifyDashboard = () => {
 
     setResult({
       valid: false,
-      message: 'No record found with this certificate ID or wallet address.'
+      message: 'No record found.'
     });
   }, [searchTarget]);
 
@@ -191,12 +191,12 @@ const VerifyDashboard = () => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
     if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
-      showNotification('Please select a PDF file', 'error');
+      showNotification('Select a PDF file', 'error');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
     if (selectedFile.size > 10 * 1024 * 1024) {
-      showNotification('File size exceeds the 10 MB limit', 'error');
+      showNotification('File exceeds 10 MB limit', 'error');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -262,8 +262,8 @@ const VerifyDashboard = () => {
                   onChainVerified: true,
                   credential: {
                     id: fileTarget,
-                    studentName: 'Verified Recipient',
-                    university: 'Attestify Accredited Institution',
+                    studentName: 'Recipient',
+                    university: 'Issuer',
                     type: 'CREDENTIAL',
                     certificateHash: onChainRecord.certificateHash,
                     ipfsCID: onChainRecord.ipfsCID,
@@ -284,13 +284,13 @@ const VerifyDashboard = () => {
         if (!apiSuccess) {
           setResult({
             valid: false,
-            message: 'This document does not match any registered certificate. It may have been edited or was not issued through Attestify.'
+            message: 'Document does not match any record.'
           });
         }
       } catch (err) {
         setResult({
           valid: false,
-          message: err.response?.data?.message || 'Error processing certificate file.'
+          message: err.response?.data?.message || 'Failed to process file.'
         });
       } finally {
         setVerifying(false);
@@ -314,13 +314,13 @@ const VerifyDashboard = () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedKey(key);
-      showNotification('Copied to clipboard', 'success');
+      showNotification('Copied', 'success');
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
       copyTimerRef.current = setTimeout(() => {
         setCopiedKey('');
       }, 2000);
     } catch {
-      showNotification('Failed to copy to clipboard', 'error');
+      showNotification('Failed to copy', 'error');
     }
   };
 
@@ -408,10 +408,10 @@ const VerifyDashboard = () => {
         {/* Banner Title */}
         <div className="text-center space-y-2 w-full">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 dark:text-white">
-            Verify a certificate
+            Verify
           </h1>
           <p className="text-sm sm:text-base text-stone-700 dark:text-stone-300 max-w-md mx-auto leading-relaxed font-normal">
-            Verify certificates against blockchain records.
+            Check validity against on-chain records.
           </p>
         </div>
 
@@ -463,14 +463,12 @@ const VerifyDashboard = () => {
                     }`}
                   >
                     {isSuccess
-                      ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
-                        ? 'Document verified authentic'
-                        : 'Certificate verified authentic'
+                      ? 'Verified'
                       : isRevoked
-                      ? 'Certificate revoked'
+                      ? 'Revoked'
                       : result.exists || result.credential
-                      ? 'Verification Failed'
-                      : 'Certificate Not Found'}
+                      ? 'Invalid'
+                      : 'Not found'}
                   </h2>
                   <p
                     className={`text-xs font-medium max-w-md mx-auto ${
@@ -483,13 +481,13 @@ const VerifyDashboard = () => {
                   >
                     {isSuccess
                       ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
-                        ? 'The certificate PDF file was cryptographically matched to the tamper-proof on-chain digest.'
+                        ? 'File matches on-chain record.'
                         : result.onChainVerified
-                        ? 'This credential was cryptographically confirmed against the Ethereum blockchain registry.'
-                        : result.message || 'This credential matches the official institutional registry.'
+                        ? 'Confirmed on-chain.'
+                        : result.message || 'Matches registry.'
                       : isRevoked
-                      ? 'This credential was formally revoked by the issuing institution.'
-                      : result.message || 'No credential matching this document was found.'}
+                      ? 'Revoked by issuer.'
+                      : result.message || 'No record found.'}
                   </p>
                 </div>
 
@@ -504,10 +502,10 @@ const VerifyDashboard = () => {
                 >
                   {isSuccess
                     ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
-                      ? 'CRYPTOGRAPHIC FILE MATCH (100%)'
+                      ? 'FILE MATCH'
                       : result.onChainVerified
-                      ? 'ON-CHAIN VERIFIED'
-                      : 'OFFICIAL REGISTRY'
+                      ? 'ON-CHAIN'
+                      : 'REGISTRY'
                     : isRevoked
                     ? 'REVOKED'
                     : result.exists || result.credential
@@ -525,10 +523,10 @@ const VerifyDashboard = () => {
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-stone-200 dark:border-white/[0.08]">
                     <span className="text-xs font-bold tracking-tight uppercase text-stone-700 dark:text-stone-400">
-                      Credential Details
+                      Details
                     </span>
                     <span className="text-xs font-mono font-semibold text-stone-700 dark:text-stone-400">
-                      {result.credential.type || 'DEGREE'}
+                      {result.credential.type || 'CREDENTIAL'}
                     </span>
                   </div>
 
@@ -546,27 +544,27 @@ const VerifyDashboard = () => {
                     <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
                       <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
                         <Building className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
-                        Issuing Institution
+                        Issuer
                       </span>
                       <p className="font-bold text-sm text-stone-900 dark:text-white">
-                        {result.credential.university || 'Accredited Institution'}
+                        {result.credential.university || 'Issuer'}
                       </p>
                     </div>
 
                     <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
                       <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
                         <Award className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
-                        Degree / Award
+                        Title
                       </span>
                       <p className="font-semibold text-stone-900 dark:text-stone-100">
-                        {result.credential.course || result.credential.title || 'Academic Credential'}
+                        {result.credential.course || result.credential.title || 'Credential'}
                       </p>
                     </div>
 
                     <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left">
                       <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
-                        Date of Issue
+                        Issued
                       </span>
                       <p className="font-semibold text-stone-900 dark:text-stone-100">
                         {result.credential.issueDate
@@ -583,7 +581,7 @@ const VerifyDashboard = () => {
                       <div className="space-y-1 flex flex-col items-center sm:items-start text-center sm:text-left sm:col-span-2 pt-2 border-t border-stone-200 dark:border-white/[0.08]">
                         <span className="text-stone-700 dark:text-stone-400 font-medium flex items-center gap-1.5">
                           <User className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
-                          Recipient Wallet
+                          Wallet
                         </span>
                         <div className="flex items-center gap-2 font-mono text-xs text-stone-900 dark:text-stone-200">
                           <span>
@@ -595,7 +593,7 @@ const VerifyDashboard = () => {
                             type="button"
                             onClick={() => copyText(result.credential.studentWalletAddress, 'wallet')}
                             className="p-1 rounded text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white cursor-pointer"
-                            title="Copy wallet address"
+                            title="Copy wallet"
                           >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
@@ -614,7 +612,7 @@ const VerifyDashboard = () => {
                           rel="noopener noreferrer"
                           className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
                         >
-                          <span>View on Etherscan</span>
+                          <span>Etherscan</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       ) : (
@@ -624,7 +622,7 @@ const VerifyDashboard = () => {
                           rel="noopener noreferrer"
                           className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
                         >
-                          <span>Smart Contract Registry</span>
+                          <span>Contract</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
@@ -635,7 +633,7 @@ const VerifyDashboard = () => {
                           rel="noopener noreferrer"
                           className="text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold"
                         >
-                          <span>Certificate on IPFS</span>
+                          <span>IPFS</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
@@ -650,10 +648,10 @@ const VerifyDashboard = () => {
                       </div>
                       <div className="space-y-1 text-xs">
                         <span className="font-bold text-stone-900 dark:text-white block">
-                          Official Verification Link
+                          Verification link
                         </span>
                         <p className="text-stone-700 dark:text-stone-400 text-[11px] leading-relaxed max-w-sm mx-auto">
-                          Scan to confirm this certificate on any mobile device.
+                          Scan to verify.
                         </p>
                         <span className="font-mono text-[10px] text-stone-700 dark:text-stone-400 block truncate max-w-xs mx-auto">
                           {qrVerificationUrl}
@@ -673,7 +671,7 @@ const VerifyDashboard = () => {
                   icon={RefreshCw}
                   className="rounded-xl cursor-pointer text-xs font-semibold px-5"
                 >
-                  Verify another certificate
+                  Verify another
                 </Button>
 
                 <Button
@@ -721,7 +719,7 @@ const VerifyDashboard = () => {
                   }`}
                 >
                   <FileCheck2 className="w-3.5 h-3.5" />
-                  Upload PDF
+                  File
                 </button>
                 <button
                   type="button"
@@ -737,7 +735,7 @@ const VerifyDashboard = () => {
                   }`}
                 >
                   <Search className="w-3.5 h-3.5" />
-                  Certificate ID
+                  ID
                 </button>
               </div>
 
@@ -787,22 +785,22 @@ const VerifyDashboard = () => {
                               type="button"
                               onClick={clearFile}
                               className="p-1 rounded-lg text-stone-500 hover:text-rose-600 dark:text-stone-400 dark:hover:text-rose-400 cursor-pointer"
-                              title="Remove file"
+                              title="Remove"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
                           <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
-                            Ready to verify
+                            Ready
                           </p>
                         </div>
                       ) : (
                         <div className="space-y-1 text-center">
                           <h3 className="text-sm sm:text-base font-bold text-stone-900 dark:text-white">
-                            Drop your certificate PDF here
+                            Drop PDF here
                           </h3>
                           <p className="text-xs text-stone-700 dark:text-stone-300 font-medium">
-                            or click to browse from your computer (PDF up to 10 MB)
+                            or click to browse (up to 10 MB)
                           </p>
                         </div>
                       )}
@@ -818,7 +816,7 @@ const VerifyDashboard = () => {
                     icon={ShieldCheck}
                     className="w-full justify-center rounded-xl py-3 text-sm font-bold shadow-md cursor-pointer"
                   >
-                    {verifying ? 'Verifying certificate...' : 'Verify Certificate'}
+                    {verifying ? 'Verifying...' : 'Verify'}
                   </Button>
                 </div>
               )}
@@ -828,7 +826,7 @@ const VerifyDashboard = () => {
                 <div className="space-y-4">
                   <div className="space-y-2 text-center">
                     <label className="text-xs font-semibold block text-stone-800 dark:text-stone-200">
-                      Certificate Reference ID or Student Wallet
+                      ID or wallet address
                     </label>
                     <div className="relative group max-w-lg mx-auto">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-500 dark:text-stone-400">
@@ -836,7 +834,7 @@ const VerifyDashboard = () => {
                       </div>
                       <input
                         type="text"
-                        placeholder="e.g. CERT-2024-001 or 0x..."
+                        placeholder="ID or 0x..."
                         value={searchTarget}
                         onChange={(e) => setSearchTarget(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
@@ -857,7 +855,7 @@ const VerifyDashboard = () => {
                       )}
                     </div>
                     <p className="text-[11px] text-stone-700 dark:text-stone-300 font-medium">
-                      Enter the ID printed on the certificate or the recipient wallet address.
+                      Enter ID or recipient wallet address.
                     </p>
                   </div>
 
@@ -870,7 +868,7 @@ const VerifyDashboard = () => {
                     icon={Search}
                     className="w-full justify-center rounded-xl py-3 text-sm font-bold shadow-md cursor-pointer"
                   >
-                    {verifying ? 'Searching...' : 'Search Certificate'}
+                    {verifying ? 'Verifying...' : 'Verify'}
                   </Button>
                 </div>
               )}
@@ -888,7 +886,7 @@ const VerifyDashboard = () => {
         >
           <Lock className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
           <span className="font-medium">
-            Cryptographic verification is performed locally in your browser. Document files are never uploaded or stored.
+            Verification runs locally. Files are never stored or uploaded.
           </span>
         </div>
       </main>

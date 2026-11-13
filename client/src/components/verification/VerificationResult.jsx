@@ -9,24 +9,24 @@ const VerificationResult = ({ result }) => {
   const statusConfig = {
     success: {
       icon: CheckCircle,
-      label: 'Document verified',
-      subtext: 'Cryptographically valid credential',
+      label: 'Verified',
+      subtext: 'Valid credential',
       badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
       iconBoxClass: 'bg-emerald-100/70 text-emerald-700 border-emerald-200',
       dotClass: 'bg-emerald-600',
     },
     revoked: {
       icon: ShieldAlert,
-      label: 'Credential revoked',
-      subtext: 'No longer recognized as valid',
+      label: 'Revoked',
+      subtext: 'Revoked by issuer',
       badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
       iconBoxClass: 'bg-rose-100/70 text-rose-700 border-rose-200',
       dotClass: 'bg-rose-600',
     },
     failed: {
       icon: XCircle,
-      label: 'Verification failed',
-      subtext: result.message || 'Document hash or record does not match',
+      label: 'Invalid',
+      subtext: result.message || 'Record does not match',
       badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
       iconBoxClass: 'bg-rose-100/70 text-rose-700 border-rose-200',
       dotClass: 'bg-rose-600',
@@ -57,7 +57,7 @@ const VerificationResult = ({ result }) => {
         </div>
 
         <div className="flex items-center gap-3 self-end sm:self-center px-4 py-2 bg-stone-50 rounded-xl border border-stone-200/60">
-          <span className="text-[10px] uppercase tracking-wider font-bold text-stone-400">Match score</span>
+          <span className="text-[10px] uppercase tracking-wider font-bold text-stone-400">Match</span>
           <span className={`text-xl font-bold font-mono ${isSuccess ? 'text-emerald-700' : 'text-stone-500'}`}>
             {isSuccess ? '100%' : '0%'}
           </span>
@@ -67,7 +67,7 @@ const VerificationResult = ({ result }) => {
       {result.credential ? (
         <div className="bg-white border border-[#EAECF0] rounded-2xl p-6 shadow-[0_1px_3px_rgba(16,24,40,0.02)] space-y-6">
           <div className="flex items-center justify-between border-b border-[#F2F4F7] pb-4">
-            <h3 className="text-sm font-bold text-stone-900 tracking-tight">Credential details</h3>
+            <h3 className="text-sm font-bold text-stone-900 tracking-tight">Details</h3>
             <span className="text-xs text-stone-400 font-mono">
               ID: {(result.credential.id || result.credential._id) ? (result.credential.id || result.credential._id).slice(0, 8) : 'RECORD'}
             </span>
@@ -76,19 +76,19 @@ const VerificationResult = ({ result }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <InfoItem
               icon={User}
-              label="Recipient name"
+              label="Recipient"
               value={result.credential.studentName || 'Not specified'}
             />
 
             <InfoItem
               icon={Award}
-              label="Issuing institution"
-              value={result.credential.university || 'Attestify Issuer'}
+              label="Issuer"
+              value={result.credential.university || 'Issuer'}
             />
 
             <InfoItem
               icon={Calendar}
-              label="Date issued"
+              label="Issued"
               value={result.credential.issueDate ? new Date(result.credential.issueDate).toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'long',
@@ -98,16 +98,16 @@ const VerificationResult = ({ result }) => {
 
             <InfoItem
               icon={Activity}
-              label="Credential status"
+              label="Status"
               value={
                 isRevoked || result.credential.isRevoked
                   ? 'Revoked'
                   : isSuccess
-                  ? 'Active and verified'
+                  ? 'Verified'
                   : result.credential.status === 'FAILED'
-                  ? 'Issuance failed'
+                  ? 'Failed'
                   : result.credential.status === 'PENDING' || result.credential.status === 'PROCESSING'
-                  ? 'Pending confirmation'
+                  ? 'Processing'
                   : 'Unverified'
               }
               highlight={isSuccess}
@@ -116,7 +116,7 @@ const VerificationResult = ({ result }) => {
             <div className="md:col-span-2 space-y-1.5 pt-2 border-t border-[#F2F4F7]">
               <div className="flex items-center gap-1.5 text-stone-500 text-xs font-semibold">
                 <Hash className="w-3.5 h-3.5" />
-                <span>Recipient wallet address</span>
+                <span>Wallet</span>
               </div>
               <div className="p-3 bg-stone-50 border border-stone-200/80 rounded-xl font-mono text-xs text-stone-800 break-all select-all">
                 {result.credential.studentWalletAddress}
@@ -134,11 +134,11 @@ const VerificationResult = ({ result }) => {
         <div className="bg-rose-50 border border-rose-200/80 rounded-2xl p-5 space-y-3">
           <div className="flex items-center gap-2 text-rose-800 font-bold text-xs uppercase tracking-wider">
             <ShieldAlert className="w-4 h-4 text-rose-600" />
-            <span>Revocation summary</span>
+            <span>Revocation</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-stone-700 pt-2 border-t border-rose-200/60">
             <div>
-              <span className="text-stone-500 block mb-0.5">Date revoked</span>
+              <span className="text-stone-500 block mb-0.5">Revoked</span>
               <span className="font-mono font-medium text-stone-900">
                 {result.credential.revokedAt ? new Date(result.credential.revokedAt).toLocaleString() : 'N/A'}
               </span>
@@ -162,7 +162,7 @@ const VerificationResult = ({ result }) => {
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#EAECF0] hover:bg-stone-50 text-stone-700 text-xs font-semibold shadow-2xs transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
-            <span>View transaction on Sepolia Etherscan</span>
+            <span>Etherscan</span>
           </a>
         </div>
       )}

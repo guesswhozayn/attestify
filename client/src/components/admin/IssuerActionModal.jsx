@@ -12,7 +12,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
   if (!issuer) return null;
 
   const isReject = actionType === 'reject';
-  const title = isReject ? 'Reject issuer' : 'Suspend issuer';
+  const title = isReject ? 'Reject' : 'Suspend';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,12 +34,12 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
           )}
           <div className="space-y-1 text-xs">
             <p className="font-bold text-sm">
-              {isReject ? 'Reject issuer' : 'Suspend issuer'}
+              {isReject ? 'Reject' : 'Suspend'}
             </p>
             <p className="opacity-90 leading-relaxed">
               {isReject
-                ? `Rejecting "${issuer.institutionName}". The institution cannot issue credentials.`
-                : `Suspending "${issuer.institutionName}". This disables access and revokes issuance privileges.`}
+                ? `Rejecting "${issuer.institutionName}". Issuance will be disabled.`
+                : `Suspending "${issuer.institutionName}". Access and issuance will be disabled.`}
             </p>
           </div>
         </div>
@@ -57,11 +57,7 @@ const IssuerActionModal = ({ isOpen, onClose, issuer, actionType, onConfirm, loa
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder={
-              isReject
-                ? 'Reason for rejection...'
-                : 'Reason for suspension...'
-            }
+            placeholder="Reason..."
             className={`w-full p-3.5 rounded-xl text-sm border focus:outline-none transition-colors resize-none ${
               isDark
                 ? 'bg-stone-900/60 border-white/10 text-white placeholder-stone-500 focus:border-white/30'

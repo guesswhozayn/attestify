@@ -37,7 +37,7 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Revoke credential" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Revoke" size="md">
       <form onSubmit={handleSubmit} className="space-y-5">
 
         <div className="bg-[#FDF0EE] border border-[#F7D4CF] rounded-2xl p-4 flex items-start space-x-3.5">
@@ -45,16 +45,16 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
              <AlertTriangle className="w-5 h-5" />
           </div>
           <div className="text-sm">
-            <h4 className="font-bold text-[#9E2D2D] mb-1">Permanent revocation</h4>
+            <h4 className="font-bold text-[#9E2D2D] mb-1">Permanent action</h4>
             <p className="text-[#9E2D2D]/80 leading-relaxed text-xs">
-              This action cannot be undone. This credential will be permanently marked invalid on the blockchain.
+              This cannot be undone. Credential will be marked invalid on-chain.
             </p>
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
-            Revocation reason
+            Reason
           </label>
           <div className="relative">
              <textarea
@@ -62,7 +62,7 @@ const RevokeCredentialModal = ({ isOpen, onClose, onSuccess, credential }) => {
                onChange={(e) => setReason(e.target.value)}
                maxLength={500}
                className="w-full bg-stone-50 border border-[#EAECF0] rounded-xl p-3.5 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-rose-400 focus:bg-white transition h-32 resize-none text-sm"
-               placeholder="Reason for revoking this certificate"
+               placeholder="Reason for revocation"
                required
                disabled={loading}
              />
