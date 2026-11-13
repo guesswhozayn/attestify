@@ -233,10 +233,10 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
+                <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 shrink-0">
                   {!credential.isRevoked && (
-                    <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
-                      <StatusIcon className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#EAECF0] dark:border-white/[0.08] rounded-xl text-stone-700 text-xs font-medium shadow-2xs">
+                      <StatusIcon className={`w-3.5 h-3.5 ${statusStyles.text} ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
                       <span>{statusStyles.label}</span>
                     </div>
                   )}
@@ -244,7 +244,7 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                     <button
                       type="button"
                       onClick={() => setShowSBTModal(true)}
-                      className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#EAECF0] rounded-xl text-stone-700 text-xs font-medium hover:bg-stone-50 cursor-pointer transition-colors shadow-2xs"
+                      className="flex items-center gap-1.5 px-3 py-1 bg-white border border-[#EAECF0] dark:border-white/[0.08] rounded-xl text-stone-700 text-xs font-medium hover:bg-stone-50 cursor-pointer transition-colors shadow-2xs"
                     >
                       <Shield className="w-3.5 h-3.5 text-stone-500" />
                       <span>Soulbound</span>

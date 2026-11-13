@@ -23,21 +23,21 @@ const COLORS = {
   textMain: '#1e293b',
 };
 
-function drawAttestifyLogo(doc, x, y, size = 14) {
+function drawAttestifyLogo(doc, x, y, size = 12) {
   doc.save();
-  const s = size / 100;
+  const s = size / 48;
   doc.translate(x, y);
   doc.scale(s);
-  const grad1 = doc.linearGradient(0, 0, 100, 100);
+  const grad1 = doc.linearGradient(0, 0, 48, 48);
   grad1.stop(0, '#818cf8').stop(0.5, '#6366f1').stop(1, '#9333ea');
   doc.polygon(
-    [26, 74], [26, 58], [42, 58], [42, 42], [58, 42], [58, 26],
-    [74, 26], [74, 42], [58, 42], [58, 58], [42, 58], [42, 74]
+    [0, 48], [0, 32], [16, 32], [16, 16], [32, 16], [32, 0],
+    [48, 0], [48, 16], [32, 16], [32, 32], [16, 32], [16, 48]
   ).fill(grad1);
 
-  const grad2 = doc.linearGradient(0, 100, 100, 0);
+  const grad2 = doc.linearGradient(32, 48, 48, 32);
   grad2.stop(0, '#4f46e5').stop(0.5, '#7c3aed').stop(1, '#c084fc');
-  doc.roundedRect(58, 58, 16, 16, 3).fill(grad2);
+  doc.roundedRect(32, 32, 16, 16, 2.5).fill(grad2);
   doc.restore();
 }
 
@@ -61,14 +61,18 @@ async function drawQRCodeAndBrand(doc, targetUrl, pageWidth, footerY) {
   const brandFontSize = 11;
   doc.font(FONT_BRAND_BOLD).fontSize(brandFontSize);
   const brandText = 'attestify';
-  const textWidth = doc.widthOfString(brandText);
-  const gap = 5;
+  const textWidth = doc.widthOfString(brandText, { characterSpacing: -0.3 });
+  const gap = 4.5;
   const totalWidth = logoSize + gap + textWidth;
   const brandX = (pageWidth - totalWidth) / 2;
   const brandY = qrY + qrSize + 18;
+  const logoY = brandY + 0.8;
 
-  drawAttestifyLogo(doc, brandX, brandY - 1, logoSize);
-  doc.fillColor(COLORS.dark).text(brandText, brandX + logoSize + gap, brandY, { characterSpacing: -0.3 });
+  drawAttestifyLogo(doc, brandX, logoY, logoSize);
+  doc.fillColor(COLORS.dark).text(brandText, brandX + logoSize + gap, brandY, {
+    characterSpacing: -0.3,
+    lineBreak: false
+  });
 }
 
 function drawLabelValue(doc, label, value, x, y) {
