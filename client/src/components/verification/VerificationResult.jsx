@@ -11,25 +11,19 @@ const VerificationResult = ({ result }) => {
       icon: CheckCircle,
       label: 'Verified',
       subtext: 'Valid credential',
-      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
-      iconBoxClass: 'bg-emerald-100/70 text-emerald-700 border-emerald-200',
-      dotClass: 'bg-emerald-600',
+      iconBoxClass: 'bg-emerald-100/70 text-emerald-700 border-emerald-200'
     },
     revoked: {
       icon: ShieldAlert,
       label: 'Revoked',
       subtext: 'Revoked by issuer',
-      badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
-      iconBoxClass: 'bg-rose-100/70 text-rose-700 border-rose-200',
-      dotClass: 'bg-rose-600',
+      iconBoxClass: 'bg-rose-100/70 text-rose-700 border-rose-200'
     },
     failed: {
       icon: XCircle,
       label: 'Invalid',
       subtext: result.message || 'Record does not match',
-      badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
-      iconBoxClass: 'bg-rose-100/70 text-rose-700 border-rose-200',
-      dotClass: 'bg-rose-600',
+      iconBoxClass: 'bg-rose-100/70 text-rose-700 border-rose-200'
     }
   };
 
@@ -45,13 +39,7 @@ const VerificationResult = ({ result }) => {
             <StatusIcon className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <h2 className="text-xl font-bold text-stone-900 tracking-tight">{config.label}</h2>
-              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${config.badgeClass}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${config.dotClass}`} />
-                {isSuccess ? 'Verified' : isRevoked ? 'Revoked' : 'Invalid'}
-              </span>
-            </div>
+            <h2 className="text-xl font-bold text-stone-900 tracking-tight mb-0.5">{config.label}</h2>
             <p className="text-xs text-stone-500 font-medium">{config.subtext}</p>
           </div>
         </div>

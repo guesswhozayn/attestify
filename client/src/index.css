@@ -271,8 +271,13 @@
     border-color: rgba(255, 255, 255, 0.08) !important;
   }
 
-  .dashboard-dark .divide-\[\#F2F4F7\] > :not([hidden]) ~ :not([hidden]) {
-    border-color: rgba(255, 255, 255, 0.06) !important;
+  .dashboard-dark [class*="divide-"] > *,
+  .dashboard-dark .divide-\[\#EAECF0\] > *,
+  .dashboard-dark .divide-\[\#F2F4F7\] > *,
+  .dashboard-dark .divide-stone-100 > *,
+  .dashboard-dark .divide-stone-200 > *,
+  .dashboard-dark :where([class*="divide-"] > :not(:last-child)) {
+    border-color: rgba(255, 255, 255, 0.08) !important;
   }
 
   .dashboard-dark .text-stone-900,
@@ -607,7 +612,7 @@
     border-color: rgba(245, 158, 11, 0.25) !important;
   }
 
-  .dashboard-dark .divide-stone-100 > :not([hidden]) ~ :not([hidden]),
+  .dashboard-dark .divide-stone-100 > *,
   .dashboard-dark .border-stone-100 {
     border-color: rgba(255, 255, 255, 0.07) !important;
   }

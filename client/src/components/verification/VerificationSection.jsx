@@ -69,18 +69,13 @@ const VerificationSection = React.memo(({ certificate }) => {
     <>
       <div className="bg-white border border-[#EAECF0] rounded-2xl p-5 flex flex-col">
 
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
-              <ShieldCheck className="w-4 h-4 text-stone-700" />
-            </div>
-            <div>
-              <h3 className="text-stone-900 text-sm font-bold tracking-tight leading-none mb-1">Verify</h3>
-              <p className="text-[11px] text-stone-500 font-medium">Check document match</p>
-            </div>
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="p-2 bg-stone-100 rounded-xl border border-stone-200 text-stone-700">
+            <ShieldCheck className="w-4 h-4 text-stone-700" />
           </div>
-          <div className="px-2.5 py-0.5 rounded-full bg-[#EDF5EE] border border-[#CFE6D3] text-[11px] font-semibold text-[#25562C]">
-            Instant check
+          <div>
+            <h3 className="text-stone-900 text-sm font-bold tracking-tight leading-none mb-1">Verify</h3>
+            <p className="text-[11px] text-stone-500 font-medium">Check document match</p>
           </div>
         </div>
 

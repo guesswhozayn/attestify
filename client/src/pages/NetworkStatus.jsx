@@ -155,8 +155,8 @@ const NetworkStatus = () => {
         </div>
       </div>
 
-      <div className="bg-white border border-[#EAECF0] rounded-2xl overflow-hidden shadow-xs">
-        <div className="p-5 sm:p-6 border-b border-[#F2F4F7] flex items-center justify-between">
+      <div className="bg-white border border-[#EAECF0] dark:border-white/[0.08] rounded-2xl overflow-hidden shadow-xs">
+        <div className="p-5 sm:p-6 border-b border-[#F2F4F7] dark:border-white/[0.08] flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-stone-900 tracking-tight">Recent ledger activity</h2>
             <p className="text-xs text-stone-500 mt-0.5">Most recent transactions confirmed on the ledger.</p>
@@ -172,7 +172,7 @@ const NetworkStatus = () => {
           ) : (
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#F2F4F7] text-stone-400 font-medium bg-stone-50/60">
+                <tr className="border-b border-[#F2F4F7] dark:border-white/[0.08] text-stone-400 font-medium bg-stone-50/60">
                   <th className="py-3 px-5">Action</th>
                   <th className="py-3 px-4">Transaction hash</th>
                   <th className="py-3 px-4">Type</th>
@@ -180,7 +180,7 @@ const NetworkStatus = () => {
                   <th className="py-3 px-5 text-right">Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F2F4F7]">
+              <tbody className="divide-y divide-[#F2F4F7] dark:divide-white/[0.08]">
                 {recentTransactions.map((tx, idx) => {
                   const isRev = tx.isRevoked;
                   return (

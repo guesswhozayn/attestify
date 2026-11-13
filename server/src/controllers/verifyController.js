@@ -380,7 +380,7 @@ const verifyByHash = asyncHandler(async (req, res) => {
   }
 
   const credential = await findCredential(studentWalletAddress, normalizedHash);
-  if (!credential) {
+  if (!credential || credential.status !== 'COMPLETED') {
     return res.json({ valid: false, exists: false, message: 'No matching credential found for this ID/Wallet and Hash' });
   }
 

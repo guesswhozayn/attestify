@@ -35,6 +35,62 @@ import { getIpfsUrl } from '../services/ipfs';
 import { generateFileHash } from '../utils/hash';
 import { extractMetadata } from '../utils/pdf';
 
+const fetchOnChainCredential = async (targetId) => {
+  const onChainRecord = await blockchainService.getCredential(targetId);
+  if (!onChainRecord?.certificateHash) return null;
+
+  const isRevoked = Boolean(onChainRecord.isRevoked);
+  const credential = {
+    id: targetId,
+    studentName: 'Recipient',
+    university: 'Issuer',
+    type: 'CREDENTIAL',
+    status: isRevoked ? 'REVOKED' : 'COMPLETED',
+    isRevoked,
+    certificateHash: onChainRecord.certificateHash,
+    ipfsCID: onChainRecord.ipfsCID,
+    issueDate: onChainRecord.issuedAt,
+    issuedBy: {
+      walletAddress: onChainRecord.issuerAddress || ''
+    }
+  };
+
+  if (onChainRecord.ipfsCID) {
+    try {
+      const res = await fetch(getIpfsUrl(onChainRecord.ipfsCID));
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const meta = await res.json();
+        if (meta.name) {
+          const parts = meta.name.split(':');
+          if (parts.length > 1) {
+            credential.type = parts[0].trim();
+            credential.studentName = parts.slice(1).join(':').trim();
+          } else {
+            credential.studentName = meta.name;
+          }
+        }
+        if (meta.attributes) {
+          const getAttr = (type) => meta.attributes.find(a => a.trait_type === type)?.value;
+          if (getAttr('Issued By')) credential.university = getAttr('Issued By');
+          if (getAttr('Degree Type')) credential.type = getAttr('Degree Type');
+          if (getAttr('Issue Date')) credential.issueDate = new Date(getAttr('Issue Date'));
+          const pdfProof = getAttr('PDF Proof');
+          if (pdfProof?.startsWith('ipfs://')) {
+            credential.pdfProofCID = pdfProof.replace('ipfs://', '');
+          }
+        }
+      } else if (contentType.includes('application/pdf')) {
+        credential.fileType = 'application/pdf';
+      }
+    } catch {
+      void 0;
+    }
+  }
+
+  return { isRevoked, credential };
+};
+
 const VerifyDashboard = () => {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -83,99 +139,61 @@ const VerifyDashboard = () => {
     const trimmedTarget = target.trim();
 
     try {
-      const response = await verifyAPI.checkExists(trimmedTarget);
-      const data = response.data;
-      if (data?.credential || (data?.credentials && data.credentials.length > 0)) {
-        if (data.credential) {
-          setResult(data);
-        } else {
-          const first = data.credentials[0];
+      try {
+        const response = await verifyAPI.checkExists(trimmedTarget);
+        const data = response.data;
+        if (data?.credential || (data?.credentials && data.credentials.length > 0)) {
+          if (data.credential) {
+            setResult(data);
+          } else {
+            const first = data.credentials[0];
+            setResult({
+              valid: !first.isRevoked,
+              revoked: first.isRevoked,
+              exists: true,
+              credential: first,
+              credentials: data.credentials,
+              verificationTier: data.verificationTier || 'REGISTRY_RECORD'
+            });
+          }
+          return;
+        }
+      } catch (err) {
+        if (err.response?.status === 403) {
           setResult({
-            valid: !first.isRevoked,
-            revoked: first.isRevoked,
-            exists: true,
-            credential: first,
-            credentials: data.credentials,
-            verificationTier: data.verificationTier || 'REGISTRY_RECORD'
+            valid: false,
+            exists: Boolean(err.response.data?.exists),
+            isPrivate: true,
+            message: err.response.data?.message || err.response.data?.error || 'This profile is private.'
           });
+          return;
         }
-        return;
       }
-    } catch {
-      void 0;
-    }
 
-    try {
-      const onChainRecord = await blockchainService.getCredential(trimmedTarget);
-      if (onChainRecord && onChainRecord.certificateHash) {
-        const isRevoked = Boolean(onChainRecord.isRevoked);
-        const credObj = {
-          id: trimmedTarget,
-          studentName: 'Recipient',
-          university: 'Issuer',
-          type: 'CREDENTIAL',
-          status: isRevoked ? 'REVOKED' : 'COMPLETED',
-          isRevoked,
-          certificateHash: onChainRecord.certificateHash,
-          ipfsCID: onChainRecord.ipfsCID,
-          issueDate: onChainRecord.issuedAt,
-          issuedBy: {
-            walletAddress: onChainRecord.issuerAddress || ''
-          }
-        };
-
-        if (onChainRecord.ipfsCID) {
-          try {
-            const ipfsUrl = getIpfsUrl(onChainRecord.ipfsCID);
-            const res = await fetch(ipfsUrl);
-            const contentType = res.headers.get('content-type') || '';
-            if (contentType.includes('application/json')) {
-              const meta = await res.json();
-              if (meta.name) {
-                const parts = meta.name.split(':');
-                if (parts.length > 1) {
-                  credObj.type = parts[0].trim();
-                  credObj.studentName = parts.slice(1).join(':').trim();
-                } else {
-                  credObj.studentName = meta.name;
-                }
-              }
-              if (meta.attributes) {
-                const getAttr = (type) => meta.attributes.find(a => a.trait_type === type)?.value;
-                if (getAttr('Issued By')) credObj.university = getAttr('Issued By');
-                if (getAttr('Degree Type')) credObj.type = getAttr('Degree Type');
-                if (getAttr('Issue Date')) credObj.issueDate = new Date(getAttr('Issue Date'));
-                const pdfProof = getAttr('PDF Proof');
-                if (pdfProof && pdfProof.startsWith('ipfs://')) {
-                  credObj.pdfProofCID = pdfProof.replace('ipfs://', '');
-                }
-              }
-            } else if (contentType.includes('application/pdf')) {
-              credObj.fileType = 'application/pdf';
-            }
-          } catch {
-            void 0;
-          }
+      try {
+        const onChain = await fetchOnChainCredential(trimmedTarget);
+        if (onChain) {
+          setResult({
+            valid: !onChain.isRevoked,
+            revoked: onChain.isRevoked,
+            exists: true,
+            onChainVerified: true,
+            verificationTier: 'ON_CHAIN',
+            credential: onChain.credential
+          });
+          return;
         }
-
-        setResult({
-          valid: !isRevoked,
-          revoked: isRevoked,
-          exists: true,
-          onChainVerified: true,
-          verificationTier: 'ON_CHAIN',
-          credential: credObj
-        });
-        return;
+      } catch {
+        void 0;
       }
-    } catch {
-      void 0;
-    }
 
-    setResult({
-      valid: false,
-      message: 'No record found.'
-    });
+      setResult({
+        valid: false,
+        message: 'No record found.'
+      });
+    } finally {
+      setVerifying(false);
+    }
   }, [searchTarget]);
 
   useEffect(() => {
@@ -224,79 +242,71 @@ const VerifyDashboard = () => {
   };
 
   const handleVerify = async () => {
-    if (activeTab === 'file') {
-      if (!file) return;
-      setVerifying(true);
-      setResult(null);
-      try {
-        const fileHash = computedHash || await generateFileHash(file);
-        setComputedHash(fileHash);
-        const queryTarget = fileTarget || 'credential';
+    if (activeTab === 'id') {
+      await handleVerifyTarget();
+      return;
+    }
+    if (activeTab !== 'file' || !file) return;
 
-        let apiSuccess = false;
+    setVerifying(true);
+    setResult(null);
+    try {
+      const fileHash = computedHash || await generateFileHash(file);
+      setComputedHash(fileHash);
+      const queryTarget = fileTarget || 'credential';
+
+      try {
+        const response = await verifyAPI.verifyByHash(queryTarget, fileHash);
+        const data = response.data;
+        if (data && (data.valid || data.revoked || data.exists || data.credential)) {
+          setResult({
+            ...data,
+            verificationTier: data.verificationTier || 'CRYPTOGRAPHIC_HASH'
+          });
+          return;
+        }
+      } catch (err) {
+        if (err.response?.status === 403) {
+          setResult({
+            valid: false,
+            exists: true,
+            isPrivate: true,
+            message: err.response.data?.message || err.response.data?.error || 'This profile is private.'
+          });
+          return;
+        }
+      }
+
+      if (fileTarget) {
         try {
-          const response = await verifyAPI.verifyByHash(queryTarget, fileHash);
-          if (response.data && response.data.valid) {
+          const onChain = await fetchOnChainCredential(fileTarget);
+          if (onChain && fileHash.toLowerCase() === onChain.credential.certificateHash.toLowerCase()) {
             setResult({
-              ...response.data,
+              valid: !onChain.isRevoked,
+              revoked: onChain.isRevoked,
+              exists: true,
+              onChainVerified: true,
+              credential: onChain.credential,
               verificationTier: 'CRYPTOGRAPHIC_HASH'
             });
-            apiSuccess = true;
+            return;
           }
         } catch {
           void 0;
         }
-
-        if (!apiSuccess && fileTarget) {
-          try {
-            const onChainRecord = await blockchainService.getCredential(fileTarget);
-            if (onChainRecord && onChainRecord.certificateHash) {
-              const normalizedFileHash = fileHash.toLowerCase();
-              const normalizedChainHash = onChainRecord.certificateHash.toLowerCase();
-              const isMatch = normalizedFileHash === normalizedChainHash;
-              if (isMatch) {
-                setResult({
-                  valid: !onChainRecord.isRevoked,
-                  revoked: Boolean(onChainRecord.isRevoked),
-                  exists: true,
-                  onChainVerified: true,
-                  credential: {
-                    id: fileTarget,
-                    studentName: 'Recipient',
-                    university: 'Issuer',
-                    type: 'CREDENTIAL',
-                    certificateHash: onChainRecord.certificateHash,
-                    ipfsCID: onChainRecord.ipfsCID,
-                    issueDate: onChainRecord.issuedAt,
-                    isRevoked: Boolean(onChainRecord.isRevoked),
-                    status: onChainRecord.isRevoked ? 'REVOKED' : 'COMPLETED'
-                  },
-                  verificationTier: 'CRYPTOGRAPHIC_HASH'
-                });
-                return;
-              }
-            }
-          } catch {
-            void 0;
-          }
-        }
-
-        if (!apiSuccess) {
-          setResult({
-            valid: false,
-            message: 'Document does not match any record.'
-          });
-        }
-      } catch (err) {
-        setResult({
-          valid: false,
-          message: err.response?.data?.message || 'Failed to process file.'
-        });
-      } finally {
-        setVerifying(false);
       }
-    } else if (activeTab === 'id') {
-      await handleVerifyTarget();
+
+      setResult({
+        valid: false,
+        message: 'Document does not match any record.'
+      });
+    } catch (err) {
+      setResult({
+        valid: false,
+        message: err.response?.data?.message || 'Failed to process file.'
+      });
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -489,28 +499,6 @@ const VerifyDashboard = () => {
                       ? 'Revoked by issuer.'
                       : result.message || 'No record found.'}
                   </p>
-                </div>
-
-                <div
-                  className={`px-3.5 py-1 rounded-md border text-xs font-mono font-bold mt-1 ${
-                    isSuccess
-                      ? 'bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-300'
-                      : isRevoked
-                      ? 'bg-rose-100 border-rose-300 text-rose-800 dark:bg-rose-500/20 dark:border-rose-500/30 dark:text-rose-300'
-                      : 'bg-stone-200 border-stone-300 text-stone-800 dark:bg-stone-500/20 dark:border-stone-500/30 dark:text-stone-200'
-                  }`}
-                >
-                  {isSuccess
-                    ? result.verificationTier === 'CRYPTOGRAPHIC_HASH'
-                      ? 'FILE MATCH'
-                      : result.onChainVerified
-                      ? 'ON-CHAIN'
-                      : 'REGISTRY'
-                    : isRevoked
-                    ? 'REVOKED'
-                    : result.exists || result.credential
-                    ? 'UNVERIFIED'
-                    : 'NOT FOUND'}
                 </div>
               </div>
 

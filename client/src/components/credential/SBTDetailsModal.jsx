@@ -65,10 +65,6 @@ const SBTDetailsModal = ({ isOpen, onClose, credential }) => {
                                 <p className="text-xs font-semibold text-stone-900">Ethereum (Sepolia)</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
-                            <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-pulse"></div>
-                            <span>Online</span>
-                        </div>
                     </div>
                 </div>
 

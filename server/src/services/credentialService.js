@@ -7,15 +7,17 @@ const hashService = require('./hashService');
 const pdfService = require('./pdfService');
 
 const getFrontendUrl = () => {
-  const envUrl = process.env.FRONTEND_URL?.trim();
-  if (envUrl) {
-    try {
-      const parsed = new URL(envUrl);
-      if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
-        return parsed.origin;
+  const raw = process.env.FRONTEND_URL?.trim();
+  if (raw) {
+    for (const candidate of raw.split(',').map(s => s.trim()).filter(Boolean)) {
+      try {
+        const parsed = new URL(candidate);
+        if (parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
+          return parsed.origin;
+        }
+      } catch {
+        void 0;
       }
-    } catch {
-      void 0;
     }
   }
   return 'https://attestify-alpha.vercel.app';

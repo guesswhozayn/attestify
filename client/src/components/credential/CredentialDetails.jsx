@@ -234,10 +234,12 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                 </div>
 
                 <div className="flex flex-col items-center md:items-end gap-2 shrink-0">
-                  <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
-                    <StatusIcon className="w-4 h-4" />
-                    <span>{statusStyles.label}</span>
-                  </div>
+                  {!credential.isRevoked && (
+                    <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
+                      <StatusIcon className="w-4 h-4" />
+                      <span>{statusStyles.label}</span>
+                    </div>
+                  )}
                   {isSBT && (
                     <button
                       type="button"
@@ -300,18 +302,18 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
                       {displayMetadata.courses?.length > 0 && (
                         <div className="space-y-3">
                            <h4 className="text-xs font-bold text-stone-600 uppercase tracking-wider px-1">Courses</h4>
-                           <div className="border border-[#EAECF0] rounded-xl overflow-hidden bg-white">
+                           <div className="border border-[#EAECF0] dark:border-white/[0.08] rounded-xl overflow-hidden bg-white">
                             <div className="overflow-x-auto max-h-[300px]">
                               <table className="w-full text-xs">
                                 <thead>
-                                  <tr className="bg-stone-50 text-stone-500 text-[10px] font-bold uppercase tracking-wider border-b border-[#EAECF0]">
+                                  <tr className="bg-stone-50 text-stone-500 text-[10px] font-bold uppercase tracking-wider border-b border-[#EAECF0] dark:border-white/[0.08]">
                                     <th className="px-5 py-3 text-left">Code</th>
                                     <th className="px-5 py-3 text-left">Title</th>
                                     <th className="px-5 py-3 text-center">Credits</th>
                                     <th className="px-5 py-3 text-right">Grade</th>
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#EAECF0]">
+                                <tbody className="divide-y divide-[#EAECF0] dark:divide-white/[0.08]">
                                   {displayMetadata.courses.map((course, i) => (
                                     <tr key={i} className="text-stone-700 hover:bg-stone-50 transition-colors">
                                       <td className="px-5 py-3 font-mono text-xs font-semibold text-stone-600">{course.code}</td>
@@ -364,19 +366,13 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
             </div>
 
             <div className="bg-white border border-[#EAECF0] rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C]">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">Verification</h3>
-                    <p className="text-xs text-stone-400 font-medium">Network status</p>
-                  </div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-xl bg-[#EDF5EE] border border-[#CFE6D3] text-[#25562C]">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
-                <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusStyles.text}`}>
-                  <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
-                  <span>{statusStyles.label}</span>
+                <div>
+                  <h3 className="text-lg font-bold text-stone-900 tracking-tight">Verification</h3>
+                  <p className="text-xs text-stone-400 font-medium">Network status</p>
                 </div>
               </div>
 
@@ -486,21 +482,15 @@ const CredentialDetails = React.memo(({ isOpen, onClose, credential, onUpdate })
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-5 bg-stone-50 border border-[#EAECF0] rounded-2xl">
-              <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issuer</span>
-                  <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name || credential.university || 'Issuer'}</span>
-                </div>
-                <div className="w-px h-6 bg-stone-300 hidden sm:block"></div>
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued</span>
-                  <span className="text-stone-700 font-medium block text-sm">{formatDate(credential.issueDate)}</span>
-                </div>
+            <div className="flex flex-col sm:flex-row items-center gap-6 p-4 md:p-5 bg-stone-50 border border-[#EAECF0] rounded-2xl text-center sm:text-left">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issuer</span>
+                <span className="text-stone-900 font-bold block text-sm">{credential.issuedBy?.name || credential.university || 'Issuer'}</span>
               </div>
-              <div className={`flex items-center gap-2 text-xs font-semibold ${statusStyles.text}`}>
-                <StatusIcon className={`w-4 h-4 ${credential.status === 'PROCESSING' ? 'animate-spin' : ''}`} />
-                <span>{credential.isRevoked ? 'Revoked' : statusStyles.label}</span>
+              <div className="w-px h-6 bg-stone-300 hidden sm:block"></div>
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Issued</span>
+                <span className="text-stone-700 font-medium block text-sm">{formatDate(credential.issueDate)}</span>
               </div>
             </div>
 

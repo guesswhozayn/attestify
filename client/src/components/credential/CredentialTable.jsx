@@ -31,11 +31,11 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
     }
 
     return (
-        <div className="bg-white rounded-2xl border border-[#EAECF0] shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-[#EAECF0] dark:border-white/[0.08] shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                     <thead>
-                        <tr className="border-b border-[#F2F4F7] text-stone-400 font-medium bg-stone-50/60">
+                        <tr className="border-b border-[#F2F4F7] dark:border-white/[0.08] text-stone-400 font-medium bg-stone-50/60">
                             <th className="py-3 px-5">Student</th>
                             <th className="py-3 px-4">Credential title</th>
                             <th className="py-3 px-4">Type</th>
@@ -44,7 +44,7 @@ const CredentialTable = ({ credentials, onView, onRevoke, loading }) => {
                             <th className="py-3 px-5 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#F2F4F7]">
+                    <tbody className="divide-y divide-[#F2F4F7] dark:divide-white/[0.08]">
                         {credentials.map((cred) => {
                             const id = cred._id || cred.id;
                             const isRevoked = cred.isRevoked;
